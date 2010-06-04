@@ -1,0 +1,6 @@
+; $Id: 
+name = Maestro
+description = Maestro Workflow Automation
+core = 6.x
+php = 5.x;
+package = "Workflow"
