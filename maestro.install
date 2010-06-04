@@ -12,3 +12,1425 @@ function maestro_install() {
 
 function maestro_uninstall() {
 }
+
+function maestro_schema() {
+  //maestro_app_groups
+  $schema['maestro_app_groups'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'app_group' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '100',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+  //maestro_handlers
+  $schema['maestro_handlers'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'handler' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'handler_type_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'description' => array(
+        'description' => '',
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+  //maestro_if_operators
+  $schema['maestro_if_operators'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'operator' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '100',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+  //maestro_if_process_arguments
+  $schema['maestro_if_process_arguments'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'label' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '200',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'logical_entry' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '200',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+  //maestro_notifications
+  $schema['maestro_notifications'] = array(
+    'description' => '',
+    'fields' => array(
+      'queue_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'uid' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'notification_sent' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+      'queue_id' => array('queue_id'),
+      'uid' => array('uid'),
+    ),
+  );
+
+  //maestro_process
+  $schema['maestro_process'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'template_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'custom_flow_name' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'complete' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'initiator_uid' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'pid' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'initiated_date' => array(
+        'description' => '',
+        'type' => 'date',
+        'not null' => FALSE,
+      ),
+      'completed_date' => array(
+        'description' => '',
+        'type' => 'date',
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'template_id' => array('template_id'),
+    ),
+  );
+
+  //maestro_process_variables
+  $schema['maestro_process_variables'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'process_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'variable_value' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'template_variable_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'process_id' => array('process_id'),
+      'template_variable_id' => array('template_variable_id'),
+    ),
+  );
+
+  //maestro_production_assignments
+  $schema['maestro_production_assignments'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'task_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'uid' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'process_variable' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'assign_back_uid' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'last_updated' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'security_hash' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '64',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'assign_back_uid' => array('assign_back_uid'),
+      'process_variable' => array('process_variable'),
+      'task_id' => array('task_id'),
+    ),
+  );
+
+  //maestro_project_approvals
+  $schema['maestro_project_approvals'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'process_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'form_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'uid' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'status' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'date_updated' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'form_id' => array('form_id'),
+      'process_id' => array('process_id'),
+      'uid' => array('uid'),
+    ),
+  );
+
+  //maestro_project_attachments
+  $schema['maestro_project_attachments'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'task_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'project_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'fieldname' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '64',
+        'not null' => TRUE,
+      ),
+      'filename' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'project_id' => array('project_id'),
+      'task_id' => array('task_id'),
+    ),
+  );
+
+  //maestro_project_comments
+  $schema['maestro_project_comments'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'project_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'task_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'uid' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'timestamp' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'comment' => array(
+        'description' => '',
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'project_id' => array('project_id'),
+    ),
+  );
+
+  //maestro_project_data_fields
+  $schema['maestro_project_data_fields'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'fieldname' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '32',
+        'not null' => TRUE,
+      ),
+      'description' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+  //maestro_project_data_results
+  $schema['maestro_project_data_results'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'field_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'project_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'task_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'textdata' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'field_id' => array('field_id', 'project_id', 'task_id'),
+    ),
+  );
+
+  //maestro_project_forms
+  $schema['maestro_project_forms'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'project_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'trial_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'form_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'formtype' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '32',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'results_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'created_by_task_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'created_by_uid' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'is_locked_by_uid' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'is_trial_project' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'status' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'created_by_taskid' => array('created_by_task_id'),
+      'form_id' => array('form_id'),
+      'project_id' => array('project_id'),
+      'results_id' => array('results_id'),
+      'trial_id' => array('trial_id'),
+    ),
+  );
+
+  //maestro_project_task_history
+  $schema['maestro_project_task_history'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'project_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'process_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'task_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'assigned_uid' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'date_assigned' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'date_started' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'date_completed' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'status' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'assigned_uid' => array('assigned_uid'),
+      'process_id' => array('process_id'),
+      'project_id' => array('project_id'),
+    ),
+  );
+
+  //maestro_project_timestamps
+  $schema['maestro_project_timestamps'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'project_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'project_form_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'process_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'statusmsg' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '0',
+      ),
+      'timestamp' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'uid' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'process_id' => array('process_id'),
+      'project_form_id' => array('project_form_id'),
+      'project_id' => array('project_id'),
+    ),
+  );
+
+  //maestro_projects
+  $schema['maestro_projects'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'process_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'task_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'project_num' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '12',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'originator_uid' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'description' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'status' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'prev_status' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'related_processes' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'originator_uid' => array('originator_uid'),
+      'process_id' => array('process_id'),
+      'project_num' => array('project_num'),
+      'status' => array('status'),
+    ),
+  );
+
+  //maestro_queue
+  $schema['maestro_queue'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'process_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'template_data_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => FALSE,
+        'default' => 0,
+      ),
+      'status' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'uid' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'archived' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'prepopulate' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'created_date' => array(
+        'description' => '',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'completed_date' => array(
+        'description' => '',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'next_reminder_time' => array(
+        'description' => '',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'started_date' => array(
+        'description' => '',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'num_reminders_sent' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'archived' => array('archived'),
+      'process_id' => array('process_id'),
+      'status' => array('status'),
+      'template_data_id' => array('template_data_id'),
+    ),
+  );
+
+  //maestro_queue_from
+  $schema['maestro_queue_from'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'queue_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'from_queue_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+  //maestro_step_type
+  $schema['maestro_step_type'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'step_type' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '50',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'flex_field' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '100',
+        'not null' => FALSE,
+      ),
+      'is_interactive_step_type' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+  //maestro_template
+  $schema['maestro_template'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'template_name' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '100',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'use_project' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'app_group' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+  //maestro_template_assignment
+  $schema['maestro_template_assignment'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'template_data_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'uid' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'gid' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'process_variable' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'prenotify_variable' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'post_notify_variable' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'reminder_notify_variable' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'post_notify_variable' => array('post_notify_variable'),
+      'prenotify_variable' => array('prenotify_variable'),
+      'process_variable' => array('process_variable'),
+      'reminder_notify_variable' => array('reminder_notify_variable'),
+      'template_data_id' => array('template_data_id'),
+    ),
+  );
+
+  //maestro_template_data
+  $schema['maestro_template_data'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'template_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'logical_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'step_type' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'handler_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'firstTask' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'taskname' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '150',
+        'not null' => FALSE,
+      ),
+      'assigned_by_variable' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'argument_variable' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => FALSE,
+      ),
+      'argument_process' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => FALSE,
+      ),
+      'operator' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '10',
+        'not null' => FALSE,
+      ),
+      'if_value' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => FALSE,
+      ),
+      'regenerate' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'regen_all_live_tasks' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => FALSE,
+        'default' => 0,
+      ),
+      'is_dynamic_form' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'dynamic_form_variable_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'is_dynamic_taskname' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'dynamic_taskname_variable_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'function' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'form_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'field_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'var_value' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => FALSE,
+      ),
+      'inc_value' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'var_to_set' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'optional_parm' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '64',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'reminder_interval' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'reminder_interval_variable' => array(
+        'description' => '',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'subsequent_reminder_interval' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'last_updated' => array(
+        'description' => '',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'pre_notify_subject' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '127',
+        'not null' => FALSE,
+      ),
+      'post_notify_subject' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '127',
+        'not null' => FALSE,
+      ),
+      'reminder_subject' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '127',
+        'not null' => FALSE,
+      ),
+      'pre_notify_message' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'post_notify_message' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'reminder_message' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'num_reminders' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'escalate_variable_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'offset_left' => array(
+        'description' => '',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'size' => 'small',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'offset_top' => array(
+        'description' => '',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'size' => 'small',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'surpress_first_notification' => array(
+        'description' => '',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'template_id' => array('template_id'),
+    ),
+  );
+
+  //maestro_template_data_next_step
+  $schema['maestro_template_data_next_step'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'template_data_from' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'template_data_to' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => FALSE,
+        'default' => 0,
+      ),
+      'template_data_to_false' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+  //maestro_template_variables
+  $schema['maestro_template_variables'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'template_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'variable_type_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'variable_name' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '100',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'variable_value' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'template_id' => array('template_id'),
+      'variable_type_id' => array('variable_type_id'),
+    ),
+  );
+
+  //maestro_user_away
+  $schema['maestro_user_away'] = array(
+    'description' => '',
+    'fields' => array(
+      'uid' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'away_start' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'away_return' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'reassign_uid' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'reason' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'is_active' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('uid'),
+  );
+
+  //maestro_user_away_prefs
+  $schema['maestro_user_away_prefs'] = array(
+    'description' => '',
+    'fields' => array(
+      'uid' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'away_start' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'away_return' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'reassign_uid' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'reason' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'is_active' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('uid'),
+  );
+
+  return $schema;
+}
