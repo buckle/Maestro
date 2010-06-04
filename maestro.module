@@ -1,0 +1,24 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * maestro.module
+ */
+
+function maestro_menu() {
+  $items = array();
+
+  $items['admin/maestro'] = array(
+    'page callback' => 'maestro_workflow',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+
+function maestro_workflow() {
+    return 'To Do';
+}

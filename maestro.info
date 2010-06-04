@@ -1,6 +1,8 @@
-; $Id: 
+; $Id$
 name = Maestro
-description = Maestro Workflow Automation
-core = 6.x
-php = 5.x;
-package = "Workflow"
+description = Maestro Workflow Management System
+package = Workflow
+version = 7.x-1.0-dev
+core = 7.x
+files[] = maetro.module
+files[] = maetro.install

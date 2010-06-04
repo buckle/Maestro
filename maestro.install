@@ -1,0 +1,14 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * maestro.install
+ */
+
+function maestro_install() {
+}
+
+
+function maestro_uninstall() {
+}
