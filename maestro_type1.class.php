@@ -7,7 +7,9 @@
       var $_version = '1.x';
       var $_properties;
       
-      function __contruct($options) {
+      function __construct($options) {
+        echo "<br>Type 1 __constructor";
+        print_r($options);
         $this->_properties = $options;        
       }
       
