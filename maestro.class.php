@@ -14,13 +14,13 @@
             // instance does not exist, so create it
             self::$MAESTRO = new self($type, $options);    
         } else {
-          echo "<br>MAESTRO Object already set";
+          echo "<br>MAESTRO Object already exists";
         }
         return self::$MAESTRO;
     }
 
     function __construct($type, $options = FALSE) {
-      echo "<br>xExecuting __construct for the base Maestro class type:$type";
+      echo "<br>Executing __construct for the base Maestro class type:$type";
       include_once './' . drupal_get_path('module', 'maestro') . '/maestro_base_engine.class.php';       
       $classfile = drupal_get_path('module','maestro')."/maestro_engine_type{$type}.class.php";
       if (require_once $classfile) {
