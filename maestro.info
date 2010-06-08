@@ -3,6 +3,6 @@ name = Maestro
 description = Maestro Workflow Management System
 package = Workflow
 version = 7.x-1.0-dev
-core = 7.x
+core = 6.x
 files[] = maestro.module
 files[] = maestro.install

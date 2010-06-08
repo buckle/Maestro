@@ -14,6 +14,15 @@ function maestro_menu() {
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
+  
+  $items['maestro_enginetest'] = array(
+  'title' => 'Execute Development Test',
+  'page callback' => 'maestro_enginetest',
+  'page arguments' => array(),
+  'access callback' => TRUE,
+  'type' => MENU_CALLBACK,
+  'file'  => 'lib-test.php',
+  );  
 
   return $items;
 }
