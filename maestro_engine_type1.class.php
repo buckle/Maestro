@@ -2,7 +2,7 @@
   
   /* Using Drupal OO Coding Standards as described: http://drupal.org/node/608152 */
   
-  class MaestroEngineType1 extends Maestro {
+  class MaestroEngineType1 extends MaestroEngine {
       
       var $_version = '1.x';
       var $_properties;
@@ -72,42 +72,26 @@
       if ($numrows == 0 AND $this->_debug) {
         watchdog('maestro','cleanQueue - 0 rows returned.  Nothing in queue.');        
       }
-      
+           
+    }
 
-    
-    
-      
-    }
-    
-    function executeTask(task $task,$properties) {
-      return $task->execute($properties);      
-    }
     
     function assignTask($queueId,$userObject) {
       
     }
     
-    function completeTask($queueId) {
-      
-    }     
+    function completeTask($queueId) {}     
     
-    function archiveTask($queueId) {
-      
-    }    
+    function archiveTask($queueId) {}    
     
-    function cancelTask($queueId) {
-      
-    }    
+    function cancelTask($queueId) {}    
     
     
     // Get a process variable as defined for this template
     // Requires the processID to be set and then pass in a variable's name.
     // if both the process and the name exist, you get a value..
     // otherwise, you get NULL
-    function getProcessVariable($variable) {  
-    
-    
-    }
+    function getProcessVariable($variable) {}
   }
   
   
