@@ -1,8 +1,14 @@
 <?php
   
   abstract class MaestroTask {
+    var $_properties = null;
+    
+    function __construct($properties) {      
+      $this->_properties = $properties;
+        
+    }
       
-    abstract function execute ($properties);
+    abstract function execute ();
     
   }
   
@@ -11,8 +17,8 @@
   
   class MaestroTaskTypeStart extends MaestroTask {
     
-    function execute($properties) {
-      $test = 'Execute Task Type: "Start" - properties: ' . print_r($properties,true) . '<br>';
+    function execute() {
+      $test = 'Execute Task Type: "Start" - properties: ' . print_r($this->_properties,true) . '<br>';
       return $test;
       
     }
@@ -22,8 +28,8 @@
   
   class MaestroTaskTypeEnd extends MaestroTask {
     
-    function execute($properties) {
-      $test = 'Execute Task Type: "End" - properties: ' . print_r($properties,true) . '<br>';
+    function execute() {
+      $test = 'Execute Task Type: "End" - properties: ' . print_r($this->_properties,true) . '<br>';
       return $test;     
     }
     
@@ -33,8 +39,8 @@
   
   class MaestroTaskTypeBatch extends MaestroTask {    
     
-    function execute($properties) {
-      $test = 'Execute Task Type: "Batch" - properties: ' . print_r($properties,true) . '<br>';
+    function execute() {
+      $test = 'Execute Task Type: "Batch" - properties: ' . print_r($this->_properties,true) . '<br>';
       return $test;       
     }
     
@@ -44,8 +50,8 @@
   
   class MaestroTaskTypeAnd extends MaestroTask { 
     
-    function execute($properties) {
-      $test = 'Execute Task Type: "And" - properties: ' . print_r($properties,true) . '<br>';
+    function execute() {
+      $test = 'Execute Task Type: "And" - properties: ' . print_r($this->_properties,true) . '<br>';
       return $test;;       
     }    
     

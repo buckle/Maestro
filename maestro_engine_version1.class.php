@@ -92,6 +92,11 @@
     // if both the process and the name exist, you get a value..
     // otherwise, you get NULL
     function getProcessVariable($variable) {}
+    
+    
+    function setProcessVariable($variable,$value) {}       
+
+  
   }
   
   

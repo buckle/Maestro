@@ -16,13 +16,10 @@
     var $_processTaskCount        = 0;        // Number of tasks the current process has in the queue  
     
     var $task = null;
-    
-        
-    public function executeTask($type,$properties) {
-      $taskclassname = 'MaestroTaskType' . $type;
-      $this->task = new $taskclassname($properties); 
-      return $this->task->execute($properties);      
-    }
+
+    public function executeTask(MaestroTask $task) {
+       return $task->execute();
+    }    
       
     abstract function getVersion();
     
@@ -35,6 +32,8 @@
     abstract function cancelTask($queueId);
    
     abstract function getProcessVariable($variable);    
+
+    abstract function setProcessVariable($variable,$value);     
     
     
     /* Main method for the Maestro Workflow Engine. Query the queue table and determine if 

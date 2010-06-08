@@ -29,6 +29,8 @@
     function cancelTask($queueId) {}    
 
     function getProcessVariable($variable) {}
+    
+    function setProcessVariable($variable,$value) {}    
 
   }
   

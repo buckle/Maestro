@@ -15,6 +15,7 @@
             self::$MAESTRO = new self($version, $options);    
         } else {
           echo "<br>MAESTRO Object already exists";
+          return FALSE;
         }
         return self::$MAESTRO;
     }

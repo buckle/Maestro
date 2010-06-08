@@ -4,6 +4,8 @@ error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
 ini_set('display_startup_errors', TRUE);
 
+function maestro_enginetest() {
+
 include_once './' . drupal_get_path('module', 'maestro') . '/maestro.class.php';
 include_once './' . drupal_get_path('module', 'maestro') . '/maestro_tasks.class.php';
 echo "<br>Instantiate the Maestro class";
@@ -30,9 +32,12 @@ if ($maestro2) {
 
 echo '<hr>';
 echo 'Attempt to execute task.<br>';
-echo $maestro->engine->executeTask('start',array('taskparm1' => '1'));
-echo $maestro->engine->executeTask('and',array('taskparm1' => '4'));
-echo $maestro->engine->executeTask('batch',array('taskparm1' => '3'));
-echo $maestro->engine->executeTask('end',array('taskparm1' => '2'));
+echo $maestro->engine->executeTask(new MaestroTaskTypeStart(array('taskparm1' => '1')) );
+echo $maestro->engine->executeTask(new MaestroTaskTypeAnd(array('taskparm1' => '4')) );
+echo $maestro->engine->executeTask(new MaestroTaskTypeBatch(array('taskparm1' => '3')) );
+echo $maestro->engine->executeTask(new MaestroTaskTypeEnd(array('taskparm1' => '2')) );
+
 
 echo '<h1>End of test</h1>';
+
+}
