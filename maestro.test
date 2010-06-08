@@ -1,0 +1,41 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Tests for the Maestro module
+ */
+
+class MaestroTestCase extends DrupalWebTestCase {
+  protected $admin_user;
+  protected $maestro;
+  protected $maestro2;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Test Maestro Core functionality',
+      'description' => 'Test instantiating the Maestro object.',
+      'group' => 'Maestro',
+    );
+  }
+
+  function setUp() {
+    parent::setUp();
+
+    $this->admin_user = $this->drupalCreateUser(array( 'administer site configuration' ));
+    $this->drupalLogin($this->admin_user);
+  }
+
+
+  function testCreatingMaestroInstance(){
+    include_once './' . drupal_get_path('module', 'maestro') . '/maestro.class.php';
+    $this->maestro=Maestro::createMaestroObject(1,array());
+    $exp=var_export($this->maestro,true);
+    $this->maestro2=Maestro::createMaestroObject(2,array());
+    $exp2=var_export($this->maestro2,true);
+    $this->assertEqual($exp,$exp2,t('Ensure that the Maestro instantiation of a simple class works in a singleton manner'), 'Maestro' );
+
+  }
+
+
+}
