@@ -15,9 +15,13 @@
     var $_templateCount           = 0;        // Number of templates the user is able to kick off
     var $_processTaskCount        = 0;        // Number of tasks the current process has in the queue  
     
+    var $task = null;
+    
         
-    public function executeTask(task $task,$properties) {
-      return $task->execute($properties);      
+    public function executeTask($type,$properties) {
+      $taskclassname = 'MaestroTaskType' . $type;
+      $this->task = new $taskclassname($properties); 
+      return $this->task->execute($properties);      
     }
       
     abstract function getVersion();

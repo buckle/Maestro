@@ -19,3 +19,12 @@ $maestro2 = Maestro::createMaestroObject(2,$options);    // Initiate the process
 echo '<br>';
 print_r($maestro2);
 echo "<br>Sucessfully launched the Maestro class version: " . $maestro2->engine->getVersion();
+
+echo '<hr>';
+echo 'Attempt to execute task.<br>';
+echo $maestro->engine->executeTask('start',array('taskparm1' => '1'));
+echo $maestro->engine->executeTask('and',array('taskparm1' => '4'));
+echo $maestro->engine->executeTask('batch',array('taskparm1' => '3'));
+echo $maestro->engine->executeTask('end',array('taskparm1' => '2'));
+
+echo '<h1>End of test</h1>';

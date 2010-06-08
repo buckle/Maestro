@@ -5,8 +5,8 @@
   class Maestro {
       
     private static $MAESTRO;
-    var $engine = null;    
-    
+    var $engine = null;
+     
     function createMaestroObject ($version, $options = FALSE){
         echo "<br>Executing createMaestroObject version:$version";       
         if (!isset(self::$MAESTRO)) {
@@ -21,7 +21,8 @@
 
     function __construct($version, $options = FALSE) {
       echo "<br>Executing __construct for the base Maestro class version:$version";
-      include_once './' . drupal_get_path('module', 'maestro') . '/maestro_base_engine.class.php';       
+      include_once './' . drupal_get_path('module', 'maestro') . '/maestro_base_engine.class.php';
+      include_once './' . drupal_get_path('module', 'maestro') . '/maestro_tasks.class.php';       
       $classfile = drupal_get_path('module','maestro')."/maestro_engine_version{$version}.class.php";
       if (require_once $classfile) {
         $class = "MaestroEngineVersion{$version}";

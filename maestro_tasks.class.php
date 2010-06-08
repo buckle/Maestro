@@ -1,13 +1,7 @@
 <?php
   
   abstract class MaestroTask {
-    
-    
-    function __contruct( Tasktype $tasktype, $properties) {
-      $this->tasktype = $tasktype;
-      //  Initialize task properties registry      
-    }
-    
+      
     abstract function execute ($properties);
     
   }
@@ -17,8 +11,9 @@
   
   class MaestroTaskTypeStart extends MaestroTask {
     
-    function execute($properties) {      
-      return TRUE;
+    function execute($properties) {
+      $test = 'Execute Task Type: "Start" - properties: ' . print_r($properties,true) . '<br>';
+      return $test;
       
     }
     
@@ -28,7 +23,8 @@
   class MaestroTaskTypeEnd extends MaestroTask {
     
     function execute($properties) {
-      return TRUE;       
+      $test = 'Execute Task Type: "End" - properties: ' . print_r($properties,true) . '<br>';
+      return $test;     
     }
     
     
@@ -38,7 +34,8 @@
   class MaestroTaskTypeBatch extends MaestroTask {    
     
     function execute($properties) {
-      return TRUE;       
+      $test = 'Execute Task Type: "Batch" - properties: ' . print_r($properties,true) . '<br>';
+      return $test;       
     }
     
     
@@ -48,7 +45,8 @@
   class MaestroTaskTypeAnd extends MaestroTask { 
     
     function execute($properties) {
-      return TRUE;       
+      $test = 'Execute Task Type: "And" - properties: ' . print_r($properties,true) . '<br>';
+      return $test;;       
     }    
     
   }
