@@ -7,24 +7,24 @@
     private static $MAESTRO;
     var $engine = null;    
     
-    function createMaestroObject ($type, $options = FALSE){
-        echo "<br>Executing createMaestroObject type:$type";       
+    function createMaestroObject ($version, $options = FALSE){
+        echo "<br>Executing createMaestroObject version:$version";       
         if (!isset(self::$MAESTRO)) {
             echo "<br>MAESTRO Object not set";
             // instance does not exist, so create it
-            self::$MAESTRO = new self($type, $options);    
+            self::$MAESTRO = new self($version, $options);    
         } else {
           echo "<br>MAESTRO Object already exists";
         }
         return self::$MAESTRO;
     }
 
-    function __construct($type, $options = FALSE) {
-      echo "<br>Executing __construct for the base Maestro class type:$type";
+    function __construct($version, $options = FALSE) {
+      echo "<br>Executing __construct for the base Maestro class version:$version";
       include_once './' . drupal_get_path('module', 'maestro') . '/maestro_base_engine.class.php';       
-      $classfile = drupal_get_path('module','maestro')."/maestro_engine_type{$type}.class.php";
+      $classfile = drupal_get_path('module','maestro')."/maestro_engine_version{$version}.class.php";
       if (require_once $classfile) {
-        $class = "MaestroEngineType{$type}";
+        $class = "MaestroEngineVersion{$version}";
         echo "<br>Class $class";
         if (class_exists($class)) {
           $this->engine = new $class($options); 

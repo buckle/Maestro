@@ -14,7 +14,7 @@ print_r($maestro);
 echo "<br>Sucessfully launched the Maestro class version: " . $maestro->engine->getVersion();
 
 echo '<hr>';
-echo 'Attempt to launch 2nd instance of engine - type 2 this time>';
+echo 'Attempt to launch 2nd instance of engine - version 2 this time.';
 $maestro2 = Maestro::createMaestroObject(2,$options);    // Initiate the processing of all tasks of type 2.x 
 echo '<br>';
 print_r($maestro2);

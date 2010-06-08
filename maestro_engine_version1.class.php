@@ -2,13 +2,13 @@
   
   /* Using Drupal OO Coding Standards as described: http://drupal.org/node/608152 */
   
-  class MaestroEngineType1 extends MaestroEngine {
+  class MaestroEngineVersion1 extends MaestroEngine {
       
       var $_version = '1.x';
       var $_properties;
       
       function __construct($options) {
-        echo "<br>Type 1 __constructor";
+        echo "<br>Version 1 __constructor";
         print_r($options);
         $this->_properties = $options;        
       }
