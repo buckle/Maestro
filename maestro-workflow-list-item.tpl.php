@@ -5,20 +5,20 @@
  * @file
  * maestro-workflow-list-item.tpl.php
  */
-
-  $res = db_query("SELECT id, name FROM {maestro_templates}")->fetchAssoc();
+  global $base_url;
+  $module_path = $base_url . '/' . drupal_get_path('module', 'maestro');
+  $res = db_query("SELECT id, template_name FROM {maestro_template}");
   foreach ($res as $rec) {
 ?>
-
-    <tr id="tview{cntr}" class="pluginRow{cssid}" style="display:;">
-      <td width="5%"  style="padding-left:5px;">{template_id}</td>
-      <td width="80%" style="padding-left:5px;"><span id="tname{template_id}">{template_name}</span></td>
+    <tr id="tview{cntr}" class="pluginRow{cssid}">
+      <td width="5%"  style="padding-left:5px;"><?php echo $rec->id; ?></td>
+      <td width="80%" style="padding-left:5px;"><span id="tname{template_id}"><?php echo $rec->template_name; ?></span></td>
       <td width="15%" style="text-align:right;padding-right:5px;" nowrap>
-        <a href="{edit_task_url}"><img src="{edit_task_icon}" border="0" TITLE="Edit Tasks"></a>&nbsp;
-        <a id="etemplate_{cntr}" href="#"><img src="{edit_template_icon}" border="0" TITLE="Edit Template and Variables"></a>&nbsp;
-        <a href="{copy_template_url}"><img src="{copy_template_icon}" border="0" TITLE="Copy Template"></a>&nbsp;
-        <a href="{del_template_url}" onclick="return confirm('{LANG_DELCONFIRM}');"><img src="{del_template_icon}" border="0" TITLE="Delete Template"></a>&nbsp;
-        <a href="#" onclick="exporttemplate({template_id});"><img src="{export_template_icon}" border="0" TITLE="Export Template"></a>&nbsp;
+        <?php echo l('<img src="' . $module_path . '/images/admin/edit_tasks.gif" border="0" title="Edit Tasks">', 'admin/structure/maestro/edit/' . $rec->id, array('html' => TRUE)); ?>&nbsp;
+        <a id="etemplate_{cntr}" href="#"><img src="<?php echo $module_path; ?>/images/admin/edit_properties.gif" border="0" title="Edit Template and Variables"></a>&nbsp;
+        <a href="{copy_template_url}"><img src="<?php echo $module_path; ?>/images/admin/copy.gif" border="0" title="Copy Template"></a>&nbsp;
+        <a href="{del_template_url}" onclick="return confirm('{LANG_DELCONFIRM}');"><img src="<?php echo $module_path; ?>/images/admin/delete.gif" border="0" title="Delete Template"></a>&nbsp;
+        <a href="#" onclick="exporttemplate({template_id});"><img src="<?php echo $module_path; ?>/images/admin/export.gif" border="0" title="Export Template"></a>&nbsp;
       </td>
     </tr>
 

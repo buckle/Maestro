@@ -25,7 +25,10 @@ function maestro_menu() {
 
   $items['admin/structure/maestro/edit'] = array(
     'title' => 'Edit',
-    'type' => MENU_CALLBACK,
+    'page callback' => 'maestro_edit_workflow',
+    'access arguments' => array('administer maestro'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'maestro.admin.inc'
   );
 
   $items['maestro_enginetest'] = array(
@@ -67,6 +70,10 @@ function maestro_theme() {
     ),
     'maestro_workflow_list_item' => array(
       'template' => 'maestro-workflow-list-item',
+      'render element' => 'structure'
+    ),
+    'maestro_workflow_edit' => array(
+      'template' => 'maestro-workflow-edit',
       'render element' => 'structure'
     ),
   );

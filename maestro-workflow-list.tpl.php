@@ -162,10 +162,10 @@
     </tr>
     <tr style="display:{showErrorMessage};color:red">
       <td colspan="3" class="pluginRow1" style="display:{showErrorMessage};color:red">
-        <BR>
+        <br>
           {errorMessage}
-        <BR><BR>
+        <br><br>
       </td>
     </tr>
-    <?php theme('maestro_workflow_list_item', array()); ?>
+    <?php echo theme('maestro_workflow_list_item', array()); ?>
   </table>
