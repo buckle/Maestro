@@ -1028,7 +1028,7 @@ function maestro_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'firstTask' => array(
+      'first_task' => array(
         'description' => '',
         'type' => 'int',
         'size' => 'tiny',

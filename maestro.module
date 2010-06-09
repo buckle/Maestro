@@ -9,25 +9,65 @@
 function maestro_menu() {
   $items = array();
 
-  $items['admin/maestro'] = array(
-    'page callback' => 'maestro_workflow',
-    'access callback' => TRUE,
+  $items['admin/structure/maestro'] = array(
+    'title' => 'Maestro Workflows',
+    'description' => 'Define and administer workflows.',
+    'page callback' => 'maestro_admin',
+    'access arguments' => array('administer maestro'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'maestro.admin.inc'
+  );
+
+  $items['admin/structure/maestro/new'] = array(
+    'title' => 'New',
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['admin/structure/maestro/edit'] = array(
+    'title' => 'Edit',
     'type' => MENU_CALLBACK,
   );
-  
+
   $items['maestro_enginetest'] = array(
-  'title' => 'Execute Development Test',
-  'page callback' => 'maestro_enginetest',
-  'page arguments' => array(),
-  'access callback' => TRUE,
-  'type' => MENU_CALLBACK,
-  'file'  => 'lib-test.php',
-  );  
+    'title' => 'Execute Development Test',
+    'page callback' => 'maestro_enginetest',
+    'page arguments' => array(),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'file'  => 'lib-test.php',
+  );
 
   return $items;
 }
 
+function maestro_permission() {
+  return array(
+    'administer maestro' => array(
+      'title' => t('Administer Maestro workflows')
+    )
+  );
+}
 
-function maestro_workflow() {
-    return 'To Do';
+function maestro_help($path, $arg) {
+  $output = '';
+
+  switch ($path) {
+  case "admin/help#maestro":
+    $output = '<p>' . t("Define and administer workflows.") .'</p>';
+    break;
+  }
+  return $output;
+}
+
+function maestro_theme() {
+  return array(
+    'maestro_workflow_list' => array(
+      'template' => 'maestro-workflow-list',
+      'render element' => 'structure'
+    ),
+    'maestro_workflow_list_item' => array(
+      'template' => 'maestro-workflow-list-item',
+      'render element' => 'structure'
+    ),
+  );
 }
