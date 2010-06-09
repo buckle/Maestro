@@ -6,6 +6,7 @@ version = 7.x-1.0-dev
 core = 7.x
 files[] = maestro.module
 files[] = maestro.install
+files[] = maestro.test
 files[] = maestro.admin.inc
 files[] = maestro.workflow.list.tpl.php
 configure = admin/structure/maestro
