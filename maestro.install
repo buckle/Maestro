@@ -793,12 +793,14 @@ function maestro_schema() {
       'engine_version' => array(
         'description' => '',
         'type' => 'int',
-        'not null' => FALSE,
+        'not null' => TRUE,
+        'default' => '0',
       ),
       'is_interactive' => array(
         'description' => '',
         'type' => 'int',
-        'not null' => FALSE,
+        'not null' => TRUE,
+        'default' => '0',
       ),
       'status' => array(
         'description' => '',
