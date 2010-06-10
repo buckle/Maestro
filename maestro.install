@@ -783,6 +783,23 @@ function maestro_schema() {
         'not null' => FALSE,
         'default' => 0,
       ),
+      'task_class_name' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '100',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'engine_version' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'is_interactive' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
       'status' => array(
         'description' => '',
         'type' => 'int',
