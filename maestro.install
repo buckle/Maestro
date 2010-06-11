@@ -11,6 +11,7 @@ function maestro_install() {
 
 
 function maestro_uninstall() {
+
 }
 
 function maestro_schema() {
@@ -1007,7 +1008,7 @@ function maestro_schema() {
     'primary key' => array('id'),
     'indexes' => array(
       'post_notify_variable' => array('post_notify_variable'),
-      'prenotify_variable' => array('prenotify_variable'),
+      'pre_notify_variable' => array('pre_notify_variable'),
       'process_variable' => array('process_variable'),
       'reminder_notify_variable' => array('reminder_notify_variable'),
       'template_data_id' => array('template_data_id'),
