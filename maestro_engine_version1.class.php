@@ -1,39 +1,39 @@
 <?php
-  
+
   /* Using Drupal OO Coding Standards as described: http://drupal.org/node/608152 */
-  
+
   class MaestroEngineVersion1 extends MaestroEngine {
-      
+
       var $_version = '1.x';
       var $_properties;
-      
+
       function __construct($options) {
-        echo "<br>Version 1 __constructor";
+        //echo "<br>Version 1 __constructor";
         print_r($options);
-        $this->_properties = $options;        
+        $this->_properties = $options;
       }
-      
-      
+
+
       public function getVersion() {
-        return $this->_version;      
-      } 
-      
+        return $this->_version;
+      }
+
     /* Generate a new process for a workflow template
-     * @param $template: 
+     * @param $template:
      *   The workflow template id (int) - Mandatory
-     * 
+     *
      * @param $startoffset
      *   Optional paramater to launch the workflow process at other then the default task step 0.
      *   Also used if the process regeneration will not be at task 0 (automatically handled by engine)
-     * 
+     *
      * @param $pid
-     *   Optional paramater Parent Process id. This is used when regenerating a process or 
+     *   Optional paramater Parent Process id. This is used when regenerating a process or
      *   if this new process should be a child process (or associated) with another workflow grouping (project)
-     * 
+     *
      * @param $application_association
-     *   Optional BOOLEAN value (default FALSE) that if TRUE triggers the process related records to be grouped (related) 
+     *   Optional BOOLEAN value (default FALSE) that if TRUE triggers the process related records to be grouped (related)
      *   as part of a project or related workflow grouping.
-     * 
+     *
      * @return
      *   The process id
      */
@@ -42,7 +42,7 @@
         global $user;
         // Execute the SQL statement to retrieve the first step of the process and kick it off
         if ($startoffset == null ) {
-          
+
             /* Original nexflow query - believe we can remove the 2 LEFT OUTER JOINS */
 
             // $sql = "SELECT a.nf_templateDataFrom, b.regenAllLiveTasks, c.useProject, c.templateName FROM {$_TABLES["nf_templatedatanextstep"]} a ";
@@ -51,7 +51,7 @@
             // $sql .= "left outer join {$_TABLES["nf_templateassignment"]} d on d.nf_templateDataID = b.id ";
             // $sql .= "left outer join {$_TABLES["nf_handlers"]} e on e.id = b.nf_handlerid ";
             // $sql .= "WHERE b.firstTask = 1 AND c.id ='$template' ORDER BY nf_templateDataFrom ASC LIMIT 1 ";
-            
+
             $query = db_select('maestro_template_data_next_step', 'a');
             $query->fields('a',array('template_data_from','template_data_id'));
             $query->fields('b',array('regen_all_live_tasks','reminder_interval'));
@@ -61,16 +61,16 @@
             $query->condition('b.first_task',1,'=');
             $query->condition('c.id',$template,'=');
             $query->orderBy('template_data_from','ASC');
-            $query->range(0,1);          
-            
+            $query->range(0,1);
+
         } else {
-            // Retrieve the one queue record - where it is equal to the passed in start offset.            
+            // Retrieve the one queue record - where it is equal to the passed in start offset.
             $startoffset = int($startoffset);
             $query = db_select('maestro_template_data','a');
             $query->addField('a','id','template_data_id');
             $query->addField('b','template_name');
             $query->fields('a',array('regen_all_live_tasks','reminder_interval'));
-            $query->join('maestro_template', 'b', 'b.template_id = a.id');               
+            $query->join('maestro_template', 'b', 'b.template_id = a.id');
             $query->condition('a.id',$startoffset);
         }
         if ($this->_debug ) {
@@ -82,27 +82,27 @@
             $pid = intval($pid);
             if ($pid > 0) {
                 $custom_flowname = db_query("SELECT custom_flow_name FROM {maestro_process} WHERE id=$pid")->fetchField();
-            } 
+            }
             else {
               $custom_flowname = '';
-            }         
-          
+            }
+
             $process_record = new stdClass();
             $process_record->template_id = $template;
             $process_record->custom_flow_name = $custom_flowname;
             $process_record->complete = 0;
             $process_record->pid = $pid;
-            $process_record->initiated_date = date('Y-m-d H:i:s' );            
+            $process_record->initiated_date = date('Y-m-d H:i:s' );
             drupal_write_record('maestro_process',$process_record);
-            $new_processid = $process_record->id;              
-             
+            $new_processid = $process_record->id;
+
             if ($templaterec->reminder_interval > 0) {
                 $next_reminder_date->reminder_interval = time() + $templaterec->reminder_interval;
             }
             else {
               $next_reminder_date = 0;
             }
-            
+
             $queue_record = new stdClass();
             $queue_record->process_id = $new_processid;
             $queue_record->template_data_id = $templaterec->template_data_id;
@@ -129,8 +129,8 @@
                 if($templaterec->regen_all_live_tasks == 1) {
                   $q2 = db_select('maestro_queue','a');
                   $query->addField('a','id','id');
-                  $q2->join('maestro_template_data', 'b', 'a.template_data_id = b.id');                    
-                  $q2->condition('b.step_type',2);                  
+                  $q2->join('maestro_template_data', 'b', 'a.template_data_id = b.id');
+                  $q2->condition('b.step_type',2);
                   $q2->condition('a.process_id',$pid);
                   $q2->condition(db_or()->condition('a.archived',0)->condition('a.archived',NULL));
                   $active_queue_tasks_result = $q2->execute();
@@ -171,7 +171,7 @@
                 $pvquery = db_select('maestro_template_variables','a');
                 $pvquery->addExpression($new_processid,'process_id');
                 $pvquery->fields('a',array('template_variable_id','variable_value'));
-                $pvquery->condition("a.template_id=$template");                 
+                $pvquery->condition("a.template_id=$template");
                 db_insert('maestro_process_variables')
                   ->fields('process_id','variable_value','template_variable_id')
                   ->from($pvquery)
@@ -186,7 +186,7 @@
             if ($this->get_processVariable('INITIATOR') == 0) {
                 $this->set_ProcessVariable('INITIATOR',$user->uid);
             }
-  
+
             $newTaskAssignedUsers = $this->private_getAssignedUID($new_taskid);
             if (is_array($newTaskAssignedUsers) AND count($newTaskAssignedUsers) > 0) {
                 $this->assign_task($new_taskid,$newTaskAssignedUsers);
@@ -201,7 +201,7 @@
                     $project_record->originator_uid = $user->uid;
                     $project_record->task_id = $new_taskid;
                     $project_record->status = 0;
-                    $project_record->description = $templaterec->template_name;          
+                    $project_record->description = $templaterec->template_name;
                     drupal_write_record('maestro_projects',$project_record);
                     $this->set_ProcessVariable('PID',$project_record->id);
                     if ($this->_debug ) {
@@ -215,7 +215,7 @@
                       ->condition('process_id', $pid, '=')
                       ->execute();
                     if ($this->_debug ) {
-                      watchdog('maestro',"updated existing project record - set process_id to $new_processid");                        
+                      watchdog('maestro',"updated existing project record - set process_id to $new_processid");
                     }
                 }
             } else {
@@ -241,19 +241,19 @@
                 }
 
             }
-            
+
             return $new_processid;
-            
+
         } else {
             watchdog('maestro', "New Process Code FAIL! - Template: $template not defined");
         }
     }
-      
-      
-      
-        
-    
-    /* Main method for the Maestro Workflow Engine. Query the queue table and determine if 
+
+
+
+
+
+    /* Main method for the Maestro Workflow Engine. Query the queue table and determine if
      * any items in the queue associated with a process are complete.
      * If they are complete, its the job of this function to determine if there are any next steps and fill the queue.
      */
@@ -274,13 +274,13 @@
       $sql .= "WHERE ((a.status <>0 AND a.status IS NOT NULL and a.status<>2 and (h.id=1 OR h.id=7 OR h.id=8)) ";
       $sql .= "OR ((a.status=0 or a.status=3 or a.status=4) and (h.id=2 or h.id=3 or h.id=4 or h.id=5 or h.id=6 or h.id=9 or h.id=10 or h.id=11)) ) ";
       $sql .= "AND (a.archived <> 1 OR a.archived IS NULL OR a.archived =0 ) and (b.complete=0)";
-      
+
       $query = db_select('maestro_queue', 'a');
       $query->join('maestro_process', 'b', 'a.process_id = b.id');     // default is an INNER JOIN
       $query->join('maestro_templatedata', 'c', 'a.template_data_id = c.id');
       $query->join('maestro_template', 'd', 'b.template_id = d.id');
       $query->join('maestro_steptype', 'e', 'c.step_type = e.id');
-      $query->join('maestro_handlers', 'f', 'c.handler = f.id');      
+      $query->join('maestro_handlers', 'f', 'c.handler = f.id');
 
       $query = db_query($sql);
       $numrows = 0;
@@ -292,7 +292,7 @@
         $handler = $queueRecord->handler;
         $templateName = $queueRecord->template_name;
         $templateDataID = $queueRecord->template_data_id;
-        
+
         // this switch is used to determine what task type it is.
         // in the event its a manual web task, we'll just go ahead and clean it up..
         // however, in the event that its an AND task, we have to be careful that
@@ -303,46 +303,46 @@
         }
         /* @todo: Need to determine what the task properties object looks like */
         $taskProperties = $queueRecord;
-        
+
         $taskClassName = 'MaestroTaskType' . ucfirst($this->_taskType);
         $ret = $this->executeTask(new task($taskClassName,$taskProperties));
         if ($ret === FALSE) {
-          watchdog('maestro',"Failed Task: {$this->_queueId}, Process: {$this->_processId} , Step Type: $this->_taskType");  
-        }       
+          watchdog('maestro',"Failed Task: {$this->_queueId}, Process: {$this->_processId} , Step Type: $this->_taskType");
+        }
       }
 
       if ($numrows == 0 AND $this->_debug) {
-        watchdog('maestro','cleanQueue - 0 rows returned.  Nothing in queue.');        
+        watchdog('maestro','cleanQueue - 0 rows returned.  Nothing in queue.');
       }
-           
+
     }
 
-    
+
     function assignTask($queueId,$userObject) {
-      
+
     }
-    
+
     function private_getAssignedUID($taskid) {
-      
+
     }
-    
-    function completeTask($queueId) {}     
-    
-    function archiveTask($queueId) {}    
-    
-    function cancelTask($queueId) {}    
-    
-    
+
+    function completeTask($queueId) {}
+
+    function archiveTask($queueId) {}
+
+    function cancelTask($queueId) {}
+
+
     // Get a process variable as defined for this template
     // Requires the processID to be set and then pass in a variable's name.
     // if both the process and the name exist, you get a value..
     // otherwise, you get NULL
     function getProcessVariable($variable) {}
-    
-    
-    function setProcessVariable($variable,$value) {}       
 
-  
+
+    function setProcessVariable($variable,$value) {}
+
+
   }
-  
-  
+
+

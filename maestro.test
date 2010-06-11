@@ -8,8 +8,6 @@
 
 class MaestroTestCase extends DrupalWebTestCase {
   protected $admin_user;
-  protected $maestro;
-  protected $maestro2;
 
   public static function getInfo() {
     return array(
@@ -20,22 +18,23 @@ class MaestroTestCase extends DrupalWebTestCase {
   }
 
   function setUp() {
-    parent::setUp();
+    parent::setUp('maestro');
+    $this->admin_user = $this->drupalCreateUser(array( 'administer site configuration'));
 
-    $this->admin_user = $this->drupalCreateUser(array( 'administer site configuration' ));
-    $this->drupalLogin($this->admin_user);
   }
 
 
   function testCreatingMaestroInstance(){
     include_once './' . drupal_get_path('module', 'maestro') . '/maestro.class.php';
-    $this->maestro=Maestro::createMaestroObject(1,array());
-    $exp=var_export($this->maestro,true);
-    $this->maestro2=Maestro::createMaestroObject(2,array());
-    $exp2=var_export($this->maestro2,true);
-    $this->assertEqual($exp,$exp2,t('Ensure that the Maestro instantiation of a simple class works in a singleton manner'), 'Maestro' );
-
+    $this->drupalLogin($this->admin_user);
+    $v1=Maestro::createMaestroObject(1);
+    $v2=Maestro::createMaestroObject(1);
+    $exp=var_export($v1,true);
+    $exp2=var_export($v2,true);
+    $this->assertTrue($exp == $exp2, t('Maestro Instantiation is a singleton'));
+    $this->drupalLogout();
   }
+
 
 
 }
