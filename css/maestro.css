@@ -1,0 +1,792 @@
+.flowsTable {
+  font-family:Verdana, Tahoma, Arial;
+  font-style:normal;
+  font-size: 8pt;
+  border-collapse:collapse;
+  border: solid black 1px;
+}
+
+.flowsRows{
+  font-family:Verdana, Tahoma, Arial;
+  font-style:normal;
+  font-size: 8pt;
+  border-top: solid black 1px;
+  border-bottom: solid black 1px;
+}
+
+.nexflowTBD {
+  font-family:Verdana;
+  background-color: #ffffff;
+  border: solid black 1px;
+}
+
+.nexflowTBD1 {
+  font-family:Verdana;
+  background-color: #FFFFA0;
+  border: solid black 1px;
+}
+
+.nexflowTBD2 {
+  font-family:Verdana;
+  background-color: #B3E0FF;
+  border: solid black 1px;
+}
+
+.nexflowTBD3 {
+  font-family:Verdana;
+  background-color: #BEFFA8;
+  border: solid black 1px;
+}
+
+.nexflowTBD4 {
+  font-family:Verdana;
+  background-color: #FFA385;
+  border: solid black 1px;
+}
+
+.nexflowButton{
+  border: solid black 1px;
+}
+
+.nexflowEditTask td {
+  border:2px solid red
+};
+.taskconsolesummary td {
+  padding:5px !important;
+}
+.taskconsoleInlineActionRec {
+  background-color: #FEF1B4;
+  border:1px solid #CCCCCC;
+  margin:5px;padding:10px;
+}
+.taskconsoleActionRec {
+  background-color: #E4E4E4;
+  border:1px solid #CCCCCC;
+  margin:5px;padding:10px;
+}
+.taskconsoleActionRec  td {
+  background-color: #FEF1B4;
+  padding:10px;
+}
+.taskconsole_outstanding a:link {
+  color:black;
+  text-decoration:underline
+}
+.taskconsole_outstanding a:visited {
+  color:black;
+  text-decoration:underline
+}
+.taskconsole_outstanding a:active {
+  color:black;
+  text-decoration:underline
+}
+.taskconsole_outstanding a:hover {
+  color:#4358e1;
+  text-decoration:underline
+}
+.taskconsole_otasks div {
+  display:inline;
+  position:absolute;
+  right:40px;
+}
+
+.taskconsoleSubTable {
+  border-collapse:collapse;
+}
+.taskconsoleSubTable td {
+  background-color:#E7FFCC;
+  color:#333;
+  border:1px dashed #CCC;
+  padding:10px;
+}
+
+.taskdetail fieldset legend {
+  padding: 0.2em 0.5em;
+  border:1px solid #A0A0A0;
+  color: #000000;
+  text-align:right;
+  margin-top:5px;
+}
+
+div.tabs {
+  background: transparent;
+  border-collapse: collapse;
+  border-bottom-color: #8CACBB;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  padding: 0.5em 0em 0em .5em;
+  white-space: nowrap;
+}
+
+div.tabs a {
+  background: transparent;
+  border-color: #8CACBB;
+  border-width: 1px;
+  border-style: solid solid none solid;
+  color: #436976;
+  font-weight: normal;
+  margin-right: 0.5em;
+  padding: 0.5em .5em 0em .5em;
+  text-decoration : none;
+}
+
+div.tabs a.selected {
+  background: #F3FFE5;
+  border: 1px solid #8CACBB;
+  border-bottom: #F3FFE5 1px solid;
+  color: #436976;
+  font-weight: normal;
+}
+
+div.tabs a:hover {
+  background: #DEEFEC;
+  border-color: #8CACBB;
+  border-bottom-color: #DEE7EC;
+  color: #436976;
+}
+
+.comment {
+  padding: 2px;
+}
+div.boxed {
+  border: dashed 1px #CCC;
+  overflow: auto;
+}
+.boxed p {
+  padding: 5px;
+  margin: 0px;
+}
+.elementUpdated {
+  background-color: rgb(255, 255, 225);
+}
+
+.nf_start {
+  background: url(../images/admin/header-green-bg.png);
+  background-repeat: repeat-x;
+  height: 22px;
+}
+
+.nf_end {
+  background: url(../images/admin/header-red-bg.png);
+  background-repeat: repeat-x;
+  height: 22px;
+}
+
+.nf_if {
+  background: url(../images/admin/header-yellow-bg.png);
+  background-repeat: repeat-x;
+  height: 22px;
+}
+
+.nf_interactive {
+  background: url(../images/admin/header-blue-bg.png);
+  background-repeat: repeat-x;
+  height: 22px;
+}
+
+.nf_noninteractive {
+  background: url(../images/admin/header-gray-bg.png);
+  background-repeat: repeat-x;
+  height: 22px;
+}
+
+.nf_task {
+  border: 1px solid #0F367B;
+  border-collapse: collapse;
+  margin: 0px;
+  padding: 0px;
+  width: 220px;
+  position: relative;
+  z-index: 1;
+}
+
+.nf_task_div {
+  width: 220px;
+}
+
+.nf_task_header {
+  text-align: left;
+  color: #FFFFFF;
+  font-weight: bold;
+  padding: 0px 3px 0px 3px;
+  height: 22px;
+  white-space: nowrap;
+}
+
+.nf_task_header:hover {
+  cursor: move;
+}
+
+.nf_task_body {
+  background: #FFFFFF;
+  height: 30px;
+  padding: 3px;
+  vertical-align: top;
+}
+
+.nf_workflow_container {
+  position: relative;
+  background: #FFFFFF;
+  border: 3px solid #0F367B;
+  padding: 0px;
+  width: 100%;
+  height: 100%;
+}
+
+.nf_contextmenu {
+  background: transparent;
+  background-image: url(../images/admin/dropshadow.png);
+  background-position: bottom right;
+  padding: 0px 5px 5px 0px;
+  margin: 0px;
+  border: 0px;
+  /*opacity: .85;
+  *filter: alpha(opacity=85);*/
+}
+
+.nf_contextmenu div {
+  background: #FFFFFF;
+  margin: 0px;
+  padding: 2px;
+  border: 1px solid #A7A6AA;
+}
+
+.nf_contextmenu div h6 {
+  margin: 0px;
+  padding: 2px 3px 2px 15px;
+  background: #FFFFFF;
+  color: #A7A6AA;
+  border-bottom: 1px solid #A7A6AA;
+  font: 9pt calibri;
+}
+
+.nf_contextmenu div ul {
+  margin: 0px;
+  padding: 3px 0px 0px 0px;
+  list-style-position: outside;
+  font: 9pt calibri;
+  list-style: none;
+}
+
+.nf_contextmenu div li a:link,
+.nf_contextmenu div li a:visited,
+.nf_contextmenu div li a:active {
+  margin: 0px;
+  background: #FFFFFF;
+  color: #000000;
+  text-decoration: none;
+  font: 9pt calibri;
+}
+
+.nf_contextmenu div li a:hover {
+  margin: 0px;
+  background: #335EA8;
+  color: #FFFFFF;
+  text-decoration: none;
+  font: 9pt calibri;
+}
+
+.nf_panel {
+  border-collapse: collapse;
+  border: 1px solid #0F367B;
+  padding: 0px;
+  margin: 0px;
+}
+
+.nf_panel_header {
+  line-height: 22px;
+  background: url(../images/admin/header-blue-bg.png);
+  background-repeat: repeat-x;
+  color: #FFFFFF;
+  font-weight: bold;
+  padding-left: 5px;
+}
+
+.nf_panel_nav {
+  margin: 0px;
+  padding: 0px;
+  border-bottom: 1px solid #A7A6AA;
+  border-top: 1px solid #254394;
+}
+.nf_panel_nav div {
+  margin: 0px;
+  padding: 0px;
+  background: #F2F2F4;
+}
+.nf_panel_nav div div {
+  margin: 0px;
+  padding: 0px !important;
+}
+.nf_panel_nav div div ul {
+  margin: 0px;
+  padding: 0px;
+}
+.nf_panel_nav div div ul li {
+  margin: 0px;
+  padding: 0px;
+}
+.nf_panel_nav div div ul li a {
+  margin: 0px;
+  padding: 0px;
+  border: 0px;
+  padding: 4px 8px 4px 8px !important;
+}
+.nf_panel_nav div div ul li a:link,
+.nf_panel_nav div div ul li a:visited {
+  background: #F2F2F4;
+  color: #000000;
+  text-decoration: none;
+}
+.nf_panel_nav div div ul li a:hover,
+.nf_panel_nav div div ul li a:active {
+  background: #335EA8;
+  color: #FFFFFF;
+  text-decoration: none;
+}
+.nf_panel_nav div div ul li a em {
+  background-image: none !important;
+  height: 0px !important;
+  width: 0px !important;
+  text-indent: 0px !important;
+}
+.nf_panel_nav div div ul li div {
+  border: 0px;
+  background: transparent;
+  position: relative;
+  top: -2px;
+  left: -2px;
+}
+.nf_panel_nav div div ul li div div {
+  background: transparent;
+  background-image: url(../images/admin/dropshadow.png);
+  background-position: bottom right;
+  padding: 0px 5px 5px 0px !important;
+  margin: 0px;
+  border: 0px;
+  width: 120px;
+}
+.nf_panel_nav div div ul li div div ul {
+  margin: 0px;
+  padding: -1px 0px 0px 0px;
+  list-style-position: outside;
+  list-style: none;
+  border: 1px solid #A7A6AA !important;
+}
+.nf_panel_nav div div ul li div div ul li a:link,
+.nf_panel_nav div div ul li div div ul li a:visited {
+  margin: 0px;
+  padding: 0px 10px 0px 20px;
+  background: #FFFFFF;
+  color: #000000;
+  text-decoration: none;
+  font: 9pt calibri;
+  line-height: 20px;
+}
+.nf_panel_nav div div ul li div div ul li a:hover,
+.nf_panel_nav div div ul li div div ul li a:active {
+  margin: 0px;
+  padding: 0px 10px 0px 20px;
+  background: #335EA8;
+  color: #FFFFFF;
+  text-decoration: none;
+  font: 9pt calibri;
+  line-height: 20px;
+}
+.nf_panel_nav div div ul li div div ul li a.checked:link,
+.nf_panel_nav div div ul li div div ul li a.checked:visited {
+  background: #FFFFFF url(../images/admin/checked_off.png) no-repeat top left;
+  line-height: 20px;
+  height: 20px;
+}
+.nf_panel_nav div div ul li div div ul li a.checked:hover,
+.nf_panel_nav div div ul li div div ul li a.checked:active {
+  background: #335EA8 url(../images/admin/checked_on.png) no-repeat top left;
+  line-height: 20px;
+  height: 20px;
+}
+
+.nf_panel_body {
+  padding: 8px;
+  background: #FFFFFF;
+  color: #000000;
+}
+
+.nf_panel span.container-close {
+  background: url(../images/admin/close_sm.png) no-repeat;
+  height: 14px;
+  width: 14px;
+}
+
+.nf_task_edit_left {
+  font: 1em calibri bold;
+  padding-right: 15px;
+}
+.nf_task_edit_right {
+  width: 100%;
+}
+.nf_task_edit_other {
+  font: 1em calibri bold;
+}
+.nf_edit_fieldset {
+  padding-top: 10px;
+  border: 1px solid #0F367B;
+}
+.nf_edit_legend {
+  font: 1.2em calibri bold;
+  border: 1px solid #0F367B;
+  padding: 1px 5px 1px 5px;
+}
+.nf_progress_bar {
+  z-index: 1000;
+  background: #FFFFFF;
+  width: 30px;
+  height: 16px;
+  padding: 3px;
+  position: absolute;
+  position: fixed;
+  top: 0px;
+  right: 0px;
+}
+
+
+/* admin css */
+
+.flowsTable {
+  font-family:Verdana, Tahoma, Arial;
+  font-style:normal;
+  font-size: 8pt;
+  border-collapse:collapse;
+  border: solid black 1px;
+}
+
+.flowsRows{
+  font-family:Verdana, Tahoma, Arial;
+  font-style:normal;
+  font-size: 8pt;
+  border-top: solid black 1px;
+  border-bottom: solid black 1px;
+}
+
+.nexflowTBD {
+  font-family:Verdana;
+  background-color: #ffffff;
+  border: solid black 1px;
+}
+
+.nexflowTBD1 {
+  font-family:Verdana;
+  background-color: #FFFFA0;
+  border: solid black 1px;
+}
+
+.nexflowTBD2 {
+  font-family:Verdana;
+  background-color: #B3E0FF;
+  border: solid black 1px;
+}
+
+.nexflowTBD3 {
+  font-family:Verdana;
+  background-color: #BEFFA8;
+  border: solid black 1px;
+}
+
+.nexflowTBD4 {
+  font-family:Verdana;
+  background-color: #FFA385;
+  border: solid black 1px;
+}
+
+.nexflowButton{
+  border: solid black 1px;
+}
+
+.nexflowEditTask td {
+  border:2px solid red
+};
+.taskconsolesummary td {
+  padding:4px;
+}
+.taskconsoleActionRec {
+  background-color: #E4E4E4;
+  border:1px solid #CCCCCC;
+  margin:5px;padding:10px;
+}
+.taskconsoleActionRec  td {
+  background-color: #FEF1B4;
+  padding:10px;
+}
+.taskconsole_outstanding a:link {
+  color:black;
+  text-decoration:underline
+}
+.taskconsole_outstanding a:visited {
+  color:black;
+  text-decoration:underline
+}
+.taskconsole_outstanding a:active {
+  color:black;
+  text-decoration:underline
+}
+.taskconsole_outstanding a:hover {
+  color:#4358e1;
+  text-decoration:underline
+}
+.taskconsole_otasks div {
+  display:inline;
+  position:absolute;
+  right:40px;
+}
+
+.taskconsoleSubTable {
+  border-collapse:collapse;
+}
+.taskconsoleSubTable td {
+  background-color:#E7FFCC;
+  color:#333;
+  border:1px dashed #CCC;
+  padding:10px;
+}
+
+.taskdetail fieldset legend {
+  padding: 0.2em 0.5em;
+  border:1px solid #A0A0A0;
+  color: #000000;
+  text-align:right;
+  margin-top:5px;
+}
+
+div.tabs {
+  background: transparent;
+  border-collapse: collapse;
+  border-bottom-color: #8CACBB;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  padding: 0.5em 0em 0em .5em;
+  white-space: nowrap;
+}
+
+div.tabs a {
+  background: transparent;
+  border-color: #8CACBB;
+  border-width: 1px;
+  border-style: solid solid none solid;
+  color: #436976;
+  font-weight: normal;
+  margin-right: 0.5em;
+  padding: 0.5em .5em 0em .5em;
+  text-decoration : none;
+}
+
+div.tabs a.selected {
+  background: #F3FFE5;
+  border: 1px solid #8CACBB;
+  border-bottom: #F3FFE5 1px solid;
+  color: #436976;
+  font-weight: normal;
+}
+
+div.tabs a:hover {
+  background: #DEEFEC;
+  border-color: #8CACBB;
+  border-bottom-color: #DEE7EC;
+  color: #436976;
+}
+
+.comment {
+  padding: 2px;
+}
+div.boxed {
+  border: dashed 1px #CCC;
+  overflow: auto;
+}
+.boxed p {
+  padding: 5px;
+  margin: 0px;
+}
+.elementUpdated {
+  background-color: rgb(255, 255, 225);
+}
+
+.nf_start {
+  background: url(../images/admin/header-green-bg.png);
+  background-repeat: repeat-x;
+  height: 22px;
+}
+
+.nf_end {
+  background: url(../images/admin/header-red-bg.png);
+  background-repeat: repeat-x;
+  height: 22px;
+}
+
+.nf_if {
+  background: url(../images/admin/header-yellow-bg.png);
+  background-repeat: repeat-x;
+  height: 22px;
+}
+
+.nf_interactive {
+  background: url(../images/admin/header-blue-bg.png);
+  background-repeat: repeat-x;
+  height: 22px;
+}
+
+.nf_noninteractive {
+  background: url(../images/admin/header-gray-bg.png);
+  background-repeat: repeat-x;
+  height: 22px;
+}
+
+.nf_task {
+  border: 1px solid #0F367B;
+  border-collapse: collapse;
+  margin: 0px;
+  padding: 0px;
+  width: 220px;
+  position: relative;
+  z-index: 1;
+}
+
+.nf_task_div {
+  width: 220px;
+}
+
+.nf_task_header {
+  text-align: left;
+  color: #FFFFFF;
+  font-weight: bold;
+  padding: 0px 3px 0px 3px;
+  height: 22px;
+  white-space: nowrap;
+}
+
+.nf_task_header:hover {
+  cursor: move;
+}
+
+.nf_task_body {
+  background: #FFFFFF;
+  height: 30px;
+  padding: 3px;
+  vertical-align: top;
+}
+
+.nf_workflow_container {
+  position: relative;
+  background: #FFFFFF;
+  border: 3px solid #0F367B;
+  padding: 0px;
+  width: 100%;
+  height: 100%;
+}
+
+.nf_contextmenu {
+  background: transparent;
+  background-image: url(../images/admin/dropshadow.png);
+  background-position: bottom right;
+  padding: 0px 5px 5px 0px;
+  margin: 0px;
+  border: 0px;
+  /*opacity: .85;
+  *filter: alpha(opacity=85);*/
+}
+
+.nf_contextmenu div {
+  background: #FFFFFF;
+  margin: 0px;
+  padding: 2px;
+  border: 1px solid #A7A6AA;
+}
+
+.nf_contextmenu div h6 {
+  margin: 0px;
+  padding: 2px 3px 2px 15px;
+  background: #FFFFFF;
+  color: #A7A6AA;
+  border-bottom: 1px solid #A7A6AA;
+  font: 9pt calibri;
+}
+
+.nf_contextmenu div ul {
+  margin: 0px;
+  padding: 3px 0px 0px 0px;
+  list-style-position: outside;
+  font: 9pt calibri;
+  list-style: none;
+}
+
+.nf_contextmenu div li a:link,
+.nf_contextmenu div li a:visited,
+.nf_contextmenu div li a:active {
+  margin: 0px;
+  background: #FFFFFF;
+  color: #000000;
+  text-decoration: none;
+  font: 9pt calibri;
+}
+
+.nf_contextmenu div li a:hover {
+  margin: 0px;
+  background: #335EA8;
+  color: #FFFFFF;
+  text-decoration: none;
+  font: 9pt calibri;
+}
+
+.nf_panel {
+  border-collapse: collapse;
+  border: 1px solid #0F367B;
+  padding: 0px;
+  margin: 0px;
+}
+
+.nf_panel_header {
+  line-height: 22px;
+  background: url(../images/admin/header-blue-bg.png);
+  background-repeat: repeat-x;
+  color: #FFFFFF;
+  font-weight: bold;
+  padding-left: 5px;
+}
+
+.nf_panel_nav {
+  margin: 0px;
+  padding: 0px;
+  border-bottom: 1px solid #A7A6AA;
+  border-top: 1px solid #254394;
+}
+.nf_panel_nav div {
+  margin: 0px;
+  padding: 0px;
+  background: #F2F2F4;
+}
+.nf_panel_nav div div {
+  margin: 0px;
+  padding: 0px;
+}
+.nf_panel_nav div div ul {
+  margin: 0px;
+  padding: 0px;
+}
+.nf_panel_nav div div ul li {
+  margin: 0px;
+  padding: 0px;
+}
+.nf_panel_nav div div ul li a {
+  margin: 0px;
+  padding: 0px;
+}
+
+.nf_panel_body {
+  padding: 8px;
+  background: #FFFFFF;
+  color: #000000;
+}
+
+.nf_panel span.container-close {
+  background: url(../images/admin/close_sm.png) no-repeat;
+  height: 14px;
+  width: 14px;
+}
+
