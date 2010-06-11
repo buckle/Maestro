@@ -985,7 +985,7 @@ function maestro_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'prenotify_variable' => array(
+      'pre_notify_variable' => array(
         'description' => '',
         'type' => 'int',
         'not null' => TRUE,
