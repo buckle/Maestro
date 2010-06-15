@@ -20,11 +20,10 @@ class MaestroTestCase extends DrupalWebTestCase {
   function setUp() {
     parent::setUp('maestro');
     $this->admin_user = $this->drupalCreateUser(array( 'administer site configuration'));
-
   }
 
 
-  function testCreatingMaestroInstance(){
+  function testCreatingMaestroInstance() {
     include_once './' . drupal_get_path('module', 'maestro') . '/maestro.class.php';
     $this->drupalLogin($this->admin_user);
     $v1=Maestro::createMaestroObject(1);
