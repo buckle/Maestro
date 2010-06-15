@@ -24,7 +24,9 @@
     abstract function getVersion();
     
     abstract function assignTask($queueId,$userObject);
-      
+    
+    abstract function getAssignedUID($taskid);
+          
     abstract function completeTask($queueId);
     
     abstract function archiveTask($queueId);

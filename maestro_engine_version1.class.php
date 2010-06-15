@@ -38,7 +38,8 @@
      *   The process id
      */
 
-    function newprocess($template, $startoffset = null, $pid = null , $application_association = FALSE) {
+    function newProcess($template, $startoffset = null, $pid = null , $application_association = FALSE) {
+      //debugbreak();
         global $user;
         // Execute the SQL statement to retrieve the first step of the process and kick it off
         if ($startoffset == null ) {
@@ -53,9 +54,10 @@
             // $sql .= "WHERE b.firstTask = 1 AND c.id ='$template' ORDER BY nf_templateDataFrom ASC LIMIT 1 ";
 
             $query = db_select('maestro_template_data_next_step', 'a');
-            $query->fields('a',array('template_data_from','template_data_id'));
-            $query->fields('b',array('regen_all_live_tasks','reminder_interval'));
-            $query->fields('c','use_project','template_name');
+            $query->fields('a',array('template_data_from'));
+            $query->fields('b',array('regen_all_live_tasks','reminder_interval','taskname'));
+            $query->addField('b','id','template_data_id');
+            $query->addField('c','use_project','template_name');
             $query->join('maestro_template_data', 'b', 'a.template_data_from = b.id');     // default is an INNER JOIN
             $query->join('maestro_template', 'c', 'b.template_id = c.id');
             $query->condition('b.first_task',1,'=');
@@ -77,7 +79,9 @@
             watchdog('maestro','New process code executing');
         }
 
-        $templaterec = $query->execute();
+        $templaterec = current($query->execute()->fetchAll());
+        print_r($templaterec);
+
         if (!empty($templaterec->template_data_id)) {
             $pid = intval($pid);
             if ($pid > 0) {
@@ -108,13 +112,14 @@
             $queue_record->template_data_id = $templaterec->template_data_id;
             $queue_record->status = 0;
             $queue_record->archived = 0;
+            $queue_record->engine_version = $this->_version;
             $queue_record->created_date = date('Y-m-d H:i:s' );
             $queue_record->next_reminder_date = $next_reminder_date;
             drupal_write_record('maestro_queue',$queue_record);
             $new_taskid = $queue_record->id;
 
             // Check if notification has been defined for new task assignment
-            $this->private_sendTaskAssignmentNotifications();
+            $this->sendTaskAssignmentNotifications();
 
             // Determine if the offset is set.. if so, pack the original pid pointer with a status of 2
             if (!empty($startoffset) AND !empty($pid)) {
@@ -170,10 +175,10 @@
                 // Situation where this is the root process, inserts the default template variables into the process
                 $pvquery = db_select('maestro_template_variables','a');
                 $pvquery->addExpression($new_processid,'process_id');
-                $pvquery->fields('a',array('template_variable_id','variable_value'));
-                $pvquery->condition("a.template_id=$template");
+                $pvquery->fields('a',array('id','variable_value'));
+                $pvquery->condition('a.template_id',$template,'=');
                 db_insert('maestro_process_variables')
-                  ->fields('process_id','variable_value','template_variable_id')
+                  ->fields(array('process_id','variable_value','template_variable_id'))
                   ->from($pvquery)
                   ->execute();
             }
@@ -183,13 +188,13 @@
             }
 
             // Set the initiator variable here if not already set - via a regenerated process creation
-            if ($this->get_processVariable('INITIATOR') == 0) {
-                $this->set_ProcessVariable('INITIATOR',$user->uid);
+            if ($this->getProcessVariable('INITIATOR') == 0) {
+                $this->setProcessVariable('INITIATOR',$user->uid);
             }
 
-            $newTaskAssignedUsers = $this->private_getAssignedUID($new_taskid);
+            $newTaskAssignedUsers = $this->getAssignedUID($new_taskid);
             if (is_array($newTaskAssignedUsers) AND count($newTaskAssignedUsers) > 0) {
-                $this->assign_task($new_taskid,$newTaskAssignedUsers);
+                $this->assignTask($new_taskid,$newTaskAssignedUsers);
             }
 
             if($application_association) {
@@ -322,9 +327,9 @@
 
     }
 
-    function private_getAssignedUID($taskid) {
-
-    }
+    function getAssignedUID($taskid) {}
+    
+    function sendTaskAssignmentNotifications () { }
 
     function completeTask($queueId) {}
 
