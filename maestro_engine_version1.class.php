@@ -291,8 +291,7 @@
         $this->_queueId=$queueRecord->id;
         /* @todo: Need to determine what the task properties object looks like */
 
-        $taskClassName = 'MaestroTaskType' . ucfirst($queueRecord->task_class_name);
-        $task = $this->executeTask(new $taskClassName($queueRecord));
+        $task = $this->executeTask(new $queueRecord->task_class_name($queueRecord));
 
         if ($task->executionStatus === FALSE) {
           watchdog('maestro',"Failed Task: {$this->_queueId}, Process: {$this->_processId} , Step Type: $this->_taskType");
