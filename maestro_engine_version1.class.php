@@ -79,8 +79,8 @@
             watchdog('maestro','New process code executing');
         }
 
+        // Only 1 record expected - query returns an array of object records
         $templaterec = current($query->execute()->fetchAll());
-        print_r($templaterec);
 
         if (!empty($templaterec->template_data_id)) {
             $pid = intval($pid);
@@ -250,6 +250,7 @@
             return $new_processid;
 
         } else {
+            echo "New Process Code FAIL! - Template: $template not defined";
             watchdog('maestro', "New Process Code FAIL! - Template: $template not defined");
         }
     }
