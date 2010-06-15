@@ -12,11 +12,11 @@
 
     abstract function execute ();
 
-    function setMessage($msg){
-      $this->_message=$msg;
+    function setMessage($msg) {
+      $this->_message = $msg;
     }
 
-    function getMessage(){
+    function getMessage() {
       return $this->_message;
     }
 
@@ -28,8 +28,8 @@
   class MaestroTaskTypeStart extends MaestroTask {
 
     function execute() {
-      $this->setMessage('Execute Task Type: "Start" - properties: ' . print_r($this->_properties,true) . '<br>');
-      $this->executionStatus=TRUE;
+      $this->setMessage('Execute Task Type: "Start" - properties: ' . print_r($this->_properties, true) . '<br>');
+      $this->executionStatus = TRUE;
       return $this;
 
     }
@@ -40,8 +40,8 @@
   class MaestroTaskTypeEnd extends MaestroTask {
 
     function execute() {
-      $this->setMessage('Execute Task Type: "End" - properties: ' . print_r($this->_properties,true) . '<br>');
-      $this->executionStatus=TRUE;
+      $this->setMessage('Execute Task Type: "End" - properties: ' . print_r($this->_properties, true) . '<br>');
+      $this->executionStatus = TRUE;
       return $this;
     }
 
@@ -52,8 +52,8 @@
   class MaestroTaskTypeBatch extends MaestroTask {
 
     function execute() {
-      $this->setMessage('Execute Task Type: "Batch" - properties: ' . print_r($this->_properties,true) . '<br>');
-      $this->executionStatus=TRUE;
+      $this->setMessage('Execute Task Type: "Batch" - properties: ' . print_r($this->_properties, true) . '<br>');
+      $this->executionStatus = TRUE;
       return $this;
     }
 
@@ -64,8 +64,8 @@
   class MaestroTaskTypeAnd extends MaestroTask {
 
     function execute() {
-      $this->setMessage('Execute Task Type: "And" - properties: ' . print_r($this->_properties,true) . '<br>');
-      $this->executionStatus=TRUE;
+      $this->setMessage('Execute Task Type: "And" - properties: ' . print_r($this->_properties, true) . '<br>');
+      $this->executionStatus = TRUE;
       return $this;
     }
 
