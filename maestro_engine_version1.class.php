@@ -136,7 +136,7 @@
                   $q2 = db_select('maestro_queue','a');
                   $query->addField('a','id','id');
                   $q2->join('maestro_template_data', 'b', 'a.template_data_id = b.id');
-                  $q2->condition('b.step_type',2);
+                  $q2->condition('b.task_class_name','MaestroTaskTypeAnd');
                   $q2->condition('a.process_id',$pid);
                   $q2->condition(db_or()->condition('a.archived',0)->condition('a.archived',NULL));
                   $active_queue_tasks_result = $q2->execute();

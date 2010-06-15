@@ -1,17 +1,5 @@
 
 
-INSERT INTO `maestro_step_type` (`id`, `step_type`, `flex_field`, `is_interactive_step_type`) VALUES 
-(1, 'Manual Web', NULL, 1),
-(2, 'And', NULL, 0),
-(4, 'Batch', NULL, 0),
-(5, 'If', NULL, 0),
-(6, 'batch function', NULL, 0),
-(7, 'interactive function', NULL, 1),
-(8, 'nexform', NULL, 1),
-(9, 'Start', NULL, 0),
-(10, 'End', NULL, 0),
-(11, 'Set Process Variable', NULL, 0);
-
 INSERT INTO `maestro_template` (`id`, `template_name`, `use_project`, `app_group`) VALUES 
 (1, 'Test Workflow1', 0, 0);
 

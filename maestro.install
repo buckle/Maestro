@@ -887,39 +887,6 @@ function maestro_schema() {
     'primary key' => array('id'),
   );
 
-  //maestro_step_type
-  $schema['maestro_step_type'] = array(
-    'description' => '',
-    'fields' => array(
-      'id' => array(
-        'description' => '',
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'step_type' => array(
-        'description' => '',
-        'type' => 'varchar',
-        'length' => '50',
-        'not null' => TRUE,
-        'default' => '',
-      ),
-      'flex_field' => array(
-        'description' => '',
-        'type' => 'varchar',
-        'length' => '100',
-        'not null' => FALSE,
-      ),
-      'is_interactive_step_type' => array(
-        'description' => '',
-        'type' => 'int',
-        'size' => 'tiny',
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-    ),
-    'primary key' => array('id'),
-  );
 
   //maestro_template
   $schema['maestro_template'] = array(
