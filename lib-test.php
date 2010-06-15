@@ -47,15 +47,7 @@ echo '<hr>';
 //echo $maestro->engine->executeTask(new MaestroTaskTypeBatch(array('taskparm1' => '3')) );
 //echo $maestro->engine->executeTask(new MaestroTaskTypeEnd(array('taskparm1' => '2')) );
      
-$template = 1;
-$query = db_select('maestro_template_data','a');
-$query->fields('a',array('id','logical_id','step_type','taskname'));
-$query->condition('a.template_id',$template,'=');    
-$result = $query->execute(); 
-foreach ($result as $rec) {
-  //print_r($rec);
-}       
-     
+    
 $query = db_select('users');
 $query->addExpression(100,'id');
 $query->fields('users',array('uid','name'));

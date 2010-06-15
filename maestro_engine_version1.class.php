@@ -55,7 +55,7 @@
 
             $query = db_select('maestro_template_data_next_step', 'a');
             $query->fields('a',array('template_data_from'));
-            $query->fields('b',array('regen_all_live_tasks','reminder_interval','taskname'));
+            $query->fields('b',array('regen_all_live_tasks','reminder_interval','task_class_name'));
             $query->addField('b','id','template_data_id');
             $query->addField('c','use_project','template_name');
             $query->join('maestro_template_data', 'b', 'a.template_data_from = b.id');     // default is an INNER JOIN
@@ -71,7 +71,7 @@
             $query = db_select('maestro_template_data','a');
             $query->addField('a','id','template_data_id');
             $query->addField('b','template_name');
-            $query->fields('a',array('regen_all_live_tasks','reminder_interval'));
+            $query->fields('a',array('regen_all_live_tasks','reminder_interval','task_class_name'));
             $query->join('maestro_template', 'b', 'b.template_id = a.id');
             $query->condition('a.id',$startoffset);
         }
@@ -110,6 +110,7 @@
             $queue_record = new stdClass();
             $queue_record->process_id = $new_processid;
             $queue_record->template_data_id = $templaterec->template_data_id;
+            $queue_record->task_class_name = $templaterec->task_class_name;
             $queue_record->status = 0;
             $queue_record->archived = 0;
             $queue_record->engine_version = $this->_version;
@@ -346,6 +347,123 @@
 
 
     function setProcessVariable($variable,$value) {}
+    
+    
+    
+    function nextStep($queueID, $processID ) {
+        global $_TABLES;
+        $queueID = NXCOM_filterInt($queueID);
+        $processID = NXCOM_filterInt($processID);
+        if ($this->_debug ) {
+            COM_errorLog("_nfNextStep: Queueid: $queueID, Processid: $processID");
+        }
+        // using the queueid and the processid, we are able to create or generate the
+        // next step or the regenerated next step in a new process
+        $thisDate = date('Y-m-d H:i:s' );
+        $sql  = "SELECT  c.nf_templateDataTo FROM {$_TABLES['nf_queue']} a, {$_TABLES['nf_templatedatanextstep']} c ";
+        $sql .= "WHERE a.nf_templateDataid=c.nf_templateDataFrom AND a.nf_processID='$processID' AND a.id='$queueID'";
+        $nextTaskResult = DB_query($sql );
+        $nextTaskRows = DB_numRows($nextTaskResult );
+
+        if ($nextTaskRows == 0 ) {
+            // echo "no rows! qid:" . $queueID . " procid:" . $processID . "<HR>";
+            // if there are no rows for this specific QueueID and nothing for this processID, there's no next task
+            $this->archive_task($queueID);
+            $sql = "UPDATE {$_TABLES['nf_process']} set complete=1, completedDate='{$thisDate}' where id=$processID";
+            $updateQuery = DB_query($sql );
+
+        } else { // we've got tasks
+            for($nextStepCntr = 0;$nextStepCntr < $nextTaskRows;$nextStepCntr++ ) {
+                $C = DB_fetchArray($nextTaskResult );
+                if ($this->_debug ) {
+                    COM_errorLog("Got tasks  qid: $queueID. procid: $processID and Next taskid: {$C[0]}");
+                }
+                // if statement to check if the next template id is null
+                // this is a catch all scenario to ensure that if we're on the last task and it points to null, that we end it properly
+                if ($C[0] == null or $C[0] == '' ) {
+                    // echo "thinks the process is done..  qid:" . $queueID . " procid:" . $processID . "<HR>";
+                    // Process is done, set the process status to complete and archive queue item
+                    $this->archive_task($queueID);
+                    $sql = "UPDATE {$_TABLES['nf_process']} set complete=1, completedDate='{$thisDate}' where id=$processID";
+                    $updateQuery = DB_query($sql );
+                } else {
+                    if ($this->_debug ) {
+                        COM_errorLog("Next step qid:$queueID, procid:$processID");
+                    }
+                    // we have a next step, thus we can archive the queue item and also insert a
+                    // new queue item with the next step populated as the next templatestepid
+                    $sql  = "SELECT * FROM {$_TABLES['nf_queue']} a ";
+                    $sql .= "WHERE a.nf_processid='{$processID}' ";
+                    $sql .= "AND a.nf_templateDataid='{$C[0]}'";
+                    $updateQuery = DB_query($sql );
+                    $updateQueryRows = DB_numRows($updateQuery );
+                    $retrieveQueryArray = DB_fetchArray($updateQuery );
+                    if ($updateQueryRows == 0 ) {
+                        // no next item in the queue.. just create it
+                        $sql = "INSERT INTO {$_TABLES['nf_queue']} (nf_processID, nf_templateDataID, status, createdDate) ";
+                        $sql .= " values ('{$processID}','{$C[0]}',0,'{$thisDate}')";
+                        $updateQuery = DB_query($sql );
+                        $newTaskid = DB_insertID();
+                        if ($this->_debug ) {
+                            $logmsg  = "Nexflow: New queue id (3) : $newTaskid - Template Taskid: {$C[0]} - ";
+                            $logmsg .= "Assigned to " . COM_getDisplayName(nf_getTaskOwner($C[0],$processID));
+                            nf_notificationLog($logmsg);
+                        }
+                        $newTaskAssignedUsers = $this->private_getAssignedUID($newTaskid);
+                        if (is_array($newTaskAssignedUsers) AND count($newTaskAssignedUsers) > 0) {
+                            $this->assign_task($newTaskid,$newTaskAssignedUsers);
+                        }
+
+                        // Determine if task has a reminder set and if so then update the nextReminderTime field in the new queue record
+                        $reminderInterval = DB_getItem($_TABLES['nf_templatedata'],'reminderInterval',"id='{$C[0]}'");
+                        if ($reminderInterval > 0) {
+                            DB_query("UPDATE {$_TABLES['nf_queue']} SET nextReminderTime=DATE_ADD( NOW(), INTERVAL $reminderInterval DAY) where id='$newTaskid'");
+                        }
+                        DB_query("INSERT INTO {$_TABLES['nf_queuefrom']} (queueID,fromQueueID) values ('$newTaskid','{$queueID}')");
+
+                        $this->archive_task($queueID);
+
+                        // Check if notification has been defined for new task assignment
+                        $this->private_sendTaskAssignmentNotifications();
+
+                    } else {
+                        // we have a situation here where the next item already exists.
+                        // need to determine if the next item has a regeneration flag.
+                        // if there is a regeneration flag, then create a new process starting with that regeneration flagged item
+                        $regenResult = DB_query("SELECT * FROM {$_TABLES['nf_templatedata']} a where a.id='{$C[0]}'");
+                        $regenCount = DB_numRows($regenResult );
+                        $regenArray = DB_fetchArray($regenResult );
+
+                        $toRegenerate = $regenArray['regenerate'];
+                        $template = $regenArray['nf_templateID'];
+
+                        if ($toRegenerate ) {
+                            // regenerate the same process starting at the next step
+                            // set the current process' complete status to 2.. 0 is active, 1 is done, 2 is has children
+                            $this->newprocess($template, $C[0], $processID );
+                            $this->archive_task($queueID);
+
+                        } else{
+                            //no regeneration  we're done
+                            $toQueueID = $retrieveQueryArray['id'];
+                            $sql = "INSERT INTO {$_TABLES['nf_queuefrom']} (queueID,fromQueueID) values ('{$toQueueID}','{$queueID}')";
+                            $updateQuery = DB_query($sql );
+                            $this->archive_task($queueID);
+
+                            $sql = "SELECT * FROM {$_TABLES['nf_queue']} a WHERE a.nf_processid='{$processID}' AND a.nf_templateDataid='{$C[0]}'";
+                            $updateQuery = DB_query( $sql );
+                            $updateQueryRows = DB_numRows($updateQuery);
+                            if($updateQueryRows == 0){
+                                $sql = "UPDATE {$_TABLES['nf_process']} SET complete=1, completedDate='{$thisDate}' WHERE id='{$processID}'";
+                                $updateQuery = DB_query( $sql );
+                                }
+                            }
+                        }  //end else
+
+                } //end else for the next step routine
+            } //end for $nextstep
+        } //end else portion for nextStepTest=0
+    }    
 
 
   }

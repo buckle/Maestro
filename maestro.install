@@ -1035,10 +1035,10 @@ function maestro_schema() {
         'type' => 'int',
         'not null' => FALSE,
       ),
-      'step_type' => array(
+      'task_class_name' => array(
         'description' => '',
-        'type' => 'int',
-        'size' => 'tiny',
+        'type' => 'varchar',
+        'length' => '100',
         'not null' => TRUE,
         'default' => 0,
       ),
