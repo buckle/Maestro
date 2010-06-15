@@ -18,8 +18,16 @@ if ($maestro) {
 } else {
   echo "<br>Failed to launch a new Maestro class.";
   exit;
-} 
-$maestro->engine->newProcess(1);  
+}
+
+
+$template = 1;
+$newprocess = $maestro->engine->newProcess($template);  
+if ($newprocess > 0) {
+  echo "New Process Code Success! - Process ID: $newprocess";      
+} else {
+  echo "New Process Code FAIL! - Template: $template not defined";    
+}
 
 echo '<hr>';
 echo 'Attempt to launch 2nd instance of engine - version 2 this time.';

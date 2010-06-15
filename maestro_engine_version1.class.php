@@ -250,7 +250,6 @@
             return $new_processid;
 
         } else {
-            echo "New Process Code FAIL! - Template: $template not defined";
             watchdog('maestro', "New Process Code FAIL! - Template: $template not defined");
         }
     }
