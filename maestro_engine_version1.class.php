@@ -283,7 +283,7 @@
       $query->addField('d','template_name');
       $query->condition($finalCondition);
       $res = $query->execute();
-      watchdog('maestro',"Number of entries in the queue:" . count($res));
+      watchdog('maestro',"CleanQueue: Number of entries in the queue:" . count($res));
       $numrows = 0;
       foreach ($res as $queueRecord) {
         $numrows++;
