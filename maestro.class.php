@@ -5,7 +5,7 @@
   class Maestro {
 
     private static $MAESTRO;
-    var $engine = null;
+    private $_engine = null;
 
     function createMaestroObject ($version, $options = FALSE){
         if (!isset(self::$MAESTRO)) {
@@ -24,12 +24,27 @@
       if (require_once $classfile) {
         $class = "MaestroEngineVersion{$version}";
         if (class_exists($class)) {
-          $this->engine = new $class($options);
+          $this->_engine = new $class($options);
         } else {
           die("maestro.class - Unable to instantiate class $class from $classfile");
         }
       } else {
         die("maestro.class - Unable to include file: $classfile");
       }
+    }
+
+
+   /**
+   * Returns a reference to the instantiated engine object for use in working with the engine.
+   *
+   * @code
+   * $x = $maestro->engine()->newprocess(1);
+   * @endcode
+   *
+   * @return
+   *   A reference to the engine object
+   */
+    public function engine(){
+      return $this->_engine;
     }
 }

@@ -12,17 +12,17 @@ $maestro = Maestro::createMaestroObject(1,$options);    // Initiate the processi
 if ($maestro) {
   echo '<br>';
   print_r($maestro);
-  echo "<br>Sucessfully launched the Maestro class version: " . $maestro->engine->getVersion() . '<br>';
+  echo "<br>Sucessfully launched the Maestro class version: " . $maestro->engine()->getVersion() . '<br>';
 } else {
   echo "<br>Failed to launch a new Maestro class.";
   exit;
 }
 
 function maestro_enginetest() {
-  
-  $maestro = Maestro::createMaestroObject(1,$options);    // Initiate the processing of all tasks of type 1.x  
+
+  $maestro = Maestro::createMaestroObject(1,$options);    // Initiate the processing of all tasks of type 1.x
   $template = 1;
-  $newprocess = $maestro->engine->newProcess($template);
+  $newprocess = $maestro->engine()->newProcess($template);
   if ($newprocess > 0) {
     echo "New Process Code Success! - Process ID: $newprocess";
   } else {
@@ -35,10 +35,11 @@ function maestro_enginetest() {
 }
 
 function maestro_runengine() {
-  $maestro = Maestro::createMaestroObject(1,$options);    // Initiate the processing of all tasks of type 1.x  
+
+  $maestro = Maestro::createMaestroObject(1,$options);    // Initiate the processing of all tasks of type 1.x
   //lets clean the queue
-  $maestro->engine->cleanQueue();
-  $maestro->engine->nextStep();
+  $maestro->engine()->cleanQueue();
+  $maestro->engine()->nextStep();
 
 }
 
