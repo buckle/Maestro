@@ -318,7 +318,7 @@
 
     function completeTask($qid) {
       $pid = db_query("SELECT process_id FROM {maestro_queue} WHERE id = :qid",
-              array(':qid', $qid))->fetchField();
+              array(':qid' => $qid))->fetchField();
       
       if (empty($pid)) {
           watchdog('maestro',"Task ID #$qid no longer exists in queue table.  It was potenially removed by an admin from outstanding tasks.");
@@ -343,7 +343,7 @@
             ->execute();
       } else {
           $dateCreated = db_query("SELECT created_date FROM {maestro_queue} WHERE id = :qid",
-              array(':qid', $qid))->fetchField();
+              array(':qid' => $qid))->fetchField();
           $history_record = new stdClass();
           $history_record->task_id = $qid;             
           $history_record->process_id = $pid;             
@@ -356,7 +356,7 @@
 
       if ($this->_userId == '' or $this->userId == null ) {
           $currentUid = db_query("SELECT uid FROM {maestro_productiona_assignments} WHERE task_id = :qid",
-              array(':qid', $qid))->fetchField();
+              array(':qid' => $qid))->fetchField();
                         
           if ($currentUid == '' OR $currentUid == null) {
             db_update('maestro_queue')
@@ -390,7 +390,7 @@
         if ($status == 0) {
             // If status has no current value then set the status to 1 (completed)
             $currentStatus = db_query("SELECT status FROM {maestro_queue} WHERE id = :qid",
-              array(':qid', $qid))->fetchField();
+              array(':qid' => $qid))->fetchField();
             if ($currentStatus == 0) $status = 1;
         }
         if ($status > 0) {
@@ -427,26 +427,26 @@
     
     
     function nextStep() {
-
+    //debugbreak();
         if ($this->_debug ) {
             watchdog('maestro', "nextStep: QueueId: $this->_queueId, ProcessId: $this->_processId");
         }
         // using the queueid and the processid, we are able to create or generate the
         // next step or the regenerated next step in a new process
         $query = db_select('maestro_queue', 'a');
-        $query->addField('a','task_class_name');
         $query->addField('b','template_data_to','taskid');
         $query->addField('c','reminder_interval');
+        $query->addField('c','task_class_name');            
         $query->join('maestro_template_data_next_step', 'b', 'a.template_data_id = b.template_data_from');
         $query->join('maestro_template_data', 'c', 'a.template_data_id = c.id');
         $query->condition('a.process_id',$this->_processId,'='); 
         $query->condition('a.id',$this->_queueId,'='); 
         $nextTaskResult = $query->execute();
-        $nextTaskRows = $query->countQuery();
+        $nextTaskRows = $query->countQuery()->execute()->fetchField();
 
         if ($nextTaskRows == 0 ) {
             // There are no rows for this specific queueId and nothing for this processId, there's no next task
-            $this->archive_task($this->_queueId);
+            $this->archiveTask($this->_queueId);
             db_update('maestro_process')
               ->fields(array('complete' => 1, 'completed_date' => time()))
               ->condition('id', $this->_processId, '=')
@@ -455,12 +455,12 @@
         } else { // we've got tasks
             foreach ($nextTaskResult as $nextTaskRec) {
                 if ($this->_debug ) {
-                    watchdog('maestro',"Got tasks  qid: {$this->_queueId}, pid: {$this->__processId} and Next taskid: {$nextTaskRec->taskid}");
+                    watchdog('maestro',"Got tasks  qid: {$this->_queueId}, pid: {$this->_processId} and Next taskid: {$nextTaskRec->taskid}");
                 }
                 // Check if the next template id is null, ensures that if we're on the last task and it points to null, that we end it properly
                 if ($nextTaskRec->taskid == null or $nextTaskRec->taskid == '' ) {
                     // Process is done, set the process status to complete and archive queue item
-                    $this->archive_task($this->_queueId);
+                    $this->archiveTask($this->_queueId);
                     db_update('maestro_process')
                       ->fields(array('complete' => 1, 'completed_date' => time()))
                       ->condition('id', $this->_processId, '=')
@@ -510,7 +510,7 @@
                         $next_record->queue_id = $this->_queueId;
                         $next_record->from_queue_id = $nextTaskRec->taskid;
                         drupal_write_record('maestro_queue_from',$next_record);
-                        $this->archive_task($this->_queueId);
+                        $this->archiveTask($this->_queueId);
 
                         // Check if notification has been defined for new task assignment
                         $this->sendTaskAssignmentNotifications();
@@ -529,7 +529,7 @@
                             // regenerate the same process starting at the next step
                             // set the current process' complete status to 2.. 0 is active, 1 is done, 2 is has children
                             $this->newProcess($regenRec->template_id, $nextTaskRec->taskid, $this->_processId);
-                            $this->archive_task($this->_queueId);
+                            $this->archiveTask($this->_queueId);
 
                         } else {
                             //no regeneration  we're done
@@ -538,7 +538,7 @@
                             $next_record->queue_id = $regenRec->id;
                             $next_record->from_queue_id = $this->_queueId;
                             drupal_write_record('maestro_queue_from',$next_record);
-                            $this->archive_task($this->_queueId);
+                            $this->archiveTask($this->_queueId);
                             
                             $query = db_select('maestro_queue', 'a');                       
                             $query->addExpression('COUNT(id)','rec_count');

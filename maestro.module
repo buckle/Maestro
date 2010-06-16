@@ -40,6 +40,15 @@ function maestro_menu() {
     'file'  => 'lib-test.php',
   );
 
+  $items['maestro_runengine'] = array(
+    'title' => 'Execute Development Test',
+    'page callback' => 'maestro_runengine',
+    'page arguments' => array(),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'file'  => 'lib-test.php',
+  );  
+  
   return $items;
 }
 
