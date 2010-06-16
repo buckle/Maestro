@@ -37,7 +37,6 @@
      */
 
     function newProcess($template, $startoffset = null, $pid = null , $application_association = FALSE) {
-      //debugbreak();
         global $user;
         // Execute the SQL statement to retrieve the first step of the process and kick it off
         if ($startoffset == null ) {
@@ -286,6 +285,7 @@
       watchdog('maestro',"CleanQueue: Number of entries in the queue:" . count($res));
       $numrows = 0;
       foreach ($res as $queueRecord) {
+        watchdog('maestro',"CleanQueue: processing task of type: {$queueRecord->step_type}");
         $numrows++;
         $this->_processId = $queueRecord->process_id;
         $this->_queueId = $queueRecord->id;
@@ -312,7 +312,6 @@
 
 
     function nextStep() {
-    //debugbreak();
         if ($this->_debug ) {
             watchdog('maestro', "nextStep: QueueId: $this->_queueId, ProcessId: $this->_processId");
         }
@@ -323,12 +322,11 @@
         $query->addField('c','reminder_interval');
         $query->addField('c','task_class_name');
         $query->join('maestro_template_data_next_step', 'b', 'a.template_data_id = b.template_data_from');
-        $query->join('maestro_template_data', 'c', 'a.template_data_id = c.id');
+        $query->join('maestro_template_data', 'c', 'c.id = b.template_data_to');
         $query->condition('a.process_id',$this->_processId,'=');
-        $query->condition('a.id',$this->_queueId,'=');
         $nextTaskResult = $query->execute();
         $nextTaskRows = $query->countQuery()->execute()->fetchField();
-
+        watchdog('maestro',"nextStep: Number of next task records: $nextTaskRows");   
         if ($nextTaskRows == 0 ) {
             // There are no rows for this specific queueId and nothing for this processId, there's no next task
             $this->archiveTask($this->_queueId);
@@ -355,10 +353,13 @@
                     // new queue item with the next step populated as the next template_stepid
 
                     $query = db_select('maestro_queue', 'a');
+                    $query->addField('a','id');
                     $query->addExpression('COUNT(id)','rec_count');
                     $query->condition('a.process_id', $this->_processId,'=');
                     $query->condition('a.template_data_id', $nextTaskRec->taskid,'=');
-                    if ($query->execute()->fetchField() == 0 ) {
+                    $nextTaskQueueRec = $query->execute()->fetchObject();
+                   
+                    if ($nextTaskQueueRec->rec_count == 0 ) {
                         if ($nextTaskRec->reminder_interval > 0) {
                             $next_reminder_date = time() + $nextTaskRec->reminder_interval;
                         }
@@ -418,7 +419,7 @@
 
                         } else {
                             //no regeneration  we're done
-                            $toQueueID = $retrieveQueryArray['id'];
+                            $toQueueID = $nextTaskQueueRec->id;
                             $next_record = new stdClass();
                             $next_record->queue_id = $regenRec->id;
                             $next_record->from_queue_id = $this->_queueId;
