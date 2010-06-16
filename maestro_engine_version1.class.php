@@ -310,125 +310,6 @@
     }
 
 
-    function assignTask($queueId,$userObject) {
-
-    }
-
-    function getAssignedUID($taskid) {}
-
-    function sendTaskAssignmentNotifications () { }
-
-    function sendTaskCompletionNotifications () { }
-
-    function completeTask($qid) {
-      $pid = db_query("SELECT process_id FROM {maestro_queue} WHERE id = :qid",
-              array(':qid' => $qid))->fetchField();
-
-      if (empty($pid)) {
-          watchdog('maestro',"Task ID #$qid no longer exists in queue table.  It was potenially removed by an admin from outstanding tasks.");
-          return FALSE;
-      }
-
-      if ($this->_debug ) {
-          watchdog('maestro',"Complete_task - updating queue item: $qid");
-      }
-
-      // Update Project Task History record as completed
-      // RK - lets check if there's even an entry for this task first.  if there's no entry, create one
-      // This takes into account those flows that do NOT have taskhistory records (non-'project' flows);
-      $query = db_select('maestro_project_task_history', 'a');
-      $query->addExpression('COUNT(id)','rec_count');
-      $query->condition('a.task_id', $qid,'=');
-      if ($query->execute()->fetchField() > 0 ) {
-          db_update('maestro_project_task_history')
-            ->fields(array('status' => 1, 'date_completed' => time()))
-            ->condition('task_id',$qid,'=')
-            ->condition('status',0,'=')
-            ->execute();
-      } else {
-          $dateCreated = db_query("SELECT created_date FROM {maestro_queue} WHERE id = :qid",
-              array(':qid' => $qid))->fetchField();
-          $history_record = new stdClass();
-          $history_record->task_id = $qid;
-          $history_record->process_id = $pid;
-          $history_record->date_assigned = $dateCreated;
-          $history_record->date_started = $dateCreated;
-          $history_record->date_completed = time();
-          $history_record->status = 1;
-          drupal_write_record('maestro_project_task_history',$history_record);
-      }
-
-      if ($this->_userId == '' or $this->userId == null ) {
-          $currentUid = db_query("SELECT uid FROM {maestro_production_assignments} WHERE task_id = :qid",
-              array(':qid' => $qid))->fetchField();
-
-          if ($currentUid == '' OR $currentUid == null) {
-            db_update('maestro_queue')
-              ->fields(array('uid' => NULL, 'status' => 1))
-              ->condition('id',$qid,'=')
-              ->execute();
-          } else {
-            db_update('maestro_queue')
-              ->fields(array('uid' => $currentUid , 'status' => 1))
-              ->condition('id',$qid,'=')
-              ->execute();
-          }
-      } else {
-          db_update('maestro_queue')
-            ->fields(array('uid' => $this->_userId , 'status' => 1))
-            ->condition('id',$qid,'=')
-            ->execute();
-      }
-      // Self Prune Production Assignment table - delete the now completed task assignment record
-      db_delete('maestro_production_assignments')
-        ->condition('task_id',$qid,'=')
-        ->execute();
-
-      $this->sendTaskCompletionNotifications();
-
-    }
-
-    function archiveTask($qid,$status=0) {
-        // Set the status field to completed if not set
-        $setstatus = '';
-        if ($status == 0) {
-            // If status has no current value then set the status to 1 (completed)
-            $currentStatus = db_query("SELECT status FROM {maestro_queue} WHERE id = :qid",
-              array(':qid' => $qid))->fetchField();
-            if ($currentStatus == 0) $status = 1;
-        }
-        if ($status > 0) {
-          db_update('maestro_queue')
-            ->fields(array('status' => $status, 'completed_date' => time(), 'archived' => 1))
-            ->condition('id',$qid,'=')
-            ->execute();
-        } else {
-          db_update('maestro_queue')
-            ->fields(array('completed_date' => time(), 'archived' => 1))
-            ->condition('id',$qid,'=')
-            ->execute();
-        }
-
-        // Self Prune Production Assignment table - delete the now completed task assignment record
-        db_delete('maestro_production_assignments')
-          ->condition('task_id',$qid,'=')
-          ->execute();
-    }
-
-
-    function cancelTask($queueId) {}
-
-
-      // Get a process variable as defined for this template
-    // Requires the processID to be set and then pass in a variable's name.
-    // if both the process and the name exist, you get a value..
-    // otherwise, you get NULL
-    function getProcessVariable($variable) {}
-
-
-    function setProcessVariable($variable,$value) {}
-
-
 
     function nextStep() {
     //debugbreak();
@@ -560,9 +441,125 @@
             } // end for $nextstep
         } //end else portion for nextStepTest=0
         return $this;
+    }    
+    
+    
+
+    function assignTask($queueId,$userObject) { }
+
+    function getAssignedUID($taskid) {}
+
+    function sendTaskAssignmentNotifications () { }
+
+    function sendTaskCompletionNotifications () { }
+
+    function completeTask($qid) {
+      $pid = db_query("SELECT process_id FROM {maestro_queue} WHERE id = :qid",
+              array(':qid' => $qid))->fetchField();
+
+      if (empty($pid)) {
+          watchdog('maestro',"Task ID #$qid no longer exists in queue table.  It was potenially removed by an admin from outstanding tasks.");
+          return FALSE;
+      }
+
+      if ($this->_debug ) {
+          watchdog('maestro',"Complete_task - updating queue item: $qid");
+      }
+
+      // Update Project Task History record as completed
+      // RK - lets check if there's even an entry for this task first.  if there's no entry, create one
+      // This takes into account those flows that do NOT have taskhistory records (non-'project' flows);
+      $query = db_select('maestro_project_task_history', 'a');
+      $query->addExpression('COUNT(id)','rec_count');
+      $query->condition('a.task_id', $qid,'=');
+      if ($query->execute()->fetchField() > 0 ) {
+          db_update('maestro_project_task_history')
+            ->fields(array('status' => 1, 'date_completed' => time()))
+            ->condition('task_id',$qid,'=')
+            ->condition('status',0,'=')
+            ->execute();
+      } else {
+          $dateCreated = db_query("SELECT created_date FROM {maestro_queue} WHERE id = :qid",
+              array(':qid' => $qid))->fetchField();
+          $history_record = new stdClass();
+          $history_record->task_id = $qid;
+          $history_record->process_id = $pid;
+          $history_record->date_assigned = $dateCreated;
+          $history_record->date_started = $dateCreated;
+          $history_record->date_completed = time();
+          $history_record->status = 1;
+          drupal_write_record('maestro_project_task_history',$history_record);
+      }
+
+      if ($this->_userId == '' or $this->userId == null ) {
+          $currentUid = db_query("SELECT uid FROM {maestro_production_assignments} WHERE task_id = :qid",
+              array(':qid' => $qid))->fetchField();
+
+          if ($currentUid == '' OR $currentUid == null) {
+            db_update('maestro_queue')
+              ->fields(array('uid' => NULL, 'status' => 1))
+              ->condition('id',$qid,'=')
+              ->execute();
+          } else {
+            db_update('maestro_queue')
+              ->fields(array('uid' => $currentUid , 'status' => 1))
+              ->condition('id',$qid,'=')
+              ->execute();
+          }
+      } else {
+          db_update('maestro_queue')
+            ->fields(array('uid' => $this->_userId , 'status' => 1))
+            ->condition('id',$qid,'=')
+            ->execute();
+      }
+      // Self Prune Production Assignment table - delete the now completed task assignment record
+      db_delete('maestro_production_assignments')
+        ->condition('task_id',$qid,'=')
+        ->execute();
+
+      $this->sendTaskCompletionNotifications();
+
+    }
+
+    function archiveTask($qid,$status=0) {
+        // Set the status field to completed if not set
+        $setstatus = '';
+        if ($status == 0) {
+            // If status has no current value then set the status to 1 (completed)
+            $currentStatus = db_query("SELECT status FROM {maestro_queue} WHERE id = :qid",
+              array(':qid' => $qid))->fetchField();
+            if ($currentStatus == 0) $status = 1;
+        }
+        if ($status > 0) {
+          db_update('maestro_queue')
+            ->fields(array('status' => $status, 'completed_date' => time(), 'archived' => 1))
+            ->condition('id',$qid,'=')
+            ->execute();
+        } else {
+          db_update('maestro_queue')
+            ->fields(array('completed_date' => time(), 'archived' => 1))
+            ->condition('id',$qid,'=')
+            ->execute();
+        }
+
+        // Self Prune Production Assignment table - delete the now completed task assignment record
+        db_delete('maestro_production_assignments')
+          ->condition('task_id',$qid,'=')
+          ->execute();
     }
 
 
+    function cancelTask($queueId) {}
+
+
+      // Get a process variable as defined for this template
+    // Requires the processID to be set and then pass in a variable's name.
+    // if both the process and the name exist, you get a value..
+    // otherwise, you get NULL
+    function getProcessVariable($variable) {}
+
+
+    function setProcessVariable($variable,$value) {}
+
+
   }
-
-
