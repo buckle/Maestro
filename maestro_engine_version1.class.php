@@ -314,6 +314,8 @@
     function getAssignedUID($taskid) {}
 
     function sendTaskAssignmentNotifications () { }
+    
+    function sendTaskCompletionNotifications () { }        
 
     function completeTask($qid) {
       $pid = db_query("SELECT process_id FROM {maestro_queue} WHERE id = :qid",
@@ -333,10 +335,10 @@
       // This takes into account those flows that do NOT have taskhistory records (non-'project' flows);
       $query = db_select('maestro_project_task_history', 'a');
       $query->addExpression('COUNT(id)','rec_count');
-      $query->condition('a.taskid', $qid,'=');
+      $query->condition('a.task_id', $qid,'=');
       if ($query->execute()->fetchField() > 0 ) {
           db_update('maestro_project_task_history')
-            ->fields(array('status' => 1, 'completed_date' => time()))
+            ->fields(array('status' => 1, 'date_completed' => time()))
             ->condition('task_id',$qid,'=')
             ->condition('status',0,'=')
             ->execute();
@@ -354,7 +356,7 @@
       }
 
       if ($this->_userId == '' or $this->userId == null ) {
-          $currentUid = db_query("SELECT uid FROM {maestro_productiona_assignments} WHERE task_id = :qid",
+          $currentUid = db_query("SELECT uid FROM {maestro_production_assignments} WHERE task_id = :qid",
               array(':qid' => $qid))->fetchField();
 
           if ($currentUid == '' OR $currentUid == null) {

@@ -6,9 +6,24 @@
  * maestro.module
  */
 
+include_once './' . drupal_get_path('module', 'maestro') . '/maestro.class.php';
+include_once './' . drupal_get_path('module', 'maestro') . '/maestro_tasks.class.php'; 
+ 
 function maestro_menu() {
   $items = array();
+  
+  $items['maestro/cleanqueue'] = array(
+    'title' => 'Maestro CleanQueue',
+    'page callback' => 'maestro_cleanqueue',
+    'access callback' => TRUE,
+  );  
 
+  $items['maestro/test'] = array(
+    'title' => 'Maestro Test Workflow',
+    'page callback' => 'maestro_enginetest',
+    'access callback' => TRUE,
+  );  
+    
   $items['admin/structure/maestro'] = array(
     'title' => 'Maestro Workflows',
     'description' => 'Define and administer workflows.',
@@ -86,4 +101,27 @@ function maestro_theme() {
       'render element' => 'structure'
     ),
   );
+}
+
+
+function maestro_cleanqueue() {
+  global $base_url;
+  $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
+  $maestro->engine()->cleanQueue()->nextStep();
+  drupal_set_message("Maestro Clean Queue Completed");
+  drupal_goto($base_url);
+}
+
+function maestro_enginetest() {
+  global $base_url;
+  $options = array('color1' => 'red');    // Example array for options - structure TBD.
+  $maestro = Maestro::createMaestroObject(1,$options);    // Initiate the processing of all tasks of type 1.x
+  $template = 1;
+  $newprocess = $maestro->engine()->newProcess($template);
+  if ($newprocess > 0) {
+    drupal_set_message("New Process Code Success! - Process ID: $newprocess");
+  } else {
+    drupal_set_message("New Process Code FAIL! - Template: $template not defined");
+  }
+  drupal_goto($base_url);
 }
