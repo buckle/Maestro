@@ -283,28 +283,26 @@
       $query->addField('d','template_name');
       $query->condition($finalCondition);
       $res = $query->execute();
-
+      watchdog('maestro',"Number of entries in the queue:" . count($res));
       $numrows = 0;
       foreach ($res as $queueRecord) {
         $numrows++;
         $this->_processId = $queueRecord->process_id;
         $this->_queueId = $queueRecord->id;
-        /* @todo: Need to determine what the task properties object looks like */
-
         $task = $this->executeTask(new $queueRecord->task_class_name($queueRecord));
-
         if ($task->executionStatus === FALSE) {
           watchdog('maestro',"Failed Task: {$this->_queueId}, Process: {$this->_processId} , Step Type: $this->_taskType");
           watchdog('maestro',"Task Information: ". $task->getMessage());
           //@TODO:  what do we do for a failed task?
           //A task should have some sort of error recovery method
+        }else{
+          //Execution successful.  Complete the task here.
+          $this->completeTask($this->_queueId);
         }
       }
-
       if ($numrows == 0 AND $this->_debug) {
         watchdog('maestro','cleanQueue - 0 rows returned.  Nothing in queue.');
       }
-
       return $this;
     }
 
