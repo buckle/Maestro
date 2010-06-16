@@ -297,7 +297,10 @@
           //A task should have some sort of error recovery method
         }else{
           //Execution successful.  Complete the task here.
+          //We will always complete a task, regardless of its task type.
           $this->completeTask($this->_queueId);
+          //@TODO:  any post complete task hooks?
+          $this->nextStep();
         }
       }
       if ($numrows == 0 AND $this->_debug) {
@@ -314,8 +317,8 @@
     function getAssignedUID($taskid) {}
 
     function sendTaskAssignmentNotifications () { }
-    
-    function sendTaskCompletionNotifications () { }        
+
+    function sendTaskCompletionNotifications () { }
 
     function completeTask($qid) {
       $pid = db_query("SELECT process_id FROM {maestro_queue} WHERE id = :qid",
