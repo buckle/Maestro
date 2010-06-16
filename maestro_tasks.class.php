@@ -27,8 +27,8 @@
 
   class MaestroTaskTypeStart extends MaestroTask {
 
-    function execute() { 
-      $this->setMessage('Execute Task Type: "Start" - properties: ' . print_r($this->_properties, true) . '<br>');
+    function execute() {
+      @$this->setMessage('Execute Task Type: "Start" - properties: ' . print_r($this->_properties, true) . '<br>');
       $this->executionStatus = TRUE;
       return $this;
     }

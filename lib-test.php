@@ -35,11 +35,11 @@ function maestro_enginetest() {
 }
 
 function maestro_runengine() {
-
-  $maestro = Maestro::createMaestroObject(1,$options);    // Initiate the processing of all tasks of type 1.x
+  $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
+  $maestro->engine()->cleanQueue()->nextStep();
   //lets clean the queue
-  $maestro->engine()->cleanQueue();
-  $maestro->engine()->nextStep();
+  //$maestro->engine()->cleanQueue();
+  //$maestro->engine()->nextStep();
 
 }
 
