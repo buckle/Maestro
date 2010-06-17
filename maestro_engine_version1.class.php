@@ -353,8 +353,9 @@
                     // new queue item with the next step populated as the next template_stepid
 
                     $query = db_select('maestro_queue', 'a');
-                    //$query->addField('a','id');
+                    $query->addField('a','id');
                     $query->addExpression('COUNT(a.id)','rec_count');
+                    $query->groupBy('a.id');
                     $query->condition('a.process_id', $this->_processId,'=');
                     $query->condition('a.template_data_id', $nextTaskRec->taskid,'=');
                     $nextTaskQueueRec = $query->execute()->fetchObject();
@@ -422,7 +423,6 @@
 
                         } else {
                             //no regeneration  we're done
-
                             $toQueueID = $nextTaskQueueRec->id;
                             $next_record = new stdClass();
                             $next_record->queue_id = $regenRec->id;
