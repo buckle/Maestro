@@ -361,7 +361,7 @@
                     $query->condition('a.template_data_id', $nextTaskRec->taskid,'=');
                     $nextTaskQueueRec = $query->execute()->fetchObject();
 
-                    if ($nextTaskQueueRec->rec_count == 0 ) {
+                    if ($nextTaskQueueRec == FALSE OR $nextTaskQueueRec->rec_count == 0 ) {
                         $this->archiveTask($this->_queueId);                       
                         if ($nextTaskRec->reminder_interval > 0) {
                             $next_reminder_date = time() + $nextTaskRec->reminder_interval;
