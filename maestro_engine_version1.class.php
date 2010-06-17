@@ -362,6 +362,7 @@
                     $nextTaskQueueRec = $query->execute()->fetchObject();
 
                     if ($nextTaskQueueRec->rec_count == 0 ) {
+                        $this->archiveTask($this->_queueId);                       
                         if ($nextTaskRec->reminder_interval > 0) {
                             $next_reminder_date = time() + $nextTaskRec->reminder_interval;
                         }
@@ -379,6 +380,8 @@
                         $queue_record->created_date = date('Y-m-d H:i:s' );
                         $queue_record->next_reminder_date = $next_reminder_date;
                         drupal_write_record('maestro_queue',$queue_record);
+                        
+                        // Test that we have a new queue record and then set $this->_queueId for use by class methods
                         if ($queue_record->id > 0) {
                           $this->_queueId = $queue_record->id;
                           if ($this->_debug ) {
@@ -398,7 +401,6 @@
                         $next_record->queue_id = $this->_queueId;
                         $next_record->from_queue_id = $nextTaskRec->taskid;
                         drupal_write_record('maestro_queue_from',$next_record);
-                        $this->archiveTask($this->_queueId);
 
                         // Check if notification has been defined for new task assignment
                         $this->sendTaskAssignmentNotifications();
@@ -424,6 +426,7 @@
 
                         } else {
                             //no regeneration  we're done
+
                             $toQueueID = $nextTaskQueueRec->id;
                             $next_record = new stdClass();
                             $next_record->queue_id = $regenRec->id;
