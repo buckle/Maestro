@@ -7,23 +7,23 @@
  */
 
 include_once './' . drupal_get_path('module', 'maestro') . '/maestro.class.php';
-include_once './' . drupal_get_path('module', 'maestro') . '/maestro_tasks.class.php'; 
- 
+include_once './' . drupal_get_path('module', 'maestro') . '/maestro_tasks.class.php';
+
 function maestro_menu() {
   $items = array();
-  
+
   $items['maestro/cleanqueue'] = array(
     'title' => 'Maestro CleanQueue',
     'page callback' => 'maestro_cleanqueue',
     'access callback' => TRUE,
-  );  
+  );
 
   $items['maestro/test'] = array(
     'title' => 'Maestro Test Workflow',
     'page callback' => 'maestro_enginetest',
     'access callback' => TRUE,
-  );  
-    
+  );
+
   $items['admin/structure/maestro'] = array(
     'title' => 'Maestro Workflows',
     'description' => 'Define and administer workflows.',
@@ -62,8 +62,8 @@ function maestro_menu() {
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
     'file'  => 'lib-test.php',
-  );  
-  
+  );
+
   return $items;
 }
 
@@ -107,7 +107,7 @@ function maestro_theme() {
 function maestro_cleanqueue() {
   global $base_url;
   $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
-  $maestro->engine()->cleanQueue()->nextStep();
+  $maestro->engine()->cleanQueue();
   drupal_set_message("Maestro Clean Queue Completed");
   drupal_goto($base_url);
 }
