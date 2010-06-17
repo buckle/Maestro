@@ -14,13 +14,13 @@ db_query("INSERT INTO {maestro_template} (`id`, `template_name`, `use_project`, 
 db_query("INSERT INTO {maestro_template_assignment} (`id`, `template_data_id`, `uid`, `gid`, `process_variable`, `pre_notify_variable`, `post_notify_variable`, `reminder_notify_variable`) VALUES
 (7, 23, 0, 0, 4, 0, 0, 0)");
 
-db_query("INSERT INTO {maestro_template_data} (`id`, `template_id`, `logical_id`, `task_class_name`, `handler_id`, `first_task`, `taskname`, `assigned_by_variable`, `argument_variable`, `argument_process`, `operator`, `if_value`, `regenerate`, `regen_all_live_tasks`, `is_dynamic_form`, `dynamic_form_variable_id`, `is_dynamic_taskname`, `dynamic_taskname_variable_id`, `function`, `form_id`, `field_id`, `var_value`, `inc_value`, `var_to_set`, `optional_parm`, `reminder_interval`, `reminder_interval_variable`, `subsequent_reminder_interval`, `last_updated`, `pre_notify_subject`, `post_notify_subject`, `reminder_subject`, `pre_notify_message`, `post_notify_message`, `reminder_message`, `num_reminders`, `escalate_variable_id`, `offset_left`, `offset_top`, `surpress_first_notification`) VALUES
-(1, 1, 1, 'MaestroTaskTypeStart', 0, 1, 'Start', 0, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, '', 0, 0, NULL, 0, 0, '', 0, 0, 0, 0, NULL, NULL, NULL, '', '', '', 0, 0, 34, 259, 0),
-(2, 1, 2, 'MaestroTaskTypeInteractivefunction', 0, 0, 'Set Variable for Test', 1, '0', '0', '0', '0', 0, 0, 0, 0, 0, 0, 'maestro_test_suite_set_var', 0, 0, NULL, 0, 0, '', 0, 0, 0, 0, NULL, NULL, NULL, '', '', '', 0, 0, 310, 258, 0),
-(3, 1, 3, 'MaestroTaskTypeIf', 0, 0, 'Test for VAR1 &gt; 5', 0, '5', '0', '2', '5', 0, 0, 0, 0, 0, 0, '', 0, 0, NULL, 0, 0, '', 0, 0, 0, 0, NULL, NULL, NULL, '', '', '', 0, 0, 581, 260, 0),
-(4, 1, 4, 'MaestroTaskTypeBatch', 0, 0, 'Variable is &gt; 5', 0, '0', '0', '0', '0', 0, 0, 0, 0, 0, 0, 'maestro_log_message', 0, 0, NULL, 0, 0, 'VAR1 is greater than 5', 0, 0, 0, 0, NULL, NULL, NULL, '', '', '', 0, 0, 579, 342, 0),
-(5, 1, 5, 'MaestroTaskTypeBatch', 0, 0, 'Variable is not &gt; 5', 0, '0', '0', '0', '0', 0, 0, 0, 0, 0, 0, 'maestro_log_message', 0, 0, NULL, 0, 0, 'VAR1 is NOT greater than 5', 0, 0, 0, 0, NULL, NULL, NULL, '', '', '', 0, 0, 312, 341, 0),
-(6, 1, 6, 'MaestroTaskTypeEnd', 0, 0, 'End', 0, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, '', 0, 0, NULL, 0, 0, '', 0, 0, 0, 0, NULL, NULL, NULL, '', '', '', 0, 0, 580, 439, 0)");
+db_query("INSERT INTO {maestro_template_data} (`id`, `template_id`, `logical_id`, `task_class_name`, `handler`, `first_task`, `taskname`, `assigned_by_variable`, `argument_variable`, `argument_process`, `operator`, `if_value`, `regenerate`, `regen_all_live_tasks`, `is_dynamic_form`, `dynamic_form_variable_id`, `is_dynamic_taskname`, `dynamic_taskname_variable_id`, `function`, `form_id`, `field_id`, `var_value`, `inc_value`, `var_to_set`, `optional_parm`, `reminder_interval`, `reminder_interval_variable`, `subsequent_reminder_interval`, `last_updated`, `pre_notify_subject`, `post_notify_subject`, `reminder_subject`, `pre_notify_message`, `post_notify_message`, `reminder_message`, `num_reminders`, `escalate_variable_id`, `offset_left`, `offset_top`, `surpress_first_notification`) VALUES
+(1, 1, 1, 'MaestroTaskTypeStart', '', 1, 'Start', 0, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, '', 0, 0, NULL, 0, 0, '', 0, 0, 0, 0, NULL, NULL, NULL, '', '', '', 0, 0, 34, 259, 0),
+(2, 1, 2, 'MaestroTaskTypeInteractivefunction', '', 0, 'Set Variable for Test', 1, '0', '0', '0', '0', 0, 0, 0, 0, 0, 0, 'maestro_test_suite_set_var', 0, 0, NULL, 0, 0, '', 0, 0, 0, 0, NULL, NULL, NULL, '', '', '', 0, 0, 310, 258, 0),
+(3, 1, 3, 'MaestroTaskTypeIf', '', 0, 'Test for VAR1 &gt; 5', 0, '5', '0', '2', '5', 0, 0, 0, 0, 0, 0, '', 0, 0, NULL, 0, 0, '', 0, 0, 0, 0, NULL, NULL, NULL, '', '', '', 0, 0, 581, 260, 0),
+(4, 1, 4, 'MaestroTaskTypeBatch', '', 0, 'Variable is &gt; 5', 0, '0', '0', '0', '0', 0, 0, 0, 0, 0, 0, 'maestro_log_message', 0, 0, NULL, 0, 0, 'VAR1 is greater than 5', 0, 0, 0, 0, NULL, NULL, NULL, '', '', '', 0, 0, 579, 342, 0),
+(5, 1, 5, 'MaestroTaskTypeBatch', '', 0, 'Variable is not &gt; 5', 0, '0', '0', '0', '0', 0, 0, 0, 0, 0, 0, 'maestro_log_message', 0, 0, NULL, 0, 0, 'VAR1 is NOT greater than 5', 0, 0, 0, 0, NULL, NULL, NULL, '', '', '', 0, 0, 312, 341, 0),
+(6, 1, 6, 'MaestroTaskTypeEnd', '', 0, 'End', 0, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, '', 0, 0, NULL, 0, 0, '', 0, 0, 0, 0, NULL, NULL, NULL, '', '', '', 0, 0, 580, 439, 0)");
 
 
 db_query("INSERT INTO {maestro_template_data_next_step} (`id`, `template_data_from`, `template_data_to`, `template_data_to_false`) VALUES
@@ -32,9 +32,9 @@ db_query("INSERT INTO {maestro_template_data_next_step} (`id`, `template_data_fr
 (7, 4, 6, 0)");
 
 
-db_query("INSERT INTO {maestro_template_variables} (`id`, `template_id`, `variable_type_id`, `variable_name`, `variable_value`) VALUES
-(1, 1, 0, 'INITIATOR', ''),
-(2, 1, 0, 'VAR1', '1')");
+db_query("INSERT INTO {maestro_template_variables} (`id`, `template_id`, `variable_name`, `variable_value`) VALUES
+(1, 1, 'INITIATOR', ''),
+(2, 1, 'VAR1', '1')");
 
 }
 
@@ -63,37 +63,6 @@ function maestro_schema() {
     'primary key' => array('id'),
   );
 
-  //maestro_handlers
-  $schema['maestro_handlers'] = array(
-    'description' => '',
-    'fields' => array(
-      'id' => array(
-        'description' => '',
-        'type' => 'serial',
-        'not null' => TRUE,
-      ),
-      'handler' => array(
-        'description' => '',
-        'type' => 'varchar',
-        'length' => '255',
-        'not null' => TRUE,
-        'default' => '',
-      ),
-      'handler_type_id' => array(
-        'description' => '',
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'description' => array(
-        'description' => '',
-        'type' => 'text',
-        'size' => 'big',
-        'not null' => FALSE,
-      ),
-    ),
-    'primary key' => array('id'),
-  );
 
   //maestro_if_operators
   $schema['maestro_if_operators'] = array(
@@ -1038,11 +1007,12 @@ function maestro_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'handler_id' => array(
+      'handler' => array(
         'description' => '',
-        'type' => 'int',
+        'type' => 'varchar',
+        'length' => '100',
         'not null' => TRUE,
-        'default' => 0,
+        'default' => '',
       ),
       'first_task' => array(
         'description' => '',
@@ -1328,12 +1298,6 @@ function maestro_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'variable_type_id' => array(
-        'description' => '',
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
-      ),
       'variable_name' => array(
         'description' => '',
         'type' => 'varchar',
@@ -1352,7 +1316,6 @@ function maestro_schema() {
     'primary key' => array('id'),
     'indexes' => array(
       'template_id' => array('template_id'),
-      'variable_type_id' => array('variable_type_id'),
     ),
   );
 

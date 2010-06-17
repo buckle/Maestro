@@ -279,6 +279,7 @@
       $query->fields('a',array('id','status','template_data_id','task_class_name','engine_version','is_interactive'));
       $query->addField('b','id','process_id');
       $query->addField('c','task_class_name','step_type');
+      $query->addField('c','handler');
       $query->addField('d','template_name');
       $query->condition($finalCondition);
       $res = $query->execute();
