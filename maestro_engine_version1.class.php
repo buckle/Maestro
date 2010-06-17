@@ -107,7 +107,7 @@
             $queue_record->status = 0;
             $queue_record->archived = 0;
             $queue_record->engine_version = $this->_version;
-            $queue_record->created_date = date('Y-m-d H:i:s' );
+            $queue_record->created_date = time();
             $queue_record->next_reminder_date = $next_reminder_date;
             drupal_write_record('maestro_queue',$queue_record);
             if ($queue_record->id > 0) {
