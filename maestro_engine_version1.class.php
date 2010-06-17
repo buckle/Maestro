@@ -324,6 +324,7 @@
         $query->join('maestro_template_data_next_step', 'b', 'a.template_data_id = b.template_data_from');
         $query->join('maestro_template_data', 'c', 'c.id = b.template_data_to');
         $query->condition('a.process_id',$this->_processId,'=');
+        $query->condition('a.id',$this->_queueId,'=');
         $nextTaskResult = $query->execute();
         $nextTaskRows = $query->countQuery()->execute()->fetchField();
         watchdog('maestro',"nextStep: Number of next task records: $nextTaskRows");
