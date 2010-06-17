@@ -326,7 +326,7 @@
         $query->condition('a.process_id',$this->_processId,'=');
         $nextTaskResult = $query->execute();
         $nextTaskRows = $query->countQuery()->execute()->fetchField();
-        watchdog('maestro',"nextStep: Number of next task records: $nextTaskRows");   
+        watchdog('maestro',"nextStep: Number of next task records: $nextTaskRows");
         if ($nextTaskRows == 0 ) {
             // There are no rows for this specific queueId and nothing for this processId, there's no next task
             $this->archiveTask($this->_queueId);
@@ -353,12 +353,12 @@
                     // new queue item with the next step populated as the next template_stepid
 
                     $query = db_select('maestro_queue', 'a');
-                    $query->addField('a','id');
-                    $query->addExpression('COUNT(id)','rec_count');
+                    //$query->addField('a','id');
+                    $query->addExpression('COUNT(a.id)','rec_count');
                     $query->condition('a.process_id', $this->_processId,'=');
                     $query->condition('a.template_data_id', $nextTaskRec->taskid,'=');
                     $nextTaskQueueRec = $query->execute()->fetchObject();
-                   
+
                     if ($nextTaskQueueRec->rec_count == 0 ) {
                         if ($nextTaskRec->reminder_interval > 0) {
                             $next_reminder_date = time() + $nextTaskRec->reminder_interval;
@@ -408,6 +408,9 @@
                         $query = db_select('maestro_template_data', 'a');
                         $query->fields('a',array('id','regenerate','template_id'));
                         $query->addExpression('COUNT(id)','rec_count');
+                        $query->groupBy('a.regenerate');
+                        $query->groupBy('a.template_id');
+                        $query->groupBy('a.id');
                         $query->condition('a.id', $nextTaskRec->taskid,'=');
                         $regenRec = current($query->execute()->fetchAll());
 
@@ -419,6 +422,7 @@
 
                         } else {
                             //no regeneration  we're done
+
                             $toQueueID = $nextTaskQueueRec->id;
                             $next_record = new stdClass();
                             $next_record->queue_id = $regenRec->id;
@@ -442,9 +446,9 @@
             } // end for $nextstep
         } //end else portion for nextStepTest=0
         return $this;
-    }    
-    
-    
+    }
+
+
 
     function assignTask($queueId,$userObject) { }
 
