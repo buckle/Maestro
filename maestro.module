@@ -118,6 +118,9 @@ function maestro_enginetest() {
   $maestro = Maestro::createMaestroObject(1,$options);    // Initiate the processing of all tasks of type 1.x
   $template = 1;
   $newprocess = $maestro->engine()->newProcess($template);
+
+  $maestro->engine()->setDebug(TRUE);
+  $var = $maestro->engine()->getProcessVariable('VAR1');
   if ($newprocess > 0) {
     drupal_set_message("New Process Code Success! - Process ID: $newprocess");
   } else {

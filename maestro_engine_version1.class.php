@@ -163,10 +163,10 @@
                 // Select the process variables for the parent and create new ones for the new process $this->_processId
                 $pvquery = db_select('maestro_process_variables','a');
                 $pvquery->addExpression($this->_processId,'process_id');
-                $pvquery->fields('a',array('template_variable_id','variable_value'));
+                $pvquery->fields('a',array('variable_value','template_variable_id'));
                 $pvquery->condition("a.process_id=$pid");
                 db_insert('maestro_process_variables')
-                  ->fields('process_id','variable_value','template_variable_id')
+                  ->fields(array('variable_value','template_variable_id','process_id'))   
                   ->from($pvquery)
                   ->execute();
 
@@ -175,10 +175,10 @@
                 // Situation where this is the root process, inserts the default template variables into the process
                 $pvquery = db_select('maestro_template_variables','a');
                 $pvquery->addExpression($this->_processId,'process_id');
-                $pvquery->fields('a',array('id','variable_value'));
+                $pvquery->fields('a',array('variable_value','id'));
                 $pvquery->condition('a.template_id',$template,'=');
                 db_insert('maestro_process_variables')
-                  ->fields(array('process_id','variable_value','template_variable_id'))
+                  ->fields(array('variable_value','template_variable_id','process_id'))
                   ->from($pvquery)
                   ->execute();
             }
@@ -562,15 +562,6 @@
 
     function cancelTask($queueId) {}
 
-
-      // Get a process variable as defined for this template
-    // Requires the processID to be set and then pass in a variable's name.
-    // if both the process and the name exist, you get a value..
-    // otherwise, you get NULL
-    function getProcessVariable($variable) {}
-
-
-    function setProcessVariable($variable,$value) {}
-
+    function setProcessVariable() {}
 
   }
