@@ -18,8 +18,8 @@ db_query("INSERT INTO {maestro_template_data} (`id`, `template_id`, `logical_id`
 (1, 1, 1, 'MaestroTaskTypeStart', '', 1, 'Start', 0, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, '', 0, 0, NULL, 0, 0, '', 0, 0, 0, 0, NULL, NULL, NULL, '', '', '', 0, 0, 34, 259, 0),
 (2, 1, 2, 'MaestroTaskTypeInteractivefunction', '', 0, 'Set Variable for Test', 1, '0', '0', '0', '0', 0, 0, 0, 0, 0, 0, 'maestro_test_suite_set_var', 0, 0, NULL, 0, 0, '', 0, 0, 0, 0, NULL, NULL, NULL, '', '', '', 0, 0, 310, 258, 0),
 (3, 1, 3, 'MaestroTaskTypeIf', '', 0, 'Test for VAR1 &gt; 5', 0, '5', '0', '2', '5', 0, 0, 0, 0, 0, 0, '', 0, 0, NULL, 0, 0, '', 0, 0, 0, 0, NULL, NULL, NULL, '', '', '', 0, 0, 581, 260, 0),
-(4, 1, 4, 'MaestroTaskTypeBatch', '', 0, 'Variable is &gt; 5', 0, '0', '0', '0', '0', 0, 0, 0, 0, 0, 0, 'maestro_log_message', 0, 0, NULL, 0, 0, 'VAR1 is greater than 5', 0, 0, 0, 0, NULL, NULL, NULL, '', '', '', 0, 0, 579, 342, 0),
-(5, 1, 5, 'MaestroTaskTypeBatch', '', 0, 'Variable is not &gt; 5', 0, '0', '0', '0', '0', 0, 0, 0, 0, 0, 0, 'maestro_log_message', 0, 0, NULL, 0, 0, 'VAR1 is NOT greater than 5', 0, 0, 0, 0, NULL, NULL, NULL, '', '', '', 0, 0, 312, 341, 0),
+(4, 1, 4, 'MaestroTaskTypeBatch', 'maestro_batch_script_sample.php', 0, 'Variable is &gt; 5', 0, '0', '0', '0', '0', 0, 0, 0, 0, 0, 0, 'maestro_log_message', 0, 0, NULL, 0, 0, 'VAR1 is greater than 5', 0, 0, 0, 0, NULL, NULL, NULL, '', '', '', 0, 0, 579, 342, 0),
+(5, 1, 5, 'MaestroTaskTypeBatch', 'maestro_batch_script_sample.php', 0, 'Variable is not &gt; 5', 0, '0', '0', '0', '0', 0, 0, 0, 0, 0, 0, 'maestro_log_message', 0, 0, NULL, 0, 0, 'VAR1 is NOT greater than 5', 0, 0, 0, 0, NULL, NULL, NULL, '', '', '', 0, 0, 312, 341, 0),
 (6, 1, 6, 'MaestroTaskTypeEnd', '', 0, 'End', 0, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, '', 0, 0, NULL, 0, 0, '', 0, 0, 0, 0, NULL, NULL, NULL, '', '', '', 0, 0, 580, 439, 0)");
 
 

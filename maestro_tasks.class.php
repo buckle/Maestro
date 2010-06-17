@@ -59,8 +59,10 @@ class MaestroTaskTypeBatch extends MaestroTask {
     watchdog('maestro',$msg);
     $success = FALSE;
 
-    if (file_exists($this->_properties->handler)) {
-      require($this->_properties->handler );
+    $current_path = drupal_get_path('module','maestro') . "/batch/";
+
+    if (file_exists($current_path . $this->_properties->handler)) {
+      require($current_path . $this->_properties->handler );
     } elseif (file_exists($this->_properties->handler)) {  // Check in current directory
       require($this->_properties->handler);
     }
@@ -82,6 +84,9 @@ class MaestroTaskTypeBatchFunction extends MaestroTask {
     $msg = 'Execute Task Type: "BatchFunction" - properties: ';
     watchdog('maestro',$msg);
     $success = FALSE;
+    $current_path = drupal_get_path('module','maestro') . "/batch/";
+    include($current_path . "batch_functions.php" );
+
 
     if (function_exists($this->_properties->handler)) {
       $this->_properties->handler($this->_properties->id,$this->_properties->process_id);
