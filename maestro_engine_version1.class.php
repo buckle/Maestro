@@ -82,7 +82,7 @@
             $process_record->custom_flow_name = $custom_flowname;
             $process_record->complete = 0;
             $process_record->pid = $pid;
-            $process_record->initiated_date = date('Y-m-d H:i:s' );
+            $process_record->initiated_date = time();
             drupal_write_record('maestro_process',$process_record);
             $new_processid = $process_record->id;
 
