@@ -78,7 +78,7 @@
             if ($this->_debug ) {
                 watchdog('maestro',"get_ProcessVariable: The Process ID has not been set.");
             }
-            $retval=NULL;
+            $retval = NULL;
         }
         else {
           // setting the value
@@ -117,7 +117,8 @@
                     $this->assignTask($queueRecord->id,array($processVariableRecord->variable_id => $variableValue));
                 }
 
-            } else {
+            }
+            else {
                 if ($this->_debug ) {
                     watchdog('maestro',"set_processVariable -> Process:{$this->_processId}, variable:$thisvar - DOES NOT EXIST");
                 }
