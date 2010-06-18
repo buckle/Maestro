@@ -166,7 +166,7 @@
                 $pvquery->fields('a',array('variable_value','template_variable_id'));
                 $pvquery->condition("a.process_id=$pid");
                 db_insert('maestro_process_variables')
-                  ->fields(array('variable_value','template_variable_id','process_id'))   
+                  ->fields(array('variable_value','template_variable_id','process_id'))
                   ->from($pvquery)
                   ->execute();
 
@@ -362,7 +362,6 @@
                     $query->condition('a.process_id', $this->_processId,'=');
                     $query->condition('a.template_data_id', $nextTaskRec->taskid,'=');
                     $nextTaskQueueRec = $query->execute()->fetchObject();
-
                     if ($nextTaskQueueRec == FALSE OR $nextTaskQueueRec->rec_count == 0 ) {
                         $this->archiveTask($this->_queueId);
                         if ($nextTaskRec->reminder_interval > 0) {
@@ -428,7 +427,6 @@
 
                         } else {
                             //no regeneration  we're done
-
                             $toQueueID = $nextTaskQueueRec->id;
                             $next_record = new stdClass();
                             $next_record->queue_id = $regenRec->id;
@@ -455,8 +453,100 @@
     }
 
 
+    /**
+    * Method assign task - create productionAssignment Record and test if to-be-assigned user has their out-of-office setting active
+    * @param        int         $queueID     Task ID from the workflow queue table
+    * @param        array       $assignemnt  Array of records where the key is the variable id  if applicable and the user id
+                                             If the assignment is by user, the key will be 0 or a negative value - in the case of multiple assignments
+    * @return       n/a         No return
+    */
+    function assignTask($queueId,$userObject) {
+        foreach ($userObject as $processVariableId => $userId) {
+            if (strpos($userId, ':') !== false) {
+                $userIds = explode(':', $userId);
+            }
+            else {
+                $userIds = array($userId);
+            }
 
-    function assignTask($queueId,$userObject) { }
+            foreach ($userIds as $userId) {
+              $userId = intval($userId);
+              /* The array of users to be assigned may be an array of multiple assignments by user not variable
+               * In this case, we can not have multiple array records with a key of 0 - so a negative value is used
+              */
+
+              if($processVariableId < 0) $processVariableId = 0;
+
+              if ($userId > 1) {
+                $query = db_select('maestro_user_away', 'a');
+                $query->fields('a',array('away_start','away_return','is_active'));
+                $query->condition('a.uid',$userId,'=');
+                $res1 = $query->execute()->fetchObject();
+                if ($res1) {
+                  // Check if user is away - away feature active and current time within the away window
+                  if ($res1->is_active == 1 AND time() > $res1->away_start AND time() < $res1->away_return) {
+                      /* User is away - determine who to re-assign task to */
+                      $assignToUserId = $this->getAwayReassignmentUid($userId);
+                      // If we have a new value for the assignment - then we need to set the assignBack field
+                      if ($assignToUserId != $userId) {
+                          $assignBack = $userId;
+                      }
+                      else {
+                          $assignBack = 0;
+                      }
+                  }
+                  else {
+                      $assignToUserId = $userId;
+                      $assignBack = 0;
+                  }
+                }
+                else {
+                    $assignToUserId = 0;
+                    $assignBack = 0;
+                }
+              }
+              else {
+                  $assignToUserId = 0;
+                  $assignBack = 0;
+              }
+
+              // Check and see if we have an production assignment record for this task and processVariable
+              $query = db_select('maestro_production_assignments', 'a');
+              $query->addField('a','uid');
+              $query->condition('a.task_id',$queueId,'=');
+              if ($processVariableId > 0) {
+                $query->condition('a.process_variable',$processVariableId,'=');
+              }
+              else {
+                $query->condition('a.process_variable',0,'=');
+                $query->condition('a.uid',$userId,'=');
+              }
+              $res2 = $query->execute();
+              $numrows = $query->countQuery()->execute()->fetchField();
+              if ($numrows < count($userIds)) {
+                db_insert('maestro_production_assignments')
+                  ->fields(array('task_id','uid','process_variable','assign_back_uid','last_updated'))
+                  ->values(array(
+                    'task_id' => $queueId,
+                    'uid' => $assignToUserId,
+                    'process_variable' => $processVariableId,
+                    'assign_back_uid' => $assignBack,
+                    'last_updated'  => time()
+                    ))
+                  ->execute();
+              }
+              else {
+                db_update('maestro_production_assignments')
+                  ->fields(array('uid' => $assignToUserId, 'last_updated' => time(), 'assign_back_uid' => $assignBack))
+                  ->condition('task_id', $queueId, '=')
+                  ->condition('process_variable',$processVariableId,'=')
+                  ->execute();
+              }
+            }
+        }
+    }
+
+
 
     function getAssignedUID($taskid) {}
 
@@ -561,7 +651,5 @@
 
 
     function cancelTask($queueId) {}
-
-    function setProcessVariable() {}
 
   }

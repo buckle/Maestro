@@ -71,57 +71,60 @@
     // Requires the processID to be set and then pass in a variable's name and value
     // if both the process and the name exist, you get a value..
     // otherwise, you get NULL
-    /*
     function setProcessVariable($variableName, $variableValue=0) {
-        global $_TABLES;
         $retval = null;
         $thisvar = strtolower($variableName);
-        if($this->_nfProcessId==NULL || $this->_nfProcessId==''){
+           if(empty($this->_processId)) {
             if ($this->_debug ) {
-                COM_errorLog("set_ProcessVariable: The Process ID has not been set.");
+                watchdog('maestro',"get_ProcessVariable: The Process ID has not been set.");
             }
             $retval=NULL;
-        }else{
-            // setting the value
-            $sql  = "SELECT a.id, a.nf_templateVariableID FROM {$_TABLES['nf_processvariables']} a ";
-            $sql .= "INNER JOIN {$_TABLES['nf_templatevariables']} b ON a.nf_templateVariableID=b.id ";
-            $sql .= "WHERE a.nf_processID='{$this->_nfProcessId}' ";
-            $sql .= "AND b.variableName='$thisvar'";
-            $result = DB_query($sql );
-            if (DB_numRows($result ) > 0 ) {
-                list($processVariable_id,$variable_id) = DB_fetchArray($result );
-                $sql =  "UPDATE {$_TABLES['nf_processvariables']} set variableValue='$variableValue' WHERE id='$processVariable_id' ";
-                $sql .= "AND nf_processID='{$this->_nfProcessId}'";
-                $result = DB_Query($sql);
+        }
+        else {
+          // setting the value
+          $query = db_select('maestro_process_variables', 'a');
+          $query->addField('a','id','process_variable_id');
+          $query->addField('a','template_variable_id','variable_id');
+          $query->join('maestro_template_variables', 'b', 'a.template_variable_id = b.id');
+          $query->condition('a.process_id',$this->_processId,'=');
+          $query->condition('b.variable_name',$thisvar,'=');
+          $result = $query->execute();
+          $numrows = $query->countQuery()->execute()->fetchField();
+          if ($numrows > 0 ) {
+            $processVariableRecord = $result->fetchObject();
+            $count = db_update('maestro_process_variables')
+              ->fields(array('variable_value' => $variableValue))
+              ->condition('id', $processVariableRecord->process_variable_id, '=')
+              ->condition('process_id',$this->_processId,'=')
+              ->execute();
                 if ($this->_debug ) {
-                    COM_errorLog("set_processVariable -> Process:{$this->_nfProcessId}, variable:$variableName, value:$variableValue");
+                    watchdog('maestro',"set_processVariable -> Process:{$this->_processId}, variable:$thisvar, value:$variableValue");
                 }
-                if ($result) {
+                if ($count == 1) {
                     $retval = $variableValue;
                 }
-                //now see if that process variable controlled assignment
-                $sql  = "SELECT a.id FROM {$_TABLES['nf_queue']} a LEFT JOIN {$_TABLES['nf_templatedata']} b ON a.nf_templateDataID=b.id ";
-                $sql .= "LEFT JOIN {$_TABLES['nf_templateassignment']} c ON a.nf_templateDataID=c.nf_templateDataID ";
-                $sql .= "WHERE (a.archived IS NULL OR a.archived=0) AND a.nf_processID={$this->_nfProcessId} AND b.assignedByVariable=1 ";
-                $sql .= "AND c.nf_processVariable=$variable_id;";
-                $res = DB_query($sql);
-                while ($queueRec = DB_fetchArray($res)) {
-                    $userAssignmentInfo = array();
-                    $userAssignmentInfo[$variable_id] = $variableValue;
-                    $this->assign_task($queueRec['id'],$userAssignmentInfo);
+                // Now see if that process variable controlled assignment
+                $query = db_select('maestro_queue', 'a');
+                $query->fields('a',array('id'));
+                $query->join('maestro_template_data', 'b', 'b.id = a.template_data_id');
+                $query->join('maestro_template_assignment', 'c', 'c.template_data_id = a.template_data_id');
+                $query->condition('a.process_id',$this->_processId,'=');
+                $query->condition('b.assigned_by_variable',1,'=');
+                $query->condition(db_or()->condition('a.archived',0)->condition('a.archived',NULL));
+                $query->condition('c.process_variable',$processVariableRecord->variable_id,'=');
+                $queueRecords = $query->execute();
+                foreach ($queueRecords as $queueRecord) {
+                    $this->assignTask($queueRecord->id,array($processVariableRecord->variable_id => $variableValue));
                 }
+
             } else {
                 if ($this->_debug ) {
-                    COM_errorLog("set_processVariable -> Process:{$this->_nfProcessId}, variable:$variableName - DOES NOT EXIST");
+                    watchdog('maestro',"set_processVariable -> Process:{$this->_processId}, variable:$thisvar - DOES NOT EXIST");
                 }
             }
         }
         return $retval;
     }
-    */
-
-
-    abstract function setProcessVariable();
 
     abstract function getVersion();
 
