@@ -36,6 +36,19 @@ db_query("INSERT INTO {maestro_template_variables} (`id`, `template_id`, `variab
 (1, 1, 'initiator', ''),
 (2, 1, 'var1', '1')");
 
+
+db_query("INSERT INTO {maestro_if_process_arguments} (`id`, `label`, `logical_entry`) VALUES
+(1, 'Last Task Status is Success', 'lasttasksuccess'),
+(2, 'Last Task Status is Cancel', 'lasttaskcancel'),
+(3, 'Last Task Status is Hold', 'lasttaskhold'),
+(4, 'Last Task Status is Aborted', 'lasttaskaborted');");
+
+db_query("INSERT INTO {maestro_if_operators} (`id`, `operator`) VALUES
+(1, '='),
+(2, '>'),
+(3, '<'),
+(4, '!=');");
+
 }
 
 
