@@ -28,7 +28,7 @@ abstract class MaestroTask {
 class MaestroTaskTypeStart extends MaestroTask {
 
   function execute() {
-    $msg = 'Execute Task Type: "Start" - properties: ';
+    $msg = 'Execute Task Type: "Start" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
     $this->executionStatus = TRUE;
@@ -41,7 +41,7 @@ class MaestroTaskTypeStart extends MaestroTask {
 class MaestroTaskTypeEnd extends MaestroTask {
 
   function execute() {
-    $msg = 'Execute Task Type: "End" - properties: ';
+    $msg = 'Execute Task Type: "End" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
     $this->executionStatus = TRUE;
@@ -55,7 +55,7 @@ class MaestroTaskTypeEnd extends MaestroTask {
 class MaestroTaskTypeBatch extends MaestroTask {
 
   function execute() {
-    $msg = 'Execute Task Type: "Batch" - properties: ';
+    $msg = 'Execute Task Type: "Batch" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
     $success = FALSE;
 
@@ -81,7 +81,7 @@ class MaestroTaskTypeBatch extends MaestroTask {
 class MaestroTaskTypeBatchFunction extends MaestroTask {
 
   function execute() {
-    $msg = 'Execute Task Type: "BatchFunction" - properties: ';
+    $msg = 'Execute Task Type: "BatchFunction" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
     $success = FALSE;
     $current_path = drupal_get_path('module','maestro') . "/batch/";
@@ -106,7 +106,7 @@ class MaestroTaskTypeBatchFunction extends MaestroTask {
 class MaestroTaskTypeAnd extends MaestroTask {
 
   function execute() {
-    $msg = 'Execute Task Type: "AND" - properties: ';
+    $msg = 'Execute Task Type: "AND" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
 
     $numComplete = 0;
@@ -145,7 +145,7 @@ class MaestroTaskTypeAnd extends MaestroTask {
 class MaestroTaskTypeIf extends MaestroTask {
 
   function execute() {
-    $msg = 'Execute Task Type: "IF" - properties: ';
+    $msg = 'Execute Task Type: "IF" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
     $this->executionStatus = TRUE;
@@ -157,7 +157,7 @@ class MaestroTaskTypeIf extends MaestroTask {
 class MaestroTaskTypeInteractivefunction extends MaestroTask {
 
   function execute() {
-    $msg = 'Execute Task Type: "MaestroTaskTypeInteractivefunction" - properties: ';
+    $msg = 'Execute Task Type: "MaestroTaskTypeInteractivefunction" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
     $this->executionStatus = TRUE;
