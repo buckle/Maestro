@@ -6,6 +6,10 @@
  * maestro-workflow-list.tpl.php
  */
 
+  global $base_url;
+
+  drupal_add_css($base_url . '/' . drupal_get_path('module', 'maestro') . '/css/maestro.css');
+
 ?>
 
   <script type="text/javascript">

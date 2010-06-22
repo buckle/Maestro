@@ -6,6 +6,8 @@
  * maestro-workflow-edit.tpl.php
  */
 
+  echo $tid . ' lalala';
+
   global $base_url;
   $yui_base_url = 'http://yui.yahooapis.com/2.7.0/build';
   $maestro_path = '/' . drupal_get_path('module', 'maestro');
@@ -116,7 +118,7 @@
   <input type="hidden" name="workflow_id" value="{workflow_id}">
   <input type="hidden" name="op" value="save_workflow">
 
-  {existing_tasks}
+  <?php echo theme('maestro_workflow_edit_tasks', array(1)); ?>
 
 </div>
 </form>
