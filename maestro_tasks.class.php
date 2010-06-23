@@ -1,5 +1,14 @@
 <?php
 
+class MaestroTaskStatusCodes{
+
+  CONST STATUS_READY = 0;
+  CONST STATUS_COMPLETE = 1;
+  CONST STATUS_ON_HOLD = 2;
+  CONST STATUS_ABORTED = 3;
+  CONST STATUS_IF_CONDITION_FALSE = 4;
+}
+
 abstract class MaestroTask {
   protected $_properties = NULL;
   protected $_message = NULL;
@@ -270,11 +279,11 @@ class MaestroTaskTypeIf extends MaestroTask {
 
         if ($whichBranch == 1 ) {
           // point to the true branch
-          $statusToinsert = 1;
+          $statusToinsert = MaestroTaskStatusCodes::STATUS_COMPLETE;
         }
         else {
           // point to the false branch
-          $statusToinsert = 4;
+          $statusToinsert = MaestroTaskStatusCodes::STATUS_IF_CONDITION_FALSE;
         }
         $this->_archiveStatus=$statusToInsert;
         //now, at this point we need to set the archive task status of this task to the $statusToinsert variable.

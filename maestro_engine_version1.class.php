@@ -320,7 +320,13 @@
         // using the queueid and the processid, we are able to create or generate the
         // next step or the regenerated next step in a new process
         $query = db_select('maestro_queue', 'a');
-        $query->addField('b','template_data_to','taskid');
+        //if the archive status explicityly says that we're looking at a false condition from an IF, use the false path instead
+        if($this->_archiveStatus == MaestroTaskStatusCodes::STATUS_IF_CONDITION_FALSE) {
+          $query->addField('b','template_data_to_false','taskid');
+        }
+        else {
+          $query->addField('b','template_data_to','taskid');
+        }
         $query->addField('c','reminder_interval');
         $query->addField('c','task_class_name');
         $query->join('maestro_template_data_next_step', 'b', 'a.template_data_id = b.template_data_from');
