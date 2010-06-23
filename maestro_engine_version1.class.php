@@ -661,4 +661,113 @@
 
     function cancelTask($queueId) {}
 
+    function getQueue() {
+        global $_TABLES;
+        if (!empty($this->_userId) AND $this->_userId > 0) {
+         /* Instance where the user id is known.  need to see if there is a processID given.
+          * This means that the mode in which we're working is user based.. we only care about a user in this case
+          */
+          $this->_mode = 'user';
+          if ($this->_debug ) {
+              watchdog('maestro',"Entering getQueue - user mode");
+          }
+          $this->_userTaskList['id'] = Array();
+          $this->_userTaskList['url'] = Array();
+          $this->_userTaskList['taskname'] = Array();
+          $this->_userTaskList['steptype'] = Array();
+          $this->_userTaskCount = 0;
+
+          $query = db_select('maestro_queue', 'a');
+          $query->join('maestro_template_data', 'b', 'a.template_data_id = b.id');
+          $query->join('maestro_production_assignments', 'c', 'a.id = c.task)id');
+          $query->fields('a',array('id','template_data_id','process_id','is_interactive'));
+          $query->fields('b',array('step_type','function','form_id','handler','template_id','taskname','is_dynamic_form','dynamic_form_variable_id','is_dynamic_taskname','dynamic_taskname_variable_id'));
+          $query->condition('c.uid',$this->userId,'=');
+          $query->condition(db_or()->condition('a.archived',0)->condition('a.archived',NULL));
+          $userTaskResult = $query->execute();
+          $numTaskRows = $query->countQuery()->execute()->fetchField();
+          if ($numTaskRows == 0) {
+            if ($this->_debug ) {
+              watchdog('maestro',"getQueue - 0 rows returned.  Nothing in queue for this user: {$this->_userId}.");
+            }
+          }
+          else {
+            // this is going to return a semi-colon delimited list of queue id's for that user.
+            $temparray = Array();
+            foreach ($userTaskResult as $userTaskRecord) {
+              if ($this->_queueId == '' ) {
+                $this->_queueId = $userTaskRecord->id;
+              } else {
+                $this->_queueId .= ";" . $userTaskRecord->id;
+              }
+              $flag = 0;
+              // simple test to determine if the task ID already exists for this user
+              for($flagcntr = 0;$flagcntr <= $this->_userTaskCount;$flagcntr++ ) {
+                if ($this->_userTaskList['id'][$flagcntr] == $userTaskRecord->id ) {
+                  $flag = 1;
+                }
+              }
+              if ($flag == 0 ) {
+                $temparray = array(1 => $userTaskRecord->id);
+                /*
+                if ($userTaskRecord->stepType == 6 OR $A['nf_stepType'] == 7 )  { // Batch Function or Internactive Function
+                  $handler = $A['function'];
+                } elseif ($A['nf_stepType'] == 8 )  {   // nexform Task
+                  //in here we have to change the handler to take into account that this could be
+                  //a dynamically assigned form
+                  if($A['isDynamicForm'] == 1){
+                    $sql  = "SELECT variableValue FROM {$_TABLES['nf_processvariables']} ";
+                    $sql .= "WHERE nf_processid='{$A['nf_processID']}' and nf_templateVariableID='{$A['dynamicFormVariableID']}'";
+                    $res = DB_query($sql);
+                    list($handler) = DB_fetchArray($res);
+                  }else{
+                    $handler = $A['formid'];
+                  }
+                } else {
+                  $handler = DB_getItem($_TABLES['nf_handlers'],'handler',"id='{$A['nf_handlerid']}'");
+                }
+                */
+
+                $this->_userTaskList['id'] = array_merge($this->_userTaskList['id'], array(1 => $userTaskRecord->id));
+                $this->_userTaskList['template'] = array_merge($this->_userTaskList['template'], array(1 => $userTaskRecord->template_id));
+                $this->_userTaskList['url'] = array_merge($this->_userTaskList['url'], array(1 => $userTaskRecord->handler));
+                //handle dynamic task name based on a variable's value
+                $taskname = '';
+                if($userTaskRecord->isDynamicTaskName == 1) {
+                  $q2 = db_select('maestro_process_variables', 'a');
+                  $q2->addField('a','variable_value');
+                  $q2->condition('a.process_id',$userTaskRecord->process_id,'=');
+                  $q2->condition('a.template_variable_id',$userTaskRecord->dynamic_taskname_variable_id,'=');
+                  $res1 = $query->execute()->fetchObject();
+                  if ($res1) {
+                    $userTaskRecord->taskname = $res1->variable_value;
+                  }
+                }
+                /* @TODO: Need to look at using a module HOOK that can be used in a similar way to define an custom taskname */
+                /*
+                if (function_exists('PLG_Nexflow_taskname')) {
+                  $parms = array('pid' => $A['nf_processID'], 'tid' => $A['nf_templateDataID'], 'qid' => $A['id'], 'user' => $this->_nfUserId);
+                  if (!empty($taskame)) {
+                    $apiRetval = PLG_Nexflow_taskname($parms,$taskname);
+                  } else {
+                    $apiRetval = PLG_Nexflow_taskname($parms,$A['taskname']);
+                  }
+                  $taskname = $apiRetval['taskname'];
+                }
+                */
+                $this->_userTaskList['taskname'] = array_merge($this->_userTaskList['taskname'], array(1 => $userTaskRecord->taskname));
+                $this->_userTaskList['stepType'] = array_merge($this->_userTaskList['steptype'], array(1 => $userTaskRecord->step_type));
+                $this->_userTaskCount += 1; //increment the total user taks counter
+              }
+            }
+          }
+        }
+
+        if ($this->_debug ) {
+            COM_errorLog("Exiting getQueue");
+        }
+    }
+
+
+
   }
