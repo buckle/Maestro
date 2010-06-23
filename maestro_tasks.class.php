@@ -1,7 +1,6 @@
 <?php
 
-class MaestroTaskStatusCodes{
-
+class MaestroTaskStatusCodes {
   CONST STATUS_READY = 0;
   CONST STATUS_COMPLETE = 1;
   CONST STATUS_ON_HOLD = 2;
