@@ -8,7 +8,9 @@
       var $_properties;
 
       function __construct($options) {
+        global $user;
         $this->_properties = $options;
+        $this->_userId = $user->uid;
       }
 
 

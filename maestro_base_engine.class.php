@@ -23,7 +23,7 @@
     }
 
     // Simply sets the debug parameter.
-    function setDebug($debug ) {
+    function setDebug($debug) {
         if ($debug) {
             watchdog('maestro',"Set debug mode on");
         }

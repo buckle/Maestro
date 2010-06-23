@@ -41,7 +41,7 @@ abstract class MaestroTask {
 class MaestroTaskTypeStart extends MaestroTask {
 
   function execute() {
-    $msg = 'Execute Task Type: "Start" - properties: ';
+    $msg = 'Execute Task Type: "Start" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
     $this->executionStatus = TRUE;
@@ -54,7 +54,7 @@ class MaestroTaskTypeStart extends MaestroTask {
 class MaestroTaskTypeEnd extends MaestroTask {
 
   function execute() {
-    $msg = 'Execute Task Type: "End" - properties: ';
+    $msg = 'Execute Task Type: "End" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
     $this->executionStatus = TRUE;
@@ -68,7 +68,7 @@ class MaestroTaskTypeEnd extends MaestroTask {
 class MaestroTaskTypeBatch extends MaestroTask {
 
   function execute() {
-    $msg = 'Execute Task Type: "Batch" - properties: ';
+    $msg = 'Execute Task Type: "Batch" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
     $success = FALSE;
 
@@ -94,7 +94,7 @@ class MaestroTaskTypeBatch extends MaestroTask {
 class MaestroTaskTypeBatchFunction extends MaestroTask {
 
   function execute() {
-    $msg = 'Execute Task Type: "BatchFunction" - properties: ';
+    $msg = 'Execute Task Type: "BatchFunction" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
     $success = FALSE;
     $current_path = drupal_get_path('module','maestro') . "/batch/";
@@ -119,7 +119,7 @@ class MaestroTaskTypeBatchFunction extends MaestroTask {
 class MaestroTaskTypeAnd extends MaestroTask {
 
   function execute() {
-    $msg = 'Execute Task Type: "AND" - properties: ';
+    $msg = 'Execute Task Type: "AND" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
 
     $numComplete = 0;
@@ -139,13 +139,13 @@ class MaestroTaskTypeAnd extends MaestroTask {
 
     // sounds confusing, but if the processCount is greater than the completed ones, we're ok too
     if ($numIncomplete->processCount == $numComplete->templateCount || $numIncomplete->processCount > $numComplete->templateCount ) {
-      // we have all of the incoming items done for this AND
-      // we can now carry out updating this queue item's information
-      $this->executionStatus = TRUE;
+        // we have all of the incoming items done for this AND
+        // we can now carry out updating this queue item's information
+        $this->executionStatus = TRUE;
     } else {
-      // not all the incomings for the AND are done
-      // just here for troubleshooting purposes
-      $this->executionStatus = FALSE;
+        // not all the incomings for the AND are done
+        // just here for troubleshooting purposes
+        $this->executionStatus = FALSE;
     }
 
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
@@ -158,10 +158,9 @@ class MaestroTaskTypeAnd extends MaestroTask {
 class MaestroTaskTypeIf extends MaestroTask {
 
   function execute() {
-    $msg = 'Execute Task Type: "IF" - properties: ';
+    $msg = 'Execute Task Type: "IF" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
-
     $query = db_select('maestro_template_data', 'a');
     $query->leftJoin('maestro_template_variables','b','a.argument_variable=b.id');
     $query->fields('a',array('if_value', 'if_argument_process', 'operator'));
@@ -292,16 +291,16 @@ class MaestroTaskTypeIf extends MaestroTask {
 
   }//end if($nexTaskRows>0)
 
-  $this->executionStatus = TRUE;
-  return $this;
-}
+    $this->executionStatus = TRUE;
+    return $this;
+  }
 
 }
 
 class MaestroTaskTypeInteractivefunction extends MaestroTask {
 
   function execute() {
-    $msg = 'Execute Task Type: "MaestroTaskTypeInteractivefunction" - properties: ';
+    $msg = 'Execute Task Type: "MaestroTaskTypeInteractivefunction" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
     $this->executionStatus = TRUE;
