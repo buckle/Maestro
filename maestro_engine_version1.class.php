@@ -601,7 +601,7 @@
           drupal_write_record('maestro_project_task_history',$history_record);
       }
 
-      if ($this->_userId == '' or $this->userId == null ) {
+      if ($this->_userId == '' or $this->_userId == null ) {
           $currentUid = db_query("SELECT uid FROM {maestro_production_assignments} WHERE task_id = :qid",
               array(':qid' => $qid))->fetchField();
 
