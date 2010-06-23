@@ -3,6 +3,7 @@
   /* Using Drupal OO Coding Standards as described: http://drupal.org/node/608152 */
 
   abstract class MaestroEngine {
+//@TODO: Need to convert these to the proper public/protected variables.
 
     var $_version                 = '';       // Current engine version
     var $_processId               = null;     // Current Process the workflow engine is working on
@@ -14,7 +15,7 @@
     var $_userTaskCount           = 0;        // Number of tasks the user has in the queue
     var $_templateCount           = 0;        // Number of templates the user is able to kick off
     var $_processTaskCount        = 0;        // Number of tasks the current process has in the queue
-
+    var $_archiveStatus           = 0;        // Set by the executing task to signify what status the archive routine should set.
     var $task = null;
 
     public function executeTask(MaestroTask $task) {

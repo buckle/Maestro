@@ -300,6 +300,7 @@
           //Execution successful.  Complete the task here.
           //We will always complete a task, regardless of its task type.
           $this->completeTask($this->_queueId);
+          $this->_archiveStatus=$task->getArchiveStatus();
           //@TODO:  any post complete task hooks?
           $this->nextStep();
         }
@@ -332,7 +333,7 @@
         watchdog('maestro',"nextStep: Number of next task records: $nextTaskRows");
         if ($nextTaskRows == 0 ) {
             // There are no rows for this specific queueId and nothing for this processId, there's no next task
-            $this->archiveTask($this->_queueId);
+            $this->archiveTask($this->_queueId, $this->_archiveStatus);
             db_update('maestro_process')
               ->fields(array('complete' => 1, 'completed_date' => time()))
               ->condition('id', $this->_processId, '=')
@@ -346,7 +347,7 @@
                 // Check if the next template id is null, ensures that if we're on the last task and it points to null, that we end it properly
                 if ($nextTaskRec->taskid == null or $nextTaskRec->taskid == '' ) {
                     // Process is done, set the process status to complete and archive queue item
-                    $this->archiveTask($this->_queueId);
+                    $this->archiveTask($this->_queueId, $this->_archiveStatus);
                     db_update('maestro_process')
                       ->fields(array('complete' => 1, 'completed_date' => time()))
                       ->condition('id', $this->_processId, '=')
@@ -363,7 +364,7 @@
                     $query->condition('a.template_data_id', $nextTaskRec->taskid,'=');
                     $nextTaskQueueRec = $query->execute()->fetchObject();
                     if ($nextTaskQueueRec == FALSE OR $nextTaskQueueRec->rec_count == 0 ) {
-                        $this->archiveTask($this->_queueId);
+                        $this->archiveTask($this->_queueId, $this->_archiveStatus);
                         if ($nextTaskRec->reminder_interval > 0) {
                             $next_reminder_date = time() + $nextTaskRec->reminder_interval;
                         }
@@ -423,7 +424,7 @@
                             // regenerate the same process starting at the next step
                             // set the current process' complete status to 2.. 0 is active, 1 is done, 2 is has children
                             $this->newProcess($regenRec->template_id, $nextTaskRec->taskid, $this->_processId);
-                            $this->archiveTask($this->_queueId);
+                            $this->archiveTask($this->_queueId, $this->_archiveStatus);
 
                         } else {
                             //no regeneration  we're done
@@ -432,7 +433,7 @@
                             $next_record->queue_id = $regenRec->id;
                             $next_record->from_queue_id = $this->_queueId;
                             drupal_write_record('maestro_queue_from',$next_record);
-                            $this->archiveTask($this->_queueId);
+                            $this->archiveTask($this->_queueId, $this->_archiveStatus);
 
                             $query = db_select('maestro_queue', 'a');
                             $query->addExpression('COUNT(id)','rec_count');
