@@ -759,13 +759,13 @@ function maestro_schema() {
         'description' => '',
         'type' => 'int',
         'not null' => TRUE,
-        'default' => '0',
+        'default' => 0,
       ),
       'is_interactive' => array(
         'description' => '',
         'type' => 'int',
         'not null' => TRUE,
-        'default' => '0',
+        'default' => 0,
       ),
       'status' => array(
         'description' => '',
@@ -970,6 +970,12 @@ function maestro_schema() {
         'description' => '',
         'type' => 'varchar',
         'length' => '100',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'is_interactive' => array(
+        'description' => '',
+        'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
       ),

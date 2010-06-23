@@ -103,7 +103,8 @@ function maestro_theme() {
     ),
     'maestro_workflow_edit_tasks' => array(
       'template' => 'theme/maestro-workflow-edit-tasks',
-      'render element' => 'structure'
+      'render element' => 'structure',
+      'arguments' => array('tid' => NULL)
     ),
   );
 }

@@ -151,7 +151,7 @@
               <td valign="top" nowrap>Delete Application Group:</td>
               <td>
                 <select name="deleteAppGroup" size="4">
-                {deleteAppGroup}
+                  {deleteAppGroup}
                 </select>
               </td>
               <td width="60%">&nbsp;</td>

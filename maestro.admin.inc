@@ -12,6 +12,6 @@ function maestro_admin() {
 }
 
 function maestro_edit_workflow($tid) {
-  return theme('maestro_workflow_edit', $tid);
+  return theme('maestro_workflow_edit', array('tid' => $tid));
 }
 
