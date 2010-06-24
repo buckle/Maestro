@@ -22,6 +22,10 @@
        return $task->execute();
     }
 
+    public function prepareTask(MaestroTask $task) {
+       return $task->prepareTask();
+    }
+
     // Simply sets the debug parameter.
     function setDebug($debug) {
         if ($debug) {

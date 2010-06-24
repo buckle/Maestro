@@ -767,6 +767,17 @@ function maestro_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
+      'handler' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'task_data' => array(
+        'description' => 'Serialized array of task specific data or options.',
+        'type' => 'blob'
+      ),
       'status' => array(
         'description' => '',
         'type' => 'int',
@@ -979,10 +990,14 @@ function maestro_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
+      'task_data' => array(
+        'description' => 'Serialized array of task specific data or options.',
+        'type' => 'blob'
+      ),
       'handler' => array(
         'description' => '',
         'type' => 'varchar',
-        'length' => '100',
+        'length' => '255',
         'not null' => TRUE,
         'default' => '',
       ),

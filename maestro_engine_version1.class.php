@@ -322,7 +322,7 @@
         // using the queueid and the processid, we are able to create or generate the
         // next step or the regenerated next step in a new process
         $query = db_select('maestro_queue', 'a');
-        //if the archive status explicityly says that we're looking at a false condition from an IF, use the false path instead
+        //if the archive status explicitly says that we're looking at a false condition from an IF, use the false path instead
         if($this->_archiveStatus == MaestroTaskStatusCodes::STATUS_IF_CONDITION_FALSE) {
           $query->addField('b','template_data_to_false','taskid');
         }
@@ -389,6 +389,13 @@
                         $queue_record->engine_version = $this->_version;
                         $queue_record->created_date = time();
                         $queue_record->next_reminder_date = $next_reminder_date;
+                        // Instantiate the tasktype specific method to set the queue record task data
+                        $taskdata = $this->prepareTask(new $nextTaskRec->task_class_name($nextTaskRec));
+                        if (isset($taskdata) AND is_array($taskdata)) {
+                          if (isset($taskdata['handler'])) $queue_record->handler = $taskdata['handler'];
+                          if (isset($taskdata['serialized_data'])) $queue_record->task_data = $taskdata['serialized_data'];
+                        }
+
                         drupal_write_record('maestro_queue',$queue_record);
 
                         // Test that we have a new queue record and then set $this->_queueId for use by class methods
@@ -680,8 +687,8 @@
           $query = db_select('maestro_queue', 'a');
           $query->join('maestro_template_data', 'b', 'a.template_data_id = b.id');
           $query->join('maestro_production_assignments', 'c', 'a.id = c.task)id');
-          $query->fields('a',array('id','template_data_id','process_id','is_interactive'));
-          $query->fields('b',array('step_type','function','form_id','handler','template_id','taskname','is_dynamic_form','dynamic_form_variable_id','is_dynamic_taskname','dynamic_taskname_variable_id'));
+          $query->fields('a',array('id','template_data_id','process_id','is_interactive','handler','task_data'));
+          $query->fields('b',array('step_type','function','form_id','template_id','taskname','is_dynamic_form','dynamic_form_variable_id','is_dynamic_taskname','dynamic_taskname_variable_id'));
           $query->condition('c.uid',$this->userId,'=');
           $query->condition(db_or()->condition('a.archived',0)->condition('a.archived',NULL));
           $userTaskResult = $query->execute();
@@ -692,7 +699,7 @@
             }
           }
           else {
-            // this is going to return a semi-colon delimited list of queue id's for that user.
+            // Return a semi-colon delimited list of queue id's for that user.
             $temparray = Array();
             foreach ($userTaskResult as $userTaskRecord) {
               if ($this->_queueId == '' ) {
@@ -701,7 +708,7 @@
                 $this->_queueId .= ";" . $userTaskRecord->id;
               }
               $flag = 0;
-              // simple test to determine if the task ID already exists for this user
+              // Simple test to determine if the task ID already exists for this user
               for($flagcntr = 0;$flagcntr <= $this->_userTaskCount;$flagcntr++ ) {
                 if ($this->_userTaskList['id'][$flagcntr] == $userTaskRecord->id ) {
                   $flag = 1;
@@ -709,29 +716,10 @@
               }
               if ($flag == 0 ) {
                 $temparray = array(1 => $userTaskRecord->id);
-                /*
-                if ($userTaskRecord->stepType == 6 OR $A['nf_stepType'] == 7 )  { // Batch Function or Internactive Function
-                  $handler = $A['function'];
-                } elseif ($A['nf_stepType'] == 8 )  {   // nexform Task
-                  //in here we have to change the handler to take into account that this could be
-                  //a dynamically assigned form
-                  if($A['isDynamicForm'] == 1){
-                    $sql  = "SELECT variableValue FROM {$_TABLES['nf_processvariables']} ";
-                    $sql .= "WHERE nf_processid='{$A['nf_processID']}' and nf_templateVariableID='{$A['dynamicFormVariableID']}'";
-                    $res = DB_query($sql);
-                    list($handler) = DB_fetchArray($res);
-                  }else{
-                    $handler = $A['formid'];
-                  }
-                } else {
-                  $handler = DB_getItem($_TABLES['nf_handlers'],'handler',"id='{$A['nf_handlerid']}'");
-                }
-                */
-
                 $this->_userTaskList['id'] = array_merge($this->_userTaskList['id'], array(1 => $userTaskRecord->id));
                 $this->_userTaskList['template'] = array_merge($this->_userTaskList['template'], array(1 => $userTaskRecord->template_id));
                 $this->_userTaskList['url'] = array_merge($this->_userTaskList['url'], array(1 => $userTaskRecord->handler));
-                //handle dynamic task name based on a variable's value
+                // Handle dynamic task name based on a variable's value
                 $taskname = '';
                 if($userTaskRecord->isDynamicTaskName == 1) {
                   $q2 = db_select('maestro_process_variables', 'a');
@@ -757,14 +745,14 @@
                 */
                 $this->_userTaskList['taskname'] = array_merge($this->_userTaskList['taskname'], array(1 => $userTaskRecord->taskname));
                 $this->_userTaskList['stepType'] = array_merge($this->_userTaskList['steptype'], array(1 => $userTaskRecord->step_type));
-                $this->_userTaskCount += 1; //increment the total user taks counter
+                $this->_userTaskCount += 1; // Increment the total user task counter
               }
             }
           }
         }
 
         if ($this->_debug ) {
-            COM_errorLog("Exiting getQueue");
+            watchdog('maestro',"Exiting getQueue - user mode");
         }
     }
 

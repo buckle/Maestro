@@ -16,10 +16,15 @@ abstract class MaestroTask {
 
   function __construct($properties) {
     $this->_properties = $properties;
-
   }
 
   abstract function execute ();
+
+  /* prepareTask: Opportunity to set task specific data that will be used to create the queue record
+     Specifically, the task handler and task_data fields - which is a serialized array of task specific options/data
+     @retval:  associative array (handler => varchar, task_data => serialized array)
+   */
+  abstract function prepareTask ();
 
   function setMessage($msg) {
     $this->_message = $msg;
@@ -48,6 +53,8 @@ class MaestroTaskTypeStart extends MaestroTask {
     return $this;
   }
 
+  function prepareTask() {}
+
 
 }
 
@@ -61,6 +68,7 @@ class MaestroTaskTypeEnd extends MaestroTask {
     return $this;
   }
 
+  function prepareTask() {}
 
 }
 
@@ -89,6 +97,16 @@ class MaestroTaskTypeBatch extends MaestroTask {
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
     return $this;
   }
+
+  function prepareTask() {
+    $serializedData = db_query("SELECT task_data FROM {maestro_template_data} WHERE id = :tid",
+      array(':tid' => $this->_properties->taskid))->fetchField();
+    $taskdata = unserialize($serializedData);
+    return array('handler' => $taskdata['handler'],'serialized_data' => $serializedData);
+  }
+
+
+
 }
 
 class MaestroTaskTypeBatchFunction extends MaestroTask {
@@ -113,6 +131,14 @@ class MaestroTaskTypeBatchFunction extends MaestroTask {
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
     return $this;
   }
+
+  function prepareTask() {
+    $serializedData = db_query("SELECT task_data FROM {maestro_template_data} WHERE id = :tid",
+      array(':tid' => $this->_properties->taskid))->fetchField();
+    $taskdata = unserialize($serializedData);
+    return array('handler' => $taskdata['function'],'serialized_data' => $serializedData);
+  }
+
 }
 
 
@@ -151,6 +177,8 @@ class MaestroTaskTypeAnd extends MaestroTask {
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
     return $this;
   }
+
+  function prepareTask() {}
 
 }
 
@@ -295,6 +323,8 @@ class MaestroTaskTypeIf extends MaestroTask {
     return $this;
   }
 
+  function prepareTask() {}
+
 }
 
 class MaestroTaskTypeInteractivefunction extends MaestroTask {
@@ -305,6 +335,13 @@ class MaestroTaskTypeInteractivefunction extends MaestroTask {
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
     $this->executionStatus = TRUE;
     return $this;
+  }
+
+  function prepareTask() {
+    $serializedData = db_query("SELECT task_data FROM {maestro_template_data} WHERE id = :tid",
+      array(':tid' => $this->_properties->taskid))->fetchField();
+    $taskdata = unserialize($serializedData);
+    return array('handler' => $taskdata['function'],'serialized_data' => $serializedData);
   }
 
 }
@@ -355,4 +392,7 @@ class MaestroTaskTypeSetProcessVariable extends MaestroTask {
     }
     return $this;
   }
+
+  function prepareTask() {}
+
 }
