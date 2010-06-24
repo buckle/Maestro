@@ -53,7 +53,8 @@
             $query->condition('c.id',$template,'=');
             $query->orderBy('template_data_from','ASC');
             $query->range(0,1);
-        } else {
+        }
+        else {
             // Retrieve the one queue record - where it is equal to the passed in start offset.
             $startoffset = int($startoffset);
             $query = db_select('maestro_template_data','a');
@@ -90,7 +91,8 @@
 
             if ($process_record->id > 0) {
               $this->_processId = $process_record->id;
-            } else {
+            }
+            else {
               watchdog('maestro', "New Process Code FAIL! - for template: $template");
               return FALSE;
             }
@@ -114,7 +116,8 @@
             drupal_write_record('maestro_queue',$queue_record);
             if ($queue_record->id > 0) {
               $this->_queueId = $queue_record->id;
-            } else {
+            }
+            else {
               watchdog('maestro', "New Process Code FAIL! - Unexpected problem creating initial queue record for template: $template");
               return FALSE;
             }
@@ -213,7 +216,8 @@
                     if ($this->_debug ) {
                         watchdog('maestro',"new process: created new project_id: {$project_record->id}");
                     }
-                } elseif($templaterec->use_project && !empty($pid)) {
+                }
+                elseif($templaterec->use_project && !empty($pid)) {
                     // Condition where there IS a parent AND we want a project table association
                     // One different step here - to update the wf process association for the original PID to the new insertID
                     db_update('maestro_projects')
@@ -224,7 +228,8 @@
                       watchdog('maestro',"updated existing project record - set process_id to {$this->_processId}");
                     }
                 }
-            } else {
+            }
+            else {
                 // Condition here where we are spawning a new process from an already existing process
                 // BUT we are not going to create a new tracking project.  Rather we are going to associate this process with the
                 // parent's already established tracking project
@@ -250,7 +255,8 @@
 
             return $this->_processId;
 
-        } else {
+        }
+        else {
             watchdog('maestro', "New Process Code FAIL! - Template: $template not defined");
         }
     }
@@ -298,7 +304,8 @@
           watchdog('maestro',"Task Information: ". $task->getMessage());
           //@TODO:  what do we do for a failed task?
           //A task should have some sort of error recovery method
-        }else{
+        }
+        else {
           //Execution successful.  Complete the task here.
           //We will always complete a task, regardless of its task type.
           $this->completeTask($this->_queueId);
@@ -360,7 +367,8 @@
                       ->fields(array('complete' => 1, 'completed_date' => time()))
                       ->condition('id', $this->_processId, '=')
                       ->execute();
-                } else {
+                }
+                else {
                     // we have a next step, thus we can archive the queue item and also insert a
                     // new queue item with the next step populated as the next template_stepid
 
@@ -406,7 +414,8 @@
                               $logmsg .= "Assigned to " . $this->getTaskOwner($nextTaskRec->taskid,$this->_processId);
                               watchdog('maestro', $logmsg);
                           }
-                        } else {
+                        }
+                        else {
                           watchdog('maestro', "nextStep Method FAIL! - Unexpected problem creating queue record");
                         }
 
@@ -422,7 +431,8 @@
                         // Check if notification has been defined for new task assignment
                         $this->sendTaskAssignmentNotifications();
 
-                    } else {
+                    }
+                    else {
                         // we have a situation here where the next item already exists.
                         // need to determine if the next item has a regeneration flag.
                         // if there is a regeneration flag, then create a new process starting with that regeneration flagged item
@@ -441,7 +451,8 @@
                             $this->newProcess($regenRec->template_id, $nextTaskRec->taskid, $this->_processId);
                             $this->archiveTask($this->_queueId, $this->_archiveStatus);
 
-                        } else {
+                        }
+                        else {
                             //no regeneration  we're done
                             $toQueueID = $nextTaskQueueRec->id;
                             $next_record = new stdClass();
