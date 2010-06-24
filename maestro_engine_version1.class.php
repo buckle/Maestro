@@ -698,7 +698,7 @@
           $query->join('maestro_template_data', 'b', 'a.template_data_id = b.id');
           $query->join('maestro_production_assignments', 'c', 'a.id = c.task_id');
           $query->fields('a',array('id','template_data_id','process_id','is_interactive','handler','task_data'));
-          $query->fields('b',array('task_class_name','function','form_id','template_id','taskname','is_dynamic_form','dynamic_form_variable_id','is_dynamic_taskname','dynamic_taskname_variable_id'));
+          $query->fields('b',array('task_class_name','template_id','taskname','is_dynamic_taskname','dynamic_taskname_variable_id'));
           $query->condition('c.uid',$this->_userId,'=');
           $query->condition(db_or()->condition('a.archived',0)->condition('a.archived',NULL));
           $userTaskResult = $query->execute();
