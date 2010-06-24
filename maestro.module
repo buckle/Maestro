@@ -109,6 +109,31 @@ function maestro_theme() {
   );
 }
 
+function maestro_block_info() {
+  $blocks['maestro']['info'] = t('Maestro Task Console');
+  $blocks['maestro']['cache'] = DRUPAL_NO_CACHE;
+  return $blocks;
+}
+
+
+/**
+ * Implements hook_block_view().
+ */
+function maestro_block_view($delta = '') {
+  global $user;
+
+  $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
+  $maestro->engine()->setDebug(TRUE);
+  $block = array();
+  if (user_access('access content')) {
+    $maestro->engine()->getQueue();
+    $block['subject'] = t('Maestro Task Console');
+    $block['content'] = print_r($maestro->engine()->_userTaskList,true);
+  }
+  return $block;
+
+}
+
 
 function maestro_cleanqueue() {
   global $base_url;
