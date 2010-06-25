@@ -80,7 +80,7 @@ class MaestroTaskTypeBatch extends MaestroTask {
     watchdog('maestro',$msg);
     $success = FALSE;
 
-    $current_path = drupal_get_path('module','maestro') . "/batch/";
+    $current_path=variable_get('maestro_batch_script_location',drupal_get_path('module','maestro') . "/batch/");
 
     if (file_exists($current_path . $this->_properties->handler)) {
       require($current_path . $this->_properties->handler );
@@ -165,13 +165,13 @@ class MaestroTaskTypeAnd extends MaestroTask {
 
     // sounds confusing, but if the processCount is greater than the completed ones, we're ok too
     if ($numIncomplete->processCount == $numComplete->templateCount || $numIncomplete->processCount > $numComplete->templateCount ) {
-        // we have all of the incoming items done for this AND
-        // we can now carry out updating this queue item's information
-        $this->executionStatus = TRUE;
+      // we have all of the incoming items done for this AND
+      // we can now carry out updating this queue item's information
+      $this->executionStatus = TRUE;
     } else {
-        // not all the incomings for the AND are done
-        // just here for troubleshooting purposes
-        $this->executionStatus = FALSE;
+      // not all the incomings for the AND are done
+      // just here for troubleshooting purposes
+      $this->executionStatus = FALSE;
     }
 
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
