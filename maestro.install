@@ -56,7 +56,7 @@ db_query("INSERT INTO {maestro_if_operators} (`id`, `operator`) VALUES
 
 
 function maestro_uninstall() {
-
+  variable_del('maestro_batch_script_location');
 }
 
 function maestro_schema() {
