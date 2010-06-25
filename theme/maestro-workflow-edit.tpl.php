@@ -179,7 +179,7 @@
     $j = 0;
     foreach ($res as $rec) {
 ?>
-      existing_tasks[<?php echo $i++; ?>] = ['task<?php echo $rec->id; ?>', <?php echo $rec->offset_left; ?>, <?php echo $rec->offset_top; ?>]
+      existing_tasks[<?php echo $i++; ?>] = ['task<?php echo $rec->id; ?>', <?php echo $rec->offset_left; ?>, <?php echo $rec->offset_top; ?>];
 <?php
       $res2 = DB_query("SELECT template_data_to, template_data_to_false FROM {maestro_template_data_next_step} WHERE template_data_from=:tid", array(':tid'=>$rec->id));
       foreach ($res2 as $rec2) {

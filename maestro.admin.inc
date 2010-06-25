@@ -12,7 +12,9 @@ function maestro_admin() {
 }
 
 function maestro_edit_workflow($tid) {
-  return theme('maestro_workflow_edit', array('tid' => $tid));
+  include_once './' . drupal_get_path('module', 'maestro') . '/maestro_interface.class.php';
+  $mi = new MaestroInterface($tid);
+  return $mi->displayPage();
 }
 
 
