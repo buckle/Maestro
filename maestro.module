@@ -64,6 +64,15 @@ function maestro_menu() {
     'file'  => 'lib-test.php',
   );
 
+  $items['admin/config/workflow/maestro_configure'] = array(
+    'title' => 'Maestro Config',
+    'description' => 'Configure the Maestro Engine.',
+    'page callback' => 'maestro_configure',
+    'access arguments' => array('administer maestro'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'maestro.admin.inc'
+  );
+
   return $items;
 }
 
