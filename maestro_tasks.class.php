@@ -189,141 +189,142 @@ class MaestroTaskTypeIf extends MaestroTask {
     $msg = 'Execute Task Type: "IF" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
-    $query = db_select('maestro_template_data', 'a');
-    $query->leftJoin('maestro_template_variables','b','a.argument_variable=b.id');
-    $query->fields('a',array('if_value', 'if_argument_process', 'operator'));
-    $query->fields('b',array('variable_name'));
-    $query->addField('b','id','variableID');
-    $query->condition("a.id",$this->_properties->template_data_id,"=");
-    $res = $query->execute();
 
-    $nextTaskRows=$query->countQuery()->execute()->fetchField();
-    if ($nextTaskRows > 0 ) {  //this will/should equal 1.  We only use the first instance of the result anyways.
+    $query = db_select('maestro_queue', 'a');
+    $query->fields('a',array('task_data'));
+    $query->condition("a.id",$this->_properties->id,"=");
+    $res = $query->execute()->fetchField();
+    $taskdata = @unserialize($res);
+
+    $templateVariableID = $taskdata['if_argument_variable'];
+    $operator = $taskdata['if_operator'];
+    $ifValue = $taskdata['if_value'];
+    $ifArgumentProcess = $taskdata['if_process_arguments'];
+
+    if ($templateVariableID == null or $templateVariableID == '' ) { // logical entry it is
+      //this is a logical entry.  that is, not using a variable.. need to see what the last task's status is.
+      $query = db_select('maestro_queue_from', 'a');
+      $query->join('maestro_queue','b','a.from_queue_id=b.id');
+      $query->fields('b', array('status'));
+      $query->condition("a.queue_id", $this->_properties->id,"=");
+      $res = $query->execute();
       $row=$res->fetchObject();
-      $templateVariableID = $row->variableid;
-      $operator = $row->operator;
-      $ifValue = $row->if_value;
-      $ifArgumentProcess = $row->if_argument_process;
-      if ($templateVariableID == null or $templateVariableID == '' ) { // logical entry it is
-        //this is a logical entry.  that is, not using a variable.. need to see what the last task's status is.
-        $query = db_select('maestro_queue_from', 'a');
-        $query->join('maestro_queue','b','a.from_queue_id=b.id');
-        $query->fields('b',array('status'));
-        $query->condition("a.queue_id",$this->_properties->id,"=");
-        $res = $query->execute();
-        $row=$res->fetchObject();
-        $lastStatus = intval($row->status);
-        $whichBranch = null;
-        switch (strtolower($ifArgumentProcess) ) {
-          case 'lasttasksuccess':
-            if ($lastStatus == 0 or $lastStatus == 1) {
+      $lastStatus = intval($row->status);
+      $whichBranch = null;
+      switch (strtolower($ifArgumentProcess) ) {
+        case 'lasttasksuccess':
+          if ($lastStatus == 0 or $lastStatus == 1) {
+            $whichBranch = 1;
+          }
+          else {
+            $whichBranch = 0;
+          }
+          break;
+        case 'lasttaskcancel':
+          if ($lastStatus == 3) {
+            $whichBranch = 1;
+          }
+          else {
+            $whichBranch = 0;
+          }
+          break;
+        case 'lasttaskhold':
+          if ($lastStatus == 2) {
+            $whichBranch = 1;
+          }
+          else {
+            $whichBranch = 0;
+          }
+          break;
+        case 'lasttaskaborted':
+          if ($lastStatus == 3) {
+            $whichBranch = 1;
+          }
+          else {
+            $whichBranch = 0;
+          }
+          break;
+      } //end switch
+    }
+    else {// variableID it is
+      //we're using a variable here.
+
+      // need to perform a variable to value operation based on the selected operation!
+      // $templateVariableID ,$operator ,$ifValue, $processID
+      // need to select the process variable using the ID from the current process
+
+      $query = db_select('maestro_process_variables', 'a');
+      $query->fields('a',array('variable_value'));
+      $query->condition(db_and()->condition("a.process_id",$this->_properties->process_id)->condition('a.template_variable_id',$templateVariableID));
+      $ifRes = $query->execute();
+      $ifQueryNumRows=$query->countQuery()->execute()->fetchField();
+      if ($ifQueryNumRows > 0 ) {
+        // should have a variable Value here.
+        $ifArray = $ifRes->fetchObject();
+        $variableValue = $ifArray->variable_value;
+        switch ($operator ) {
+          case '=':
+            if ($variableValue == $ifValue ) {
               $whichBranch = 1;
-            }
-            else {
+            } else {
               $whichBranch = 0;
             }
             break;
-          case 'lasttaskcancel':
-            if ($lastStatus == 3) {
+          case '<':
+            if ($variableValue < $ifValue ) {
               $whichBranch = 1;
-            }
-            else {
+            } else {
               $whichBranch = 0;
             }
             break;
-          case 'lasttaskhold':
-            if ($lastStatus == 2) {
+          case '>':
+            if ($variableValue > $ifValue ) {
               $whichBranch = 1;
-            }
-            else {
+            } else {
               $whichBranch = 0;
             }
             break;
-          case 'lasttaskaborted':
-            if ($lastStatus == 3) {
+          case '!=':
+            if ($variableValue != $ifValue ) {
               $whichBranch = 1;
-            }
-            else {
+            } else {
               $whichBranch = 0;
             }
+
             break;
-        } //end switch
+        } //end switch($operator)
+      } //end if$ifQueryNumRows>0)
+      else { // force the branch to the false side since the variable dosent exist...
+        // can't be true if it dosent exist!!!
+        $whichBranch = 0;
       }
-      else {// variableID it is
-        //we're using a variable here.
 
-        // need to perform a variable to value operation based on the selected operation!
-        // $templateVariableID ,$operator ,$ifValue, $processID
-        // need to select the process variable using the ID from the current process
-
-        $query = db_select('maestro_process_variables', 'a');
-        $query->fields('a',array('variable_value'));
-        $query->condition("a.process_id",$this->_properties->process_id,"=");
-        $ifRes = $query->execute();
-
-        $ifQueryNumRows=$query->countQuery()->execute()->fetchField();
-        if ($ifQueryNumRows > 0 ) {
-          // should have a variable Value here.
-          $ifArray = $ifRes->fetchObject;
-          $variableValue = $ifArray->variable_value;
-          switch ($operator ) {
-            case '=':
-              if ($variableValue == $ifValue ) {
-                $whichBranch = 1;
-              } else {
-                $whichBranch = 0;
-              }
-              break;
-            case '<':
-              if ($variableValue < $ifValue ) {
-                $whichBranch = 1;
-              } else {
-                $whichBranch = 0;
-              }
-              break;
-            case '>':
-              if ($variableValue > $ifValue ) {
-                $whichBranch = 1;
-              } else {
-                $whichBranch = 0;
-              }
-              break;
-            case '!=':
-              if ($variableValue != $ifValue ) {
-                $whichBranch = 1;
-              } else {
-                $whichBranch = 0;
-              }
-
-              break;
-          } //end switch($operator)
-        } //end if$ifQueryNumRows>0)
-        else { // force the branch to the false side since the variable dosent exist...
-          // can't be true if it dosent exist!!!
-          $whichBranch = 0;
-        }
-
-        if ($whichBranch == 1 ) {
-          // point to the true branch
-          $statusToinsert = MaestroTaskStatusCodes::STATUS_COMPLETE;
-        }
-        else {
-          // point to the false branch
-          $statusToinsert = MaestroTaskStatusCodes::STATUS_IF_CONDITION_FALSE;
-        }
-        $this->_archiveStatus=$statusToInsert;
-        //now, at this point we need to set the archive task status of this task to the $statusToinsert variable.
-        //so that the nextstep method of the engine can properly save it
+      if ($whichBranch == 1 ) {
+        // point to the true branch
+        $statusToinsert = MaestroTaskStatusCodes::STATUS_COMPLETE;
+      }
+      else {
+        // point to the false branch
+        $statusToinsert = MaestroTaskStatusCodes::STATUS_IF_CONDITION_FALSE;
+      }
+      $this->_archiveStatus=$statusToinsert;
+      //now, at this point we need to set the archive task status of this task to the $statusToinsert variable.
+      //so that the nextstep method of the engine can properly save it
 
     }//end if/else for using variable or not in the IF
 
-  }//end if($nexTaskRows>0)
 
     $this->executionStatus = TRUE;
     return $this;
   }
 
-  function prepareTask() {}
+  function prepareTask() {
+    $serializedData = db_query("SELECT task_data FROM {maestro_template_data} WHERE id = :tid",
+    array(':tid' => $this->_properties->taskid))->fetchField();
+    $taskdata = @unserialize($serializedData);
+    return array('handler' => '' ,'serialized_data' => $serializedData);
+  }
+
 
 }
 
