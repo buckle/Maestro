@@ -72,7 +72,7 @@ function draw_line(line) {
   line[8].drawLine(line[0], line[1], line[2], line[3]);
 
   //draw the arrow start
-  line[8].fillEllipse(line[0] - 5, line[1] - 5, 10, 10);
+  line[8].fillEllipse(line[0] - 2, line[1] - 2, 6, 6);
 
   //draw the arrow head
   if (line[2] == line[2] && line[3] == line[3]) {     //since NaN never equals itself, we can use this trick to check for NaN
@@ -81,7 +81,7 @@ function draw_line(line) {
       start += 360;
     }
     var end = line[4] + 30
-    line[8].fillArc(line[2] - 12, line[3] - 12, 26, 26, start, end);
+    line[8].fillArc(line[2] - 10, line[3] - 10, 22, 22, start, end);
   }
 
   line[8].paint();
