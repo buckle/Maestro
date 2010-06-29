@@ -12,6 +12,14 @@ include_once './' . drupal_get_path('module', 'maestro') . '/maestro_tasks.class
 function maestro_menu() {
   $items = array();
 
+  $items['maestro/taskconsole'] = array(
+    'title' => 'Task Console',
+    'page callback' => 'maestro_taskconsole',
+    'access callback' => 'user_access',
+    'access arguments' => array('maestro taskconsole'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
   $items['maestro/cleanqueue'] = array(
     'title' => 'Maestro CleanQueue',
     'page callback' => 'maestro_cleanqueue',
@@ -76,9 +84,13 @@ function maestro_menu() {
   return $items;
 }
 
+
 function maestro_permission() {
   return array(
-    'administer maestro' => array(
+    'maestro taskconsole'  => array(
+      'title' => t('Access Maestro Task Console')
+    ),
+    'maestro admin' => array(
       'title' => t('Administer Maestro workflows')
     )
   );
@@ -97,6 +109,10 @@ function maestro_help($path, $arg) {
 
 function maestro_theme() {
   return array(
+    'maestro_taskconsole' => array(
+      'template' => 'theme/maestro-taskconsole',
+      'variables' => array('tasks' => NULL),
+    ),
     'maestro_workflow_list' => array(
       'template' => 'theme/maestro-workflow-list',
       'render element' => 'structure'
@@ -115,6 +131,20 @@ function maestro_theme() {
     ),
   );
 }
+
+
+/**
+ * Display of the Task Console - called from hook_menu callback.
+ */
+function maestro_taskconsole() {
+  global $base_url, $base_path, $user;
+
+  $modulepath = drupal_get_path('module', 'maestro');
+  drupal_set_breadcrumb('');
+  return theme('maestro_taskconsole');
+
+}
+
 
 function maestro_block_info() {
   $blocks['maestro']['info'] = t('Maestro Task Console');
