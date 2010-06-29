@@ -101,7 +101,7 @@ class MaestroTaskTypeBatch extends MaestroTask {
   function prepareTask() {
     $serializedData = db_query("SELECT task_data FROM {maestro_template_data} WHERE id = :tid",
       array(':tid' => $this->_properties->taskid))->fetchField();
-    $taskdata = unserialize($serializedData);
+    $taskdata = @unserialize($serializedData);
     return array('handler' => $taskdata['handler'],'serialized_data' => $serializedData);
   }
 
@@ -135,7 +135,7 @@ class MaestroTaskTypeBatchFunction extends MaestroTask {
   function prepareTask() {
     $serializedData = db_query("SELECT task_data FROM {maestro_template_data} WHERE id = :tid",
       array(':tid' => $this->_properties->taskid))->fetchField();
-    $taskdata = unserialize($serializedData);
+    $taskdata = @unserialize($serializedData);
     return array('handler' => $taskdata['function'],'serialized_data' => $serializedData);
   }
 
@@ -192,7 +192,7 @@ class MaestroTaskTypeIf extends MaestroTask {
 
     $serializedData = db_query("SELECT task_data FROM {maestro_template_data} WHERE id = :tid",
       array(':tid' => $this->_properties->taskid))->fetchField();
-    $taskdata = unserialize($serializedData);
+    $taskdata = @unserialize($serializedData);
 
     $templateVariableID = $taskdata['if_argument_variable'];
     $operator = $taskdata['if_operator'];
@@ -335,7 +335,7 @@ class MaestroTaskTypeInteractivefunction extends MaestroTask {
 
     $serializedData = db_query("SELECT task_data FROM {maestro_template_data} WHERE id = :tid",
       array(':tid' => $this->_properties->taskid))->fetchField();
-    $taskdata = unserialize($serializedData);
+    $taskdata = @unserialize($serializedData);
 
     $this->executionStatus = TRUE;
     return $this;
@@ -344,7 +344,7 @@ class MaestroTaskTypeInteractivefunction extends MaestroTask {
   function prepareTask() {
     $serializedData = db_query("SELECT task_data FROM {maestro_template_data} WHERE id = :tid",
       array(':tid' => $this->_properties->taskid))->fetchField();
-    $taskdata = unserialize($serializedData);
+    $taskdata = @unserialize($serializedData);
     return array('handler' => $taskdata['function'],'serialized_data' => $serializedData);
   }
 
