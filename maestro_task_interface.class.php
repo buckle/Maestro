@@ -78,9 +78,47 @@ class MaestroTaskInterfaceEnd extends MaestroTaskInterface {
   }
 }
 
+class MaestroTaskInterfaceIf extends MaestroTaskInterface {
+  function display() {
+    echo theme('maestro_task_if', array('tdid' => $this->_task_id));
+  }
+
+  function edit() {
+  }
+
+  function save() {
+  }
+
+  function destroy() {
+  }
+
+  function getContextMenu() {
+    $options = parent::getContextMenu();
+    $options['draw_line'] = 'Draw Success Line';
+    $options['draw_line_false'] = 'Draw Fail Line';
+
+    return $options;
+  }
+}
+
 class MaestroTaskInterfaceBatch extends MaestroTaskInterface {
   function display() {
     echo theme('maestro_task_batch', array('tdid' => $this->_task_id));
+  }
+
+  function edit() {
+  }
+
+  function save() {
+  }
+
+  function destroy() {
+  }
+}
+
+class MaestroTaskInterfaceInteractiveFunction extends MaestroTaskInterface {
+  function display() {
+    echo theme('maestro_task_interactive_function', array('tdid' => $this->_task_id));
   }
 
   function edit() {
@@ -105,29 +143,6 @@ class MaestroTaskInterfaceSetProcessVariable extends MaestroTaskInterface {
   }
 
   function destroy() {
-  }
-}
-
-class MaestroTaskInterfaceIf extends MaestroTaskInterface {
-  function display() {
-    echo theme('maestro_task_if', array('tdid' => $this->_task_id));
-  }
-
-  function edit() {
-  }
-
-  function save() {
-  }
-
-  function destroy() {
-  }
-
-  function getContextMenu() {
-    $options = parent::getContextMenu();
-    $options['draw_line'] = 'Draw Success Line';
-    $options['draw_line_false'] = 'Draw Fail Line';
-
-    return $options;
   }
 }
 

@@ -156,6 +156,10 @@ function maestro_theme() {
       'template' => 'theme/tasks/maestro-task-set-process-variable',
       'variables' => array('tdid' => NULL)
     ),
+    'maestro_task_interactive_function' => array(
+      'template' => 'theme/tasks/maestro-task-interactive-function',
+      'variables' => array('tdid' => NULL)
+    ),
   );
 }
 
