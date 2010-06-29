@@ -191,8 +191,19 @@ function maestro_block_view($delta = '') {
   $block = array();
   if (user_access('access content')) {
     $maestro->engine()->getQueue();
-    $block['subject'] = t('Maestro Task Console');
-    $block['content'] = print_r($maestro->engine()->_userTaskList,true);
+    $block['subject'] = t('Maestro Task Listing Block');
+    $tasks = $maestro->engine()->_userTaskList;
+    $numtasks = count($tasks['id']);
+    $content = '<table><tr><th>ID</th><th>Template</th><th>Taskname</th><th>Tasktype</th></tr>';
+    for ($i=0;$i<$numtasks;$i++) {
+      $content .= '<tr><td>' . $tasks['id'][$i] . '</td>';
+      $content .= '<td>' . $tasks['template'][$i] . '</td>';
+      $content .= '<td>' . $tasks['taskname'][$i] . '</td>';
+      $content .= '<td>' . $tasks['tasktype'][$i] . '</td>';
+      $content .= '</tr>';
+    }
+    $content .= '</table>';
+    $block['content'] = $content;
   }
   return $block;
 
@@ -203,7 +214,7 @@ function maestro_cleanqueue() {
   global $base_url;
   $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
   $maestro->engine()->cleanQueue();
-  $maestro->engine()->setProcessVariable('initiator',10);
+  $maestro->engine()->setProcessVariable('initiator',1);
   drupal_set_message("Maestro Clean Queue Completed");
   drupal_goto($base_url);
 }

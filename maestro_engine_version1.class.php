@@ -196,7 +196,7 @@
                 $this->setProcessVariable('INITIATOR',$user->uid);
             }
 
-            $newTaskAssignedUsers = $this->getAssignedUID($this->_queueId);
+            $newTaskAssignedUsers = $this->getAssignedUID();
             if (is_array($newTaskAssignedUsers) AND count($newTaskAssignedUsers) > 0) {
                 $this->assignTask($this->_queueId,$newTaskAssignedUsers);
             }
@@ -418,8 +418,7 @@
                         else {
                           watchdog('maestro', "nextStep Method FAIL! - Unexpected problem creating queue record");
                         }
-
-                        $newTaskAssignedUsers = $this->getAssignedUID($this->_queueId);
+                        $newTaskAssignedUsers = $this->getAssignedUID();
                         if (is_array($newTaskAssignedUsers) AND count($newTaskAssignedUsers) > 0) {
                             $this->assignTask($this->_queueId,$newTaskAssignedUsers);
                         }
@@ -503,8 +502,7 @@
               */
 
               if($processVariableId < 0) $processVariableId = 0;
-
-              if ($userId > 1) {
+              if ($userId > 0) {
                 $query = db_select('maestro_user_away', 'a');
                 $query->fields('a',array('away_start','away_return','is_active'));
                 $query->condition('a.uid',$userId,'=');
@@ -528,7 +526,7 @@
                   }
                 }
                 else {
-                    $assignToUserId = 0;
+                    $assignToUserId = $userId;
                     $assignBack = 0;
                 }
               }
@@ -575,7 +573,51 @@
 
 
 
-    function getAssignedUID($taskid) {}
+    function getAssignedUID() {
+      $assigned = array();
+      $query = db_select('maestro_queue', 'a');
+      $query->join('maestro_template_data', 'b', 'a.template_data_id = b.id');
+      $query->fields('a',array('template_data_id','is_interactive'));
+      $query->fields('b',array('assigned_by_variable'));
+      $query->condition('a.id', $this->_queueId,'=');
+      $queueRec = $query->execute()->fetchObject();
+      if ($queueRec->is_interactive) { // Only need to create assignment records for interactive tasks
+        if($queueRec->assigned_by_variable == 1 || $queueRec->assigned_by_variable == true) {
+          $query = db_select('maestro_template_assignment', 'a');
+          $query->join('maestro_process_variables', 'b', 'b.template_variable_id = a.process_variable');
+          $query->fields('a',array('template_data_id','process_variable'));
+          $query->fields('b',array('variable_value'));
+          $query->condition('a.template_data_id', $queueRec->template_data_id,'=');
+          $query->condition('b.process_id', $this->_processId,'=');
+          $processRecResult = $query->execute();
+          foreach ($processRecResult as $processRec) {
+            $assigned[$processRec->process_variable] = $processRec->variable_value;
+          }
+        }
+        else {
+          $result = db_query("SELECT uid FROM {maestro_template_assignment} WHERE template_data_id = :template_data_id AND uid is not NULL",
+          array('template_data_id' => $queueRec->template_data_id));
+          /* Create an array of assignment records - but if there are multple assignments for this task by user then
+          * we need to create multiple array records but can not have multiple array records with a key of 0
+          * In this case, use a negative key value. Any non positive value is therefore not a variableID and
+          * can be assumed to be an assignment by user record
+          */
+          $cntr = 0;
+          foreach ($result as $rec) {
+            $assigned[-$cntr] = $rec->uid;  // Possible negative value for key if multiple assignments
+            $cntr++;
+          }
+        }
+
+        if (count($assigned) == 0) {
+          // Valid interactive task that should have an assignment record
+          $assigned[0] = 0;
+        }
+      }
+
+      return $assigned;
+
+    }
 
     function sendTaskAssignmentNotifications () { }
 
@@ -755,7 +797,7 @@
                 }
                 */
                 $this->_userTaskList['taskname'] = array_merge($this->_userTaskList['taskname'], array(1 => $userTaskRecord->taskname));
-                $this->_userTaskList['taskType'] = array_merge($this->_userTaskList['tasktype'], array(1 => $userTaskRecord->task_class_name));
+                $this->_userTaskList['tasktype'] = array_merge($this->_userTaskList['tasktype'], array(1 => $userTaskRecord->task_class_name));
                 $this->_userTaskCount += 1; // Increment the total user task counter
               }
             }

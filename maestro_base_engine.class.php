@@ -137,7 +137,7 @@
 
     abstract function assignTask($queueId,$userObject);
 
-    abstract function getAssignedUID($taskid);
+    abstract function getAssignedUID();
 
     abstract function completeTask($queueId);
 

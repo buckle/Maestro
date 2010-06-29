@@ -336,7 +336,7 @@ class MaestroTaskTypeInteractivefunction extends MaestroTask {
     $serializedData = db_query("SELECT task_data FROM {maestro_queue} WHERE id = :tid",
       array(':tid' => $this->_properties->id))->fetchField();
     $taskdata = @unserialize($serializedData);
-    $this->executionStatus = TRUE;
+    $this->executionStatus = FALSE;
     return $this;
   }
 
