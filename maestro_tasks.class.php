@@ -190,8 +190,8 @@ class MaestroTaskTypeIf extends MaestroTask {
     watchdog('maestro',$msg);
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
 
-    $serializedData = db_query("SELECT task_data FROM {maestro_template_data} WHERE id = :tid",
-      array(':tid' => $this->_properties->taskid))->fetchField();
+    $serializedData = db_query("SELECT task_data FROM {maestro_queue} WHERE id = :tid",
+      array(':tid' => $this->_properties->id))->fetchField();
     $taskdata = @unserialize($serializedData);
 
     $templateVariableID = $taskdata['if_argument_variable'];
@@ -333,10 +333,9 @@ class MaestroTaskTypeInteractivefunction extends MaestroTask {
     watchdog('maestro',$msg);
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
 
-    $serializedData = db_query("SELECT task_data FROM {maestro_template_data} WHERE id = :tid",
-      array(':tid' => $this->_properties->taskid))->fetchField();
+    $serializedData = db_query("SELECT task_data FROM {maestro_queue} WHERE id = :tid",
+      array(':tid' => $this->_properties->id))->fetchField();
     $taskdata = @unserialize($serializedData);
-
     $this->executionStatus = TRUE;
     return $this;
   }
@@ -345,7 +344,7 @@ class MaestroTaskTypeInteractivefunction extends MaestroTask {
     $serializedData = db_query("SELECT task_data FROM {maestro_template_data} WHERE id = :tid",
       array(':tid' => $this->_properties->taskid))->fetchField();
     $taskdata = @unserialize($serializedData);
-    return array('handler' => $taskdata['function'],'serialized_data' => $serializedData);
+    return array('handler' => $taskdata['handler'],'serialized_data' => $serializedData);
   }
 
 }
