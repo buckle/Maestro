@@ -255,7 +255,7 @@ class MaestroTaskTypeIf extends MaestroTask {
       $query->fields('a',array('variable_value'));
       $query->condition(db_and()->condition("a.process_id",$this->_properties->process_id)->condition('a.template_variable_id',$templateVariableID));
       $ifRes = $query->execute();
-      $ifQueryNumRows=$query->countQuery()->execute()->fetchField();
+      $ifQueryNumRows = $query->countQuery()->execute()->fetchField();
       if ($ifQueryNumRows > 0 ) {
         // should have a variable Value here.
         $ifArray = $ifRes->fetchObject();

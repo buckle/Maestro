@@ -13,6 +13,7 @@
     var $_taskType                = '';
     var $_debug                   = false;    // Set the current debug level to false.
     var $_userTaskCount           = 0;        // Number of tasks the user has in the queue
+    var $_userTaskList            = NULL;     // Users Active Tasks in the queue
     var $_templateCount           = 0;        // Number of templates the user is able to kick off
     var $_processTaskCount        = 0;        // Number of tasks the current process has in the queue
     var $_archiveStatus           = 0;        // Set by the executing task to signify what status the archive routine should set.

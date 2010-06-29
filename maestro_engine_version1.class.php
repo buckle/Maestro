@@ -336,8 +336,7 @@
         else {
           $query->addField('b','template_data_to','taskid');
         }
-        $query->addField('c','reminder_interval');
-        $query->addField('c','task_class_name');
+        $query->fields('c',array('task_class_name','is_interactive','reminder_interval'));
         $query->join('maestro_template_data_next_step', 'b', 'a.template_data_id = b.template_data_from');
         $query->join('maestro_template_data', 'c', 'c.id = b.template_data_to');
         $query->condition('a.process_id',$this->_processId,'=');
@@ -392,6 +391,7 @@
                         $queue_record->process_id = $this->_processId;
                         $queue_record->template_data_id = $nextTaskRec->taskid;
                         $queue_record->task_class_name = $nextTaskRec->task_class_name;
+                        $queue_record->is_interactive =$nextTaskRec->is_interactive;
                         $queue_record->status = 0;
                         $queue_record->archived = 0;
                         $queue_record->engine_version = $this->_version;
@@ -690,6 +690,7 @@
           }
           $this->_userTaskList['id'] = Array();
           $this->_userTaskList['url'] = Array();
+          $this->_userTaskList['template'] = Array();
           $this->_userTaskList['taskname'] = Array();
           $this->_userTaskList['tasktype'] = Array();
           $this->_userTaskCount = 0;
@@ -720,7 +721,7 @@
               $flag = 0;
               // Simple test to determine if the task ID already exists for this user
               for($flagcntr = 0;$flagcntr <= $this->_userTaskCount;$flagcntr++ ) {
-                if ($this->_userTaskList['id'][$flagcntr] == $userTaskRecord->id ) {
+                if (isset($this->_userTaskList['id'][$flagcntr]) AND $this->_userTaskList['id'][$flagcntr] == $userTaskRecord->id ) {
                   $flag = 1;
                 }
               }
@@ -731,7 +732,7 @@
                 $this->_userTaskList['url'] = array_merge($this->_userTaskList['url'], array(1 => $userTaskRecord->handler));
                 // Handle dynamic task name based on a variable's value
                 $taskname = '';
-                if($userTaskRecord->isDynamicTaskName == 1) {
+                if($userTaskRecord->is_dynamic_taskname == 1) {
                   $q2 = db_select('maestro_process_variables', 'a');
                   $q2->addField('a','variable_value');
                   $q2->condition('a.process_id',$userTaskRecord->process_id,'=');
