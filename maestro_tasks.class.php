@@ -190,11 +190,9 @@ class MaestroTaskTypeIf extends MaestroTask {
     watchdog('maestro',$msg);
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
 
-    $query = db_select('maestro_queue', 'a');
-    $query->fields('a',array('task_data'));
-    $query->condition("a.id",$this->_properties->id,"=");
-    $res = $query->execute()->fetchField();
-    $taskdata = @unserialize($res);
+    $serializedData = db_query("SELECT task_data FROM {maestro_template_data} WHERE id = :tid",
+      array(':tid' => $this->_properties->taskid))->fetchField();
+    $taskdata = unserialize($serializedData);
 
     $templateVariableID = $taskdata['if_argument_variable'];
     $operator = $taskdata['if_operator'];
@@ -334,6 +332,11 @@ class MaestroTaskTypeInteractivefunction extends MaestroTask {
     $msg = 'Execute Task Type: "MaestroTaskTypeInteractivefunction" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
+
+    $serializedData = db_query("SELECT task_data FROM {maestro_template_data} WHERE id = :tid",
+      array(':tid' => $this->_properties->taskid))->fetchField();
+    $taskdata = unserialize($serializedData);
+
     $this->executionStatus = TRUE;
     return $this;
   }
