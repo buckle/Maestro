@@ -7,15 +7,18 @@
  */
 
 abstract class MaestroTaskInterface {
-  function __construct() {
+  protected $_task_id;
+
+  function __construct($task_id=0) {
+    $this->_task_id = $task_id;
   }
 
   //create task will insert the shell record of the task, and then the child class will handle the edit.
-  function createTask() {
+  function create() {
   }
 
   //handles the update for the drag and drop
-  function moveTask() {
+  function move() {
   }
 
   //handles the update when adding a line (insert the next step record)
@@ -38,38 +41,85 @@ abstract class MaestroTaskInterface {
     return $options;
   }
 
-  abstract function displayTask();
-  abstract function editTask();
-  abstract function saveTask();
-  abstract function deleteTask();
+  abstract function display();
+  abstract function edit();
+  abstract function save();
+  abstract function destroy();
 
 }
 
+class MaestroTaskInterfaceStart extends MaestroTaskInterface {
+  function display() {
+    echo theme('maestro_task_start', array('tdid' => $this->_task_id));
+  }
+
+  function edit() {
+  }
+
+  function save() {
+  }
+
+  function destroy() {
+  }
+}
+
+class MaestroTaskInterfaceEnd extends MaestroTaskInterface {
+  function display() {
+    echo theme('maestro_task_end', array('tdid' => $this->_task_id));
+  }
+
+  function edit() {
+  }
+
+  function save() {
+  }
+
+  function destroy() {
+  }
+}
+
 class MaestroTaskInterfaceBatch extends MaestroTaskInterface {
-  function displayTask() {
+  function display() {
+    echo theme('maestro_task_batch', array('tdid' => $this->_task_id));
   }
 
-  function editTask() {
+  function edit() {
   }
 
-  function saveTask() {
+  function save() {
   }
 
-  function deleteTask() {
+  function destroy() {
+  }
+}
+
+class MaestroTaskInterfaceSetProcessVariable extends MaestroTaskInterface {
+  function display() {
+    echo theme('maestro_task_set_process_variable', array('tdid' => $this->_task_id));
+  }
+
+  function edit() {
+  }
+
+  function save() {
+  }
+
+  function destroy() {
   }
 }
 
 class MaestroTaskInterfaceIf extends MaestroTaskInterface {
-  function displayTask() {
+  function display() {
+    echo theme('maestro_task_if', array('tdid' => $this->_task_id));
   }
 
-  function editTask() {
+  function edit() {
   }
 
-  function saveTask() {
+  function save() {
   }
 
-  function deleteTask() {
+  function destroy() {
   }
 
   function getContextMenu() {

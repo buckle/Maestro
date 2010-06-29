@@ -11,4 +11,5 @@ files[] = maestro.admin.inc
 files[] = maestro-workflow-list.tpl.php
 files[] = maestro-workflow-list-item.tpl.php
 files[] = maestro-workflow-edit.tpl.php
+dependencies[] = jquery_ui
 configure = admin/structure/maestro

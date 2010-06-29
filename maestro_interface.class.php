@@ -15,7 +15,14 @@ class MaestroInterface {
 
   //displays the main task page
   function displayPage() {
-    return theme('maestro_workflow_edit', array('tid' => $this->_template_id));
+    $build['workflow_template'] = array(
+      '#theme' => 'maestro_workflow_edit',
+      '#tid' => $this->_template_id
+    );
+    $build['workflow_template']['#attached']['library'][] = array('system', 'ui.draggable');
+    $build['workflow_template']['#attached']['js'][] = array('data' => '(function($){$(function() { $(".maestro_task_container").draggable( { grid: [25, 25], snap: true } ); })})(jQuery);', 'type' => 'inline');
+
+    return drupal_render($build, array('tid' => $this->_template_id));
   }
 
   //should get the valid task types to create, excluding start and end tasks, from the drupal cache

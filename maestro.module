@@ -36,8 +36,15 @@ function maestro_menu() {
     'title' => 'Maestro Workflows',
     'description' => 'Define and administer workflows.',
     'page callback' => 'maestro_admin',
-    'access arguments' => array('administer maestro'),
+    'access arguments' => array('maestro admin'),
     'type' => MENU_LOCAL_TASK,
+    'file' => 'maestro.admin.inc'
+  );
+
+  $items['admin/structure/maestro/ajax'] = array(
+    'page callback' => 'maestro_handle_ajax_request',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('maestro admin'),
     'file' => 'maestro.admin.inc'
   );
 
@@ -49,7 +56,7 @@ function maestro_menu() {
   $items['admin/structure/maestro/edit'] = array(
     'title' => 'Edit',
     'page callback' => 'maestro_edit_workflow',
-    'access arguments' => array('administer maestro'),
+    'access arguments' => array('maestro admin'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'maestro.admin.inc'
   );
@@ -76,7 +83,7 @@ function maestro_menu() {
     'title' => 'Maestro Config',
     'description' => 'Configure the Maestro Engine.',
     'page callback' => 'maestro_configure',
-    'access arguments' => array('administer maestro'),
+    'access arguments' => array('maestro admin'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'maestro.admin.inc'
   );
@@ -128,6 +135,26 @@ function maestro_theme() {
     'maestro_workflow_edit_tasks' => array(
       'template' => 'theme/maestro-workflow-edit-tasks',
       'variables' => array('tid' => NULL)
+    ),
+    'maestro_task_start' => array(
+      'template' => 'theme/tasks/maestro-task-start',
+      'variables' => array('tdid' => NULL)
+    ),
+    'maestro_task_end' => array(
+      'template' => 'theme/tasks/maestro-task-end',
+      'variables' => array('tdid' => NULL)
+    ),
+    'maestro_task_if' => array(
+      'template' => 'theme/tasks/maestro-task-if',
+      'variables' => array('tdid' => NULL)
+    ),
+    'maestro_task_batch' => array(
+      'template' => 'theme/tasks/maestro-task-batch',
+      'variables' => array('tdid' => NULL)
+    ),
+    'maestro_task_set_process_variable' => array(
+      'template' => 'theme/tasks/maestro-task-set-process-variable',
+      'variables' => array('tdid' => NULL)
     ),
   );
 }
