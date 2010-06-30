@@ -31,9 +31,10 @@ db_query("INSERT INTO {maestro_template_data} (`id`, `template_id`, `logical_id`
 db_query("INSERT INTO {maestro_template_data_next_step} (`id`, `template_data_from`, `template_data_to`, `template_data_to_false`) VALUES
 (1, 1, 2, 0),
 (2, 2, 3, 0),
-(3, 3, 4, 5),
-(4, 5, 6, 0),
-(5, 4, 6, 0)");
+(3, 3, 4, 0),
+(4, 3, 0, 5),
+(5, 5, 6, 0),
+(6, 4, 6, 0)");
 
 
 db_query("INSERT INTO {maestro_template_variables} (`id`, `template_id`, `variable_name`, `variable_value`) VALUES
