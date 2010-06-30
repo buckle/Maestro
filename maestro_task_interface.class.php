@@ -19,6 +19,10 @@ abstract class MaestroTaskInterface {
 
   //handles the update for the drag and drop
   function move() {
+    $offset_left = intval($_POST['offset_left']);
+    $offset_top = intval($_POST['offset_top']);
+
+    db_query("UPDATE {maestro_template_data} SET offset_left=:ofl, offset_top=:ofr WHERE id=:tdid", array(':ofl' => $offset_left, ':ofr' => $offset_top, ':tdid' => $this->_task_id));
   }
 
   //handles the update when adding a line (insert the next step record)

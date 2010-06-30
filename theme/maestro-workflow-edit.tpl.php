@@ -8,6 +8,11 @@
 
 ?>
 
+  <form name="frm_animate" action="#" method="post">
+      <?php print t('Enable Animation'); ?>: <input type="checkbox" name="animateFlag" value="1" checked="checked">
+      <?php print t('Snap to Grid'); ?>: <input type="checkbox" name="snapToGrid" value="1" onclick="updateSnapToGrid();">
+  </form>
+
   <div id="workflow_container" style="position: abosolute; height: 500px;">
 
 <?php
@@ -17,7 +22,7 @@
     $task_class = 'MaestroTaskInterface' . $task_type;
     $ti = new $task_class($rec->id);
 ?>
-    <div id="task<?php echo $rec->id; ?>" class="maestro_task_container" style="position: absolute; left: <?php echo $rec->offset_left; ?>px; top: <?php echo $rec->offset_top; ?>px;">
+    <div id="task<?php print $rec->id; ?>" class="<?php print $task_class; ?> maestro_task_container" style="position: absolute; left: <?php print $rec->offset_left; ?>px; top: <?php print $rec->offset_top; ?>px;">
 <?php
       $ti->display();
 ?>
@@ -28,33 +33,6 @@
   </div>
 
   <script type="text/javascript">
-<?php
-    $res = db_query('SELECT id, offset_left, offset_top FROM {maestro_template_data} WHERE template_id=:tid', array(':tid' => $tid));
-    $i = 0;
-    $j = 0;
-    foreach ($res as $rec) {
-?>
-      existing_tasks[<?php echo $i++; ?>] = ['task<?php echo $rec->id; ?>', <?php echo $rec->offset_left; ?>, <?php echo $rec->offset_top; ?>];
-<?php
-      $res2 = DB_query("SELECT template_data_to, template_data_to_false FROM {maestro_template_data_next_step} WHERE template_data_from=:tid", array(':tid'=>$rec->id));
-      foreach ($res2 as $rec2) {
-        $to = intval ($rec2->template_data_to);
-        $to_false = intval ($rec2->template_data_to_false);
-        if ($to != 0) {
-?>
-          line_ids[<?php echo $j; ?>] = ['task<?php echo $rec->id; ?>', 'task<?php echo $to; ?>', true];
-<?php
-          $j++;
-        }
-        if ($to_false != 0) {
-?>
-          line_ids[<?php echo $j; ?>] = ['task<?php echo $rec->id; ?>', 'task<?php echo $to_false; ?>', false];
-<?php
-          $j++;
-        }
-      }
-    }
-
-
-?>
+    var ajax_url = '<?php print $ajax_url; ?>';
+    <?php print $additional_js; ?>
   </script>

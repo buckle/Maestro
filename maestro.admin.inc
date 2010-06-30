@@ -6,11 +6,14 @@
  * maestro.admin.inc
  */
 
+include_once './' . drupal_get_path('module', 'maestro') . '/maestro_interface.class.php';
+include_once './' . drupal_get_path('module', 'maestro') . '/maestro_task_interface.class.php';
 
 function maestro_admin() {
   return theme('maestro_workflow_list', array());
 }
 
+//called from the hooks_menu
 function maestro_edit_workflow($tid) {
   global $base_url;
 
@@ -21,17 +24,14 @@ function maestro_edit_workflow($tid) {
   //drupal_add_js($base_url . $maestro_path . '/js/workflowadmin.js');
   drupal_add_js($base_url . $maestro_path . '/js/admin_template_editor.js');
 
-  include_once './' . drupal_get_path('module', 'maestro') . '/maestro_interface.class.php';
-  include_once './' . drupal_get_path('module', 'maestro') . '/maestro_task_interface.class.php';
-
   $mi = new MaestroInterface($tid);
 
   return $mi->displayPage();
 }
 
-function maestro_handle_ajax_request($task_type, $op, $properties=NULL) {
-  $ti = new $task_type();
-  $ti->$op($properties);
+function maestro_handle_ajax_request($task_type, $template_data_id, $op) {
+  $ti = new $task_type($template_data_id);
+  $ti->$op();
 }
 
 

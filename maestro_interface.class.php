@@ -34,6 +34,32 @@ class MaestroInterface {
 
     return $options;
   }
+
+  function initializeJavascriptArrays() {
+    $js = '';
+    $res = db_query('SELECT id, offset_left, offset_top FROM {maestro_template_data} WHERE template_id=:tid', array(':tid' => $this->_template_id));
+    $i = 0;
+    $j = 0;
+    foreach ($res as $rec) {
+      $js .= "existing_tasks[{$i}] = ['task{$rec->id}', {$rec->offset_left}, {$rec->offset_top}];\n";
+      $i++;
+      $res2 = DB_query("SELECT template_data_to, template_data_to_false FROM {maestro_template_data_next_step} WHERE template_data_from=:tid", array(':tid'=>$rec->id));
+      foreach ($res2 as $rec2) {
+        $to = intval ($rec2->template_data_to);
+        $to_false = intval ($rec2->template_data_to_false);
+        if ($to != 0) {
+          $js .= "line_ids[{$j}] = ['task{$rec->id}', 'task{$to}', true];\n";
+          $j++;
+        }
+        if ($to_false != 0) {
+          $js .= "line_ids[{$j}] = ['task{$rec->id}', 'task{$to_false}', false];\n";
+          $j++;
+        }
+      }
+    }
+
+    return $js;
+  }
 }
 
 ?>

@@ -17,7 +17,7 @@
     <?php echo $rec->taskname; ?>
   </div>
   <div class="maestro_task_body">
-    <?php echo t('Task Type'); ?>: <?php echo t('Start'); ?>
+    <?php echo t('Interactive Task'); ?>
   </div>
 </div>
 

@@ -240,3 +240,12 @@ function maestro_enginetest() {
   }
   drupal_goto($base_url);
 }
+
+  function template_preprocess_maestro_workflow_edit(&$variables) {
+    global $base_url;
+    $mi = new MaestroInterface($variables['tid']);
+
+    $variables['additional_js'] = $mi->initializeJavascriptArrays();
+    $variables['ajax_url'] = $base_url . '/index.php?q=admin/structure/maestro/ajax/';
+  }
+

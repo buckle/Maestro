@@ -8,7 +8,7 @@ var lines = [];
 var dd = [];
 var steptypes = [];
 var taskIdCount = -1;
-var trueLineColor = "#0F367B";
+var trueLineColor = "#000000";
 var falseLineColor = "#D10000";
 var oMenu;
 var panels = [];
@@ -22,30 +22,36 @@ var menuCheckArray = [];
       $( ".maestro_task_container" ).draggable( "option", "zIndex", 500 );
     });
     $(".maestro_task_container").bind("dragstop", function(event, ui) {
-      $( ".maestro_task_container" ).draggable( "option", "zIndex", 500 );
+      update_lines(this);
+      $( ".maestro_task_container" ).draggable( "option", "zIndex", 100 );
+      var task_class = this.className.split(' ')[0];
+      var task_id = this.id.substring(4, this.id.length);
+      $.post(ajax_url + task_class + '/' + task_id + '/move/', {offset_left: this.offsetLeft, offset_top: this.offsetTop});
     });
     $(".maestro_task_container").bind("drag", function(event, ui) {
-      //update line drawing
-      //if (document.frm_animate.animateFlag.checked) {
-        var el = this;
-
-        //update transactions involving el with the new coords
-        var cnt = 0;
-        var length = lines.length;
-        for (var i in lines) {
-          if (lines[i] != null && lines[i][8] != null) {
-            if (lines[i][5] == el || lines[i][6] == el) {
-              lines[i][8].clear();
-              lines[i] = connect_tasks(lines[i][5], lines[i][6], lines[i][7], lines[i][8]);
-            }
-          }
-        }
-      //}
+      if (document.frm_animate.animateFlag.checked) {
+        update_lines(this);
+      }
     });
 
     initialize_lines();
   });
 })(jQuery);
+
+function update_lines(el) {
+  //update transactions involving el with the new coords
+  var cnt = 0;
+  var length = lines.length;
+  for (var i in lines) {
+    if (lines[i] != null && lines[i][8] != null) {
+      if (lines[i][5] == el || lines[i][6] == el) {
+        lines[i][8].clear();
+        lines[i] = connect_tasks(lines[i][5], lines[i][6], lines[i][7], lines[i][8]);
+      }
+    }
+  }
+}
+
 
 function initialize_lines() {
   for (var i in line_ids) {
