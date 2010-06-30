@@ -338,7 +338,12 @@
         }
         $query->fields('c',array('task_class_name','is_interactive','reminder_interval'));
         $query->join('maestro_template_data_next_step', 'b', 'a.template_data_id = b.template_data_from');
-        $query->join('maestro_template_data', 'c', 'c.id = b.template_data_to');
+        if($this->_archiveStatus == MaestroTaskStatusCodes::STATUS_IF_CONDITION_FALSE) {
+          $query->join('maestro_template_data', 'c', 'c.id = b.template_data_to_false');
+        }
+        else {
+          $query->join('maestro_template_data', 'c', 'c.id = b.template_data_to');
+        }
         $query->condition('a.process_id',$this->_processId,'=');
         $query->condition('a.id',$this->_queueId,'=');
         $nextTaskResult = $query->execute();
