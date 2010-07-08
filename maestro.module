@@ -281,10 +281,10 @@ function template_preprocess_maestro_workflow_list(&$variables) {
   $variables['num_records'] = intval($queryNumRows);
   $output="";
 
-
   $res = db_query("SELECT id, template_name FROM {maestro_template}");
   $cntr=0;
   foreach ($res as $rec) {
+
     $output .= theme('maestro_workflow_list_item', array( 'rec' => $rec,
                                                           'cntr' => $cntr,
                                                           'operation' => $variables['operation'],
@@ -304,9 +304,8 @@ function template_preprocess_maestro_workflow_list_item(&$variables) {
   $output="";
   $variables['module_path']=drupal_get_path('module', 'maestro');
   $variables['use_project'] = "";
-  if($variables['operation'] == 'edit') {  //only show this when we're editing a specific template.
+  if(  $variables['operation'] == 'edit' && $variables['tid'] ==  $variables['rec']->id ) {  //only show this when we're editing a specific template.
     $variables['show_item'] = '';
-
     $output=theme('maestro_workflow_edit_template_variables',  array('tid' => $variables['tid'], 'edit_var' => $variables['edit_var'] ));
     $query = db_select('maestro_template', 'a');
     $query->fields('a',array('template_name','use_project','app_group'));

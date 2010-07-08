@@ -32,8 +32,7 @@ function maestro_saveTemplateNameComplete(data) {
 	jQuery('#maestro_updating_' + maestro_structure_cntr).removeClass(
 			'maestro_working');
 	if (data.status == "0") { // query failed
-		var error = Drupal
-				.t('There has been an error saving your template.  Please try your save again.');
+		var error = Drupal.t('There has been an error saving your template.  Please try your save again.');
 		jQuery('#maestro_error_message').html(error);
 	} else {
 		jQuery('#maestro_error_message').html('');
@@ -73,8 +72,7 @@ function maestro_saveNewVariableComplete(data) {
 	if (data.status == "1") {
 		jQuery('#ajaxReplaceTemplateVars').html(data.data);
 	} else {
-		var error = Drupal
-				.t('There has been an error saving your template variable.  Please try your save again.');
+		var error = Drupal.t('There has been an error saving your template variable.  Please try your save again.');
 		jQuery('#maestro_error_message').html(error);
 	}
 }
@@ -125,8 +123,7 @@ function maestro_updateTemplateVariableComplete(data) {
 	if (data.status == "1") {
 		jQuery('#ajaxReplaceTemplateVars').html(data.data);
 	} else {
-		var error = Drupal
-				.t('There has been an error saving your template variable.  Please try your save again.');
+		var error = Drupal.t('There has been an error saving your template variable.  Please try your save again.');
 		jQuery('#maestro_error_message').html(error);
 	}
 }
@@ -171,4 +168,35 @@ function maestro_editTemplateVariable(tid, var_id) {
 		error : maestro_updateVariableError,
 		data : dataString
 	});
+}
+
+function maestro_CreateTemplate(){
+	jQuery('#maestro_new_template_updating').addClass('maestro_working');
+	var name = jQuery('#newTemplateName').attr("value");
+	dataString = "";
+	dataString += "name=" + name;
+	dataString += "&op=createtemplate";
+	jQuery.ajax( {
+		type : 'POST',
+		cache : false,
+		url : ajax_url,
+		dataType : "json",
+		success : maestro_createTemplateComplete,
+		error : maestro_createTemplateError,
+		data : dataString
+	});
+}
+
+function maestro_createTemplateComplete(data){
+	jQuery('#maestro_new_template_updating').removeClass('maestro_working');
+	if (data.status == "1") {
+		jQuery('#maestro_template_admin').html(data.data);
+	} else {
+		var error = Drupal.t('There has been an error saving your template.  Please try your save again.');
+		jQuery('#maestro_error_message').html(error);
+	}
+}
+
+function maestro_createTemplateError(XMLHttpRequest, textStatus, errorThrown){
+	jQuery('#maestro_new_template_updating').removeClass('maestro_working');
 }

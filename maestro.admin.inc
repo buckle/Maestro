@@ -130,6 +130,21 @@ function maestro_handle_structure_ajax_request(){
       $arr=array('status' => "1", 'data' => $data);
       echo json_encode($arr);
       break;
+
+    case 'createtemplate':
+      $name=check_plain($_POST['name']);
+      $record = new stdClass();
+      $record ->template_name = $name;
+      drupal_write_record('maestro_template', $record);
+      $status = 0;
+      if($record->id > 0){
+        $status = 1;
+      }
+      $data=theme('maestro_workflow_list', array('tid' => 0, 'operation' => '' , 'edit_var' => 0));
+
+      $arr=array('status' => $status, 'data' => $data);
+      echo json_encode($arr);
+      break;
   }
 
 
