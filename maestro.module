@@ -37,58 +37,72 @@ function maestro_menu() {
     'description' => 'Define and administer workflows.',
     'page callback' => 'maestro_admin',
     'access arguments' => array('maestro admin'),
-    'type' => MENU_LOCAL_TASK,
+  //'type' => MENU_LOCAL_TASK,
     'file' => 'maestro.admin.inc'
-  );
+    );
 
-  $items['admin/structure/maestro/ajax'] = array(
+    $items['admin/structure/maestro/ajax'] = array(
     'page callback' => 'maestro_handle_ajax_request',
     'type' => MENU_CALLBACK,
     'access arguments' => array('maestro admin'),
     'file' => 'maestro.admin.inc'
-  );
+    );
 
-  $items['admin/structure/maestro/new'] = array(
+    $items['admin/structure/maestro/structure_ajax'] = array(
+    'page callback' => 'maestro_handle_structure_ajax_request',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('maestro admin'),
+    'file' => 'maestro.admin.inc'
+    );
+
+    $items['admin/structure/maestro/new'] = array(
     'title' => 'New',
     'type' => MENU_LOCAL_TASK,
-  );
+    );
 
-  $items['admin/structure/maestro/edit'] = array(
+    $items['admin/structure/maestro/edit'] = array(
     'title' => 'Edit',
     'page callback' => 'maestro_edit_workflow',
     'access arguments' => array('maestro admin'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'maestro.admin.inc'
-  );
+    );
 
-  $items['maestro_enginetest'] = array(
+    $items['admin/structure/maestro/edit_properties'] = array(
+    'title' => 'Edit Template Name and Variables',
+    'page callback' => 'maestro_edit_properties',
+    'access arguments' => array('maestro admin'),
+    'type' => MENU_CALLBACK,
+    'file' => 'maestro.admin.inc'
+    );
+
+    $items['maestro_enginetest'] = array(
     'title' => 'Execute Development Test',
     'page callback' => 'maestro_enginetest',
     'page arguments' => array(),
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
     'file'  => 'lib-test.php',
-  );
+    );
 
-  $items['maestro_runengine'] = array(
+    $items['maestro_runengine'] = array(
     'title' => 'Execute Development Test',
     'page callback' => 'maestro_runengine',
     'page arguments' => array(),
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
     'file'  => 'lib-test.php',
-  );
+    );
 
-  $items['admin/config/workflow/maestro_configure'] = array(
+    $items['admin/config/workflow/maestro_configure'] = array(
     'title' => 'Maestro Config',
     'description' => 'Configure the Maestro Engine.',
     'page callback' => 'maestro_configure',
     'access arguments' => array('maestro admin'),
-    'type' => MENU_LOCAL_TASK,
     'file' => 'maestro.admin.inc'
-  );
+    );
 
-  return $items;
+    return $items;
 }
 
 
@@ -96,10 +110,10 @@ function maestro_permission() {
   return array(
     'maestro taskconsole'  => array(
       'title' => t('Access Maestro Task Console')
-    ),
+  ),
     'maestro admin' => array(
       'title' => t('Administer Maestro workflows')
-    )
+  )
   );
 }
 
@@ -107,9 +121,9 @@ function maestro_help($path, $arg) {
   $output = '';
 
   switch ($path) {
-  case "admin/help#maestro":
-    $output = '<p>' . t("Define and administer workflows.") .'</p>';
-    break;
+    case "admin/help#maestro":
+      $output = '<p>' . t("Define and administer workflows.") .'</p>';
+      break;
   }
   return $output;
 }
@@ -119,47 +133,58 @@ function maestro_theme() {
     'maestro_taskconsole' => array(
       'template' => 'theme/maestro-taskconsole',
       'variables' => array('tasks' => NULL),
-    ),
+  ),
     'maestro_workflow_list' => array(
-      'template' => 'theme/maestro-workflow-list',
-      'render element' => 'maestro_workflows'
-    ),
+      'template' => 'theme/structure/maestro-workflow-list',
+      'variables' => array('tid' => NULL, 'operation' => NULL, 'edit_var' => 0)
+  ),
     'maestro_workflow_list_item' => array(
-      'template' => 'theme/maestro-workflow-list-item',
-      'render element' => 'maestro_workflow_template'
-    ),
+      'template' => 'theme/structure/maestro-workflow-list-item',
+  //'render element' => 'maestro_workflow_template',
+      'variables' => array('rec' => NULL, 'cntr' => NULL, 'tid' => NULL, 'operation' => NULL, 'edit_var' => 0)
+  ),
+    'maestro_workflow_edit_template_variables_list' => array(
+      'template' => 'theme/structure/maestro-workflow-edit-template-variables-list',
+      'variables' => array('id' => NULL, 'tid' => NULL, 'variable_name' => NULL, 'variable_name' => NULL, 'edit_var' => 0)
+  ),
+
+  'maestro_workflow_edit_template_variables' => array(
+      'template' => 'theme/structure/maestro-workflow-edit-template-variables',
+      'variables' => array('tid' => NULL, 'edit_var' => 0)
+  ),
+
     'maestro_workflow_edit' => array(
       'template' => 'theme/maestro-workflow-edit',
       'variables' => array('tid' => NULL)
-    ),
+  ),
     'maestro_workflow_edit_tasks' => array(
       'template' => 'theme/maestro-workflow-edit-tasks',
       'variables' => array('tid' => NULL)
-    ),
+  ),
     'maestro_task_start' => array(
       'template' => 'theme/tasks/maestro-task-start',
       'variables' => array('tdid' => NULL)
-    ),
+  ),
     'maestro_task_end' => array(
       'template' => 'theme/tasks/maestro-task-end',
       'variables' => array('tdid' => NULL)
-    ),
+  ),
     'maestro_task_if' => array(
       'template' => 'theme/tasks/maestro-task-if',
       'variables' => array('tdid' => NULL)
-    ),
+  ),
     'maestro_task_batch' => array(
       'template' => 'theme/tasks/maestro-task-batch',
       'variables' => array('tdid' => NULL)
-    ),
+  ),
     'maestro_task_set_process_variable' => array(
       'template' => 'theme/tasks/maestro-task-set-process-variable',
       'variables' => array('tdid' => NULL)
-    ),
+  ),
     'maestro_task_interactive_function' => array(
       'template' => 'theme/tasks/maestro-task-interactive-function',
       'variables' => array('tdid' => NULL)
-    ),
+  ),
   );
 }
 
@@ -241,11 +266,90 @@ function maestro_enginetest() {
   drupal_goto($base_url);
 }
 
-  function template_preprocess_maestro_workflow_edit(&$variables) {
-    global $base_url;
-    $mi = new MaestroInterface($variables['tid']);
+function template_preprocess_maestro_workflow_edit(&$variables) {
+  global $base_url;
+  $mi = new MaestroInterface($variables['tid']);
 
-    $variables['additional_js'] = $mi->initializeJavascriptArrays();
-    $variables['ajax_url'] = $base_url . '/index.php?q=admin/structure/maestro/ajax/';
+  $variables['additional_js'] = $mi->initializeJavascriptArrays();
+  $variables['ajax_url']=url('admin/structure/maestro/ajax');
+}
+
+function template_preprocess_maestro_workflow_list(&$variables) {
+  $query = db_select('maestro_template', 'a');
+  $query->addExpression('COUNT(a.id)','templateCount');
+  $queryNumRows = $query->countQuery()->execute()->fetchField();
+  $variables['num_records'] = intval($queryNumRows);
+  $output="";
+
+
+  $res = db_query("SELECT id, template_name FROM {maestro_template}");
+  $cntr=0;
+  foreach ($res as $rec) {
+    $output .= theme('maestro_workflow_list_item', array( 'rec' => $rec,
+                                                          'cntr' => $cntr,
+                                                          'operation' => $variables['operation'],
+                                                          'tid' => $variables['tid'],
+                                                          'edit_var' => $variables['edit_var']
+    ));
+    $cntr++;
   }
 
+  $variables['workflow_list'] = $output;
+
+  $variables['error_message'] = '';
+  $variables['ajax_url']=url('admin/structure/maestro/structure_ajax');
+}
+
+function template_preprocess_maestro_workflow_list_item(&$variables) {
+  $output="";
+  $variables['module_path']=drupal_get_path('module', 'maestro');
+  $variables['use_project'] = "";
+  if($variables['operation'] == 'edit') {  //only show this when we're editing a specific template.
+    $variables['show_item'] = '';
+
+    $output=theme('maestro_workflow_edit_template_variables',  array('tid' => $variables['tid'], 'edit_var' => $variables['edit_var'] ));
+    $query = db_select('maestro_template', 'a');
+    $query->fields('a',array('template_name','use_project','app_group'));
+    $query->condition('a.id',$variables['tid'],'=');
+    $res=current($query->execute()->fetchAll());
+    if($res) {
+      if($res->use_project == 1)  $variables['use_project'] = ' checked="true" ';
+    }
+  }
+  else {
+    $variables['show_item'] = 'none';
+  }
+  $variables['template_variables'] = $output;
+}
+
+
+
+function template_preprocess_maestro_workflow_edit_template_variables(&$variables) {
+  $variables['module_path']=drupal_get_path('module', 'maestro');
+  $output="";
+  $res = db_query("SELECT id, variable_name, variable_value FROM {maestro_template_variables} WHERE template_id=:tid", array('tid' => $variables['tid']));
+  xdebug_break();
+  foreach ($res as $rec) {
+    $output .= theme('maestro_workflow_edit_template_variables_list', array( 'var_id' => $rec->id,
+                                                                        'tid' => $variables['tid'],
+                                                                        'variable_name' => $rec->variable_name,
+                                                                        'variable_value' => $rec->variable_value,
+                                                                        'edit_var' => $variables['edit_var']
+    ));
+  }
+  $variables['template_variables'] = $output;
+}
+
+function template_preprocess_maestro_workflow_edit_template_variables_list(&$variables) {
+  $variables['module_path']=drupal_get_path('module', 'maestro');
+  if($variables['var_id'] == $variables['edit_var']) {
+    $variables['show_variable_actions']='none';
+    $variables['show_variable_edit_actions']='';
+  }
+  else {
+    $variables['show_variable_actions']='';
+    $variables['show_variable_edit_actions']='none';
+  }
+
+
+}
