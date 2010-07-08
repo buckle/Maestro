@@ -121,13 +121,13 @@ function maestro_handle_structure_ajax_request(){
     case 'editvariable':
       $tid=check_plain($_POST['tid']);
       $data=theme('maestro_workflow_edit_template_variables',  array('tid' => $tid, 'edit_var' => $id));
-      $arr=array('status' => "1", 'data' => $data);
+      $arr=array('status' => "1", 'data' => $data, 'cntr' => $tid);
       echo json_encode($arr);
       break;
 
     case 'showvariables':
       $data=theme('maestro_workflow_edit_template_variables',  array('tid' => $id ));
-      $arr=array('status' => "1", 'data' => $data);
+      $arr=array('status' => "1", 'data' => $data, 'cntr' => $id);
       echo json_encode($arr);
       break;
 
