@@ -155,7 +155,7 @@ function maestro_theme() {
 
     'maestro_workflow_edit' => array(
       'template' => 'theme/maestro-workflow-edit',
-      'variables' => array('tid' => NULL)
+      'variables' => array('tid' => NULL, 'mi' => NULL)
   ),
     'maestro_workflow_edit_tasks' => array(
       'template' => 'theme/maestro-workflow-edit-tasks',

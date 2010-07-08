@@ -13,7 +13,7 @@
       <?php print t('Snap to Grid'); ?>: <input type="checkbox" name="snapToGrid" value="1" onclick="updateSnapToGrid();">
   </form>
 
-  <div id="workflow_container" style="position: abosolute; height: 500px;">
+  <div id="maestro_workflow_container" class="maestro_workflow_container" style="position: abosolute; height: 500px;">
 
 <?php
   $res = db_query('SELECT id, taskname, task_class_name, is_interactive, offset_left, offset_top FROM {maestro_template_data} WHERE template_id=:tid', array(':tid' => $tid));
@@ -29,10 +29,12 @@
     </div>
 <?php
   }
+
+  print $mi->getContextMenuHTML();
 ?>
-  </div>
 
   <script type="text/javascript">
     var ajax_url = '<?php print $ajax_url; ?>';
     <?php print $additional_js; ?>
+    <?php print $mi->getContextMenuJS(); ?>
   </script>

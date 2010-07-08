@@ -15,6 +15,7 @@ abstract class MaestroTaskInterface {
 
   //create task will insert the shell record of the task, and then the child class will handle the edit.
   function create() {
+    watchdog('notice', "maestro {$_POST['offset_left']}, {$_POST['offset_top']}, {$_POST['task_type']}");
   }
 
   //handles the update for the drag and drop

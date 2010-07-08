@@ -17,22 +17,65 @@ class MaestroInterface {
   function displayPage() {
     $build['workflow_template'] = array(
       '#theme' => 'maestro_workflow_edit',
-      '#tid' => $this->_template_id
+      '#tid' => $this->_template_id,
+      '#mi' => $this
     );
     $build['workflow_template']['#attached']['library'][] = array('system', 'ui.draggable');
     $build['workflow_template']['#attached']['js'][] = array('data' => '(function($){$(function() { $(".maestro_task_container").draggable( { grid: [25, 25], snap: true } ); })})(jQuery);', 'type' => 'inline');
 
-    return drupal_render($build, array('tid' => $this->_template_id));
+    return drupal_render($build);
   }
 
   //should get the valid task types to create, excluding start and end tasks, from the drupal cache
   function getContextMenu() {
     $options = array(
-      'iftask' => 'New If Task',
-      'batchtask' => 'New Batch Task'
+      'If' => 'If Task',
+      'Batch' => 'Batch Task'
     );
 
     return $options;
+  }
+
+  function getContextMenuHTML() {
+    $options = $this->getContextMenu();
+    $html = "<div id=\"maestro_context_main_menu\" class=\"maestro_context_menu\"><ul>\n";
+
+    foreach ($options as $key => $option) {
+      $option = t($option);
+      $html .= "<li style=\"white-space: nowrap;\" id=\"$key\">$option</li>\n";
+    }
+    $html .= "</ul></div>\n";
+
+    return $html;
+  }
+
+  function getContextMenuJS() {
+    $options = $this->getContextMenu();
+    $js  = "(function ($) {\n";
+    $js .= "\$('#maestro_workflow_container').contextMenu('maestro_context_main_menu', {\n";
+    $js .= "menuStyle: {\n";
+    $js .= "width: 175,\n";
+    $js .= "fontSize: 12,\n";
+    $js .= "},\n";
+
+    $js .= "itemStyle: {\n";
+    $js .= "padding: 0,\n";
+    $js .= "paddingLeft: 10,\n";
+    $js .= "},\n";
+
+    $js .= "bindings: {\n";
+
+    foreach ($options as $key => $option) {
+      $js .= "'$key': function(t) {\n";
+      $js .= "\$.post(ajax_url + 'MaestroTaskInterface$key/0/create/', {task_type: '$key', offset_left: t.offsetLeft, offset_top: t.offsetTop});\n";
+      $js .= "},\n";
+    }
+
+    $js .= "}\n";
+    $js .= "});\n";
+    $js .= "})(jQuery);\n";
+
+    return $js;
   }
 
   function initializeJavascriptArrays() {

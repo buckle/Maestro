@@ -22,11 +22,13 @@ function maestro_admin($tid=0, $operation='', $var=0) {
 //called from the hooks_menu
 function maestro_edit_workflow($tid) {
   global $base_url;
+
   $maestro_path = '/' . drupal_get_path('module', 'maestro');
+
   drupal_add_css($base_url . $maestro_path . '/css/maestro.css');
   drupal_add_js($base_url . $maestro_path . '/js/wz_jsgraphics.js');
-  //drupal_add_js($base_url . $maestro_path . '/js/workflowadmin.js');
   drupal_add_js($base_url . $maestro_path . '/js/admin_template_editor.js');
+  drupal_add_js($base_url . $maestro_path . '/js/jquery.contextmenu.js');
 
   $mi = new MaestroInterface($tid);
 

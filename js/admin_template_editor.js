@@ -235,7 +235,7 @@ function connect_tasks(start, end, styleFlag, drawClass) {
     line[8].clear();
   }
   else {
-    line[8] = new jsGraphics('workflow_container');
+    line[8] = new jsGraphics('maestro_workflow_container');
     line[8].setStroke(2);
     if (styleFlag) {
       line[8].setColor(trueLineColor);
