@@ -57,3 +57,8 @@
 .b { background: url(../images/admin/corners/dot.gif) 0 100% repeat-x; }
 .l { background: url(../images/admin/corners/dot.gif) 0 0 repeat-y; }
 .r { background: url(../images/admin/corners/dot.gif) 100% 0 repeat-y; }
+
+span.maestro_working {
+  background:url(../images/admin/status-active.gif) no-repeat right center;
+  padding-right:18px;
+}

@@ -1,3 +1,5 @@
+var maestro_structure_cntr=0;
+
 function maestro_saveTemplateName(id, cntr) {
 	var frmID = "#maestro_template_save_" + cntr;
 	dataString = jQuery(frmID).serialize();
