@@ -328,7 +328,6 @@ function template_preprocess_maestro_workflow_edit_template_variables(&$variable
   $variables['module_path']=drupal_get_path('module', 'maestro');
   $output="";
   $res = db_query("SELECT id, variable_name, variable_value FROM {maestro_template_variables} WHERE template_id=:tid", array('tid' => $variables['tid']));
-  xdebug_break();
   foreach ($res as $rec) {
     $output .= theme('maestro_workflow_edit_template_variables_list', array( 'var_id' => $rec->id,
                                                                         'tid' => $variables['tid'],
