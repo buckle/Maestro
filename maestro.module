@@ -145,12 +145,12 @@ function maestro_theme() {
   ),
     'maestro_workflow_edit_template_variables_list' => array(
       'template' => 'theme/structure/maestro-workflow-edit-template-variables-list',
-      'variables' => array('id' => NULL, 'tid' => NULL, 'variable_name' => NULL, 'variable_name' => NULL, 'edit_var' => 0)
+      'variables' => array('id' => NULL, 'tid' => NULL, 'variable_name' => NULL, 'variable_name' => NULL, 'edit_var' => 0, 'cntr' => 0)
   ),
 
   'maestro_workflow_edit_template_variables' => array(
       'template' => 'theme/structure/maestro-workflow-edit-template-variables',
-      'variables' => array('tid' => NULL, 'edit_var' => 0)
+      'variables' => array('tid' => NULL, 'edit_var' => 0, 'cntr' => 0)
   ),
 
     'maestro_workflow_edit' => array(
@@ -306,7 +306,7 @@ function template_preprocess_maestro_workflow_list_item(&$variables) {
   $variables['use_project'] = "";
   if(  $variables['operation'] == 'edit' && $variables['tid'] ==  $variables['rec']->id ) {  //only show this when we're editing a specific template.
     $variables['show_item'] = '';
-    $output=theme('maestro_workflow_edit_template_variables',  array('tid' => $variables['tid'], 'edit_var' => $variables['edit_var'] ));
+    $output=theme('maestro_workflow_edit_template_variables',  array('tid' => $variables['tid'], 'edit_var' => $variables['edit_var'] , 'cntr' => $variables['cntr']));
     $query = db_select('maestro_template', 'a');
     $query->fields('a',array('template_name','use_project','app_group'));
     $query->condition('a.id',$variables['tid'],'=');
@@ -332,7 +332,8 @@ function template_preprocess_maestro_workflow_edit_template_variables(&$variable
                                                                         'tid' => $variables['tid'],
                                                                         'variable_name' => $rec->variable_name,
                                                                         'variable_value' => $rec->variable_value,
-                                                                        'edit_var' => $variables['edit_var']
+                                                                        'edit_var' => $variables['edit_var'],
+                                                                        'cntr' => $variables['cntr']
     ));
   }
   $variables['template_variables'] = $output;

@@ -96,7 +96,7 @@
         <div id="{vdivid}" style="padding-left:10px;display:{show_vars};">
           <fieldset style="margin:10px 10px 10px 0px;"><legend><?php print t('Template Variables'); ?></legend>
 
-              <div id="ajaxReplaceTemplateVars">
+              <div id="ajaxReplaceTemplateVars_<?php print $rec->id; ?>">
               <?php print $template_variables; ?>
               </div>
 

@@ -70,7 +70,7 @@ function maestro_saveNewVariableComplete(data) {
 	jQuery('#maestro_variable_updating_' + maestro_structure_cntr).removeClass(
 			'maestro_working');
 	if (data.status == "1") {
-		jQuery('#ajaxReplaceTemplateVars').html(data.data);
+		jQuery('#ajaxReplaceTemplateVars_' + data.cntr).html(data.data);
 	} else {
 		var error = Drupal.t('There has been an error saving your template variable.  Please try your save again.');
 		jQuery('#maestro_error_message').html(error);
@@ -121,7 +121,7 @@ function maestro_updateTemplateVariableComplete(data) {
 	jQuery('#maestro_updating_variable_' + data.var_id).removeClass(
 			'maestro_working');
 	if (data.status == "1") {
-		jQuery('#ajaxReplaceTemplateVars').html(data.data);
+		jQuery('#ajaxReplaceTemplateVars_' + data.cntr).html(data.data);
 	} else {
 		var error = Drupal.t('There has been an error saving your template variable.  Please try your save again.');
 		jQuery('#maestro_error_message').html(error);
@@ -133,12 +133,13 @@ function maestro_updateVariableError(XMLHttpRequest, textStatus, errorThrown) {
 			'maestro_working');
 }
 
-function maestro_deleteTemplateVariable(tid, var_id) {
+function maestro_deleteTemplateVariable(tid, var_id, cntr) {
 	var x = confirm(Drupal.t('Delete this variable?'));
 	if (x) {
 		dataString = "";
 		dataString += "id=" + var_id;
 		dataString += "&tid=" + tid;
+		dataString += "&cntr=" + cntr;
 		dataString += "&op=deletevariable";
 		jQuery.ajax( {
 			type : 'POST',

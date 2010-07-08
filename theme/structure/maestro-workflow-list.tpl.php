@@ -7,13 +7,15 @@
  */
 
 ?>
-
+<div id="maestro_template_admin">
 <script type="text/javascript">
 var num_records = <?php print $num_records; ?>;
 var ajax_url = '<?php print filter_xss($ajax_url); ?>';
 </script>
   <div id="addtemplate" style="padding:10px 0px 10px 10px;">
-    <a href="#" onClick="document.getElementById('newtemplate').style.display = ''; document.getElementById('addtemplate').style.visibility = 'hidden'">New Template</a>&nbsp;&nbsp;
+    <input type="button" value="<?php print t('New Template'); ?>" onClick="jQuery('#newtemplate').toggle();">&nbsp;
+
+
     <a href="#" onClick="document.getElementById('newappgroup').style.display = ''; document.getElementById('addtemplate').style.visibility = 'hidden'">Add Application Groups</a>&nbsp;&nbsp;
     <a href="#" onClick="document.getElementById('editappgroup').style.display = ''; document.getElementById('addtemplate').style.visibility = 'hidden'">Delete Application Groups</a>
   </div>
@@ -27,18 +29,20 @@ var ajax_url = '<?php print filter_xss($ajax_url); ?>';
     </tr>
     <tr id="newtemplate" style="display:none;">
       <td colspan="3" class="pluginRow1">
-        <form method="get" action="{public_url}/templates.php" style="margin:0px;">
           <table cellspacing="1" cellpadding="1" border="0" width="100%">
             <tr>
               <td><?php print t('Name'); ?>:</td>
-              <td><input type="text" name="templateName" value="" size="50" ></td>
+              <td><input type="text" id="newTemplateName" value="" size="50" style="border: solid black 1px;"></td>
               <td style="text-align:right;padding-right:10px;">
-                <input type="hidden" name="operation" value="save">
-                <input type="submit" value="&nbsp;Add&nbsp;">&nbsp;<input type="button" value="<?php print t('Cancel'); ?>" onClick='restoreAction();'>
+                <span id="maestro_new_template_updating"></span>
+                <input type="button" value="<?php print t('Create'); ?>" onClick='maestro_CreateTemplate();'>&nbsp;
+                <input type="button" value="<?php print t('Close'); ?>" onClick="jQuery('#newtemplate').toggle();">&nbsp;
+
+
+
               </td>
             </tr>
           </table>
-        </form>
       </td>
     </tr>
     <tr id="newappgroup" style="display:none;">
@@ -88,3 +92,4 @@ var ajax_url = '<?php print filter_xss($ajax_url); ?>';
     <?php print $workflow_list; ?>
 
   </table>
+</div>

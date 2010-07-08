@@ -80,7 +80,7 @@ function maestro_handle_structure_ajax_request(){
       }
       $data=theme('maestro_workflow_edit_template_variables',  array('tid' => $id ));
 
-      $arr=array('status' => $status, 'data' => $data);
+      $arr=array('status' => $status, 'data' => $data, 'cntr' => $id );
       echo json_encode($arr);
       break;
 
@@ -114,7 +114,7 @@ function maestro_handle_structure_ajax_request(){
       $query->condition('id',$id,'=');
       $query->execute();
       $data=theme('maestro_workflow_edit_template_variables',  array('tid' => $tid ));
-      $arr=array('status' => "1", 'data' => $data);
+      $arr=array('status' => "1", 'data' => $data, 'cntr' => $tid);
       echo json_encode($arr);
       break;
 
