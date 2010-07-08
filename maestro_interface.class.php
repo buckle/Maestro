@@ -38,7 +38,7 @@ class MaestroInterface {
 
   function getContextMenuHTML() {
     $options = $this->getContextMenu();
-    $html = "<div id=\"maestro_context_main_menu\" class=\"maestro_context_menu\"><ul>\n";
+    $html = "<div id=\"maestro_main_context_menu\" class=\"maestro_context_menu\"><ul>\n";
 
     foreach ($options as $key => $option) {
       $option = t($option);
@@ -52,7 +52,7 @@ class MaestroInterface {
   function getContextMenuJS() {
     $options = $this->getContextMenu();
     $js  = "(function ($) {\n";
-    $js .= "\$('#maestro_workflow_container').contextMenu('maestro_context_main_menu', {\n";
+    $js .= "\$('#maestro_workflow_container').contextMenu('maestro_main_context_menu', {\n";
     $js .= "menuStyle: {\n";
     $js .= "width: 175,\n";
     $js .= "fontSize: 12,\n";

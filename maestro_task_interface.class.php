@@ -8,9 +8,11 @@
 
 abstract class MaestroTaskInterface {
   protected $_task_id;
+  protected $_task_type;
 
   function __construct($task_id=0) {
     $this->_task_id = $task_id;
+    $this->_task_type = '';
   }
 
   //create task will insert the shell record of the task, and then the child class will handle the edit.
@@ -28,22 +30,83 @@ abstract class MaestroTaskInterface {
 
   //handles the update when adding a line (insert the next step record)
   function drawLine() {
+    watchdog('notice', "maestro drawLine");
   }
 
   //in theory only the if task will use this method
   function drawLineFalse() {
+    watchdog('notice', "maestro drawLineFalse");
+  }
+
+  //remove any next step records pertaining to this task
+  function clearAdjacentLines() {
+    watchdog('notice', "maestro clearAdjacentLines");
   }
 
   //returns an array of options for when the user right-clicks the task
   function getContextMenu() {
     $options = array (
-      'draw_line' => t('Draw Line'),
-      'clear_lines' => t('Clear Adjascent Lines'),
-      'edit_task' => t('Edit Task'),
-      'delete_task' => t('Delete Task')
+      'draw_line' => array(
+        'label' => t('Draw Line'),
+        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/drawLine/');\n"
+      ),
+      'clear_lines' => array(
+        'label' => t('Clear Adjacent Lines'),
+        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/clearAdjacentLines/');\n"
+      ),
+      'edit_task' => array(
+        'label' => t('Edit Task'),
+        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/edit/');\n"
+      ),
+      'delete_task' => array(
+        'label' => t('Delete Task'),
+        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/delete/');\n"
+      )
     );
 
     return $options;
+  }
+
+  function getContextMenuHTML() {
+    $options = $this->getContextMenu();
+    $html = "<div id=\"maestro_task{$this->_task_id}_context_menu\" class=\"maestro_context_menu\"><ul>\n";
+
+    foreach ($options as $key => $option) {
+      $option = t($option);
+      $html .= "<li style=\"white-space: nowrap;\" id=\"$key\">{$option['label']}</li>\n";
+    }
+    $html .= "</ul></div>\n";
+
+    return $html;
+  }
+
+  function getContextMenuJS() {
+    $options = $this->getContextMenu();
+    $js  = "(function ($) {\n";
+    $js .= "\$('#task{$this->_task_id}').contextMenu('maestro_task{$this->_task_id}_context_menu', {\n";
+    $js .= "menuStyle: {\n";
+    $js .= "width: 175,\n";
+    $js .= "fontSize: 12,\n";
+    $js .= "},\n";
+
+    $js .= "itemStyle: {\n";
+    $js .= "padding: 0,\n";
+    $js .= "paddingLeft: 10,\n";
+    $js .= "},\n";
+
+    $js .= "bindings: {\n";
+
+    foreach ($options as $key => $option) {
+      $js .= "'$key': function(t) {\n";
+      $js .= $option['js'];
+      $js .= "},\n";
+    }
+
+    $js .= "}\n";
+    $js .= "});\n";
+    $js .= "})(jQuery);\n";
+
+    return $js;
   }
 
   abstract function display();
@@ -54,6 +117,11 @@ abstract class MaestroTaskInterface {
 }
 
 class MaestroTaskInterfaceStart extends MaestroTaskInterface {
+  function __construct($task_id=0) {
+    parent::__construct($task_id);
+    $this->_task_type = 'Start';
+  }
+
   function display() {
     echo theme('maestro_task_start', array('tdid' => $this->_task_id));
   }
@@ -66,9 +134,29 @@ class MaestroTaskInterfaceStart extends MaestroTaskInterface {
 
   function destroy() {
   }
+
+  function getContextMenu() {
+    $options = array (
+      'draw_line' => array(
+        'label' => t('Draw Line'),
+        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/drawLine/');\n"
+      ),
+      'clear_lines' => array(
+        'label' => t('Clear Adjacent Lines'),
+        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/clearAdjacentLines/');\n"
+      )
+    );
+
+    return $options;
+  }
 }
 
 class MaestroTaskInterfaceEnd extends MaestroTaskInterface {
+  function __construct($task_id=0) {
+    parent::__construct($task_id);
+    $this->_task_type = 'End';
+  }
+
   function display() {
     echo theme('maestro_task_end', array('tdid' => $this->_task_id));
   }
@@ -81,9 +169,25 @@ class MaestroTaskInterfaceEnd extends MaestroTaskInterface {
 
   function destroy() {
   }
+
+  function getContextMenu() {
+    $options = array (
+      'clear_lines' => array(
+        'label' => t('Clear Adjacent Lines'),
+        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/clearAdjacentLines/');\n"
+      )
+    );
+
+    return $options;
+  }
 }
 
 class MaestroTaskInterfaceIf extends MaestroTaskInterface {
+  function __construct($task_id=0) {
+    parent::__construct($task_id);
+    $this->_task_type = 'If';
+  }
+
   function display() {
     echo theme('maestro_task_if', array('tdid' => $this->_task_id));
   }
@@ -98,15 +202,39 @@ class MaestroTaskInterfaceIf extends MaestroTaskInterface {
   }
 
   function getContextMenu() {
-    $options = parent::getContextMenu();
-    $options['draw_line'] = 'Draw Success Line';
-    $options['draw_line_false'] = 'Draw Fail Line';
+    $options = array (
+      'draw_line' => array(
+        'label' => t('Draw Success Line'),
+        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/drawLine/');\n"
+      ),
+      'draw_line_false' => array(
+        'label' => t('Draw Fail Line'),
+        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/drawLineFalse/');\n"
+      ),
+      'clear_lines' => array(
+        'label' => t('Clear Adjacent Lines'),
+        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/clearAdjacentLines/');\n"
+      ),
+      'edit_task' => array(
+        'label' => t('Edit Task'),
+        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/edit/');\n"
+      ),
+      'delete_task' => array(
+        'label' => t('Delete Task'),
+        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/delete/');\n"
+      )
+    );
 
     return $options;
   }
 }
 
 class MaestroTaskInterfaceBatch extends MaestroTaskInterface {
+  function __construct($task_id=0) {
+    parent::__construct($task_id);
+    $this->_task_type = 'Batch';
+  }
+
   function display() {
     echo theme('maestro_task_batch', array('tdid' => $this->_task_id));
   }
@@ -122,6 +250,11 @@ class MaestroTaskInterfaceBatch extends MaestroTaskInterface {
 }
 
 class MaestroTaskInterfaceInteractiveFunction extends MaestroTaskInterface {
+  function __construct($task_id=0) {
+    parent::__construct($task_id);
+    $this->_task_type = 'InteractiveFunction';
+  }
+
   function display() {
     echo theme('maestro_task_interactive_function', array('tdid' => $this->_task_id));
   }
@@ -137,6 +270,11 @@ class MaestroTaskInterfaceInteractiveFunction extends MaestroTaskInterface {
 }
 
 class MaestroTaskInterfaceSetProcessVariable extends MaestroTaskInterface {
+  function __construct($task_id=0) {
+    parent::__construct($task_id);
+    $this->_task_type = 'SetProcessVariable';
+  }
+
   function display() {
     echo theme('maestro_task_set_process_variable', array('tdid' => $this->_task_id));
   }

@@ -36,7 +36,12 @@ var menuCheckArray = [];
 
     initialize_lines();
   });
+
 })(jQuery);
+
+function update_snap_to_grid() {
+  alert('doh');
+}
 
 function update_lines(el) {
   //update transactions involving el with the new coords

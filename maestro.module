@@ -154,35 +154,35 @@ function maestro_theme() {
   ),
 
     'maestro_workflow_edit' => array(
-      'template' => 'theme/maestro-workflow-edit',
+      'template' => 'theme/structure/maestro-workflow-edit',
       'variables' => array('tid' => NULL, 'mi' => NULL)
   ),
     'maestro_workflow_edit_tasks' => array(
-      'template' => 'theme/maestro-workflow-edit-tasks',
+      'template' => 'theme/structure/maestro-workflow-edit-tasks',
       'variables' => array('tid' => NULL)
   ),
     'maestro_task_start' => array(
-      'template' => 'theme/tasks/maestro-task-start',
+      'template' => 'theme/structure/tasks/maestro-task-start',
       'variables' => array('tdid' => NULL)
   ),
     'maestro_task_end' => array(
-      'template' => 'theme/tasks/maestro-task-end',
+      'template' => 'theme/structure/tasks/maestro-task-end',
       'variables' => array('tdid' => NULL)
   ),
     'maestro_task_if' => array(
-      'template' => 'theme/tasks/maestro-task-if',
+      'template' => 'theme/structure/tasks/maestro-task-if',
       'variables' => array('tdid' => NULL)
   ),
     'maestro_task_batch' => array(
-      'template' => 'theme/tasks/maestro-task-batch',
+      'template' => 'theme/structure/tasks/maestro-task-batch',
       'variables' => array('tdid' => NULL)
   ),
     'maestro_task_set_process_variable' => array(
-      'template' => 'theme/tasks/maestro-task-set-process-variable',
+      'template' => 'theme/structure/tasks/maestro-task-set-process-variable',
       'variables' => array('tdid' => NULL)
   ),
     'maestro_task_interactive_function' => array(
-      'template' => 'theme/tasks/maestro-task-interactive-function',
+      'template' => 'theme/structure/tasks/maestro-task-interactive-function',
       'variables' => array('tdid' => NULL)
   ),
   );
@@ -271,7 +271,7 @@ function template_preprocess_maestro_workflow_edit(&$variables) {
   $mi = new MaestroInterface($variables['tid']);
 
   $variables['additional_js'] = $mi->initializeJavascriptArrays();
-  $variables['ajax_url']=url('admin/structure/maestro/ajax');
+  $variables['ajax_url'] = url('admin/structure/maestro/ajax/');
 }
 
 function template_preprocess_maestro_workflow_list(&$variables) {
