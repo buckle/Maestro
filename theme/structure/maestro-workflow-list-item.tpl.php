@@ -20,7 +20,7 @@
     </tr>
 
     <tr id="tedit<?php print $cntr; ?>" class="" style="vertical-align:top;display:<?php print $show_item; ?>;">
-      <td width="5%" class="" style="padding-left:5px;">ID: <?php print $rec->id; ?></td>
+      <td width="5%" class="" style="padding-left:5px;"></td>
       <td width="95%" colspan="2" class="">
         <form id="maestro_template_save_<?php print $cntr; ?>" style="margin:0px;">
           <table cellspacing="1" cellpadding="1" border="0" width="100%" style="margin-top:5px;">
@@ -68,12 +68,38 @@
             </tr>
           </table>
         </form>
-        <div id="addvarlabel<?php print $cntr; ?>" style="padding:5px;">[&nbsp;<a href="#" onClick="addVariable(<?php print $cntr; ?>);"><?php print t('Add Variable'); ?></a>&nbsp;]</div>
+        <div id="addvarlabel<?php print $cntr; ?>" style="padding:5px;">
+          [&nbsp;<a href="#" onclick="maestro_OpenCloseCreateVariable(<?php print $cntr; ?>);"><?php print t('Add Variable'); ?></a>&nbsp;]
+            <div id="variableAdd_<?php print $cntr; ?>" style="display:none">
+              <form id="frmVariableAdd_<?php print $cntr; ?>">
+              <table border=0>
+              <tr>
+              <td>Variable Name:</td>
+              <td><input type="text" name="newVariableName" id="newVariableName" size="30" value="" style="border:solid gray 1px;"></td>
+              <td rowspan="2">
+                <span id="maestro_variable_updating_<?php print $cntr; ?>"></span>
+                <input type="button" value="<?php print t('Create'); ?>" onClick='maestro_CreateVariable(<?php print $rec->id; ?>,<?php print $cntr; ?>);'>&nbsp;
+                <input type="button" value="<?php print t('Close'); ?>" onClick='maestro_OpenCloseCreateVariable(<?php print $cntr; ?>);'>&nbsp;
+              </td>
+              </tr>
+              <tr>
+               <td>Default Value:</td>
+               <td><input type="text" name="newVariableValue" id="newVariableValue" size="10" value="" style="border:solid gray 1px;"></td>
+              </tr>
+
+
+              </table>
+              </form>
+            </div>
+
+        </div>
         <div id="{vdivid}" style="padding-left:10px;display:{show_vars};">
           <fieldset style="margin:10px 10px 10px 0px;"><legend><?php print t('Template Variables'); ?></legend>
-            <form name="tvars<?php print $cntr; ?>" style="margin:0px;">
+
+              <div id="ajaxReplaceTemplateVars">
               <?php print $template_variables; ?>
-            </form>
+              </div>
+
           </fieldset>
         </div>
       </td>

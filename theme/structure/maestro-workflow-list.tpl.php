@@ -18,7 +18,7 @@ var ajax_url = '<?php print filter_xss($ajax_url); ?>';
     <a href="#" onClick="document.getElementById('editappgroup').style.display = ''; document.getElementById('addtemplate').style.visibility = 'hidden'">Delete Application Groups</a>
   </div>
 
-  <table cellpadding="2" cellspacing="1" border="0" width="100%" style="border:1px solid #CCC;">
+  <table cellpadding="2" cellspacing="1" border="1" width="100%" style="border:1px solid #CCC;">
     <tr>
       <td colspan="3" class="pluginInfo"><?php print t('Click on desired action to edit template'); ?></td>
     </tr>
