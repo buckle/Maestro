@@ -13,8 +13,7 @@ function maestro_admin($tid=0, $operation='', $var=0) {
   global $base_url;
   $maestro_path = $base_url . '/' . drupal_get_path('module', 'maestro');
   drupal_add_css($maestro_path . '/css/maestro.css');
-  drupal_add_js($maestro_path . '/js/structure_page.js');
-  drupal_add_js($maestro_path . '/js/ajax-support.js');
+  drupal_add_js($maestro_path . '/js/ajax_support.js');
 
   return theme('maestro_workflow_list', array('tid' => $tid, 'operation' => $operation , 'edit_var' => $var));
 }
