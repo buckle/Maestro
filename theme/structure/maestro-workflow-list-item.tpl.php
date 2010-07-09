@@ -57,9 +57,7 @@
                     <td class="aligntop"><?php print t('Bind Flow to a Flow Application Group'); ?>: </td>
                     <td class="aligntop">
                       <span >
-                        <select name="appGroup" size=1 >
-                          {editUseApp}
-                        </select>
+                          <?php print $template_app_groups; ?>
                       </span>
                     </td>
                   </tr>

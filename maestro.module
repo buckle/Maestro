@@ -300,7 +300,7 @@ function template_preprocess_maestro_workflow_list(&$variables) {
   $variables['ajax_url']=url('admin/structure/maestro/structure_ajax');
 
   //app group listing:
-  $variables['app_groups'] = maestro_createAppGroupDropDown();
+  $variables['app_groups'] = maestro_createAppGroupDropDown('deleteAppGroup');
 
 }
 
@@ -318,11 +318,15 @@ function template_preprocess_maestro_workflow_list_item(&$variables) {
     if($res) {
       if($res->use_project == 1)  $variables['use_project'] = ' checked="true" ';
     }
+    $variables['template_app_groups'] = maestro_createAppGroupDropDown('appGroup', $res->app_group);
   }
   else {
     $variables['show_item'] = 'none';
+    $variables['template_app_groups'] = "";
   }
   $variables['template_variables'] = $output;
+
+
 }
 
 
@@ -358,13 +362,13 @@ function template_preprocess_maestro_workflow_edit_template_variables_list(&$var
 }
 
 
-function maestro_createAppGroupDropDown($selected = 0){
+function maestro_createAppGroupDropDown($name, $selected = 0){
   $res = db_query("SELECT id, app_group FROM {maestro_app_groups}");
-  $output = "<select id='deleteAppGroup' size='4' style='border: solid black 1px;'>";
+  $output = "<select id='{$name}' name='{$name}' size='4' style='border: solid black 1px;'><option value='0'></option>";
   foreach ($res as $rec) {
-    $selected = "";
-    if($selected == $rec->id) $selected = " selected ";
-    $output .= "<option value='{$rec->id}' {$selected}>{$rec->app_group}</option>";
+    $sel = "";
+    if($selected == $rec->id) $sel = " selected ";
+    $output .= "<option value='{$rec->id}' {$sel}>{$rec->app_group}</option>";
   }
   $output .="</select>";
   return $output;
