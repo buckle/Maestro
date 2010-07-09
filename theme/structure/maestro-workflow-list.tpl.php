@@ -14,10 +14,8 @@ var ajax_url = '<?php print filter_xss($ajax_url); ?>';
 </script>
   <div id="addtemplate" style="padding:10px 0px 10px 10px;">
     <input type="button" value="<?php print t('New Template'); ?>" onClick="jQuery('#newtemplate').toggle();">&nbsp;
-
-
-    <a href="#" onClick="document.getElementById('newappgroup').style.display = ''; document.getElementById('addtemplate').style.visibility = 'hidden'">Add Application Groups</a>&nbsp;&nbsp;
-    <a href="#" onClick="document.getElementById('editappgroup').style.display = ''; document.getElementById('addtemplate').style.visibility = 'hidden'">Delete Application Groups</a>
+    <input type="button" value="<?php print t('Add Application Groups'); ?>" onClick="jQuery('#newappgroup').toggle();">&nbsp;
+    <input type="button" value="<?php print t('Delete Application Groups'); ?>" onClick="jQuery('#editappgroup').toggle();">&nbsp;
   </div>
 
   <table cellpadding="2" cellspacing="1" border="1" width="100%" style="border:1px solid #CCC;">
@@ -37,9 +35,6 @@ var ajax_url = '<?php print filter_xss($ajax_url); ?>';
                 <span id="maestro_new_template_updating"></span>
                 <input type="button" value="<?php print t('Create'); ?>" onClick='maestro_CreateTemplate();'>&nbsp;
                 <input type="button" value="<?php print t('Close'); ?>" onClick="jQuery('#newtemplate').toggle();">&nbsp;
-
-
-
               </td>
             </tr>
           </table>
@@ -47,39 +42,40 @@ var ajax_url = '<?php print filter_xss($ajax_url); ?>';
     </tr>
     <tr id="newappgroup" style="display:none;">
       <td colspan="3" class="pluginRow1">
-        <form method="get" action="{public_url}/templates.php" style="margin:0px;" name="appGroupForm">
+
           <table cellspacing="1" cellpadding="1" border="0"  width="100%">
             <tr>
               <td><?php print t('New Application Group Name'); ?>:</td>
-              <td><input type="text" name="appGroupName" value="" size="50" ></td>
+              <td><input type="text" id="appGroupName" value="" size="50" style="border: solid black 1px;"></td>
               <td style="text-align:right;padding-right:10px;">
-                <input type="hidden" name="operation" value="addappgroup">
-                <input type="submit" value="&nbsp;Add&nbsp;">&nbsp;<input type="button" value="<?php print t('Cancel'); ?>" onClick='restoreAction();document.appGroupForm.appGroupName.value="";getElementById("newappgroup").style.display="none"'>
+                <span id="maestro_new_appgroup_updating"></span>
+                <input type="button" value="<?php print t('Create'); ?>" onClick='maestro_CreateAppgroup();'>&nbsp;
+                <input type="button" value="<?php print t('Close'); ?>" onClick="jQuery('#newappgroup').toggle();">&nbsp;
               </td>
             </tr>
           </table>
-        </form>
+
       </td>
     </tr>
     <tr id="editappgroup" style="display:none;">
       <td colspan="3" class="pluginRow1">
-        <form method="get" action="{public_url}/templates.php" style="margin:0px;" name="editGroupForm">
           <table cellspacing="1" cellpadding="1" border="0" width="100%">
             <tr>
               <td valign="top" nowrap><?php print t('Delete Application Group'); ?>:</td>
               <td>
-                <select name="deleteAppGroup" size="4">
-                  {deleteAppGroup}
-                </select>
+                <div id="replaceDeleteAppGroup">
+                <?php print $app_groups; ?>
+                </div>
               </td>
               <td width="60%">&nbsp;</td>
               <td style="text-align:right;padding-right:10px;" nowrap>
-                <input type="hidden" name="operation" value="editappgroup">
-                <input type="submit" value="&nbsp;Delete&nbsp;">&nbsp;<input type="button" value="Cancel" onClick='restoreAction();getElementById("editappgroup").style.display="none"'>
+                <span id="maestro_del_appgroup_updating"></span>
+                <input type="button" value="<?php print t('Delete'); ?>" onClick='maestro_DeleteAppgroup();'>&nbsp;
+                <input type="button" value="<?php print t('Close'); ?>" onClick="jQuery('#editappgroup').toggle();">&nbsp;
+
               </td>
             </tr>
           </table>
-        </form>
       </td>
     </tr>
     <tr style="color:red">

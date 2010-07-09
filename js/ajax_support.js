@@ -201,3 +201,80 @@ function maestro_createTemplateComplete(data){
 function maestro_createTemplateError(XMLHttpRequest, textStatus, errorThrown){
 	jQuery('#maestro_new_template_updating').removeClass('maestro_working');
 }
+
+
+function maestro_CreateAppgroup(){
+	jQuery('#maestro_new_appgroup_updating').addClass('maestro_working');
+	var name = jQuery('#appGroupName').attr("value");
+	dataString = "";
+	dataString += "name=" + name;
+	dataString += "&op=createappgroup";
+	jQuery.ajax( {
+		type : 'POST',
+		cache : false,
+		url : ajax_url,
+		dataType : "json",
+		success : maestro_createAppgroupComplete,
+		error : maestro_createAppgroupError,
+		data : dataString
+	});
+}
+
+function maestro_createAppgroupComplete(data){
+	jQuery('#maestro_new_appgroup_updating').removeClass('maestro_working');
+	jQuery('#appGroupName').attr("value","");
+	if (data.status == "0") {
+		var error = Drupal.t('There has been an error saving your App Group.  Please try your save again.');
+		jQuery('#maestro_error_message').html(error);
+	}
+	else {
+		maestro_refreshAppGroup();
+	}
+}
+
+function maestro_createAppgroupError(XMLHttpRequest, textStatus, errorThrown){
+	jQuery('#maestro_new_appgroup_updating').removeClass('maestro_working');
+	
+}
+
+function maestro_refreshAppGroup(){
+	dataString = "";
+	dataString += "id=" + name;
+	dataString += "&op=refreshappgroup";
+	jQuery.ajax( {
+		type : 'POST',
+		cache : false,
+		url : ajax_url,
+		dataType : "json",
+		success : maestro_deleteAppgroupComplete,
+		data : dataString
+	});
+}
+
+function maestro_DeleteAppgroup(){
+	jQuery('#maestro_del_appgroup_updating').addClass('maestro_working');
+	var name = jQuery('#deleteAppGroup').attr("value");
+	dataString = "";
+	dataString += "id=" + name;
+	dataString += "&op=deleteappgroup";
+	jQuery.ajax( {
+		type : 'POST',
+		cache : false,
+		url : ajax_url,
+		dataType : "json",
+		success : maestro_deleteAppgroupComplete,
+		error : maestro_createAppgroupError,
+		data : dataString
+	});
+}
+
+
+function maestro_deleteAppgroupComplete(data){
+	jQuery('#maestro_del_appgroup_updating').removeClass('maestro_working');
+	if (data.status == "1") {
+		jQuery('#replaceDeleteAppGroup').html(data.data);
+	} else {
+		var error = Drupal.t('There has been an error deleting your app gropu.  Please try your delete again.');
+		jQuery('#maestro_error_message').html(error);
+	}
+}

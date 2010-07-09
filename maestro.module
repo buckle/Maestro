@@ -298,6 +298,10 @@ function template_preprocess_maestro_workflow_list(&$variables) {
 
   $variables['error_message'] = '';
   $variables['ajax_url']=url('admin/structure/maestro/structure_ajax');
+
+  //app group listing:
+  $variables['app_groups'] = maestro_createAppGroupDropDown();
+
 }
 
 function template_preprocess_maestro_workflow_list_item(&$variables) {
@@ -351,4 +355,17 @@ function template_preprocess_maestro_workflow_edit_template_variables_list(&$var
   }
 
 
+}
+
+
+function maestro_createAppGroupDropDown($selected = 0){
+  $res = db_query("SELECT id, app_group FROM {maestro_app_groups}");
+  $output = "<select id='deleteAppGroup' size='4' style='border: solid black 1px;'>";
+  foreach ($res as $rec) {
+    $selected = "";
+    if($selected == $rec->id) $selected = " selected ";
+    $output .= "<option value='{$rec->id}' {$selected}>{$rec->app_group}</option>";
+  }
+  $output .="</select>";
+  return $output;
 }

@@ -145,6 +145,34 @@ function maestro_handle_structure_ajax_request(){
       $arr=array('status' => $status, 'data' => $data);
       echo json_encode($arr);
       break;
+
+    case 'createappgroup':
+      $name=check_plain($_POST['name']);
+      $record = new stdClass();
+      $record ->app_group = $name;
+      drupal_write_record('maestro_app_groups', $record);
+      $status = 0;
+      if($record->id > 0){
+        $status = 1;
+      }
+      $arr=array('status' => $status, 'data' => '');
+      echo json_encode($arr);
+      break;
+
+    case 'deleteappgroup':
+      $query = db_delete('maestro_app_groups');
+      $query->condition('id',$id,'=');
+      $query->execute();
+      $data=maestro_createAppGroupDropDown();
+      $arr=array('status' => "1", 'data' => $data);
+      echo json_encode($arr);
+      break;
+
+    case 'refreshappgroup':
+      $data=maestro_createAppGroupDropDown();
+      $arr=array('status' => "1", 'data' => $data);
+      echo json_encode($arr);
+      break;
   }
 
 
