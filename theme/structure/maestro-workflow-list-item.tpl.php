@@ -14,7 +14,9 @@
       <?php print l('<img src="' . $module_path . '/images/admin/edit_tasks.gif" border="0" title="' . t('Edit Tasks') .'">', 'admin/structure/maestro/edit/' . $rec->id, array('html' => TRUE)); ?>&nbsp;
       <?php print l('<img src="' . $module_path . '/images/admin/edit_properties.gif" border="0" title="' . t('Edit Template Properties and Variables') .'">', 'admin/structure/maestro/edit_properties/' . $rec->id, array('html' => TRUE)); ?>&nbsp;
       <?php print l('<img src="' . $module_path . '/images/admin/copy.gif" border="0" title="' . t('Copy Template') .'">', 'admin/structure/maestro/copy/' . $rec->id, array('html' => TRUE)); ?>&nbsp;
-      <?php print l('<img src="' . $module_path . '/images/admin/delete.gif" border="0" title="' . t('Delete Template') .'">', 'admin/structure/maestro/delete/' . $rec->id, array('html' => TRUE)); ?>&nbsp;
+
+      <input title="<?php print t('Delete Template'); ?>" type="image" src="<?php print $module_path; ?>/images/admin/delete.gif" onclick="maestro_deleteTemplate(<?php print $rec->id; ?>);" >&nbsp;
+
       <?php print l('<img src="' . $module_path . '/images/admin/export.gif" border="0" title="' . t('Export Template') .'">', 'admin/structure/maestro/export/' . $rec->id, array('html' => TRUE)); ?>&nbsp;
       </td>
     </tr>

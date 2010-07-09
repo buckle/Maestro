@@ -173,6 +173,36 @@ function maestro_handle_structure_ajax_request(){
       $arr=array('status' => "1", 'data' => $data);
       echo json_encode($arr);
       break;
+
+    case 'deletetemplate':
+      $res=db_query("SELECT id FROM {maestro_template_data} WHERE template_id = :tid", array('tid' => $id));
+      foreach($res as $rec){
+        $query = db_delete('maestro_template_assignment');
+        $query->condition('template_data_id',$rec->id,'=');
+        $query->execute();
+
+        $query = db_delete('maestro_template_data_next_step');
+        $query->condition('template_data_from',$rec->id,'=');
+        $query->execute();
+
+        $query = db_delete('maestro_template_data');
+        $query->condition('id',$rec->id,'=');
+        $query->execute();
+      }
+
+      $query = db_delete('maestro_template_variables');
+      $query->condition('template_id',$id,'=');
+      $query->execute();
+
+      $query = db_delete('maestro_template');
+      $query->condition('id',$id,'=');
+      $query->execute();
+
+      $data = theme('maestro_workflow_list', array('tid' => 0, 'operation' => '' , 'edit_var' => 0));
+      $arr=array('status' => "1", 'data' => $data);
+      echo json_encode($arr);
+      break;
+
   }
 
 
