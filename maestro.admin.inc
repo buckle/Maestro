@@ -336,12 +336,4 @@ function maestro_edit_properties($tid, $var=0){
   return maestro_admin($tid, 'edit', $var);
 }
 
-//@TODO:  should we be deleting the templates in production then?  Or just orphan those?
-function maestro_delete_template($tid){
-  //Delete the template and its variables and then
-
-
-
-  return maestro_admin(0, '', 0);
-}
 
