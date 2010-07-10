@@ -203,6 +203,108 @@ function maestro_handle_structure_ajax_request(){
       echo json_encode($arr);
       break;
 
+    case 'copytemplate':
+
+      $query = db_select('maestro_template', 'a');
+      $query->fields('a',array('template_name'));
+      $query->condition('a.id',$id,'=');
+      $name=current($query->execute()->fetchAll());
+
+
+
+      $record = new stdClass();
+      $record ->template_name = $name->template_name . " - COPY";
+      drupal_write_record('maestro_template', $record);
+      $newTID=$record->id;
+      $taskDataArray=array();
+      $res=db_query("SELECT * FROM {maestro_template_data} WHERE template_id = :tid", array('tid' => $id));
+      foreach($res as $rec) {
+        $newrecord = new stdClass();
+        $newrecord->template_id = $newTID;
+        //$newrecord->logical_id = $rec->logical_id;
+        $newrecord->task_class_name = $rec->task_class_name;
+        $newrecord->is_interactive = $rec->is_interactive;
+        $newrecord->task_data = $rec->task_data;
+        $newrecord->handler = $rec->handler;
+        $newrecord->first_task = $rec->first_task;
+        $newrecord->taskname = $rec->taskname;
+        $newrecord->assigned_by_variable = $rec->assigned_by_variable;
+        $newrecord->argument_variable = $rec->argument_variable;
+        $newrecord->if_argument_process = $rec->if_argument_process;
+        $newrecord->operator = $rec->operator;
+        $newrecord->if_value = $rec->if_value;
+        $newrecord->regenerate = $rec->regenerate;
+        $newrecord->regen_all_live_tasks = $rec->regen_all_live_tasks;
+        $newrecord->is_dynamic_form = $rec->is_dynamic_form;
+        $newrecord->dynamic_form_variable_id = $rec->dynamic_form_variable_id;
+        $newrecord->is_dynamic_taskname = $rec->is_dynamic_taskname;
+        $newrecord->dynamic_taskname_variable_id = $rec->dynamic_taskname_variable_id;
+        $newrecord->function = $rec->function;
+        $newrecord->form_id = $rec->form_id;
+        $newrecord->field_id = $rec->field_id;
+        $newrecord->var_value = $rec->var_value;
+        $newrecord->inc_value = $rec->inc_value;
+        $newrecord->var_to_set = $rec->var_to_set;
+        $newrecord->optional_parm = $rec->optional_parm;
+        $newrecord->reminder_interval = $rec->reminder_interval;
+        $newrecord->reminder_interval_variable = $rec->reminder_interval_variable;
+        $newrecord->subsequent_reminder_interval = $rec->subsequent_reminder_interval;
+        $newrecord->last_updated = $rec->last_updated;
+        $newrecord->pre_notify_subject = $rec->pre_notify_subject;
+        $newrecord->post_notify_subject = $rec->post_notify_subject;
+        $newrecord->reminder_subject = $rec->reminder_subject;
+        $newrecord->pre_notify_message = $rec->pre_notify_message;
+        $newrecord->post_notify_message = $rec->post_notify_message;
+        $newrecord->reminder_message = $rec->reminder_message;
+        $newrecord->num_reminders = $rec->num_reminders;
+        $newrecord->escalate_variable_id = $rec->escalate_variable_id;
+        $newrecord->offset_left = $rec->offset_left;
+        $newrecord->offset_top = $rec->offset_top;
+        $newrecord->surpress_first_notification = $rec->surpress_first_notification;
+        drupal_write_record('maestro_template_data', $newrecord);
+        $taskDataArray[$rec->id]= $newrecord->id;
+      }
+
+      //at this point, we have a list that points the old ID record to the new one.
+      //now for each template data next step, we determine which record to go to/from
+      $res=db_query("SELECT * FROM {maestro_template_data} WHERE template_id = :tid", array('tid' => $id));
+      foreach($res as $rec) {
+        $nextstepres = db_query("SELECT * FROM {maestro_template_data_next_step} WHERE template_data_from = :id", array('id' => $rec->id));
+        foreach($nextstepres as $nextstep) {
+          $sql  = "INSERT INTO {maestro_template_data_next_step} (template_data_from, template_data_to, template_data_to_false) ";
+          $sql .= "VALUES (:a1, :b1, :c1)";
+          db_query($sql, array('a1' => $taskDataArray[$nextstep->template_data_from], 'b1' => $taskDataArray[$nextstep->template_data_to], 'c1' => $taskDataArray[$nextstep->template_data_to_false]));
+        }
+
+        $assignmentres = db_query("SELECT * FROM {maestro_template_assignment} WHERE template_data_id = :id", array('id' => $rec->id));
+        foreach($assignmentres as $ares) {
+          $sql  = "INSERT INTO {maestro_template_assignment} (template_data_id, uid, gid, process_variable, pre_notify_variable, post_notify_variable, reminder_notify_variable) ";
+          $sql .= "VALUES (:a1, :b1, :c1, :d1, :e1, :f1, :g1)";
+          db_query($sql, array( 'a1' => $taskDataArray[$ares->template_data_id],
+                                'b1' => $ares->uid,
+                                'c1' => $ares->gid,
+                                'd1' => $ares->process_variable,
+                                'e1' => $ares->pre_notify_variable,
+                                'f1' => $ares->post_notify_variable,
+                                'g1' => $ares->reminder_notify_variable
+                                ));
+        }
+
+      }
+
+      $res=db_query("SELECT * FROM {maestro_template_variables} WHERE template_id = :tid", array('tid' => $id));
+      foreach($res as $rec) {
+        $newrecord = new stdClass();
+        $newrecord->template_id = $newTID;
+        $newrecord->variable_name = $rec->variable_name;
+        $newrecord->variable_value = $rec->variable_value;
+        drupal_write_record('maestro_template_variables', $newrecord);
+      }
+      $data = theme('maestro_workflow_list', array('tid' => 0, 'operation' => '' , 'edit_var' => 0));
+      $arr=array('status' => "1", 'data' => $data);
+      echo json_encode($arr);
+      break;
+
   }
 
 
@@ -233,3 +335,13 @@ function maestro_edit_properties($tid, $var=0){
   //$tid is the edited template
   return maestro_admin($tid, 'edit', $var);
 }
+
+//@TODO:  should we be deleting the templates in production then?  Or just orphan those?
+function maestro_delete_template($tid){
+  //Delete the template and its variables and then
+
+
+
+  return maestro_admin(0, '', 0);
+}
+

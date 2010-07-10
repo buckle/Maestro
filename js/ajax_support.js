@@ -306,3 +306,28 @@ function maestro_deleteTemplateComplete(data){
 		jQuery('#maestro_error_message').html(error);
 	}
 }
+
+
+function maestro_copyTemplate(tid) {
+	dataString = "";
+	dataString += "id=" + tid;
+	dataString += "&op=copytemplate";
+	jQuery.ajax( {
+		type : 'POST',
+		cache : false,
+		url : ajax_url,
+		dataType : "json",
+		success : maestro_copyTemplateComplete,
+		data : dataString
+	});
+}
+
+
+function maestro_copyTemplateComplete(data){
+	if (data.status == "1") {
+		jQuery('#maestro_template_admin').html(data.data);
+	} else {
+		var error = Drupal.t('There has been an error copying your template.  Please try your save again.');
+		jQuery('#maestro_error_message').html(error);
+	}
+}
