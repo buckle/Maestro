@@ -21,7 +21,7 @@ class MaestroInterface {
       '#mi' => $this
     );
     $build['workflow_template']['#attached']['library'][] = array('system', 'ui.draggable');
-    $build['workflow_template']['#attached']['js'][] = array('data' => '(function($){$(function() { $(".maestro_task_container").draggable( { grid: [25, 25], snap: true } ); })})(jQuery);', 'type' => 'inline');
+    $build['workflow_template']['#attached']['js'][] = array('data' => '(function($){$(function() { $(".maestro_task_container").draggable( {snap: true} ); })})(jQuery);', 'type' => 'inline');
 
     return drupal_render($build);
   }

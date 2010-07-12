@@ -40,7 +40,25 @@ var menuCheckArray = [];
 })(jQuery);
 
 function update_snap_to_grid() {
-  alert('doh');
+  (function($) {
+    if (document.frm_animate.snapToGrid.checked) {
+      $( ".maestro_task_container" ).draggable("option", "grid", [25, 25]);
+    }
+    else {
+      $( ".maestro_task_container" ).draggable("option", "grid", false);
+    }
+  })(jQuery);
+}
+
+function update_snap_to_objects() {
+  (function($) {
+    if (document.frm_animate.snapToObjects.checked) {
+      $( ".maestro_task_container" ).draggable("option", "snap", true);
+    }
+    else {
+      $( ".maestro_task_container" ).draggable("option", "snap", false);
+    }
+  })(jQuery);
 }
 
 function update_lines(el) {

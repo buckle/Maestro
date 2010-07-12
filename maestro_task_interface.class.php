@@ -20,6 +20,11 @@ abstract class MaestroTaskInterface {
     watchdog('notice', "maestro {$_POST['offset_left']}, {$_POST['offset_top']}, {$_POST['task_type']}");
   }
 
+  //deletes the task
+  function destroy() {
+    watchdog('notice', "maestro destroy task");
+  }
+
   //handles the update for the drag and drop
   function move() {
     $offset_left = intval($_POST['offset_left']);
@@ -56,11 +61,11 @@ abstract class MaestroTaskInterface {
       ),
       'edit_task' => array(
         'label' => t('Edit Task'),
-        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/edit/');\n"
+        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/edit/', function(data) { alert(data) } );\n"
       ),
       'delete_task' => array(
         'label' => t('Delete Task'),
-        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/delete/');\n"
+        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/destroy/');\n"
       )
     );
 
@@ -112,7 +117,6 @@ abstract class MaestroTaskInterface {
   abstract function display();
   abstract function edit();
   abstract function save();
-  abstract function destroy();
 
 }
 
@@ -130,9 +134,6 @@ class MaestroTaskInterfaceStart extends MaestroTaskInterface {
   }
 
   function save() {
-  }
-
-  function destroy() {
   }
 
   function getContextMenu() {
@@ -167,9 +168,6 @@ class MaestroTaskInterfaceEnd extends MaestroTaskInterface {
   function save() {
   }
 
-  function destroy() {
-  }
-
   function getContextMenu() {
     $options = array (
       'clear_lines' => array(
@@ -198,9 +196,6 @@ class MaestroTaskInterfaceIf extends MaestroTaskInterface {
   function save() {
   }
 
-  function destroy() {
-  }
-
   function getContextMenu() {
     $options = array (
       'draw_line' => array(
@@ -221,7 +216,7 @@ class MaestroTaskInterfaceIf extends MaestroTaskInterface {
       ),
       'delete_task' => array(
         'label' => t('Delete Task'),
-        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/delete/');\n"
+        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/destroy/');\n"
       )
     );
 
@@ -240,12 +235,10 @@ class MaestroTaskInterfaceBatch extends MaestroTaskInterface {
   }
 
   function edit() {
+    print json_encode('hello world');
   }
 
   function save() {
-  }
-
-  function destroy() {
   }
 }
 
@@ -260,12 +253,16 @@ class MaestroTaskInterfaceInteractiveFunction extends MaestroTaskInterface {
   }
 
   function edit() {
+    watchdog('notice', "maestro edit interactive function task {$this->_task_id}");
   }
 
   function save() {
+    watchdog('notice', "maestro save interactive function task {$this->_task_id}");
   }
 
   function destroy() {
+    parent::destroy();
+    watchdog('notice', "maestro destroy interactive function task {$this->_task_id}");
   }
 }
 
@@ -283,9 +280,6 @@ class MaestroTaskInterfaceSetProcessVariable extends MaestroTaskInterface {
   }
 
   function save() {
-  }
-
-  function destroy() {
   }
 }
 

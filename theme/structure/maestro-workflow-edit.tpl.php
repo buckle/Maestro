@@ -9,8 +9,9 @@
 ?>
 
   <form name="frm_animate" action="#" method="post">
-      <?php print t('Enable Animation'); ?>: <input type="checkbox" name="animateFlag" value="1" checked="checked">
-      <?php print t('Snap to Grid'); ?>: <input type="checkbox" name="snapToGrid" value="1" onclick="update_snap_to_grid();">
+      <?php print t('Enable Animation'); ?>: <input type="checkbox" name="animateFlag" value="1" checked="checked">&nbsp;&nbsp;&nbsp;
+      <?php print t('Snap to Grid'); ?>: <input type="checkbox" name="snapToGrid" value="1" onclick="update_snap_to_grid();">&nbsp;&nbsp;&nbsp;
+      <?php print t('Snap to Objects'); ?>: <input type="checkbox" name="snapToObjects" value="1" onclick="update_snap_to_objects();" checked="checked">
   </form>
 
   <div id="maestro_workflow_container" class="maestro_workflow_container" style="position: abosolute; height: 500px;">
