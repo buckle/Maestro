@@ -7,7 +7,7 @@
  */
 
 ?>
-    <tr id="tview<?php print $cntr; ?>" class="">
+    <tr class="<?php print $zebra ?>" id="tview<?php print $cntr; ?>" class="">
       <td width="5%"  style="padding-left:5px;"><?php print $rec->id; ?></td>
       <td width="80%" style="padding-left:5px;"><span id="tname<?php print $rec->id; ?>"><?php print filter_xss($rec->template_name); ?></span></td>
       <td width="15%" style="text-align:right;padding-right:5px;" nowrap>

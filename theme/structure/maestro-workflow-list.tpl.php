@@ -23,11 +23,13 @@ var ajax_url = '<?php print filter_xss($ajax_url); ?>';
       <td colspan="3" class="pluginInfo"><?php print t('Click on desired action to edit template'); ?></td>
     </tr>
     <tr>
-      <td class="pluginTitle">ID</td><td class="pluginTitle"><?php print t('Template Name'); ?></td><td class="pluginTitle" ><?php print t('Actions'); ?></td>
+      <td class="pluginTitle"><?php print t('ID'); ?></td>
+      <td class="pluginTitle"><?php print t('Template Name'); ?></td>
+      <td class="pluginTitle" ><?php print t('Actions'); ?></td>
     </tr>
     <tr id="newtemplate" style="display:none;">
       <td colspan="3" class="pluginRow1">
-          <table cellspacing="1" cellpadding="1" border="0" width="100%">
+          <table cellspacing="1" cellpadding="1" border="0" width="100%" style="border:none;">
             <tr>
               <td><?php print t('Name'); ?>:</td>
               <td><input class="form-text" type="text" id="newTemplateName" value="" size="50"></td>
@@ -42,8 +44,7 @@ var ajax_url = '<?php print filter_xss($ajax_url); ?>';
     </tr>
     <tr id="newappgroup" style="display:none;">
       <td colspan="3" class="pluginRow1">
-
-          <table cellspacing="1" cellpadding="1" border="0"  width="100%">
+          <table cellspacing="1" cellpadding="1" border="0"  width="100%" style="border:none;">
             <tr>
               <td><?php print t('New Application Group Name'); ?>:</td>
               <td><input class="form-text" type="text" id="appGroupName" value="" size="50"></td>
@@ -59,9 +60,9 @@ var ajax_url = '<?php print filter_xss($ajax_url); ?>';
     </tr>
     <tr id="editappgroup" style="display:none;">
       <td colspan="3" class="pluginRow1">
-          <table cellspacing="1" cellpadding="1" border="0" width="100%">
+          <table cellspacing="1" cellpadding="1" border="0" width="100%" style="border:none;">
             <tr>
-              <td valign="top" nowrap><?php print t('Delete Application Group'); ?>:</td>
+              <td class="aligntop" nowrap><?php print t('Delete Application Group'); ?>:</td>
               <td>
                 <div id="replaceDeleteAppGroup">
                 <?php print $app_groups; ?>
