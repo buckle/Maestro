@@ -42,7 +42,7 @@ function maestro_handle_ajax_request($task_type, $template_data_id, $op) {
 function maestro_handle_structure_ajax_request(){
   global $base_url;
   $op=check_plain($_POST['op']);
-  $cntr=check_plain($_POST['cntr']);
+  $cntr=@check_plain($_POST['cntr']);
   $id=check_plain($_POST['id']);
 
   switch($op){
