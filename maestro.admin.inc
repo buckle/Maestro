@@ -41,6 +41,7 @@ function maestro_handle_ajax_request($task_type, $template_data_id, $op) {
 
 function maestro_handle_structure_ajax_request(){
   global $base_url;
+  if(!user_access('maestro admin')) return false;
   $op=check_plain($_POST['op']);
   $cntr=@check_plain($_POST['cntr']);
   $id=check_plain($_POST['id']);
@@ -192,7 +193,6 @@ function maestro_handle_structure_ajax_request(){
       break;
 
     case 'copytemplate':
-
       $query = db_select('maestro_template', 'a');
       $query->fields('a',array('template_name'));
       $query->condition('a.id',$id,'=');
