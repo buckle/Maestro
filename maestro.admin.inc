@@ -69,13 +69,9 @@ function maestro_handle_structure_ajax_request(){
     case 'createvariable':
       $name=check_plain($_POST['newVariableName']);
       $value=check_plain($_POST['newVariableValue']);
-      $record = new stdClass();
-      $record ->variable_name = $name;
-      $record ->variable_value = $value;
-      $record ->template_id = $id;
-      drupal_write_record('maestro_template_variables', $record);
+      $recID=maestro_createTemplateVariable($id, $name, $value);
       $status = 0;
-      if($record->id > 0){
+      if($recID > 0){
         $status = 1;
       }
       $data=theme('maestro_workflow_edit_template_variables',  array('tid' => $id ));
@@ -110,9 +106,7 @@ function maestro_handle_structure_ajax_request(){
 
     case 'deletevariable':
       $tid=check_plain($_POST['tid']);
-      $query = db_delete('maestro_template_variables');
-      $query->condition('id',$id,'=');
-      $query->execute();
+      maestro_deleteTemplateVariable($id);
       $data=theme('maestro_workflow_edit_template_variables',  array('tid' => $tid ));
       $arr=array('status' => "1", 'data' => $data, 'cntr' => $tid);
       echo json_encode($arr);
@@ -133,11 +127,9 @@ function maestro_handle_structure_ajax_request(){
 
     case 'createtemplate':
       $name=check_plain($_POST['name']);
-      $record = new stdClass();
-      $record ->template_name = $name;
-      drupal_write_record('maestro_template', $record);
+      $recID=maestro_createNewTemplate($name);
       $status = 0;
-      if($record->id > 0){
+      if($recID > 0){
         $status = 1;
       }
       $data=theme('maestro_workflow_list', array('tid' => 0, 'operation' => '' , 'edit_var' => 0));
@@ -148,11 +140,9 @@ function maestro_handle_structure_ajax_request(){
 
     case 'createappgroup':
       $name=check_plain($_POST['name']);
-      $record = new stdClass();
-      $record ->app_group = $name;
-      drupal_write_record('maestro_app_groups', $record);
+      $recID=maestro_createAppGroup($name);
       $status = 0;
-      if($record->id > 0){
+      if($recID > 0){
         $status = 1;
       }
       $arr=array('status' => $status, 'data' => '');
@@ -160,9 +150,7 @@ function maestro_handle_structure_ajax_request(){
       break;
 
     case 'deleteappgroup':
-      $query = db_delete('maestro_app_groups');
-      $query->condition('id',$id,'=');
-      $query->execute();
+      maestro_deleteAppGroup($id);
       $data=maestro_createAppGroupDropDown();
       $arr=array('status' => "1", 'data' => $data);
       echo json_encode($arr);
@@ -209,9 +197,6 @@ function maestro_handle_structure_ajax_request(){
       $query->fields('a',array('template_name'));
       $query->condition('a.id',$id,'=');
       $name=current($query->execute()->fetchAll());
-
-
-
       $record = new stdClass();
       $record ->template_name = $name->template_name . " - COPY";
       drupal_write_record('maestro_template', $record);
@@ -306,8 +291,6 @@ function maestro_handle_structure_ajax_request(){
       break;
 
   }
-
-
 }
 
 function maestro_configure() {
@@ -326,7 +309,6 @@ function maestro_admin_form() {
     '#required' => TRUE,
   );
 
-
   return system_settings_form($form);
 }
 
@@ -337,3 +319,54 @@ function maestro_edit_properties($tid, $var=0){
 }
 
 
+
+
+/*
+ * The following functions are here in support of the Maestro Structure page functionality.
+ * These functions need to exist in order to run unit tests against their functionality.
+ */
+
+function maestro_createNewTemplate($name){
+  if(!user_access('maestro admin')) return false;
+
+  $record = new stdClass();
+  $record ->template_name = $name;
+  drupal_write_record('maestro_template', $record);
+  return $record->id;
+}
+
+function maestro_createTemplateVariable($tid, $name, $value){
+  if(!user_access('maestro admin')) return false;
+
+  $record = new stdClass();
+  $record ->variable_name = $name;
+  $record ->variable_value = $value;
+  $record ->template_id = $tid;
+  drupal_write_record('maestro_template_variables', $record);
+  return $record->id;
+}
+
+function maestro_deleteTemplateVariable($id){
+  if(!user_access('maestro admin')) return false;
+
+  $query = db_delete('maestro_template_variables');
+  $query->condition('id',$id,'=');
+  $query->execute();
+}
+
+function maestro_createAppGroup($name){
+  if(!user_access('maestro admin')) return false;
+
+  $record = new stdClass();
+  $record ->app_group = $name;
+  drupal_write_record('maestro_app_groups', $record);
+  return $record->id;
+}
+
+function maestro_deleteAppGroup($id){
+  if(!user_access('maestro admin')) return false;
+
+  $query = db_delete('maestro_app_groups');
+  $query->condition('id',$id,'=');
+  $query->execute();
+}
