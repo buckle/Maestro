@@ -1,3 +1,11 @@
+.aligntop {
+  vertical-align:top;
+}
+
+alignright: {
+  text-align:right;
+}
+
 #maestro_workflow_container {
 }
 

@@ -13,9 +13,9 @@ var num_records = <?php print $num_records; ?>;
 var ajax_url = '<?php print filter_xss($ajax_url); ?>';
 </script>
   <div id="addtemplate" style="padding:10px 0px 10px 10px;">
-    <input type="button" value="<?php print t('New Template'); ?>" onClick="jQuery('#newtemplate').toggle();">&nbsp;
-    <input type="button" value="<?php print t('Add Application Groups'); ?>" onClick="jQuery('#newappgroup').toggle();">&nbsp;
-    <input type="button" value="<?php print t('Delete Application Groups'); ?>" onClick="jQuery('#editappgroup').toggle();">&nbsp;
+    <input class="form-submit" type="button" value="<?php print t('New Template'); ?>" onClick="jQuery('#newtemplate').toggle();">&nbsp;
+    <input class="form-submit" type="button" value="<?php print t('Add Application Groups'); ?>" onClick="jQuery('#newappgroup').toggle();">&nbsp;
+    <input class="form-submit" type="button" value="<?php print t('Delete Application Groups'); ?>" onClick="jQuery('#editappgroup').toggle();">&nbsp;
   </div>
 
   <table cellpadding="2" cellspacing="1" border="1" width="100%" style="border:1px solid #CCC;">
@@ -30,11 +30,11 @@ var ajax_url = '<?php print filter_xss($ajax_url); ?>';
           <table cellspacing="1" cellpadding="1" border="0" width="100%">
             <tr>
               <td><?php print t('Name'); ?>:</td>
-              <td><input type="text" id="newTemplateName" value="" size="50" style="border: solid black 1px;"></td>
+              <td><input class="form-text" type="text" id="newTemplateName" value="" size="50"></td>
               <td style="text-align:right;padding-right:10px;">
                 <span id="maestro_new_template_updating"></span>
-                <input type="button" value="<?php print t('Create'); ?>" onClick='maestro_CreateTemplate();'>&nbsp;
-                <input type="button" value="<?php print t('Close'); ?>" onClick="jQuery('#newtemplate').toggle();">&nbsp;
+                <input class="form-submit" type="button" value="<?php print t('Create'); ?>" onClick='maestro_CreateTemplate();'>&nbsp;
+                <input class="form-submit" type="button" value="<?php print t('Close'); ?>" onClick="jQuery('#newtemplate').toggle();">&nbsp;
               </td>
             </tr>
           </table>
@@ -46,11 +46,11 @@ var ajax_url = '<?php print filter_xss($ajax_url); ?>';
           <table cellspacing="1" cellpadding="1" border="0"  width="100%">
             <tr>
               <td><?php print t('New Application Group Name'); ?>:</td>
-              <td><input type="text" id="appGroupName" value="" size="50" style="border: solid black 1px;"></td>
+              <td><input class="form-text" type="text" id="appGroupName" value="" size="50"></td>
               <td style="text-align:right;padding-right:10px;">
                 <span id="maestro_new_appgroup_updating"></span>
-                <input type="button" value="<?php print t('Create'); ?>" onClick='maestro_CreateAppgroup();'>&nbsp;
-                <input type="button" value="<?php print t('Close'); ?>" onClick="jQuery('#newappgroup').toggle();">&nbsp;
+                <input class="form-submit" type="button" value="<?php print t('Create'); ?>" onClick='maestro_CreateAppgroup();'>&nbsp;
+                <input class="form-submit" type="button" value="<?php print t('Close'); ?>" onClick="jQuery('#newappgroup').toggle();">&nbsp;
               </td>
             </tr>
           </table>
@@ -70,8 +70,8 @@ var ajax_url = '<?php print filter_xss($ajax_url); ?>';
               <td width="60%">&nbsp;</td>
               <td style="text-align:right;padding-right:10px;" nowrap>
                 <span id="maestro_del_appgroup_updating"></span>
-                <input type="button" value="<?php print t('Delete'); ?>" onClick='maestro_DeleteAppgroup();'>&nbsp;
-                <input type="button" value="<?php print t('Close'); ?>" onClick="jQuery('#editappgroup').toggle();">&nbsp;
+                <input class="form-submit" type="button" value="<?php print t('Delete'); ?>" onClick='maestro_DeleteAppgroup();'>&nbsp;
+                <input class="form-submit" type="button" value="<?php print t('Close'); ?>" onClick="jQuery('#editappgroup').toggle();">&nbsp;
 
               </td>
             </tr>
