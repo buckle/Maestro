@@ -305,8 +305,10 @@ function template_preprocess_maestro_workflow_list(&$variables) {
 }
 
 function template_preprocess_maestro_workflow_list_item(&$variables) {
+  global $base_url;
   $output="";
-  $variables['module_path']=drupal_get_path('module', 'maestro');
+
+  $variables['module_path']=$base_url . "/" . drupal_get_path('module', 'maestro');
   $variables['use_project'] = "";
   if(  $variables['operation'] == 'edit' && $variables['tid'] ==  $variables['rec']->id ) {  //only show this when we're editing a specific template.
     $variables['show_item'] = '';
@@ -332,7 +334,8 @@ function template_preprocess_maestro_workflow_list_item(&$variables) {
 
 
 function template_preprocess_maestro_workflow_edit_template_variables(&$variables) {
-  $variables['module_path']=drupal_get_path('module', 'maestro');
+  global $base_url;
+  $variables['module_path']=$base_url . "/" . drupal_get_path('module', 'maestro');
   $output="";
   $res = db_query("SELECT id, variable_name, variable_value FROM {maestro_template_variables} WHERE template_id=:tid", array('tid' => $variables['tid']));
   foreach ($res as $rec) {
@@ -348,7 +351,8 @@ function template_preprocess_maestro_workflow_edit_template_variables(&$variable
 }
 
 function template_preprocess_maestro_workflow_edit_template_variables_list(&$variables) {
-  $variables['module_path']=drupal_get_path('module', 'maestro');
+  global $base_url;
+  $variables['module_path']=$base_url . "/" . drupal_get_path('module', 'maestro');
   if($variables['var_id'] == $variables['edit_var']) {
     $variables['show_variable_actions']='none';
     $variables['show_variable_edit_actions']='';
