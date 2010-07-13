@@ -46,12 +46,12 @@ var ajax_url = '<?php print filter_xss($ajax_url); ?>';
           <table cellspacing="1" cellpadding="1" border="0"  width="100%" style="border:none;">
             <tr>
               <td width="180"><?php print t('New Application Group Name'); ?>:</td>
-              <td><input class="form-text" type="text" id="appGroupName" value="" size="50">
-              <input class="form-submit" type="button" value="<?php print t('Create'); ?>" onClick='maestro_CreateAppgroup();'>&nbsp;
+              <td>
+                <input class="form-text" type="text" id="appGroupName" value="" size="50">
+                <input class="form-submit" type="button" value="<?php print t('Create'); ?>" onClick='maestro_CreateAppgroup();'>&nbsp;
+                <span id="maestro_new_appgroup_updating"></span>
               </td>
               <td style="text-align:right;padding-right:10px;">
-                <span id="maestro_new_appgroup_updating"></span>
-
                 <input class="form-submit" type="button" value="<?php print t('Close'); ?>" onClick="jQuery('#newappgroup').toggle();">&nbsp;
               </td>
             </tr>
