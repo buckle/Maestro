@@ -287,6 +287,13 @@ function display_task_panel(data) {
   })(jQuery);
 }
 
+function add_task_success(data) {
+  (function($) {
+    alert(data);
+    $('#maestro_workflow_container').append(data);
+  })(jQuery);
+}
+
 function save_task(frm) {
   (function($) {
     $.post(ajax_url + frm.task_class.value + '/' + frm.template_task_id.value + '/save/', $("#maestro_task_edit_form").serialize(), save_task_success);

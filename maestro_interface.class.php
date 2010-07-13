@@ -54,8 +54,10 @@ class MaestroInterface {
     $html = "<div id=\"maestro_main_context_menu\" class=\"maestro_context_menu\"><ul>\n";
 
     foreach ($options->data[0] as $key => $option) {
+      $task_type = substr($option['class_name'], 20);
+      watchdog('maestro', $task_type);
       $option = t($option['display_name']);
-      $html .= "<li style=\"white-space: nowrap;\" id=\"$key\">$option</li>\n";
+      $html .= "<li style=\"white-space: nowrap;\" id=\"$task_type\">$option</li>\n";
     }
     $html .= "</ul></div>\n";
 
@@ -78,9 +80,17 @@ class MaestroInterface {
 
     $js .= "bindings: {\n";
 
-    foreach ($options as $key => $option) {
-      $js .= "'$key': function(t) {\n";
-      $js .= "\$.post(ajax_url + 'MaestroTaskInterface$key/0/create/', {task_type: '$key', offset_left: t.offsetLeft, offset_top: t.offsetTop});\n";
+    foreach ($options->data[0] as $key => $option) {
+      $task_type = substr($option['class_name'], 20);
+      $js .= "'$task_type': function(t) {\n";
+      $js .= "\$.ajax({
+        type: \"POST\",
+        url: ajax_url + 'MaestroTaskInterface$task_type/0/create/',
+        dataType: \"html\",
+        data: {task_type: '$task_type', offset_left: t.offsetLeft, offset_top: t.offsetTop},
+        success: add_task_success
+      });\n";
+      //$js .= "\$.post(ajax_url + 'MaestroTaskInterface$key/0/create/', {task_type: '$key', offset_left: t.offsetLeft, offset_top: t.offsetTop});\n";
       $js .= "},\n";
     }
 

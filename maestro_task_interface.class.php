@@ -17,7 +17,12 @@ abstract class MaestroTaskInterface {
 
   //create task will insert the shell record of the task, and then the child class will handle the edit.
   function create() {
-    watchdog('notice', "maestro {$_POST['offset_left']}, {$_POST['offset_top']}, {$_POST['task_type']}");
+    watchdog('maestro', 'rebuilding task');
+    print '<div id="task0" class="MaestroTaskInterfaceIf maestro_task_container" style="position: absolute; left: 20px; top: 20px;">';
+    $this->display();
+    print '</div>';
+    //print 'hello world';
+    exit();
   }
 
   //deletes the task
@@ -61,7 +66,12 @@ abstract class MaestroTaskInterface {
       ),
       'edit_task' => array(
         'label' => t('Edit Task'),
-        'js' => "$.ajax({type: \"POST\", url: ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/edit/', dataType: \"html\", success: display_task_panel});"
+        'js' => "$.ajax({
+          type: \"POST\",
+          url: ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/edit/',
+          dataType: \"html\",
+          success: display_task_panel
+        });"
       ),
       'delete_task' => array(
         'label' => t('Delete Task'),
@@ -132,7 +142,7 @@ class MaestroTaskInterfaceStart extends MaestroTaskInterface {
   }
 
   function display() {
-    echo theme('maestro_task_start', array('tdid' => $this->_task_id));
+    print theme('maestro_task_start', array('tdid' => $this->_task_id));
   }
 
   function get_edit_form_content() {
@@ -164,7 +174,7 @@ class MaestroTaskInterfaceEnd extends MaestroTaskInterface {
   }
 
   function display() {
-    echo theme('maestro_task_end', array('tdid' => $this->_task_id));
+    print theme('maestro_task_end', array('tdid' => $this->_task_id));
   }
 
   function get_edit_form_content() {
@@ -192,7 +202,9 @@ class MaestroTaskInterfaceIf extends MaestroTaskInterface {
   }
 
   function display() {
-    echo theme('maestro_task_if', array('tdid' => $this->_task_id));
+    $string = theme('maestro_task_if', array('tdid' => $this->_task_id));
+    watchdog('maestro', $string);
+    print theme('maestro_task_if', array('tdid' => $this->_task_id));
   }
 
   function get_edit_form_content() {
@@ -236,7 +248,8 @@ class MaestroTaskInterfaceBatch extends MaestroTaskInterface {
   }
 
   function display() {
-    echo theme('maestro_task_batch', array('tdid' => $this->_task_id));
+    watchdog('maestro', theme('maestro_task_batch', array('tdid' => $this->_task_id)));
+    print theme('maestro_task_batch', array('tdid' => $this->_task_id));
   }
 
   function get_edit_form_content() {
