@@ -12,6 +12,8 @@ class MaestroInterface {
   function __construct($template_id) {
     $this->_template_id = $template_id;
     $options = cache_get('maestro_context_menu');
+
+
     if($options === FALSE) {
       //need to scan through each available class type and fetch its corresponding context menu.
       foreach (module_implements('maestro_context_menu') as $module) {
@@ -21,6 +23,9 @@ class MaestroInterface {
         }
       }
       cache_set('maestro_context_menu', $options);
+    }
+    else {
+      $options = current($options->data);
     }
   }
 
@@ -48,8 +53,8 @@ class MaestroInterface {
     $options = $this->getContextMenu();
     $html = "<div id=\"maestro_main_context_menu\" class=\"maestro_context_menu\"><ul>\n";
 
-    foreach ($options as $key => $option) {
-      $option = t($option);
+    foreach ($options->data[0] as $key => $option) {
+      $option = t($option['display_name']);
       $html .= "<li style=\"white-space: nowrap;\" id=\"$key\">$option</li>\n";
     }
     $html .= "</ul></div>\n";
