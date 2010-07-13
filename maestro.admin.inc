@@ -28,6 +28,7 @@ function maestro_edit_workflow($tid) {
   drupal_add_js($base_url . $maestro_path . '/js/wz_jsgraphics.js');
   drupal_add_js($base_url . $maestro_path . '/js/admin_template_editor.js');
   drupal_add_js($base_url . $maestro_path . '/js/jquery.contextmenu.js');
+  drupal_add_js($base_url . $maestro_path . '/js/jquery.simplemodal.min.js');
 
   $mi = new MaestroInterface($tid);
 

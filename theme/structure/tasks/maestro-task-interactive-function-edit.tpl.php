@@ -6,12 +6,19 @@
  * maestro-task-start.tpl.php
  */
 
-  $res = db_query("SELECT taskname FROM {maestro_template_data} WHERE task_id=:tdid", array('tdid'=>$tdid));
-  foreach ($res as $rec) {
 ?>
 
-    <?php print $rec->taskname; ?>
+<div class="maestro_task_edit_panel">
+  <table>
+    <tr>
+      <td><?php print t('Task Name:'); ?></td>
+      <td><?php print drupal_render($form['taskname']); ?></td>
+    </tr>
+    <tr>
+      <td colspan="2"><?php print drupal_render($form['submit']); ?></td>
+    </tr>
+  </table>
 
-<?php
-  }
-?>
+  <?php print drupal_render($form); ?>
+</div>
+

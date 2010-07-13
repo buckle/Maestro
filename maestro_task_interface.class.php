@@ -61,7 +61,8 @@ abstract class MaestroTaskInterface {
       ),
       'edit_task' => array(
         'label' => t('Edit Task'),
-        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/edit/', function(data) { alert(data) } );\n"
+        //'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/edit/', function(data) { alert(data.message); } );\n"
+        'js' => "$.ajax({type: \"POST\", url: ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/edit/', dataType: \"html\", success: display_task_panel});"
       ),
       'delete_task' => array(
         'label' => t('Delete Task'),
@@ -235,7 +236,6 @@ class MaestroTaskInterfaceBatch extends MaestroTaskInterface {
   }
 
   function edit() {
-    print json_encode('hello world');
   }
 
   function save() {
@@ -249,11 +249,32 @@ class MaestroTaskInterfaceInteractiveFunction extends MaestroTaskInterface {
   }
 
   function display() {
-    echo theme('maestro_task_interactive_function', array('tdid' => $this->_task_id));
+    print theme('maestro_task_interactive_function', array('tdid' => $this->_task_id));
   }
 
   function edit() {
     watchdog('notice', "maestro edit interactive function task {$this->_task_id}");
+    $res = db_query('SELECT taskname FROM {maestro_template_data} WHERE id=:tdid', array(':tdid' => $this->_task_id));
+    $form = array();
+    foreach ($res as $rec) {
+      $form = array(
+        'taskname' => array(
+          '#type'           => 'textfield',
+          '#title'          => 'Task Name',
+          '#size'           => 20,
+          //'#default_value'  => $rec->taskname,
+          '#maxlength'      => 255,
+          //'#required'       => TRUE,
+        ),
+        'submit' => array(
+          '#type'           => 'submit',
+          '#value'          => 'Save',
+        )
+      );
+    }
+
+    print theme('maestro_task_interactive_function_edit', array('form' => $form));
+    exit();
   }
 
   function save() {
@@ -273,7 +294,7 @@ class MaestroTaskInterfaceSetProcessVariable extends MaestroTaskInterface {
   }
 
   function display() {
-    echo theme('maestro_task_set_process_variable', array('tdid' => $this->_task_id));
+    print theme('maestro_task_set_process_variable', array('tdid' => $this->_task_id));
   }
 
   function edit() {

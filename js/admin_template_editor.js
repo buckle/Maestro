@@ -281,6 +281,13 @@ function redraw_lines() {
   }
 }
 
+function display_task_panel(data) {
+  (function($) {
+    alert(data);
+    $.modal(data, { modal: true, overlayClose: true, autoPosition: true, overlayCss: {backgroundColor:"#888"}, opacity:80 });
+  })(jQuery);
+}
+
 
 //general helper functions
 function cot(x) {

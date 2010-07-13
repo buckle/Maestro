@@ -28,6 +28,19 @@ alignright: {
   text-align: center;
 }
 
+.maestro_task_edit_panel {
+  border: 3px solid #ccc;
+  background: #fff;
+}
+
+.maestro_task_edit_panel table {
+  border: 0px;
+}
+
+.maestro_task_edit_panel input {
+  border: 1px solid #ccc;
+}
+
 .maestro_task_title {
   height: 22px;
   padding: 0px 3px 0px 3px;
