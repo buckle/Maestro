@@ -224,10 +224,12 @@ function maestro_createAppgroupComplete(data){
 	jQuery('#maestro_new_appgroup_updating').removeClass('maestro_working');
 	jQuery('#appGroupName').attr("value","");
 	if (data.status == "0") {
+		maestro_showErrorBar();
 		var error = Drupal.t('There has been an error saving your App Group.  Please try your save again.');
 		jQuery('#maestro_error_message').html(error);
 	}
 	else {
+		maestro_hideErrorBar();
 		maestro_refreshAppGroup('deleteAppGroup');
 	}
 }
@@ -273,12 +275,15 @@ function maestro_DeleteAppgroup(){
 function maestro_deleteAppgroupComplete(data){
 	jQuery('#maestro_del_appgroup_updating').removeClass('maestro_working');
 	if (data.status == "1") {
+		maestro_hideErrorBar();
 		jQuery('#replaceDeleteAppGroup').html(data.data);
 		var error = '';
 		jQuery('#maestro_error_message').html(error);
 	} else {
+		maestro_showErrorBar();
 		var error = Drupal.t('There has been an error deleting your app gropu.  Please try your delete again.');
 		jQuery('#maestro_error_message').html(error);
+		
 	}
 }
 
@@ -333,4 +338,14 @@ function maestro_copyTemplateComplete(data){
 		var error = Drupal.t('There has been an error copying your template.  Please try your save again.');
 		jQuery('#maestro_error_message').html(error);
 	}
+}
+
+
+function maestro_showErrorBar(){
+	jQuery('#maestro_error_row').removeClass('maestro_hide_error_bar');
+	jQuery('#maestro_error_row').addClass('maestro_show_error_bar');
+}
+function maestro_hideErrorBar(){
+	jQuery('#maestro_error_row').removeClass('maestro_show_error_bar');
+	jQuery('#maestro_error_row').addClass('maestro_hide_error_bar');
 }

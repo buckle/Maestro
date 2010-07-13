@@ -81,3 +81,11 @@ span.maestro_working {
   background:url(../images/admin/status-active.gif) no-repeat right center;
   padding-right:18px;
 }
+
+.maestro_hide_error_bar {
+	display: none;
+}
+
+.maestro_show_error_bar {
+	display: ;
+}

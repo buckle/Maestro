@@ -66,14 +66,15 @@ var ajax_url = '<?php print filter_xss($ajax_url); ?>';
                 <input class="form-submit" type="button" value="<?php print t('Delete'); ?>" onClick='maestro_DeleteAppgroup();'>&nbsp;
                 <span id="maestro_del_appgroup_updating"></span>
               </td>
-
+              </tr>
           </table>
 
       </td>
     </tr>
-    </tr>
-    <tr style="color:red">
-      <td colspan="3" class="" style="color:red">
+
+    <tr id="maestro_error_row">
+
+      <td  colspan="3" style="color:red;"  >
           <span id="maestro_error_message"><?php print filter_xss($error_message); ?></span>
       </td>
     </tr>
