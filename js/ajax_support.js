@@ -228,7 +228,7 @@ function maestro_createAppgroupComplete(data){
 		jQuery('#maestro_error_message').html(error);
 	}
 	else {
-		maestro_refreshAppGroup();
+		maestro_refreshAppGroup('deleteAppGroup');
 	}
 }
 
@@ -237,9 +237,10 @@ function maestro_createAppgroupError(XMLHttpRequest, textStatus, errorThrown){
 	
 }
 
-function maestro_refreshAppGroup(){
+function maestro_refreshAppGroup(which){
 	dataString = "";
 	dataString += "id=" + name;
+	dataString += "&which=" + which;
 	dataString += "&op=refreshappgroup";
 	jQuery.ajax( {
 		type : 'POST',
@@ -273,6 +274,8 @@ function maestro_deleteAppgroupComplete(data){
 	jQuery('#maestro_del_appgroup_updating').removeClass('maestro_working');
 	if (data.status == "1") {
 		jQuery('#replaceDeleteAppGroup').html(data.data);
+		var error = '';
+		jQuery('#maestro_error_message').html(error);
 	} else {
 		var error = Drupal.t('There has been an error deleting your app gropu.  Please try your delete again.');
 		jQuery('#maestro_error_message').html(error);

@@ -14,8 +14,7 @@ var ajax_url = '<?php print filter_xss($ajax_url); ?>';
 </script>
   <div id="addtemplate" style="padding:10px 0px 10px 10px;">
     <input class="form-submit" type="button" value="<?php print t('New Template'); ?>" onClick="jQuery('#newtemplate').toggle();">&nbsp;
-    <input class="form-submit" type="button" value="<?php print t('Add Application Groups'); ?>" onClick="jQuery('#newappgroup').toggle();">&nbsp;
-    <input class="form-submit" type="button" value="<?php print t('Delete Application Groups'); ?>" onClick="jQuery('#editappgroup').toggle();">&nbsp;
+    <input class="form-submit" type="button" value="<?php print t('Application Groups'); ?>" onClick="jQuery('#newappgroup').toggle();">&nbsp;
   </div>
 
   <table cellpadding="2" cellspacing="1" border="1" width="100%" style="border:1px solid #CCC;">
@@ -46,44 +45,36 @@ var ajax_url = '<?php print filter_xss($ajax_url); ?>';
       <td colspan="3" class="pluginRow1">
           <table cellspacing="1" cellpadding="1" border="0"  width="100%" style="border:none;">
             <tr>
-              <td><?php print t('New Application Group Name'); ?>:</td>
-              <td><input class="form-text" type="text" id="appGroupName" value="" size="50"></td>
+              <td width="180"><?php print t('New Application Group Name'); ?>:</td>
+              <td><input class="form-text" type="text" id="appGroupName" value="" size="50">
+              <input class="form-submit" type="button" value="<?php print t('Create'); ?>" onClick='maestro_CreateAppgroup();'>&nbsp;
+              </td>
               <td style="text-align:right;padding-right:10px;">
                 <span id="maestro_new_appgroup_updating"></span>
-                <input class="form-submit" type="button" value="<?php print t('Create'); ?>" onClick='maestro_CreateAppgroup();'>&nbsp;
+
                 <input class="form-submit" type="button" value="<?php print t('Close'); ?>" onClick="jQuery('#newappgroup').toggle();">&nbsp;
               </td>
             </tr>
           </table>
-
-      </td>
-    </tr>
-    <tr id="editappgroup" style="display:none;">
-      <td colspan="3" class="pluginRow1">
           <table cellspacing="1" cellpadding="1" border="0" width="100%" style="border:none;">
             <tr>
-              <td class="aligntop" nowrap><?php print t('Delete Application Group'); ?>:</td>
+              <td class="aligntop" nowrap width="180"><?php print t('Delete Application Group'); ?>:</td>
               <td>
                 <div id="replaceDeleteAppGroup">
                 <?php print $app_groups; ?>
                 </div>
-              </td>
-              <td width="60%">&nbsp;</td>
-              <td style="text-align:right;padding-right:10px;" nowrap>
-                <span id="maestro_del_appgroup_updating"></span>
                 <input class="form-submit" type="button" value="<?php print t('Delete'); ?>" onClick='maestro_DeleteAppgroup();'>&nbsp;
-                <input class="form-submit" type="button" value="<?php print t('Close'); ?>" onClick="jQuery('#editappgroup').toggle();">&nbsp;
-
+                <span id="maestro_del_appgroup_updating"></span>
               </td>
-            </tr>
+
           </table>
+
       </td>
+    </tr>
     </tr>
     <tr style="color:red">
       <td colspan="3" class="" style="color:red">
-        <br>
           <span id="maestro_error_message"><?php print filter_xss($error_message); ?></span>
-        <br><br>
       </td>
     </tr>
     <?php print $workflow_list; ?>

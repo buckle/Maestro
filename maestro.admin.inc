@@ -43,9 +43,9 @@ function maestro_handle_ajax_request($task_type, $template_data_id, $op) {
 function maestro_handle_structure_ajax_request(){
   global $base_url;
   if(!user_access('maestro admin')) return false;
-  $op=check_plain($_POST['op']);
+  $op=@check_plain($_POST['op']);
   $cntr=@check_plain($_POST['cntr']);
-  $id=check_plain($_POST['id']);
+  $id=@check_plain($_POST['id']);
 
   switch($op){
     case 'savetemplate':
@@ -142,7 +142,7 @@ function maestro_handle_structure_ajax_request(){
 
     case 'createappgroup':
       $name=check_plain($_POST['name']);
-      $recID=maestro_createAppGroup($name);
+      if($name != '')  $recID=maestro_createAppGroup($name);
       $status = 0;
       if($recID > 0){
         $status = 1;
@@ -153,13 +153,14 @@ function maestro_handle_structure_ajax_request(){
 
     case 'deleteappgroup':
       maestro_deleteAppGroup($id);
-      $data=maestro_createAppGroupDropDown();
+      $data=maestro_createAppGroupDropDown('deleteAppGroup');
       $arr=array('status' => "1", 'data' => $data);
       echo json_encode($arr);
       break;
 
     case 'refreshappgroup':
-      $data=maestro_createAppGroupDropDown();
+      $which=check_plain($_POST['which']);
+      $data=maestro_createAppGroupDropDown($which);
       $arr=array('status' => "1", 'data' => $data);
       echo json_encode($arr);
       break;
