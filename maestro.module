@@ -161,6 +161,10 @@ function maestro_theme() {
       'template' => 'theme/structure/maestro-workflow-edit-tasks',
       'variables' => array('tid' => NULL)
     ),
+    'maestro_workflow_edit_tasks_frame' => array(
+      'template' => 'theme/structure/maestro-workflow-edit-tasks-frame',
+      'variables' => array('form' => NULL)
+    ),
     'maestro_task_start' => array(
       'template' => 'theme/structure/tasks/maestro-task-start',
       'variables' => array('tdid' => NULL)

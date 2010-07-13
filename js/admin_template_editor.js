@@ -283,8 +283,20 @@ function redraw_lines() {
 
 function display_task_panel(data) {
   (function($) {
-    alert(data);
     $.modal(data, { modal: true, overlayClose: true, autoPosition: true, overlayCss: {backgroundColor:"#888"}, opacity:80 });
+  })(jQuery);
+}
+
+function save_task(frm) {
+  (function($) {
+    $.post(ajax_url + frm.task_class.value + '/' + frm.template_task_id.value + '/save/', $("#maestro_task_edit_form").serialize(), save_task_success);
+  })(jQuery);
+  return false;
+}
+
+function save_task_success() {
+  (function($) {
+    $.modal.close();
   })(jQuery);
 }
 

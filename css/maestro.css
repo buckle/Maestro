@@ -2,8 +2,11 @@
   vertical-align:top;
 }
 
-alignright: {
+.alignright {
   text-align:right;
+}
+.aligncenter {
+  text-align:center;
 }
 
 #maestro_workflow_container {
