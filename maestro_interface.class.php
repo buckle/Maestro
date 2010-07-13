@@ -11,6 +11,17 @@ class MaestroInterface {
 
   function __construct($template_id) {
     $this->_template_id = $template_id;
+    $options = cache_get('maestro_context_menu');
+    if($options === FALSE) {
+      //need to scan through each available class type and fetch its corresponding context menu.
+      foreach (module_implements('maestro_context_menu') as $module) {
+        $function = $module . '_maestro_context_menu';
+        if ($arr = $function()) {
+          $options[] = $arr;
+        }
+      }
+      cache_set('maestro_context_menu', $options);
+    }
   }
 
   //displays the main task page
@@ -28,11 +39,8 @@ class MaestroInterface {
 
   //should get the valid task types to create, excluding start and end tasks, from the drupal cache
   function getContextMenu() {
-    $options = array(
-      'If' => 'If Task',
-      'Batch' => 'Batch Task'
-    );
-
+    //we need to rebuild the cache in the event it is empty.
+    $options = cache_get('maestro_context_menu');
     return $options;
   }
 

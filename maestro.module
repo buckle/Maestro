@@ -386,3 +386,29 @@ function maestro_createAppGroupDropDown($name, $selected = 0){
   $output .= "</select>";
   return $output;
 }
+
+function maestro_maestro_context_menu() {
+  $options = array(
+        array('display_name' => 'If Task',
+              'class_name' => 'MaestroTaskInterfaceIf',
+              'file_location' => ''
+          ),
+        array('display_name' => 'Batch Task',
+              'class_name' => 'MaestroTaskInterfaceBatch',
+              'file_location' => ''
+          ),
+        array('display_name' => 'Interactive Task',
+              'class_name' => 'MaestroTaskInterfaceInteractiveFunction',
+              'file_location' => ''
+          ),
+        array('display_name' => 'Set Process Variable Task',
+              'class_name' => 'MaestroTaskInterfaceSetProcessVariable',
+              'file_location' => ''
+          ),
+        array('display_name' => 'Set Process Variable Task',
+              'class_name' => 'MaestroTaskInterfaceSetProcessVariable',
+              'file_location' => ''
+          ),
+        );
+  return $options;
+}
