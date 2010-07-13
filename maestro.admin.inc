@@ -35,8 +35,8 @@ function maestro_edit_workflow($tid) {
   return $mi->displayPage();
 }
 
-function maestro_handle_ajax_request($task_type, $template_data_id, $op) {
-  $ti = new $task_type($template_data_id);
+function maestro_handle_ajax_request($task_type, $template_data_id, $template_id, $op) {
+  $ti = new $task_type($template_data_id, $template_id);
   $ti->$op();
 }
 

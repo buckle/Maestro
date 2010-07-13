@@ -26,7 +26,7 @@ var menuCheckArray = [];
       $( ".maestro_task_container" ).draggable( "option", "zIndex", 100 );
       var task_class = this.className.split(' ')[0];
       var task_id = this.id.substring(4, this.id.length);
-      $.post(ajax_url + task_class + '/' + task_id + '/move/', {offset_left: this.offsetLeft, offset_top: this.offsetTop});
+      $.post(ajax_url + task_class + '/' + task_id + '/0/move/', {offset_left: this.offsetLeft, offset_top: this.offsetTop});
     });
     $(".maestro_task_container").bind("drag", function(event, ui) {
       if (document.frm_animate.animateFlag.checked) {
@@ -289,14 +289,13 @@ function display_task_panel(data) {
 
 function add_task_success(data) {
   (function($) {
-    alert(data);
     $('#maestro_workflow_container').append(data);
   })(jQuery);
 }
 
 function save_task(frm) {
   (function($) {
-    $.post(ajax_url + frm.task_class.value + '/' + frm.template_task_id.value + '/save/', $("#maestro_task_edit_form").serialize(), save_task_success);
+    $.post(ajax_url + frm.task_class.value + '/' + frm.template_task_id.value + '/' + frm.template_id.value + '/0/save/', $("#maestro_task_edit_form").serialize(), save_task_success);
   })(jQuery);
   return false;
 }
