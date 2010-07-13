@@ -55,7 +55,7 @@
           </table>
         </form>
         <div id="addvarlabel<?php print $cntr; ?>" style="padding:5px;">
-          [&nbsp;<a href="#" onclick="maestro_OpenCloseCreateVariable(<?php print $cntr; ?>);"><?php print t('Add Variable'); ?></a>&nbsp;]
+          <input class="form-submit" type="button" value="<?php print t('Add Variable'); ?>" onClick="maestro_OpenCloseCreateVariable(<?php print $cntr; ?>);">&nbsp;
             <div id="variableAdd_<?php print $cntr; ?>" style="display:none">
               <form id="frmVariableAdd_<?php print $cntr; ?>">
               <table border=0>
