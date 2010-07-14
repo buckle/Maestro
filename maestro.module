@@ -274,6 +274,14 @@ function maestro_enginetest() {
   drupal_goto($base_url);
 }
 
+function template_preprocess_maestro_taskconsole(&$variables) {
+  $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
+  $variables['tasks'] = $maestro->engine()->getQueue();
+  $variables['taskcount'] = $maestro->engine()->getUserTaskCount();
+}
+
+
+
 function template_preprocess_maestro_workflow_edit(&$variables) {
   global $base_url;
   $mi = new MaestroInterface($variables['tid']);

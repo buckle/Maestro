@@ -19,6 +19,10 @@
     var $_archiveStatus           = 0;        // Set by the executing task to signify what status the archive routine should set.
     var $task = null;
 
+    public function getUserTaskCount() {
+      return $this->_userTaskCount;
+    }
+
     public function executeTask(MaestroTask $task) {
        return $task->execute();
     }

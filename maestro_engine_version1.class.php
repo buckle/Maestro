@@ -736,8 +736,10 @@
               watchdog('maestro',"Entering getQueue - user mode");
           }
           $this->_userTaskList['id'] = Array();
+          $this->_userTaskList['process'] = Array();
           $this->_userTaskList['url'] = Array();
           $this->_userTaskList['template'] = Array();
+          $this->_userTaskList['template_name'] = Array();
           $this->_userTaskList['taskname'] = Array();
           $this->_userTaskList['tasktype'] = Array();
           $this->_userTaskCount = 0;
@@ -773,9 +775,13 @@
                 }
               }
               if ($flag == 0 ) {
+                $templatename = db_query("SELECT template_name FROM {maestro_template} WHERE id = :tid",
+                  array(':tid' => $userTaskRecord->template_id))->fetchField();
                 $temparray = array(1 => $userTaskRecord->id);
                 $this->_userTaskList['id'] = array_merge($this->_userTaskList['id'], array(1 => $userTaskRecord->id));
+                $this->_userTaskList['process'] = array_merge($this->_userTaskList['process'], array(1 => $userTaskRecord->process_id));
                 $this->_userTaskList['template'] = array_merge($this->_userTaskList['template'], array(1 => $userTaskRecord->template_id));
+                $this->_userTaskList['template_name'] = array_merge($this->_userTaskList['template_name'], array(1 => $templatename));
                 $this->_userTaskList['url'] = array_merge($this->_userTaskList['url'], array(1 => $userTaskRecord->handler));
                 // Handle dynamic task name based on a variable's value
                 $taskname = '';
@@ -812,6 +818,7 @@
         if ($this->_debug ) {
             watchdog('maestro',"Exiting getQueue - user mode");
         }
+        return $this->_userTaskList;
     }
 
 
