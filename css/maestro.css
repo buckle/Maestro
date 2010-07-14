@@ -12,6 +12,10 @@
 #maestro_workflow_container {
 }
 
+.maestro_ajax_indicator {
+  float: right;
+}
+
 .maestro_context_menu {
   display: none;
 }

@@ -42,7 +42,6 @@ abstract class MaestroTaskInterface {
     drupal_write_record('maestro_template_data', $rec);
     $this->_task_id = $rec->id;
 
-    watchdog('maestro', print_r($res, true));
     print "<div id=\"task{$this->_task_id}\" class=\"MaestroTaskInterface{$this->_task_type} maestro_task_container\" style=\"position: absolute; left: {$_POST['offset_left']}px; top: {$_POST['offset_top']}px;\">";
     $this->display();
     print '</div>';
@@ -65,42 +64,86 @@ abstract class MaestroTaskInterface {
 
   //handles the update when adding a line (insert the next step record)
   function drawLine() {
-    watchdog('notice', "maestro drawLine");
+    $res = db_select('maestro_template_data_next_step', 'a');
+    $res->fields('a', array('id'));
+
+    $cond1 = db_or()->condition('a.template_data_to', $_POST['line_to'], '=')->condition('a.template_data_to_false', $_POST['line_to'], '=');
+    $cond1fin = db_and()->condition('a.template_data_from', $this->_task_id, '=')->condition($cond1);
+
+    $cond2 = db_or()->condition('a.template_data_to', $this->_task_id, '=')->condition('a.template_data_to_false', $this->_task_id, '=');
+    $cond2fin = db_and()->condition('a.template_data_from', $_POST['line_to'], '=')->condition($cond2);
+
+    $cond = db_or()->condition($cond1fin)->condition($cond2fin);
+
+    $res->condition($cond);
+    $rec = current($res->execute()->fetchAll());
+    watchdog('maestro', print_r($res, true));
+
+    if ($rec == '') {
+      $rec = new stdClass();
+      $rec->template_data_from = $this->_task_id;
+      $rec->template_data_to = $_POST['line_to'];
+      $rec->template_data_to_false = 0;
+      drupal_write_record('maestro_template_data_next_step', $rec);
+    }
+    else {
+      //perhaps return a simple true/false with error message if the select failed
+    }
   }
 
   //in theory only the if task will use this method
   function drawLineFalse() {
-    watchdog('notice', "maestro drawLineFalse");
+    $res = db_select('maestro_template_data_next_step', 'a');
+    $res->fields('a', array('id'));
+
+    $cond1 = db_or()->condition('a.template_data_to', $_POST['line_to'], '=')->condition('a.template_data_to_false', $_POST['line_to'], '=');
+    $cond1fin = db_and()->condition('a.template_data_from', $this->_task_id, '=')->condition($cond1);
+
+    $cond2 = db_or()->condition('a.template_data_to', $this->_task_id, '=')->condition('a.template_data_to_false', $this->_task_id, '=');
+    $cond2fin = db_and()->condition('a.template_data_from', $_POST['line_to'], '=')->condition($cond2);
+
+    $cond = db_or()->condition($cond1fin)->condition($cond2fin);
+
+    $res->condition($cond);
+    $rec = current($res->execute()->fetchAll());
+    watchdog('maestro', print_r($res, true));
+
+    if ($rec == '') {
+      $rec = new stdClass();
+      $rec->template_data_from = $this->_task_id;
+      $rec->template_data_to = 0;
+      $rec->template_data_to_false = $_POST['line_to'];
+      drupal_write_record('maestro_template_data_next_step', $rec);
+    }
+    else {
+      //perhaps return a simple true/false with error message if the select failed
+    }
   }
 
   //remove any next step records pertaining to this task
   function clearAdjacentLines() {
-    watchdog('notice', "maestro clearAdjacentLines");
+    db_query("DELETE FROM {maestro_template_data_next_step} WHERE template_data_from=:tdid OR template_data_to=:tdid OR template_data_to_false=:tdid", array(':tdid' => $this->_task_id));
   }
 
   //returns an array of options for when the user right-clicks the task
   function getContextMenu() {
+    $draw_line_msg = t('Select a task to draw the line to.');
     $options = array (
       'draw_line' => array(
         'label' => t('Draw Line'),
-        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/drawLine/');\n"
+        'js' => "draw_status = 1; draw_type = 1; line_start = document.getElementById('task{$this->_task_id}'); document.getElementById('maestro_tool_tip').innerHTML = '$draw_line_msg'\n"
       ),
       'clear_lines' => array(
         'label' => t('Clear Adjacent Lines'),
-        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/clearAdjacentLines/');\n"
+        'js' => "clear_task_lines(document.getElementById('task{$this->_task_id}'));\n"
       ),
       'edit_task' => array(
         'label' => t('Edit Task'),
-        'js' => "$.ajax({
-          type: \"POST\",
-          url: ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/edit/',
-          dataType: \"html\",
-          success: display_task_panel
-        });"
+        'js' => "enable_ajax_indicator(); $.ajax({ type: \"POST\", url: ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/edit/', dataType: \"html\", success: display_task_panel });"
       ),
       'delete_task' => array(
         'label' => t('Delete Task'),
-        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/destroy/');\n"
+        'js' => "enable_ajax_indicator(); \$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/destroy/', disable_ajax_indicator());\n"
       )
     );
 
@@ -150,7 +193,7 @@ abstract class MaestroTaskInterface {
   }
 
   function edit() {
-    print theme('maestro_workflow_edit_tasks_frame', array('tdid' => $this->_task_id, 'form_content' => $this->get_edit_form_content()));
+    print theme('maestro_workflow_edit_tasks_frame', array('tdid' => $this->_task_id, 'tid' => $this->_template_id, 'form_content' => $this->get_edit_form_content()));
     exit();
   }
 
@@ -178,14 +221,15 @@ class MaestroTaskInterfaceStart extends MaestroTaskInterface {
   }
 
   function getContextMenu() {
+    $draw_line_msg = t('Select a task to draw the line to.');
     $options = array (
       'draw_line' => array(
         'label' => t('Draw Line'),
-        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/drawLine/');\n"
+        'js' => "draw_status = 1; draw_type = 1; line_start = document.getElementById('task{$this->_task_id}'); document.getElementById('maestro_tool_tip').innerHTML = '$draw_line_msg'\n"
       ),
       'clear_lines' => array(
         'label' => t('Clear Adjacent Lines'),
-        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/clearAdjacentLines/');\n"
+        'js' => "clear_task_lines(document.getElementById('task{$this->_task_id}'));\n"
       )
     );
 
@@ -214,8 +258,8 @@ class MaestroTaskInterfaceEnd extends MaestroTaskInterface {
     $options = array (
       'clear_lines' => array(
         'label' => t('Clear Adjacent Lines'),
-        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/clearAdjacentLines/');\n"
-      )
+        'js' => "clear_task_lines(document.getElementById('task{$this->_task_id}'));\n"
+      ),
     );
 
     return $options;
@@ -240,26 +284,27 @@ class MaestroTaskInterfaceIf extends MaestroTaskInterface {
   }
 
   function getContextMenu() {
+    $draw_line_msg = t('Select a task to draw the line to.');
     $options = array (
       'draw_line' => array(
         'label' => t('Draw Success Line'),
-        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/drawLine/');\n"
+        'js' => "draw_status = 1; draw_type = 1; line_start = document.getElementById('task{$this->_task_id}'); document.getElementById('maestro_tool_tip').innerHTML = '$draw_line_msg'\n"
       ),
       'draw_line_false' => array(
         'label' => t('Draw Fail Line'),
-        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/drawLineFalse/');\n"
+        'js' => "draw_status = 1; draw_type = 2; line_start = document.getElementById('task{$this->_task_id}'); document.getElementById('maestro_tool_tip').innerHTML = '$draw_line_msg'\n"
       ),
       'clear_lines' => array(
         'label' => t('Clear Adjacent Lines'),
-        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/clearAdjacentLines/');\n"
+        'js' => "clear_task_lines(document.getElementById('task{$this->_task_id}'));\n"
       ),
       'edit_task' => array(
         'label' => t('Edit Task'),
-        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/edit/');\n"
+        'js' => "enable_ajax_indicator(); $.ajax({ type: \"POST\", url: ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/edit/', dataType: \"html\", success: display_task_panel });"
       ),
       'delete_task' => array(
         'label' => t('Delete Task'),
-        'js' => "\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/destroy/');\n"
+        'js' => "enable_ajax_indicator(); \$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/destroy/', disable_ajax_indicator());\n"
       )
     );
 
@@ -302,7 +347,33 @@ class MaestroTaskInterfaceInteractiveFunction extends MaestroTaskInterface {
   }
 
   function save() {
-    watchdog('notice', "maestro save " . $_POST['taskname']);
+    $rec = new stdClass();
+    $rec->id = $_POST['template_data_id'];
+    $rec->taskname = $_POST['taskname'];
+    $rec->assigned_by_variable = ($_POST['uid'] == 0 && $_POST['process_variable'] > 0) ? 1:0;
+    drupal_write_record('maestro_template_data', $rec, array('id'));
+
+    $res = db_select('maestro_template_assignment', 'a');
+    $res->fields('a', array('id'));
+    $res->condition('a.template_data_id', $_POST['template_data_id'], '=');
+    $rec = current($res->execute()->fetchAll());
+
+    $new_rec = false;
+    if ($rec == '') { //if record doesnt exist, create one
+      $rec = new stdClass();
+      $new_rec = true;
+    }
+
+    $rec->template_data_id = $_POST['template_data_id'];
+    $rec->uid = $_POST['uid'];
+    $rec->process_variable = ($_POST['uid'] > 0) ? 0:$_POST['process_variable'];
+
+    if ($new_rec) {
+      drupal_write_record('maestro_template_assignment', $rec);
+    }
+    else {
+      drupal_write_record('maestro_template_assignment', $rec, array('id'));
+    }
   }
 
   function destroy() {

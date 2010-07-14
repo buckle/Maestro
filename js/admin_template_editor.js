@@ -26,7 +26,8 @@ var menuCheckArray = [];
       $( ".maestro_task_container" ).draggable( "option", "zIndex", 100 );
       var task_class = this.className.split(' ')[0];
       var task_id = this.id.substring(4, this.id.length);
-      $.post(ajax_url + task_class + '/' + task_id + '/0/move/', {offset_left: this.offsetLeft, offset_top: this.offsetTop});
+      enable_ajax_indicator();
+      $.post(ajax_url + task_class + '/' + task_id + '/0/move/', {offset_left: this.offsetLeft, offset_top: this.offsetTop}, disable_ajax_indicator());
     });
     $(".maestro_task_container").bind("drag", function(event, ui) {
       if (document.frm_animate.animateFlag.checked) {
@@ -284,18 +285,21 @@ function redraw_lines() {
 function display_task_panel(data) {
   (function($) {
     $.modal(data, { modal: true, overlayClose: true, autoPosition: true, overlayCss: {backgroundColor:"#888"}, opacity:80 });
+    disable_ajax_indicator();
   })(jQuery);
 }
 
 function add_task_success(data) {
   (function($) {
     $('#maestro_workflow_container').append(data);
+    disable_ajax_indicator();
   })(jQuery);
 }
 
 function save_task(frm) {
   (function($) {
-    $.post(ajax_url + frm.task_class.value + '/' + frm.template_task_id.value + '/' + frm.template_id.value + '/0/save/', $("#maestro_task_edit_form").serialize(), save_task_success);
+    enable_ajax_indicator();
+    $.post(ajax_url + frm.task_class.value + '/' + frm.template_data_id.value + '/0/save/', $("#maestro_task_edit_form").serialize(), save_task_success);
   })(jQuery);
   return false;
 }
@@ -303,9 +307,75 @@ function save_task(frm) {
 function save_task_success() {
   (function($) {
     $.modal.close();
+    disable_ajax_indicator();
   })(jQuery);
 }
 
+function draw_line_to(element) {
+  (function($) {
+    if (draw_status == 1) {
+      document.getElementById('maestro_tool_tip').innerHTML = '';
+      line_end = element;
+      if (line_start != line_end) {
+        //draw line now
+        var type = (draw_type == 1) ? true:false;
+        var line = connect_tasks(line_start, line_end, type);
+        lines.push(line);
+        var template_data_id = line_start.id.substr(4, line_start.id.length - 4);
+        var template_data_id2 = line_end.id.substr(4, line_start.id.length - 4);
+        var task_class = line_start.className.split(' ')[0];
+
+        if (draw_type == 2) {
+          $.post(ajax_url + task_class + '/' + template_data_id + '/0/drawLineFalse/', { line_to: template_data_id2 }, disable_ajax_indicator);
+        }
+        else {
+          $.post(ajax_url + task_class + '/' + template_data_id + '/0/drawLine/', { line_to: template_data_id2 }, disable_ajax_indicator);
+        }
+
+        enable_ajax_indicator();
+      }
+      draw_status = 0;
+    }
+  })(jQuery);
+}
+
+function clear_task_lines(el) {
+  (function($) {
+    var indexes = [];
+    var i = 0;
+    var j = 0;
+    var template_data_id = el.id.substr(4, el.id.length - 4);
+    var task_class = el.className.split(' ')[0];
+
+    for (i in lines) {
+      if (lines[i] != null && lines[i][8] != null) {
+        if (el == lines[i][5] || el == lines[i][6]) {
+          lines[i][8].clear();
+          delete lines[i][8];
+          indexes.push(i);
+        }
+      }
+    }
+    var cnt = 0;
+    var length = indexes.length;
+    for (i in indexes) {
+      if (++cnt > length) {
+        break;
+      }
+      lines.splice(indexes[i] - j++, 1);
+    }
+
+    $.post(ajax_url + task_class + '/' + template_data_id + '/0/clearAdjacentLines/');
+  })(jQuery);
+}
+
+function enable_ajax_indicator() {
+  document.getElementById('maestro_ajax_indicator').style.display = '';
+}
+
+function disable_ajax_indicator() {
+  document.getElementById('maestro_ajax_indicator').style.display = 'none';
+}
 
 //general helper functions
 function cot(x) {

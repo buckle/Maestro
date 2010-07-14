@@ -8,11 +8,14 @@
 
 ?>
 
+  <div id="maestro_ajax_indicator" class="maestro_ajax_indicator" style="display: none;"><img src="<?php print $maestro_url; ?>/images/admin/status-active.gif"></div>
   <form name="frm_animate" action="#" method="post">
       <?php print t('Enable Animation'); ?>: <input type="checkbox" name="animateFlag" value="1" checked="checked">&nbsp;&nbsp;&nbsp;
       <?php print t('Snap to Grid'); ?>: <input type="checkbox" name="snapToGrid" value="1" onclick="update_snap_to_grid();">&nbsp;&nbsp;&nbsp;
       <?php print t('Snap to Objects'); ?>: <input type="checkbox" name="snapToObjects" value="1" onclick="update_snap_to_objects();" checked="checked">
   </form>
+
+  <div id="maestro_tool_tip" class="maestro_tool_tip"></div>
 
   <div id="maestro_workflow_container" class="maestro_workflow_container" style="position: abosolute; height: 500px;">
 
@@ -26,7 +29,7 @@
 
     $task_js .= $ti->getContextMenuJS();
 ?>
-    <div id="task<?php print $rec->id; ?>" class="<?php print $task_class; ?> maestro_task_container" style="position: absolute; left: <?php print $rec->offset_left; ?>px; top: <?php print $rec->offset_top; ?>px;">
+    <div id="task<?php print $rec->id; ?>" class="<?php print $task_class; ?> maestro_task_container" onclick="draw_line_to(this);" style="position: absolute; left: <?php print $rec->offset_left; ?>px; top: <?php print $rec->offset_top; ?>px;">
 <?php
       $ti->display();
 ?>

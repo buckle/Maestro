@@ -18,7 +18,7 @@
 <div class="maestro_task_edit_panel">
   <form id="maestro_task_edit_form" method="post" action="" onsubmit="return save_task(this);">
     <input type="hidden" name="task_class" value="<?php print $task_class; ?>">
-    <input type="hidden" name="template_task_id" value="<?php print $tdid; ?>">
+    <input type="hidden" name="template_data_id" value="<?php print $tdid; ?>">
 
     <?php print $form_content; ?>
 

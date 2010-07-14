@@ -17,7 +17,7 @@
     <?php echo $rec->taskname; ?>
   </div>
   <div class="maestro_task_body">
-    <?php echo t('Interactive Task'); ?>
+    <?php echo t('Interactive Function Task'); ?>
   </div>
 </div>
 

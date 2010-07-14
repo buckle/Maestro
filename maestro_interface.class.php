@@ -31,10 +31,14 @@ class MaestroInterface {
 
   //displays the main task page
   function displayPage() {
+    global $base_url;
+    $maestro_url = $base_url . '/' . drupal_get_path('module', 'maestro');
+
     $build['workflow_template'] = array(
       '#theme' => 'maestro_workflow_edit',
       '#tid' => $this->_template_id,
-      '#mi' => $this
+      '#mi' => $this,
+      '#maestro_url' => $maestro_url
     );
     $build['workflow_template']['#attached']['library'][] = array('system', 'ui.draggable');
     $build['workflow_template']['#attached']['js'][] = array('data' => '(function($){$(function() { $(".maestro_task_container").draggable( {snap: true} ); })})(jQuery);', 'type' => 'inline');
@@ -55,7 +59,6 @@ class MaestroInterface {
 
     foreach ($options->data[0] as $key => $option) {
       $task_type = substr($option['class_name'], 20);
-      watchdog('maestro', $task_type);
       $option = t($option['display_name']);
       $html .= "<li style=\"white-space: nowrap;\" id=\"$task_type\">$option</li>\n";
     }
@@ -83,14 +86,7 @@ class MaestroInterface {
     foreach ($options->data[0] as $key => $option) {
       $task_type = substr($option['class_name'], 20);
       $js .= "'$task_type': function(t) {\n";
-      $js .= "\$.ajax({
-        type: \"POST\",
-        url: ajax_url + 'MaestroTaskInterface$task_type/0/{$this->_template_id}/create/',
-        dataType: \"html\",
-        data: {task_type: '$task_type', offset_left: t.offsetLeft, offset_top: t.offsetTop},
-        success: add_task_success
-      });\n";
-      //$js .= "\$.post(ajax_url + 'MaestroTaskInterface$key/0/create/', {task_type: '$key', offset_left: t.offsetLeft, offset_top: t.offsetTop});\n";
+      $js .= "\$.ajax({ type: \"POST\", url: ajax_url + 'MaestroTaskInterface$task_type/0/{$this->_template_id}/create/', dataType: \"html\", data: {task_type: '$task_type', offset_left: t.offsetLeft, offset_top: t.offsetTop}, success: add_task_success });\n";
       $js .= "},\n";
     }
 
