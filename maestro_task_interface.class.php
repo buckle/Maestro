@@ -77,7 +77,6 @@ abstract class MaestroTaskInterface {
 
     $res->condition($cond);
     $rec = current($res->execute()->fetchAll());
-    watchdog('maestro', print_r($res, true));
 
     if ($rec == '') {
       $rec = new stdClass();
@@ -106,7 +105,6 @@ abstract class MaestroTaskInterface {
 
     $res->condition($cond);
     $rec = current($res->execute()->fetchAll());
-    watchdog('maestro', print_r($res, true));
 
     if ($rec == '') {
       $rec = new stdClass();
