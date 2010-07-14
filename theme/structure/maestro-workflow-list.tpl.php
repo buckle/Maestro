@@ -82,3 +82,6 @@ var ajax_url = '<?php print filter_xss($ajax_url); ?>';
 
   </table>
 </div>
+<script type="text/javascript">
+maestro_hideErrorBar();
+</script>

@@ -1,6 +1,7 @@
 var maestro_structure_cntr=0;
 
 function maestro_saveTemplateName(id, cntr) {
+	maestro_hideErrorBar();
 	var frmID = "#maestro_template_save_" + cntr;
 	dataString = jQuery(frmID).serialize();
 	dataString += "&id=" + id;
@@ -20,27 +21,27 @@ function maestro_saveTemplateName(id, cntr) {
 }
 
 function maestro_saveTemplateNameError(XMLHttpRequest, textStatus, errorThrown) {
-	jQuery('#maestro_updating_' + maestro_structure_cntr).removeClass(
-			'maestro_working');
-	// error somewhere along the way. Probably an error in the JSON/jQuery combo.
-	var error = Drupal
-			.t('There has been an error.  Please try your save again.');
+	maestro_showErrorBar();
+	jQuery('#maestro_updating_' + maestro_structure_cntr).removeClass('maestro_working');
+	var error = Drupal.t('There has been an error.  Please try your save again.');
 	jQuery('#maestro_error_message').html(error);
 }
 
 function maestro_saveTemplateNameComplete(data) {
-	jQuery('#maestro_updating_' + maestro_structure_cntr).removeClass(
-			'maestro_working');
+	jQuery('#maestro_updating_' + maestro_structure_cntr).removeClass('maestro_working');
 	if (data.status == "0") { // query failed
+		maestro_showErrorBar();
 		var error = Drupal.t('There has been an error saving your template.  Please try your save again.');
 		jQuery('#maestro_error_message').html(error);
 	} else {
+		maestro_hideErrorBar();
 		jQuery('#maestro_error_message').html('');
 	}
 
 }
 
 function maestro_CreateVariable(id, cntr) {
+	maestro_hideErrorBar();
 	var frmID = "#frmVariableAdd_" + cntr;
 	dataString = jQuery(frmID).serialize();
 	dataString += "&id=" + id;
@@ -60,6 +61,7 @@ function maestro_CreateVariable(id, cntr) {
 }
 
 function maestro_saveNewVariableError(XMLHttpRequest, textStatus, errorThrown) {
+	maestro_showErrorBar();
 	jQuery('#maestro_variable_updating_' + maestro_structure_cntr).removeClass(
 			'maestro_working');
 }
@@ -67,17 +69,19 @@ function maestro_saveNewVariableError(XMLHttpRequest, textStatus, errorThrown) {
 function maestro_saveNewVariableComplete(data) {
 	jQuery("#newVariableName").attr("value", "");
 	jQuery("#newVariableValue").attr("value", "");
-	jQuery('#maestro_variable_updating_' + maestro_structure_cntr).removeClass(
-			'maestro_working');
+	jQuery('#maestro_variable_updating_' + maestro_structure_cntr).removeClass('maestro_working');
 	if (data.status == "1") {
+		maestro_hideErrorBar();
 		jQuery('#ajaxReplaceTemplateVars_' + data.cntr).html(data.data);
 	} else {
+		maestro_showErrorBar();
 		var error = Drupal.t('There has been an error saving your template variable.  Please try your save again.');
 		jQuery('#maestro_error_message').html(error);
 	}
 }
 
 function maestro_CancelTemplateVariable(id) {
+	maestro_hideErrorBar();
 	dataString = "";
 	dataString += "id=" + id;
 	dataString += "&op=showvariables";
@@ -96,6 +100,7 @@ function maestro_OpenCloseCreateVariable(cntr) {
 }
 
 function maestro_saveTemplateVariable(tid, var_id) {
+	maestro_hideErrorBar();
 	var name = jQuery('#editVarName_' + var_id).attr("value");
 	var val = jQuery('#editVarValue_' + var_id).attr("value");
 
@@ -121,19 +126,23 @@ function maestro_updateTemplateVariableComplete(data) {
 	jQuery('#maestro_updating_variable_' + data.var_id).removeClass(
 			'maestro_working');
 	if (data.status == "1") {
+		maestro_hideErrorBar();
 		jQuery('#ajaxReplaceTemplateVars_' + data.cntr).html(data.data);
 	} else {
+		maestro_showErrorBar();
 		var error = Drupal.t('There has been an error saving your template variable.  Please try your save again.');
 		jQuery('#maestro_error_message').html(error);
 	}
 }
 
 function maestro_updateVariableError(XMLHttpRequest, textStatus, errorThrown) {
+	maestro_showErrorBar();
 	jQuery('#maestro_updating_variable_' + maestro_structure_cntr).removeClass(
 			'maestro_working');
 }
 
 function maestro_deleteTemplateVariable(tid, var_id, cntr) {
+	maestro_hideErrorBar();
 	var x = confirm(Drupal.t('Delete this variable?'));
 	if (x) {
 		dataString = "";
@@ -156,6 +165,7 @@ function maestro_deleteTemplateVariable(tid, var_id, cntr) {
 }
 
 function maestro_editTemplateVariable(tid, var_id) {
+	maestro_hideErrorBar();
 	dataString = "";
 	dataString += "id=" + var_id;
 	dataString += "&tid=" + tid;
@@ -171,7 +181,8 @@ function maestro_editTemplateVariable(tid, var_id) {
 	});
 }
 
-function maestro_CreateTemplate(){
+function maestro_CreateTemplate() {
+	maestro_hideErrorBar();
 	jQuery('#maestro_new_template_updating').addClass('maestro_working');
 	var name = jQuery('#newTemplateName').attr("value");
 	dataString = "";
@@ -188,22 +199,25 @@ function maestro_CreateTemplate(){
 	});
 }
 
-function maestro_createTemplateComplete(data){
+function maestro_createTemplateComplete(data) {
 	jQuery('#maestro_new_template_updating').removeClass('maestro_working');
 	if (data.status == "1") {
+		maestro_hideErrorBar();
 		jQuery('#maestro_template_admin').html(data.data);
 	} else {
+		maestro_showErrorBar();
 		var error = Drupal.t('There has been an error saving your template.  Please try your save again.');
 		jQuery('#maestro_error_message').html(error);
 	}
 }
 
-function maestro_createTemplateError(XMLHttpRequest, textStatus, errorThrown){
+function maestro_createTemplateError(XMLHttpRequest, textStatus, errorThrown) {
 	jQuery('#maestro_new_template_updating').removeClass('maestro_working');
 }
 
 
-function maestro_CreateAppgroup(){
+function maestro_CreateAppgroup() {
+	maestro_hideErrorBar();
 	jQuery('#maestro_new_appgroup_updating').addClass('maestro_working');
 	var name = jQuery('#appGroupName').attr("value");
 	dataString = "";
@@ -220,7 +234,7 @@ function maestro_CreateAppgroup(){
 	});
 }
 
-function maestro_createAppgroupComplete(data){
+function maestro_createAppgroupComplete(data) {
 	jQuery('#maestro_new_appgroup_updating').removeClass('maestro_working');
 	jQuery('#appGroupName').attr("value","");
 	if (data.status == "0") {
@@ -234,12 +248,13 @@ function maestro_createAppgroupComplete(data){
 	}
 }
 
-function maestro_createAppgroupError(XMLHttpRequest, textStatus, errorThrown){
+function maestro_createAppgroupError(XMLHttpRequest, textStatus, errorThrown) {
 	jQuery('#maestro_new_appgroup_updating').removeClass('maestro_working');
 	
 }
 
-function maestro_refreshAppGroup(which){
+function maestro_refreshAppGroup(which) {
+	maestro_hideErrorBar();
 	dataString = "";
 	dataString += "id=" + name;
 	dataString += "&which=" + which;
@@ -254,7 +269,8 @@ function maestro_refreshAppGroup(which){
 	});
 }
 
-function maestro_DeleteAppgroup(){
+function maestro_DeleteAppgroup() {
+	maestro_hideErrorBar();
 	jQuery('#maestro_del_appgroup_updating').addClass('maestro_working');
 	var name = jQuery('#deleteAppGroup').attr("value");
 	dataString = "";
@@ -272,13 +288,11 @@ function maestro_DeleteAppgroup(){
 }
 
 
-function maestro_deleteAppgroupComplete(data){
+function maestro_deleteAppgroupComplete(data) {
 	jQuery('#maestro_del_appgroup_updating').removeClass('maestro_working');
 	if (data.status == "1") {
 		maestro_hideErrorBar();
 		jQuery('#replaceDeleteAppGroup').html(data.data);
-		var error = '';
-		jQuery('#maestro_error_message').html(error);
 	} else {
 		maestro_showErrorBar();
 		var error = Drupal.t('There has been an error deleting your app gropu.  Please try your delete again.');
@@ -288,6 +302,7 @@ function maestro_deleteAppgroupComplete(data){
 }
 
 function maestro_deleteTemplate(tid) {
+	maestro_hideErrorBar();
 	var x = confirm(Drupal.t('Delete this template?'));
 	if (x) {
 		dataString = "";
@@ -306,10 +321,12 @@ function maestro_deleteTemplate(tid) {
 	}
 }
 
-function maestro_deleteTemplateComplete(data){
+function maestro_deleteTemplateComplete(data) {
 	if (data.status == "1") {
+		maestro_hideErrorBar();
 		jQuery('#maestro_template_admin').html(data.data);
 	} else {
+		maestro_showErrorBar();
 		var error = Drupal.t('There has been an error deleting your template.  Please try your save again.');
 		jQuery('#maestro_error_message').html(error);
 	}
@@ -317,6 +334,7 @@ function maestro_deleteTemplateComplete(data){
 
 
 function maestro_copyTemplate(tid) {
+	maestro_hideErrorBar();
 	dataString = "";
 	dataString += "id=" + tid;
 	dataString += "&op=copytemplate";
@@ -331,21 +349,26 @@ function maestro_copyTemplate(tid) {
 }
 
 
-function maestro_copyTemplateComplete(data){
+function maestro_copyTemplateComplete(data) {
 	if (data.status == "1") {
+		maestro_hideErrorBar();
 		jQuery('#maestro_template_admin').html(data.data);
 	} else {
+		maestro_showErrorBar();
 		var error = Drupal.t('There has been an error copying your template.  Please try your save again.');
 		jQuery('#maestro_error_message').html(error);
 	}
 }
 
 
-function maestro_showErrorBar(){
+function maestro_showErrorBar() {
 	jQuery('#maestro_error_row').removeClass('maestro_hide_error_bar');
 	jQuery('#maestro_error_row').addClass('maestro_show_error_bar');
 }
-function maestro_hideErrorBar(){
+function maestro_hideErrorBar() {
+	var error = '';
+	jQuery('#maestro_error_message').html(error);
 	jQuery('#maestro_error_row').removeClass('maestro_show_error_bar');
 	jQuery('#maestro_error_row').addClass('maestro_hide_error_bar');
 }
+
