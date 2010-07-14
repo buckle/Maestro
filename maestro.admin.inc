@@ -330,11 +330,15 @@ function maestro_edit_properties($tid, $var=0){
 
 function maestro_createNewTemplate($name){
   if(!user_access('maestro admin')) return false;
-
-  $record = new stdClass();
-  $record ->template_name = $name;
-  drupal_write_record('maestro_template', $record);
-  return $record->id;
+  if(trim($name) != '') {
+    $record = new stdClass();
+    $record ->template_name = $name;
+    drupal_write_record('maestro_template', $record);
+    return $record->id;
+  }
+  else {
+    return FALSE;
+  }
 }
 
 function maestro_createTemplateVariable($tid, $name, $value){
