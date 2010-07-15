@@ -413,6 +413,33 @@ class MaestroTaskInterfaceBatch extends MaestroTaskInterface {
   }
 }
 
+class MaestroTaskInterfaceBatchFunction extends MaestroTaskInterface {
+  function __construct($task_id=0, $template_id=0) {
+    parent::__construct($task_id, $template_id);
+    $this->_task_type = 'BatchFunction';
+    $this->_is_interactive = 0;
+  }
+
+  function display() {
+    return theme('maestro_task_batch_function', array('tdid' => $this->_task_id));
+  }
+
+  function get_edit_form_content() {
+    $this->_fetch_task_information();
+    $batch_function = drupal_get_path('module','maestro') . "/batch/batch_functions.php";
+    $this->_task_data->task_data['handler_location'] = $batch_function;
+    return theme('maestro_task_batch_function_edit', array('tdid' => $this->_task_id, 'td_rec' => $this->_task_data, 'ta_rec' => $this->_task_assignment_data));
+  }
+
+  function save() {
+    $rec = new stdClass();
+    $rec->id = $_POST['template_data_id'];
+    $rec->taskname = $_POST['taskname'];
+    $rec->task_data = serialize(array('handler' => $_POST['handler']));
+    drupal_write_record('maestro_template_data', $rec, array('id'));
+  }
+}
+
 class MaestroTaskInterfaceInteractiveFunction extends MaestroTaskInterface {
   function __construct($task_id=0, $template_id=0) {
     parent::__construct($task_id, $template_id);
