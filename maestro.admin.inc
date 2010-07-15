@@ -341,7 +341,7 @@ function maestro_createNewTemplate($name){
     $record->template_id = $newTemplateRecId;
     $record->logical_id = 1;
     $record->task_class_name = 'MaestroTaskTypeStart';
-    $record->task_name = 'Start';
+    $record->taskname = 'Start';
     $record->offset_left = 200;
     $record->offset_top = 80;
     drupal_write_record('maestro_template_data',$record);
@@ -350,7 +350,7 @@ function maestro_createNewTemplate($name){
     $record->template_id = $newTemplateRecId;
     $record->logical_id = 2;
     $record->task_class_name = 'MaestroTaskTypeEnd';
-    $record->task_name = 'End';
+    $record->taskname = 'End';
     $record->offset_left = 200;
     $record->offset_top = 260;
     drupal_write_record('maestro_template_data',$record);
