@@ -351,6 +351,24 @@ class MaestroTaskInterfaceInteractiveFunction extends MaestroTaskInterface {
     $rec->assigned_by_variable = ($_POST['uid'] == 0 && $_POST['process_variable'] > 0) ? 1:0;
     drupal_write_record('maestro_template_data', $rec, array('id'));
 
+    $templateRec = db_query("SELECT template_id,logical_id FROM {maestro_template_data} WHERE id = :tid",
+      array(':tid' => $_POST['template_data_id']))->fetchObject();
+    $result = db_select('maestro_template_data', 'a')
+        ->fields('a', array('logical_id'))
+        ->orderBy('a.logical_id', 'DESC')
+        ->condition('a.template_id',$templateRec->template_id, '=')
+        ->condition(db_and()->isNotNull('a.logical_id'))
+        ->range(0,1)
+        ->execute();
+    $dataRec = $result->fetchObject();
+    if ($templateRec->logical_id == NULL or $templateRec->logical_id == 0) {
+      $nextLogicalId = $dataRec->logical_id + 1;
+      db_update('maestro_template_data')
+      ->fields(array('logical_id' => $nextLogicalId))
+      ->condition('id', $_POST['template_data_id'])
+      ->execute();
+    }
+
     $res = db_select('maestro_template_assignment', 'a');
     $res->fields('a', array('id'));
     $res->condition('a.template_data_id', $_POST['template_data_id'], '=');
