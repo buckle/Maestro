@@ -202,6 +202,9 @@ function maestro_theme() {
 function maestro_taskconsole() {
   global $base_url, $base_path, $user;
 
+  $maestro_path = $base_url . '/' . drupal_get_path('module', 'maestro');
+  drupal_add_css($maestro_path . '/css/maestro.css');
+
   $modulepath = drupal_get_path('module', 'maestro');
   drupal_set_breadcrumb('');
   return theme('maestro_taskconsole');
@@ -274,9 +277,35 @@ function maestro_enginetest() {
 }
 
 function template_preprocess_maestro_taskconsole(&$variables) {
+  global $base_url;
+
+  $maestro_path = $base_url . '/' . drupal_get_path('module', 'maestro');
   $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
   $variables['tasks'] = $maestro->engine()->getQueue();
   $variables['taskcount'] = $maestro->engine()->getUserTaskCount();
+  for ($i = 0; $i < $variables['taskcount']; $i++) {
+    $variables['tasks']['class_newtask'][$i] = 'maestroNewTask';
+    $variables['tasks']['hidetaskinfo'][$i] = 'none';
+    $variables['tasks']['onholdnotice'][$i] = '';
+    $variables['tasks']['task_onclick'][$i] = 'onclick="alert(\'Task Type:  ' . $variables['tasks']['tasktype'][$i] . '\');"';
+    $variables['tasks']['task_action_url'][$i] = '#';
+    $variables['tasks']['task_started'][$i] = ', Started: July 5 2010';
+    $variables['tasks']['assigned_longdate'][$i] = 'July 12 2010 15:25:10';
+    $variables['tasks']['description'][$i] = 'yada yada';
+    $variables['tasks']['comment_note'][$i] = 'yada yada';
+    $variables['tasks']['assigned_shortdate'][$i] = '2010-07-15';
+    $variables['tasks']['project_details'][$i] = 'yada yada';
+    $variables['tasks']['hold'][$i] = '';
+    $variables['tasks']['view'][$i] = '';
+    $variables['tasks']['edit'][$i] = '';
+    $variables['tasks']['delete'][$i] = '';
+    $variables['tasks']['action_record'][$i] = '';
+
+  }
+  $variables['details_icon'] = '<img src="' . $maestro_path . '/images/taskconsole/details.png' . '">';
+  $variables['task_icon'] = $maestro_path . '/images/taskconsole/task.gif';
+
+
 }
 
 
