@@ -11,6 +11,8 @@ abstract class MaestroTaskInterface {
   protected $_template_id;
   protected $_task_type;
   protected $_is_interactive;
+  protected $_task_data;  //used when fetching task information
+  protected $_task_assignment_data;  //used when fetching task process information
 
   function __construct($task_id=0, $template_id=0) {
     $this->_task_id = $task_id;
@@ -25,7 +27,31 @@ abstract class MaestroTaskInterface {
     }
     else {
       $this->_template_id = $template_id;
+      watchdog('maestro', 'test' . $this->_template_id);
     }
+    $this->_task_data = NULL;
+    $this->_task_process_data = NULL;
+  }
+
+  protected function _fetch_task_information() {
+    $res = db_select('maestro_template_data', 'a');
+    $res->fields('a', array('taskname', 'task_data'));
+    $res->condition('a.id', $this->_task_id, '=');
+    $td_rec = current($res->execute()->fetchAll());
+    $td_rec->task_data = unserialize($td_rec->task_data);
+
+    $res2 = db_select('maestro_template_assignment', 'a');
+    $res2->fields('a', array('uid', 'process_variable'));
+    $res2->condition('a.template_data_id', $this->_task_id, '=');
+    $ta_rec = current($res2->execute()->fetchAll());
+
+    if ($ta_rec == '') {
+      $ta_rec = new stdClass();
+      $ta_rec->uid = 0;
+      $ta_rec->process_variable = 0;
+    }
+    $this->_task_data = $td_rec;
+    $this->_task_assignment_data = $ta_rec;
   }
 
   //create task will insert the shell record of the task, and then the child class will handle the edit.
@@ -374,6 +400,9 @@ class MaestroTaskInterfaceBatch extends MaestroTaskInterface {
   }
 
   function get_edit_form_content() {
+    $this->_fetch_task_information();
+    $this->_task_data->task_data['handler_location'] = variable_get('maestro_batch_script_location', drupal_get_path('module','maestro') . "/batch/");
+    return theme('maestro_task_batch_edit', array('tdid' => $this->_task_id, 'td_rec' => $this->_task_data, 'ta_rec' => $this->_task_assignment_data));
   }
 
   function save() {

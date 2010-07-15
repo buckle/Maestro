@@ -188,6 +188,10 @@ function maestro_theme() {
       'template' => 'theme/structure/tasks/maestro-task-interactive-function-edit',
       'variables' => array('form' => NULL)
     ),
+    'maestro_task_batch_edit' => array(
+      'template' => 'theme/structure/tasks/maestro-task-batch-edit',
+      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL)
+    ),
   );
 }
 
