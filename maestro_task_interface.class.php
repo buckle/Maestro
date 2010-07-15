@@ -406,6 +406,11 @@ class MaestroTaskInterfaceBatch extends MaestroTaskInterface {
   }
 
   function save() {
+    $rec = new stdClass();
+    $rec->id = $_POST['template_data_id'];
+    $rec->taskname = $_POST['taskname'];
+    $rec->task_data = serialize(array('handler' => $_POST['handler']));
+    drupal_write_record('maestro_template_data', $rec, array('id'));
   }
 }
 
