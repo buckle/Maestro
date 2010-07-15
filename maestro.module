@@ -183,7 +183,7 @@ function maestro_theme() {
     ),
     'maestro_task_interactive_function' => array(
       'template' => 'theme/structure/tasks/maestro-task-interactive-function',
-      'variables' => array('tdid' => NULL)
+      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL)
     ),
     'maestro_task_interactive_function_edit' => array(
       'template' => 'theme/structure/tasks/maestro-task-interactive-function-edit',
