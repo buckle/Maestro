@@ -27,7 +27,6 @@ abstract class MaestroTaskInterface {
     }
     else {
       $this->_template_id = $template_id;
-      watchdog('maestro', 'test' . $this->_template_id);
     }
     $this->_task_data = NULL;
     $this->_task_process_data = NULL;
@@ -67,7 +66,7 @@ abstract class MaestroTaskInterface {
     drupal_write_record('maestro_template_data', $rec);
     $this->_task_id = $rec->id;
 
-    $retval  = "<div id=\"task{$this->_task_id}\" class=\"MaestroTaskInterface{$this->_task_type} maestro_task_container\" onclick=\"draw_line_to(this);\" style=\"position: absolute; left: {$_POST['offset_left']}px; top: {$_POST['offset_top']}";
+    $retval  = "<div id=\"task{$this->_task_id}\" class=\"MaestroTaskInterface{$this->_task_type} maestro_task_container\" onclick=\"draw_line_to(this);\" style=\"position: absolute; left: {$_POST['offset_left']}px; top: {$_POST['offset_top']}px;\">";
     $retval .= $this->display();
     $retval .= '</div>';
     $retval .= $this->getContextMenuHTML();

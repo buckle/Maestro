@@ -59,8 +59,8 @@
 }
 
 .maestro_task_edit_panel {
-  border: 3px solid #ccc;
   background: #fff;
+  width: 450px;
 }
 
 .maestro_task_edit_panel table {
@@ -69,6 +69,12 @@
 
 .maestro_task_edit_panel input {
   border: 1px solid #ccc;
+}
+
+.maestro_task_edit_tab {
+  background: #fff;
+  float: left;
+  margin: 0px 0px 0px 5px;
 }
 
 .maestro_task_title {
@@ -99,10 +105,16 @@
 .tr-gry { background: url(../images/admin/corners/tr-gry.gif) 100% 0 no-repeat; padding: 1px 10px 1px 10px; }
 .tl-bge { background: url(../images/admin/corners/tl-bge.gif) 0 0 no-repeat; }
 .tr-bge { background: url(../images/admin/corners/tr-bge.gif) 100% 0 no-repeat; padding: 1px 10px 1px 10px; }
+.tl-wht { background: url(../images/admin/corners/tl-wht.gif) 0 0 no-repeat; }
+.tr-wht { background: url(../images/admin/corners/tr-wht.gif) 100% 0 no-repeat; padding: 1px 10px 1px 10px; }
 .bl { background: url(../images/admin/corners/bl.gif) 0 100% no-repeat; }
 .br { background: url(../images/admin/corners/br.gif) 100% 100% no-repeat; }
 .bl-bge { background: url(../images/admin/corners/bl-bge.gif) 0 100% no-repeat; }
 .br-bge { background: url(../images/admin/corners/br-bge.gif) 100% 100% no-repeat; }
+.bl-wht { background: url(../images/admin/corners/bl-wht.gif) 0 100% no-repeat; }
+.br-wht { background: url(../images/admin/corners/br-wht.gif) 100% 100% no-repeat; }
+.bl-wht-ex { background: url(../images/admin/corners/bl-wht-ex.gif) 0 100% no-repeat; }
+.br-wht-ex { background: url(../images/admin/corners/br-wht-ex.gif) 100% 100% no-repeat; }
 .t { background: url(../images/admin/corners/dot.gif) 0 0 repeat-x; }
 .b { background: url(../images/admin/corners/dot.gif) 0 100% repeat-x; }
 .l { background: url(../images/admin/corners/dot.gif) 0 0 repeat-y; }

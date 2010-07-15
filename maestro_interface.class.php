@@ -91,6 +91,7 @@ class MaestroInterface {
     foreach ($options->data[0] as $key => $option) {
       $task_type = substr($option['class_name'], 20);
       $js .= "'$task_type': function(t) {\n";
+      $js .= "enable_ajax_indicator();\n";
       $js .= "\$.post(ajax_url + 'MaestroTaskInterface$task_type/0/{$this->_template_id}/create/', {task_type: '$task_type', offset_left: t.offsetLeft, offset_top: t.offsetTop}, add_task_success, 'json');\n";
       $js .= "},\n";
     }
