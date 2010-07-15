@@ -37,7 +37,7 @@ function maestro_edit_workflow($tid) {
 
 function maestro_handle_ajax_request($task_type, $template_data_id, $template_id, $op) {
   $ti = new $task_type($template_data_id, $template_id);
-  print $ti->$op();
+  print json_encode($ti->$op());
   exit();
 }
 

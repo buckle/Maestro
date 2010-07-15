@@ -140,7 +140,6 @@ function maestro_theme() {
     ),
     'maestro_workflow_list_item' => array(
       'template' => 'theme/structure/maestro-workflow-list-item',
-      //'render element' => 'maestro_workflow_template',
       'variables' => array('rec' => NULL, 'cntr' => NULL, 'tid' => NULL, 'operation' => NULL, 'edit_var' => 0)
     ),
     'maestro_workflow_edit_template_variables_list' => array(
@@ -155,7 +154,7 @@ function maestro_theme() {
 
     'maestro_workflow_edit' => array(
       'template' => 'theme/structure/maestro-workflow-edit',
-      'variables' => array('tid' => NULL, 'mi' => NULL, 'maestro_url' => NULL)
+      'variables' => array('tid' => NULL, 'mi' => NULL, 'maestro_url' => NULL, 't_rec' => NULL)
     ),
     'maestro_workflow_edit_tasks_frame' => array(
       'template' => 'theme/structure/maestro-workflow-edit-tasks-frame',

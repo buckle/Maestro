@@ -12,6 +12,29 @@
 #maestro_workflow_container {
 }
 
+.maestro_heading {
+  font-size: 16pt;
+  font-weight: bold;
+  padding: 5px;
+}
+
+.maestro_tool_tip {
+  background: #F8EFA6;
+  z-index: 10000;
+  float: left;
+}
+
+.maestro_tool_tip_inner {
+  padding: 5px;
+}
+
+.maestro_tool_tip input {
+  margin: 3px 3px 3px 3px;
+  padding: 1px 7px 1px 7px;
+  cursor: pointer;
+  border: 1px solid black;
+}
+
 .maestro_ajax_indicator {
   float: right;
 }
@@ -74,8 +97,12 @@
 .tr-bl { background: url(../images/admin/corners/tr-bl.gif) 100% 0 no-repeat; padding: 1px 10px 1px 10px; }
 .tl-gry { background: url(../images/admin/corners/tl-gry.gif) 0 0 no-repeat; }
 .tr-gry { background: url(../images/admin/corners/tr-gry.gif) 100% 0 no-repeat; padding: 1px 10px 1px 10px; }
+.tl-bge { background: url(../images/admin/corners/tl-bge.gif) 0 0 no-repeat; }
+.tr-bge { background: url(../images/admin/corners/tr-bge.gif) 100% 0 no-repeat; padding: 1px 10px 1px 10px; }
 .bl { background: url(../images/admin/corners/bl.gif) 0 100% no-repeat; }
 .br { background: url(../images/admin/corners/br.gif) 100% 100% no-repeat; }
+.bl-bge { background: url(../images/admin/corners/bl-bge.gif) 0 100% no-repeat; }
+.br-bge { background: url(../images/admin/corners/br-bge.gif) 100% 100% no-repeat; }
 .t { background: url(../images/admin/corners/dot.gif) 0 0 repeat-x; }
 .b { background: url(../images/admin/corners/dot.gif) 0 100% repeat-x; }
 .l { background: url(../images/admin/corners/dot.gif) 0 0 repeat-y; }

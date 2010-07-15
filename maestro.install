@@ -891,6 +891,12 @@ function maestro_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
+      'canvas_height' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 500,
+      ),
       'app_group' => array(
         'description' => '',
         'type' => 'int',

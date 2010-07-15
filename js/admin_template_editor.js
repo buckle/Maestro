@@ -13,11 +13,18 @@ var falseLineColor = "#D10000";
 var oMenu;
 var panels = [];
 var oMenuBar;
-var templateid = 0 //{template_id};
 var menuCheckArray = [];
 
 (function($) {
   $(document).ready(function() {
+    initialize_drag_drop();
+    initialize_lines();
+  });
+
+})(jQuery);
+
+function initialize_drag_drop() {
+  (function($) {
     $(".maestro_task_container").bind("dragstart", function(event, ui) {
       $( ".maestro_task_container" ).draggable( "option", "zIndex", 500 );
     });
@@ -34,11 +41,8 @@ var menuCheckArray = [];
         update_lines(this);
       }
     });
-
-    initialize_lines();
-  });
-
-})(jQuery);
+  })(jQuery);
+}
 
 function update_snap_to_grid() {
   (function($) {
@@ -282,16 +286,22 @@ function redraw_lines() {
   }
 }
 
-function display_task_panel(data) {
+function display_task_panel(r) {
   (function($) {
-    $.modal(data, { modal: true, overlayClose: true, autoPosition: true, overlayCss: {backgroundColor:"#888"}, opacity:80 });
+    $.modal(r.html, { modal: true, overlayClose: true, autoPosition: true, overlayCss: {backgroundColor:"#888"}, opacity:80 });
     disable_ajax_indicator();
   })(jQuery);
 }
 
-function add_task_success(data) {
+function add_task_success(r) {
   (function($) {
-    $('#maestro_workflow_container').append(data);
+    $('#maestro_workflow_container').append(r.html);
+    eval(r.js);
+    $(".maestro_task_container").draggable( {snap: true} );
+    initialize_drag_drop();
+    update_snap_to_grid();
+    update_snap_to_objects();
+    initialize_drag_drop();
     disable_ajax_indicator();
   })(jQuery);
 }
@@ -314,7 +324,7 @@ function save_task_success() {
 function draw_line_to(element) {
   (function($) {
     if (draw_status == 1) {
-      document.getElementById('maestro_tool_tip').innerHTML = '';
+      set_tool_tip('');
       line_end = element;
       if (line_start != line_end) {
         //draw line now
@@ -322,7 +332,7 @@ function draw_line_to(element) {
         var line = connect_tasks(line_start, line_end, type);
         lines.push(line);
         var template_data_id = line_start.id.substr(4, line_start.id.length - 4);
-        var template_data_id2 = line_end.id.substr(4, line_start.id.length - 4);
+        var template_data_id2 = line_end.id.substr(4, line_end.id.length - 4);
         var task_class = line_start.className.split(' ')[0];
 
         if (draw_type == 2) {
@@ -369,6 +379,49 @@ function clear_task_lines(el) {
   })(jQuery);
 }
 
+function delete_task(r) {
+  (function($) {
+    disable_ajax_indicator();
+    if (r.success == 0) {  //warn the user first
+      set_tool_tip(r.message);
+    }
+    else {  //just make the task invisible for now, it will get fully deleted on page reload
+      var el = document.getElementById('task' + r.task_id);
+      clear_task_lines(el);
+      el.style.display = 'none';
+    }
+  })(jQuery);
+}
+
+function grow_canvas() {
+  (function($) {
+    $('#maestro_workflow_container').height($('#maestro_workflow_container').height() + 100);
+    enable_ajax_indicator();
+    $.post(ajax_url + 'MaestroTaskInterfaceStart/0/' + template_id + '/setCanvasHeight/', { height: $('#maestro_workflow_container').height() }, disable_ajax_indicator);
+  })(jQuery);
+}
+
+function shrink_canvas() {
+  (function($) {
+    $('#maestro_workflow_container').height($('#maestro_workflow_container').height() - 100);
+    enable_ajax_indicator();
+    $.post(ajax_url + 'MaestroTaskInterfaceStart/0/' + template_id + '/setCanvasHeight/', { height: $('#maestro_workflow_container').height() }, disable_ajax_indicator);
+  })(jQuery);
+}
+
+
+
+//general helper functions
+function set_tool_tip(msg) {
+  if (msg == '') {
+    document.getElementById('maestro_tool_tip_container').style.display = 'none';
+  }
+  else {
+    document.getElementById('maestro_tool_tip_container').style.display = '';
+  }
+  document.getElementById('maestro_tool_tip').innerHTML = msg;
+}
+
 function enable_ajax_indicator() {
   document.getElementById('maestro_ajax_indicator').style.display = '';
 }
@@ -377,7 +430,6 @@ function disable_ajax_indicator() {
   document.getElementById('maestro_ajax_indicator').style.display = 'none';
 }
 
-//general helper functions
 function cot(x) {
   return Math.atan(x) * 57.2957795;
 }
