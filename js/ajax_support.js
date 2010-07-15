@@ -135,6 +135,20 @@ function maestro_updateTemplateVariableComplete(data) {
 	}
 }
 
+function maestro_deleteTemplateVariableComplete(data) {
+	jQuery('#maestro_updating_variable_' + data.var_id).removeClass(
+			'maestro_working');
+	if (data.status == "1") {
+		maestro_hideErrorBar();
+		jQuery('#ajaxReplaceTemplateVars_' + data.cntr).html(data.data);
+	} else {
+		maestro_showErrorBar();
+		var error = Drupal.t('There has been an error deleting your template variable.\nYou can\'t delete the "initiator" variable.\nPlease try your delete again.');
+		alert(error);
+		
+	}
+}
+
 function maestro_updateVariableError(XMLHttpRequest, textStatus, errorThrown) {
 	maestro_showErrorBar();
 	jQuery('#maestro_updating_variable_' + maestro_structure_cntr).removeClass(
@@ -155,7 +169,7 @@ function maestro_deleteTemplateVariable(tid, var_id, cntr) {
 			cache : false,
 			url : ajax_url,
 			dataType : "json",
-			success : maestro_updateTemplateVariableComplete,
+			success : maestro_deleteTemplateVariableComplete,
 			error : maestro_updateVariableError,
 			data : dataString
 		});

@@ -205,6 +205,18 @@ class MaestroTaskInterfaceStart extends MaestroTaskInterface {
     $this->_is_interactive = 0;
   }
 
+  function create() {
+    parent::create();
+    $update=db_update('maestro_template_data')
+      ->fields(array( 'taskname' => t('Start'),
+                      'offset_left' => 34,
+                      'offset_top' => 38
+
+      ))
+      ->condition('id', $this->_task_id)
+      ->execute();
+  }
+
   function display() {
     return theme('maestro_task_start', array('tdid' => $this->_task_id));
   }
@@ -237,6 +249,17 @@ class MaestroTaskInterfaceEnd extends MaestroTaskInterface {
     parent::__construct($task_id, $template_id);
     $this->_task_type = 'End';
     $this->_is_interactive = 0;
+  }
+
+  function create() {
+    parent::create();
+    $update=db_update('maestro_template_data')
+      ->fields(array( 'taskname' => t('End'),
+                      'offset_left' => 280,
+                      'offset_top' => 200
+      ))
+      ->condition('id', $this->_task_id)
+      ->execute();
   }
 
   function display() {

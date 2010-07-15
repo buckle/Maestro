@@ -109,9 +109,13 @@ function maestro_handle_structure_ajax_request(){
 
     case 'deletevariable':
       $tid=check_plain($_POST['tid']);
-      maestro_deleteTemplateVariable($id);
+      $ret=maestro_deleteTemplateVariable($id);
       $data=theme('maestro_workflow_edit_template_variables',  array('tid' => $tid ));
-      $arr=array('status' => "1", 'data' => $data, 'cntr' => $tid);
+      $status="0";
+      if($ret){
+        $status="1";
+      }
+      $arr=array('status' => $status, 'data' => $data, 'cntr' => $tid);
       echo json_encode($arr);
       break;
 
@@ -336,26 +340,11 @@ function maestro_createNewTemplate($name){
     $record ->template_name = $name;
     drupal_write_record('maestro_template', $record);
     $newTemplateRecId = $record->id;
-
-    // Need to create the intial start and end tasks
-    $record = new stdClass();
-    $record->template_id = $newTemplateRecId;
-    $record->logical_id = 1;
-    $record->task_class_name = 'MaestroTaskTypeStart';
-    $record->taskname = 'Start';
-    $record->offset_left = 200;
-    $record->offset_top = 80;
-    drupal_write_record('maestro_template_data',$record);
-
-    $record = new stdClass();
-    $record->template_id = $newTemplateRecId;
-    $record->logical_id = 2;
-    $record->task_class_name = 'MaestroTaskTypeEnd';
-    $record->taskname = 'End';
-    $record->offset_left = 200;
-    $record->offset_top = 260;
-    drupal_write_record('maestro_template_data',$record);
-
+    $task=new MaestroTaskInterfaceStart(0, $newTemplateRecId);
+    $task->create();
+    $task=new MaestroTaskInterfaceEnd(0, $newTemplateRecId);
+    $task->create();
+    maestro_createTemplateVariable($newTemplateRecId, 'initiator', '');
     return $newTemplateRecId;
   }
   else {
@@ -365,7 +354,6 @@ function maestro_createNewTemplate($name){
 
 function maestro_createTemplateVariable($tid, $name, $value){
   if(!user_access('maestro admin')) return false;
-
   $record = new stdClass();
   $record ->variable_name = $name;
   $record ->variable_value = $value;
@@ -376,15 +364,24 @@ function maestro_createTemplateVariable($tid, $name, $value){
 
 function maestro_deleteTemplateVariable($id){
   if(!user_access('maestro admin')) return false;
+  $query = db_select('maestro_template_variables', 'a');
+  $query->fields('a',array('variable_name'));
+  $query->condition('a.id', $id, '=');
+  $name=current($query->execute()->fetchAll());
+  if($name->variable_name != 'initiator') {
+    $query = db_delete('maestro_template_variables');
+    $query->condition('id', $id, '=');
+    $query->execute();
+    return true;
+  }
+  else {
+    return false;
+  }
 
-  $query = db_delete('maestro_template_variables');
-  $query->condition('id',$id,'=');
-  $query->execute();
 }
 
 function maestro_createAppGroup($name){
   if(!user_access('maestro admin')) return false;
-
   $record = new stdClass();
   $record ->app_group = $name;
   drupal_write_record('maestro_app_groups', $record);
@@ -393,8 +390,7 @@ function maestro_createAppGroup($name){
 
 function maestro_deleteAppGroup($id){
   if(!user_access('maestro admin')) return false;
-
   $query = db_delete('maestro_app_groups');
-  $query->condition('id',$id,'=');
+  $query->condition('id', $id, '=');
   $query->execute();
 }
