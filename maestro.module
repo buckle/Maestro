@@ -41,6 +41,13 @@ function maestro_menu() {
     'file' => 'maestro.admin.inc'
     );
 
+    $items['maestro/taskconsole/ajax'] = array(
+    'page callback' => 'maestro_handle_taskconsole_ajax_request',
+    'page arguments' => array(3) ,      // Passing in wildcard which should be parm 1
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('maestro user')
+    );
+
     $items['admin/structure/maestro/ajax'] = array(
     'page callback' => 'maestro_handle_editor_ajax_request',
     'type' => MENU_CALLBACK,
@@ -250,6 +257,7 @@ function maestro_enginetest() {
 function template_preprocess_maestro_taskconsole(&$variables) {
   global $base_url;
 
+  $variables['ajax_server_url']       = url('maestro/taskconsole/ajax');
   $maestro_path = $base_url . '/' . drupal_get_path('module', 'maestro');
   $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
   $objtasks = $maestro->engine()->getQueue();
@@ -437,4 +445,17 @@ function maestro_maestro_context_menu() {
     ),
   );
   return $options;
+}
+
+
+
+function maestro_handle_taskconsole_ajax_request($action) {
+
+  switch ($action) {
+    case 'starttask':
+
+    break;
+  }
+
+
 }

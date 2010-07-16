@@ -145,7 +145,7 @@ function maestro_deleteTemplateVariableComplete(data) {
 		maestro_showErrorBar();
 		var error = Drupal.t('There has been an error deleting your template variable.\nYou can\'t delete the "initiator" variable.\nPlease try your delete again.');
 		alert(error);
-		
+
 	}
 }
 
@@ -264,7 +264,7 @@ function maestro_createAppgroupComplete(data) {
 
 function maestro_createAppgroupError(XMLHttpRequest, textStatus, errorThrown) {
 	jQuery('#maestro_new_appgroup_updating').removeClass('maestro_working');
-	
+
 }
 
 function maestro_refreshAppGroup(which) {
@@ -311,7 +311,7 @@ function maestro_deleteAppgroupComplete(data) {
 		maestro_showErrorBar();
 		var error = Drupal.t('There has been an error deleting your app gropu.  Please try your delete again.');
 		jQuery('#maestro_error_message').html(error);
-		
+
 	}
 }
 
