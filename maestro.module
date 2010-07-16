@@ -445,11 +445,11 @@ function maestro_maestro_context_menu() {
       'class_name' => 'MaestroTaskInterfaceBatch',
       'file_location' => ''
     ),
-    array('display_name' => 'Batch Function',
+    array('display_name' => 'Batch Function Task',
       'class_name' => 'MaestroTaskInterfaceBatchFunction',
       'file_location' => ''
     ),
-    array('display_name' => 'Interactive Task',
+    array('display_name' => 'Interactive Function Task',
       'class_name' => 'MaestroTaskInterfaceInteractiveFunction',
       'file_location' => ''
     ),
