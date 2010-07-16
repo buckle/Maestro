@@ -16,35 +16,50 @@
   <th width="25%"><?php print t('Assigned'); ?></th>
 </tr>
 
-<?php for ($i = 0; $i < $taskcount; $i++) { ?>
+<?php
+ $rowid = 1;
+ foreach ($variables['formatted_tasks'] as $task) {
+ ?>
 <tr class="<?php print $zebra ?>">
-    <td width="3%" class="<?php print $tasks['id'][$i] ?>" style="border-left:1px solid white">
-        <img src="<?php print $task_icon ?>" TITLE="<?php print t('Process ID: '); print $tasks['process'][$i]; print t(', Task ID: '); print $tasks['id'][$i]; print $tasks['task_started'][$i]?>" id="taskIconImg<?php print $i; ?>">
+    <td width="3%" class="<?php print $task->queue_id; ?>" style="border-left:1px solid white">
+        <img src="<?php print $task_icon; ?>" TITLE="<?php print t('Process ID: '); print $task->process_id; print t(', Task ID: '); print $task->queue_id; print $task->task_started; ?>" id="taskIconImg<?php print $rowid; ?>">
     </td>
-    <td width="35%"><?php print $tasks['class_newtask'][$i] ?></td>
-    <td width="35%">
-        <a class="info" style="text-decoration:none;" href="<?php print $tasks['task_action_url'][$i] ?>" <?php print $tasks['task_onclick'][$i] ?>><?php print $tasks['taskname'][$i] ?>
-            <span style="width:300px;display: <?php print $tasks['hidetaskinfo'][$i] ?>;">
-                <?php print $tasks['onholdnotice'][$i] ?>
-                <b><?php print t('Date Assigned:'); ?></b>&nbsp;<?php print $tasks['assigned_longdate'][$i] ?>
-                <div style="display:<?php print $tasks['showmoretaskdetail'][$i]; ?>">
-                  <b><?php print t('Description:'); ?></b>&nbsp;<?php print $tasks['description'][$i] ?><br>
-                  <b><?php print t('Comments:'); ?></b>&nbsp;<?php print $tasks['comment_note'][$i] ?>
+    <td width="35%"><?php print $task->class_newtask; ?></td>
+    <td width="35%" class="maestro_taskconsole_interactivetask">
+        <a class="info" style="text-decoration:none;" taskid="<?php print $task->queue_id; ?>" href="<?php print $task->task_action_url; ?>"><?php print $task->taskname; ?>
+            <span style="width:300px;display: <?php print $task->hidetaskinfo; ?>;">
+                <?php print $task->onholdnotice; ?>
+                <b><?php print t('Date Assigned:'); ?></b>&nbsp;<?php print $task->assigned_longdate; ?>
+                <div style="display:<?php print $task->showmoretaskdetail; ?>">
+                  <b><?php print t('Description:'); ?></b>&nbsp;<?php print $task->description; ?><br>
+                  <b><?php print t('Comments:'); ?></b>&nbsp;<?php print $task->comment_note; ?>
                 </div>
             </span>
         </a>
     </td>
-    <td width="10%" nowrap><?php print $tasks['assigned_shortdate'][$i] ?></td>
-    <td width="5%" style="border-right:1px solid white;" nowrap><?php print $details_icon; print $tasks['hold'][$i]; print $tasks['view'][$i]; print $tasks['edit'][$i]; print $tasks['delete'][$i]; ?></td>
+    <td width="10%" nowrap><?php print $task->assigned_shortdate; ?></td>
+    <td width="5%" style="border-right:1px solid white;" nowrap><?php print $details_icon; print $task->hold; print $task->view; print $task->edit; print $task->delete; ?></td>
 </tr>
 
-<tr id="wfdetail_rec<?php print $i ?>" style="display:none;">
+<tr id="maestro_taskconsole_detail_rec<?php print $rowid; ?>" style="display:none;">
     <td colspan="5" style="padding:10px;">
-        <div id="projectdetail_rec<?php print $i ?>">&nbsp;</div>
+        <div id="projectdetail_rec<?php print $rowid; ?>">&nbsp;</div>
     </td>
 </tr>
 <!-- {inline action record} -->
-<?php print $tasks['action_record'][$i] ?>
-
-<?php } ?>
+<?php
+  print $task->action_record;
+  $rowid++;
+}
+?>
 </table>
+
+<script type="text/javascript">
+
+jQuery('.maestro_taskconsole_interactivetask a').click(function() {
+  var taskid = jQuery(this).attr('taskid');
+  jQuery('#maestro_actionrec' + taskid).toggle();
+
+});
+
+</script>

@@ -13,7 +13,7 @@
     var $_taskType                = '';
     var $_debug                   = false;    // Set the current debug level to false.
     var $_userTaskCount           = 0;        // Number of tasks the user has in the queue
-    var $_userTaskList            = NULL;     // Users Active Tasks in the queue
+    var $_userTaskObject          = NULL;     // Users Active Tasks in the queue
     var $_templateCount           = 0;        // Number of templates the user is able to kick off
     var $_processTaskCount        = 0;        // Number of tasks the current process has in the queue
     var $_archiveStatus           = 0;        // Set by the executing task to signify what status the archive routine should set.
@@ -29,6 +29,21 @@
 
     public function prepareTask(MaestroTask $task) {
        return $task->prepareTask();
+    }
+
+    public function showInteractiveTask(MaestroTask $task,$taskid) {
+      /* Common HTML container with an ID set that we will hook onto to show/hide.
+       * This lets developer not have to worry about returning a table row with 5 columns
+       */
+      $prehtmlfragment = '<tr id="maestro_actionrec' . $taskid . '" style="display:none;"><td colspan="5">';
+      $posthtmlfragment = '</td></tr>';
+      $retval = $task->showInteractiveTask();
+      if ($retval === FALSE OR empty($retval)) {
+        return $prehtmlfragment . t('empty interactive task - nothing to display for interactive function.') . $posthtmlfragment;
+      }
+      else {
+        return $prehtmlfragment . $retval . $posthtmlfragment;
+      }
     }
 
     // Simply sets the debug parameter.

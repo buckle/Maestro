@@ -26,6 +26,10 @@ abstract class MaestroTask {
    */
   abstract function prepareTask ();
 
+  function showInteractiveTask() {
+    return FALSE;
+  }
+
   function setMessage($msg) {
     $this->_message = $msg;
   }
@@ -345,6 +349,10 @@ class MaestroTaskTypeInteractivefunction extends MaestroTask {
       array(':tid' => $this->_properties->taskid))->fetchField();
     $taskdata = @unserialize($serializedData);
     return array('handler' => $taskdata['handler'],'serialized_data' => $serializedData);
+  }
+
+  function showInteractiveTask() {
+     //return 'This is an interactive task';
   }
 
 }

@@ -298,6 +298,8 @@
         $numrows++;
         $this->_processId = $queueRecord->process_id;
         $this->_queueId = $queueRecord->id;
+
+        /* Using the strategy Design Pattern - Pass a new taskclass as the object to the maestro engine execute method */
         $task = $this->executeTask(new $queueRecord->task_class_name($queueRecord));
         if ($task->executionStatus === FALSE) {
           watchdog('maestro',"Failed Task: {$this->_queueId}, Process: {$this->_processId} , Step Type: $this->_taskType");
@@ -735,16 +737,7 @@
           if ($this->_debug ) {
               watchdog('maestro',"Entering getQueue - user mode");
           }
-          $this->_userTaskList['id'] = Array();
-          $this->_userTaskList['process'] = Array();
-          $this->_userTaskList['url'] = Array();
-          $this->_userTaskList['template'] = Array();
-          $this->_userTaskList['template_name'] = Array();
-          $this->_userTaskList['taskname'] = Array();
-          $this->_userTaskList['tasktype'] = Array();
-          $this->_userTaskList['dates'] = Array();
           $this->_userTaskCount = 0;
-
           $query = db_select('maestro_queue', 'a');
           $query->join('maestro_template_data', 'b', 'a.template_data_id = b.id');
           $query->join('maestro_production_assignments', 'c', 'a.id = c.task_id');
@@ -761,31 +754,34 @@
           }
           else {
             // Return a semi-colon delimited list of queue id's for that user.
-            $temparray = Array();
             foreach ($userTaskResult as $userTaskRecord) {
               if ($this->_queueId == '' ) {
                 $this->_queueId = $userTaskRecord->id;
               } else {
                 $this->_queueId .= ";" . $userTaskRecord->id;
               }
-              $flag = 0;
+
               // Simple test to determine if the task ID already exists for this user
+              $flag = 0;
               for($flagcntr = 0;$flagcntr <= $this->_userTaskCount;$flagcntr++ ) {
-                if (isset($this->_userTaskList['id'][$flagcntr]) AND $this->_userTaskList['id'][$flagcntr] == $userTaskRecord->id ) {
+                if (isset($this->_userTaskObject[$flagcntr]->queue_id) AND $this->_userTaskObject[$flagcntr]->queue_id == $userTaskRecord->id ) {
                   $flag = 1;
                 }
               }
               if ($flag == 0 ) {
+                $taskObject = new stdClass();
                 $templatename = db_query("SELECT template_name FROM {maestro_template} WHERE id = :tid",
                   array(':tid' => $userTaskRecord->template_id))->fetchField();
                 $queueRecDates = array('created' => $userTaskRecord->created_date, 'started' => $userTaskRecord->started_date);
-                $temparray = array(1 => $userTaskRecord->id);
-                $this->_userTaskList['id'] = array_merge($this->_userTaskList['id'], array(1 => $userTaskRecord->id));
-                $this->_userTaskList['process'] = array_merge($this->_userTaskList['process'], array(1 => $userTaskRecord->process_id));
-                $this->_userTaskList['template'] = array_merge($this->_userTaskList['template'], array(1 => $userTaskRecord->template_id));
-                $this->_userTaskList['template_name'] = array_merge($this->_userTaskList['template_name'], array(1 => $templatename));
-                $this->_userTaskList['url'] = array_merge($this->_userTaskList['url'], array(1 => $userTaskRecord->handler));
-                $this->_userTaskList['dates'] = array_merge($this->_userTaskList['dates'], array(1 => $queueRecDates));
+                $queueRecFlags = array('is_interactive' => $userTaskRecord->is_interactive);
+                $taskObject->queue_id = $userTaskRecord->id;
+                $taskObject->process_id = $userTaskRecord->process_id;
+                $taskObject->template_id = $userTaskRecord->template_id;
+                $taskObject->template_name = $templatename;
+                $taskObject->url = $userTaskRecord->handler;
+                $taskObject->dates = $queueRecDates;
+                $taskObject->flags = $queueRecFlags;
+
                 // Handle dynamic task name based on a variable's value
                 $taskname = '';
                 if($userTaskRecord->is_dynamic_taskname == 1) {
@@ -810,8 +806,10 @@
                   $taskname = $apiRetval['taskname'];
                 }
                 */
-                $this->_userTaskList['taskname'] = array_merge($this->_userTaskList['taskname'], array(1 => $userTaskRecord->taskname));
-                $this->_userTaskList['tasktype'] = array_merge($this->_userTaskList['tasktype'], array(1 => $userTaskRecord->task_class_name));
+
+                $taskObject->taskname = $userTaskRecord->taskname;
+                $taskObject->tasktype = $userTaskRecord->task_class_name;
+                $this->_userTaskObject[$this->_userTaskCount] = $taskObject;
                 $this->_userTaskCount += 1; // Increment the total user task counter
               }
             }
@@ -821,7 +819,7 @@
         if ($this->_debug ) {
             watchdog('maestro',"Exiting getQueue - user mode");
         }
-        return $this->_userTaskList;
+        return $this->_userTaskObject;
     }
 
 

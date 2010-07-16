@@ -220,43 +220,6 @@ function maestro_taskconsole() {
 }
 
 
-function maestro_block_info() {
-  $blocks['maestro']['info'] = t('Maestro Task Console');
-  $blocks['maestro']['cache'] = DRUPAL_NO_CACHE;
-  return $blocks;
-}
-
-
-/**
- * Implements hook_block_view().
- */
-function maestro_block_view($delta = '') {
-  global $user;
-
-  $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
-  $maestro->engine()->setDebug(TRUE);
-  $block = array();
-  if (user_access('access content')) {
-    $maestro->engine()->getQueue();
-    $block['subject'] = t('Maestro Task Listing Block');
-    $tasks = $maestro->engine()->_userTaskList;
-    $numtasks = count($tasks['id']);
-    $content = '<table><tr><th>ID</th><th>Template</th><th>Taskname</th><th>Tasktype</th></tr>';
-    for ($i=0;$i<$numtasks;$i++) {
-      $content .= '<tr><td>' . $tasks['id'][$i] . '</td>';
-      $content .= '<td>' . $tasks['template'][$i] . '</td>';
-      $content .= '<td>' . $tasks['taskname'][$i] . '</td>';
-      $content .= '<td>' . $tasks['tasktype'][$i] . '</td>';
-      $content .= '</tr>';
-    }
-    $content .= '</table>';
-    $block['content'] = $content;
-  }
-  return $block;
-
-}
-
-
 function maestro_cleanqueue() {
   global $base_url;
   $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
@@ -289,29 +252,43 @@ function template_preprocess_maestro_taskconsole(&$variables) {
 
   $maestro_path = $base_url . '/' . drupal_get_path('module', 'maestro');
   $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
-  $variables['tasks'] = $maestro->engine()->getQueue();
+  $objtasks = $maestro->engine()->getQueue();
   $variables['taskcount'] = $maestro->engine()->getUserTaskCount();
-  for ($i = 0; $i < $variables['taskcount']; $i++) {
-    $variables['tasks']['class_newtask'][$i] = 'maestroNewTask';
-    $variables['tasks']['hidetaskinfo'][$i] = 'none';
-    $variables['tasks']['onholdnotice'][$i] = '';
-    $variables['tasks']['task_onclick'][$i] = 'onclick="alert(\'Task Type:  ' . $variables['tasks']['tasktype'][$i] . '\');"';
-    $variables['tasks']['task_action_url'][$i] = '#';
-    $variables['tasks']['task_started'][$i] = ', Started: July 5 2010';
+  $variables['formatted_tasks'] = array();
+  foreach ($objtasks as $task) {
+    $formatted_task = $task;
+    $formatted_task->class_newtask = 'maestroNewTask';
+    $formatted_task->hidetaskinfo = 'none';
+    $formatted_task->onholdnotice = '';
+    $formatted_task->task_onclick = 'onclick="alert(\'Task Type:  ' . $task->tasktype . '\');"';
+    $formatted_task->task_action_url = '#';
+    $formatted_task->task_started = ', Started: July 5 2010';
 
-    $variables['tasks']['assigned_shortdate'][$i] = format_date($variables['tasks']['dates'][$i]['created'],'custom','m/d/y');
-    $variables['tasks']['assigned_longdate'][$i] = format_date($variables['tasks']['dates'][$i]['created'],'medium');
-    $variables['tasks']['project_details'][$i] = 'yada yada';
-    $variables['tasks']['hold'][$i] = '';
-    $variables['tasks']['view'][$i] = '';
-    $variables['tasks']['edit'][$i] = '';
-    $variables['tasks']['delete'][$i] = '';
-    $variables['tasks']['action_record'][$i] = '';
+    $formatted_task->assigned_shortdate = format_date($task->dates['created'],'custom','m/d/y');
+    $formatted_task->assigned_longdate = format_date($task->dates['created'],'medium');
+    $formatted_task->project_details = 'yada yada';
+    $formatted_task->hold = '';
+    $formatted_task->view = '';
+    $formatted_task->edit = '';
+    $formatted_task->delete = '';
+
+    if ($task->flags['is_interactive'] == 1) {
+      $action_record = $maestro->engine()->showInteractiveTask(new $task->tasktype($task),$task->queue_id);
+      if ($action_record === FALSE OR empty($action_record)) {
+        $formatted_task->action_record = '';
+      } else {
+        $formatted_task->action_record = $action_record;
+      }
+    } else {
+      $formatted_task->action_record = '';
+    }
 
     // Show the extra task detail 'onhover info' if this is a project related task
-    $variables['tasks']['showmoretaskdetail'][$i] = 'none';
-    $variables['tasks']['description'][$i] = 'yada yada';
-    $variables['tasks']['comment_note'][$i] = 'yada yada';
+    $formatted_task->showmoretaskdetail = 'none';
+    $formatted_task->description = 'yada yada';
+    $formatted_task->comment_note = 'yada yada';
+
+    $variables['formatted_tasks'][] = $formatted_task;
 
   }
   $variables['details_icon'] = '<img src="' . $maestro_path . '/images/taskconsole/details.png' . '">';
