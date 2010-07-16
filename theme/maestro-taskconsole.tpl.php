@@ -7,6 +7,9 @@
  */
 
 ?>
+<script type="text/javascript">
+  var ajax_url = '<?php print $ajax_server_url; ?>';
+</script>
 
 <table width="100%">
 <tr>
@@ -22,7 +25,7 @@
  ?>
 <tr class="<?php print $zebra ?>">
     <td width="3%" class="<?php print $task->queue_id; ?>" style="border-left:1px solid white">
-        <img src="<?php print $task_icon; ?>" TITLE="<?php print t('Process ID: '); print $task->process_id; print t(', Task ID: '); print $task->queue_id; print $task->task_started; ?>" id="taskIconImg<?php print $rowid; ?>">
+        <img src="<?php print $task->task_icon; ?>" TITLE="<?php print t('Process ID: '); print $task->process_id; print t(', Task ID: '); print $task->queue_id; print $task->task_started; ?>" id="taskIconImg<?php print $rowid; ?>">
     </td>
     <td width="35%"><?php print $task->class_newtask; ?></td>
     <td width="35%" class="maestro_taskconsole_interactivetask">
@@ -50,6 +53,7 @@
 <?php
   print $task->action_record;
   $rowid++;
+  $zebra = ($zebra == 'even') ? 'odd': 'even';
 }
 ?>
 </table>
@@ -59,7 +63,14 @@
 jQuery('.maestro_taskconsole_interactivetask a').click(function() {
   var taskid = jQuery(this).attr('taskid');
   jQuery('#maestro_actionrec' + taskid).toggle();
-
+  maestro_startTask(taskid);
 });
+
+function maestro_startTask(taskid) {
+  (function($) {
+  $.post(ajax_url + '/starttask/',"taskid=" + taskid);
+  })(jQuery);
+}
+
 
 </script>

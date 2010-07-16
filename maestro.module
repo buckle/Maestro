@@ -37,7 +37,7 @@ function maestro_menu() {
     'description' => 'Define and administer workflows.',
     'page callback' => 'maestro_admin',
     'access arguments' => array('maestro admin'),
-  //'type' => MENU_LOCAL_TASK,
+    //'type' => MENU_LOCAL_TASK,
     'file' => 'maestro.admin.inc'
     );
 
@@ -271,8 +271,13 @@ function template_preprocess_maestro_taskconsole(&$variables) {
       $formatted_task->onholdnotice = '';
       $formatted_task->task_onclick = 'onclick="alert(\'Task Type:  ' . $task->tasktype . '\');"';
       $formatted_task->task_action_url = '#';
-      $formatted_task->task_started = ', Started: July 5 2010';
-
+      if ($task->dates['started'] > 0) {
+        $formatted_task->task_started = ', Started: ' . format_date($task->dates['started'],'short');
+        $formatted_task->task_icon = $maestro_path . '/images/taskconsole/task.gif';
+      } else {
+        $formatted_task->task_started = '';
+        $formatted_task->task_icon = $maestro_path . '/images/taskconsole/new_task.gif';
+      }
       $formatted_task->assigned_shortdate = format_date($task->dates['created'],'custom','m/d/y');
       $formatted_task->assigned_longdate = format_date($task->dates['created'],'medium');
       $formatted_task->project_details = 'yada yada';
@@ -301,7 +306,7 @@ function template_preprocess_maestro_taskconsole(&$variables) {
 
     }
     $variables['details_icon'] = '<img src="' . $maestro_path . '/images/taskconsole/details.png' . '">';
-    $variables['task_icon'] = $maestro_path . '/images/taskconsole/task.gif';
+
   }
 
 }
@@ -453,8 +458,15 @@ function maestro_handle_taskconsole_ajax_request($action) {
 
   switch ($action) {
     case 'starttask':
-
-    break;
+      $startedDate = db_query("SELECT started_date FROM {maestro_queue} WHERE id = :tid",
+        array(':tid' => $_POST['taskid']))->fetchField();
+      if ($startedDate == NULL or $startedDate <= 0) {
+        db_update('maestro_queue')
+          ->fields(array('started_date' => time()))
+          ->condition('id', $_POST['taskid'], '=')
+          ->execute();
+      }
+      break;
   }
 
 
