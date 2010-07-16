@@ -19,16 +19,18 @@
 <?php for ($i = 0; $i < $taskcount; $i++) { ?>
 <tr class="<?php print $zebra ?>">
     <td width="3%" class="<?php print $tasks['id'][$i] ?>" style="border-left:1px solid white">
-        <img src="<?php print $task_icon ?>" TITLE="<?php print t('Process: '); print $tasks['process'][$i]; print t(', Task ID: '); print $tasks['id'][$i]; print $tasks['task_started'][$i]?>" id="taskIconImg<?php print $i; ?>">
+        <img src="<?php print $task_icon ?>" TITLE="<?php print t('Process ID: '); print $tasks['process'][$i]; print t(', Task ID: '); print $tasks['id'][$i]; print $tasks['task_started'][$i]?>" id="taskIconImg<?php print $i; ?>">
     </td>
     <td width="35%"><?php print $tasks['class_newtask'][$i] ?></td>
     <td width="35%">
         <a class="info" style="text-decoration:none;" href="<?php print $tasks['task_action_url'][$i] ?>" <?php print $tasks['task_onclick'][$i] ?>><?php print $tasks['taskname'][$i] ?>
             <span style="width:300px;display: <?php print $tasks['hidetaskinfo'][$i] ?>;">
                 <?php print $tasks['onholdnotice'][$i] ?>
-                <b><?php print t('Date Assigned:'); ?></b>&nbsp;<?php print $tasks['assigned_longdate'][$i] ?><br>
-                <b><?php print t('Description:'); ?></b>&nbsp;<?php print $tasks['description'][$i] ?><br>
-                <b><?php print t('Comments:'); ?></b>&nbsp;<?php print $tasks['comment_note'][$i] ?>
+                <b><?php print t('Date Assigned:'); ?></b>&nbsp;<?php print $tasks['assigned_longdate'][$i] ?>
+                <div style="display:<?php print $tasks['showmoretaskdetail'][$i]; ?>">
+                  <b><?php print t('Description:'); ?></b>&nbsp;<?php print $tasks['description'][$i] ?><br>
+                  <b><?php print t('Comments:'); ?></b>&nbsp;<?php print $tasks['comment_note'][$i] ?>
+                </div>
             </span>
         </a>
     </td>

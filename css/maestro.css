@@ -155,7 +155,7 @@ a.info:hover span { /*the span will display just on :hover state*/
   font-family:Verdana, Tahoma, Arial;
   font-style:normal;
   font-size: 7pt;
-  display:block;
+  display:block !important;
   position:absolute;
   top:3em; left:-15em; width:22em;
   border:1px solid #5D96B9;

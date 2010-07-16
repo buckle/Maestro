@@ -298,16 +298,20 @@ function template_preprocess_maestro_taskconsole(&$variables) {
     $variables['tasks']['task_onclick'][$i] = 'onclick="alert(\'Task Type:  ' . $variables['tasks']['tasktype'][$i] . '\');"';
     $variables['tasks']['task_action_url'][$i] = '#';
     $variables['tasks']['task_started'][$i] = ', Started: July 5 2010';
-    $variables['tasks']['assigned_longdate'][$i] = 'July 12 2010 15:25:10';
-    $variables['tasks']['description'][$i] = 'yada yada';
-    $variables['tasks']['comment_note'][$i] = 'yada yada';
-    $variables['tasks']['assigned_shortdate'][$i] = '2010-07-15';
+
+    $variables['tasks']['assigned_shortdate'][$i] = format_date($variables['tasks']['dates'][$i]['created'],'custom','m/d/y');
+    $variables['tasks']['assigned_longdate'][$i] = format_date($variables['tasks']['dates'][$i]['created'],'medium');
     $variables['tasks']['project_details'][$i] = 'yada yada';
     $variables['tasks']['hold'][$i] = '';
     $variables['tasks']['view'][$i] = '';
     $variables['tasks']['edit'][$i] = '';
     $variables['tasks']['delete'][$i] = '';
     $variables['tasks']['action_record'][$i] = '';
+
+    // Show the extra task detail 'onhover info' if this is a project related task
+    $variables['tasks']['showmoretaskdetail'][$i] = 'none';
+    $variables['tasks']['description'][$i] = 'yada yada';
+    $variables['tasks']['comment_note'][$i] = 'yada yada';
 
   }
   $variables['details_icon'] = '<img src="' . $maestro_path . '/images/taskconsole/details.png' . '">';

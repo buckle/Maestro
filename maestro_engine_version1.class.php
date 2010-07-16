@@ -742,12 +742,13 @@
           $this->_userTaskList['template_name'] = Array();
           $this->_userTaskList['taskname'] = Array();
           $this->_userTaskList['tasktype'] = Array();
+          $this->_userTaskList['dates'] = Array();
           $this->_userTaskCount = 0;
 
           $query = db_select('maestro_queue', 'a');
           $query->join('maestro_template_data', 'b', 'a.template_data_id = b.id');
           $query->join('maestro_production_assignments', 'c', 'a.id = c.task_id');
-          $query->fields('a',array('id','template_data_id','process_id','is_interactive','handler','task_data'));
+          $query->fields('a',array('id','template_data_id','process_id','is_interactive','handler','task_data','created_date','started_date'));
           $query->fields('b',array('task_class_name','template_id','taskname','is_dynamic_taskname','dynamic_taskname_variable_id'));
           $query->condition('c.uid',$this->_userId,'=');
           $query->condition(db_or()->condition('a.archived',0)->condition('a.archived',NULL));
@@ -777,12 +778,14 @@
               if ($flag == 0 ) {
                 $templatename = db_query("SELECT template_name FROM {maestro_template} WHERE id = :tid",
                   array(':tid' => $userTaskRecord->template_id))->fetchField();
+                $queueRecDates = array('created' => $userTaskRecord->created_date, 'started' => $userTaskRecord->started_date);
                 $temparray = array(1 => $userTaskRecord->id);
                 $this->_userTaskList['id'] = array_merge($this->_userTaskList['id'], array(1 => $userTaskRecord->id));
                 $this->_userTaskList['process'] = array_merge($this->_userTaskList['process'], array(1 => $userTaskRecord->process_id));
                 $this->_userTaskList['template'] = array_merge($this->_userTaskList['template'], array(1 => $userTaskRecord->template_id));
                 $this->_userTaskList['template_name'] = array_merge($this->_userTaskList['template_name'], array(1 => $templatename));
                 $this->_userTaskList['url'] = array_merge($this->_userTaskList['url'], array(1 => $userTaskRecord->handler));
+                $this->_userTaskList['dates'] = array_merge($this->_userTaskList['dates'], array(1 => $queueRecDates));
                 // Handle dynamic task name based on a variable's value
                 $taskname = '';
                 if($userTaskRecord->is_dynamic_taskname == 1) {
