@@ -24,8 +24,8 @@ db_query("INSERT INTO {maestro_template_data} (`id`, `template_id`, `logical_id`
 (5, 1, 5, 'MaestroTaskTypeInteractiveFunction', 1, 'maestro_interactive_sample', 0, 'Variable is not &gt; 5', 1, '0', '0', '0', '0', 0, 0, 0, 0, 0, 0, 'maestro_log_message', 0, 0, NULL, 0, 0, 'VAR1 is NOT greater than 5', 0, 0, 0, 0, NULL, NULL, NULL, '', '', '', 0, 0, 312, 341, 0, :b2serialized),
 (6, 1, 6, 'MaestroTaskTypeEnd', 0, '', 0, 'End', 0, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, '', 0, 0, NULL, 0, 0, '', 0, 0, 0, 0, NULL, NULL, NULL, '', '', '', 0, 0, 580, 439, 0, '')",
     array('ifserialized' => 'a:4:{s:11:"if_operator";s:1:">";s:8:"if_value";s:1:"5";s:20:"if_process_arguments";s:0:"";s:20:"if_argument_variable";s:1:"2";}',
-    'b1serialized' => 'a:1:{s:7:"handler";s:26:"maestro_interactive_sample";}',
-    'b2serialized' => 'a:1:{s:7:"handler";s:26:"maestro_interactive_sample";}')
+    'b1serialized' => 'a:2:{s:7:"handler";s:19:"maestro_showmessage";s:13:"optional_parm";s:26:"Variable is greater then 5";}',
+    'b2serialized' => 'a:2:{s:7:"handler";s:19:"maestro_showmessage";s:13:"optional_parm";s:30:"Variable is not greater then 5";}')
     );
 
 db_query("INSERT INTO {maestro_template_data_next_step} (`id`, `template_data_from`, `template_data_to`, `template_data_to_false`) VALUES

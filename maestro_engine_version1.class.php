@@ -774,7 +774,9 @@
                   array(':tid' => $userTaskRecord->template_id))->fetchField();
                 $queueRecDates = array('created' => $userTaskRecord->created_date, 'started' => $userTaskRecord->started_date);
                 $queueRecFlags = array('is_interactive' => $userTaskRecord->is_interactive);
+                $taskObject->task_data = $userTaskRecord->task_data;
                 $taskObject->queue_id = $userTaskRecord->id;
+                $taskObject->task_id = $userTaskRecord->template_data_id;
                 $taskObject->process_id = $userTaskRecord->process_id;
                 $taskObject->template_id = $userTaskRecord->template_id;
                 $taskObject->template_name = $templatename;

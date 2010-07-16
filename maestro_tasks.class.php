@@ -336,7 +336,6 @@ class MaestroTaskTypeInteractivefunction extends MaestroTask {
     $msg = 'Execute Task Type: "MaestroTaskTypeInteractivefunction" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
-
     $serializedData = db_query("SELECT task_data FROM {maestro_queue} WHERE id = :tid",
       array(':tid' => $this->_properties->id))->fetchField();
     $taskdata = @unserialize($serializedData);
@@ -352,7 +351,17 @@ class MaestroTaskTypeInteractivefunction extends MaestroTask {
   }
 
   function showInteractiveTask() {
-     //return 'This is an interactive task';
+    /* Place our custom interactive functions in this file for now but we need a far more automatic method */
+    include_once './' . drupal_get_path('module', 'maestro') . '/custom_functions/myfunctions.php';
+
+    $retval = '';
+    $serializedData = db_query("SELECT task_data FROM {maestro_queue} WHERE id = :id",
+    array(':id' => $this->_properties->queue_id))->fetchField();
+    $taskdata = @unserialize($serializedData);
+    if (function_exists($taskdata['handler'])) {
+      $retval = $taskdata['handler']($taskdata['optional_parm']);
+    }
+    return $retval;
   }
 
 }
