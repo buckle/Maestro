@@ -26,8 +26,4 @@
       <span style="font-size:x-small">*Enter only the function name such as: maestro_batchFunctionExample</span>
     </td>
   </tr>
-
-  <tr>
-    <td colspan="2" class="aligncenter"><input type="submit" value="<?php print t('Save'); ?>"></td>
-  </tr>
 </table>

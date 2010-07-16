@@ -42,7 +42,7 @@ function maestro_menu() {
     );
 
     $items['admin/structure/maestro/ajax'] = array(
-    'page callback' => 'maestro_handle_ajax_request',
+    'page callback' => 'maestro_handle_editor_ajax_request',
     'type' => MENU_CALLBACK,
     'access arguments' => array('maestro admin'),
     'file' => 'maestro.admin.inc'
@@ -158,7 +158,7 @@ function maestro_theme() {
     ),
     'maestro_workflow_edit_tasks_frame' => array(
       'template' => 'theme/structure/maestro-workflow-edit-tasks-frame',
-      'variables' => array('form' => NULL)
+      'variables' => array('tdid' => NULL, 'tid' => NULL, 'form_content' => NULL, 'maestro_url' => NULL, 'pv_options' => NULL, 'uid_options' => NULL, 'task_class' => NULL)
     ),
     'maestro_task_start' => array(
       'template' => 'theme/structure/tasks/maestro-task-start',

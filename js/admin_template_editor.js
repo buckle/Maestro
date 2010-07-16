@@ -307,6 +307,8 @@ function add_task_success(r) {
 }
 
 function save_task(frm) {
+  select_all_options(document.getElementById('assign_by_uid'));
+  select_all_options(document.getElementById('assign_by_pv'));
   (function($) {
     enable_ajax_indicator();
     $.post(ajax_url + frm.task_class.value + '/' + frm.template_data_id.value + '/0/save/', $("#maestro_task_edit_form").serialize(), save_task_success);
@@ -409,7 +411,74 @@ function shrink_canvas() {
   })(jQuery);
 }
 
+function switch_task_edit_section(id) {
+  document.getElementById('task_edit_main').style.display = 'none';
+  document.getElementById('task_edit_tab_main').className = 'unactive';
+  document.getElementById('task_edit_optional').style.display = 'none';
+  document.getElementById('task_edit_tab_optional').className = 'unactive';
+  document.getElementById('task_edit_assignment').style.display = 'none';
+  document.getElementById('task_edit_tab_assignment').className = 'unactive';
+  document.getElementById('task_edit_notification').style.display = 'none';
+  document.getElementById('task_edit_tab_notification').className = 'unactive';
 
+  document.getElementById('task_edit_' + id).style.display = '';
+  document.getElementById('task_edit_tab_' + id).className = 'active';
+}
+
+function move_to_left(id) {
+  var left = document.getElementById('assign_by_' + id + '_unselected');
+  var right = document.getElementById('assign_by_' + id);
+  move_options(right, left);
+}
+
+function move_to_right(id) {
+  var left = document.getElementById('assign_by_' + id + '_unselected');
+  var right = document.getElementById('assign_by_' + id);
+  move_options(left, right);
+}
+
+function move_options(sel_from, sel_to) {
+  var len = sel_from.length;
+  var text = new Array();
+  var values = new Array();
+  var count = 0;
+  var i;
+
+  for (i = len - 1; i >= 0; i--) {
+    if (sel_from.options[i].selected) {
+      text[count] = sel_from.options[i].text;
+      values[count] = sel_from.options[i].value;
+      delete_option(sel_from, i);
+      count++;
+    }
+  }
+
+  for (i = count - 1; i >= 0; i--) {
+    add_option(sel_to, text[i], values[i]);
+  }
+}
+
+function delete_option(sel, index) {
+  var len = sel.length;
+  if(len > 0) {
+    sel.options[index] = null;
+  }
+}
+
+function add_option(sel, text, value) {
+  var opt = new Option(text, value);
+  var len = sel.length;
+  sel.options[len] = opt;
+}
+
+function select_all_options(sel) {
+  var len = sel.length;
+  var i;
+
+  for (i = len - 1; i >= 0; i--) {
+    sel.options[i].selected = true;
+  }
+}
 
 //general helper functions
 function set_tool_tip(msg) {
