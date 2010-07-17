@@ -257,8 +257,9 @@ function maestro_enginetest() {
 function template_preprocess_maestro_taskconsole(&$variables) {
   global $base_url;
 
-  $variables['ajax_server_url']       = url('maestro/taskconsole/ajax');
+  $variables['ajax_server_url'] = url('maestro/taskconsole/ajax');
   $maestro_path = $base_url . '/' . drupal_get_path('module', 'maestro');
+  $variables['module_base_url'] = $maestro_path;
   $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
   $objtasks = $maestro->engine()->getQueue();
   $variables['taskcount'] = $maestro->engine()->getUserTaskCount();

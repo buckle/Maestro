@@ -11,6 +11,8 @@
   var ajax_url = '<?php print $ajax_server_url; ?>';
 </script>
 
+<script type="text/javascript" src="<?php print $module_base_url; ?>/js/taskconsole.js"></script>
+
 <table width="100%">
 <tr>
   <th width="5%"><?php print t(''); ?></th>
@@ -58,19 +60,3 @@
 ?>
 </table>
 
-<script type="text/javascript">
-
-jQuery('.maestro_taskconsole_interactivetask a').click(function() {
-  var taskid = jQuery(this).attr('taskid');
-  jQuery('#maestro_actionrec' + taskid).toggle();
-  maestro_startTask(taskid);
-});
-
-function maestro_startTask(taskid) {
-  (function($) {
-  $.post(ajax_url + '/starttask/',"taskid=" + taskid);
-  })(jQuery);
-}
-
-
-</script>

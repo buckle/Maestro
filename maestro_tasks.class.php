@@ -360,6 +360,10 @@ class MaestroTaskTypeInteractivefunction extends MaestroTask {
     $taskdata = @unserialize($serializedData);
     if (function_exists($taskdata['handler'])) {
       $retval = $taskdata['handler']($taskdata['optional_parm']);
+    } else {
+      $retval = '<div style="text-align:center;margin:5px;padding:10px;border:1px solid #CCC;font-size:14pt;">';
+      $retval .= t('Interactive Function "@taskname" was  not found.',array('@taskname' => $taskdata['handler']));
+      $retval .= '</div>';
     }
     return $retval;
   }
