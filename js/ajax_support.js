@@ -1,7 +1,13 @@
 var maestro_structure_cntr=0;
 
+function maestro_OpenCloseCreateVariable(cntr) {
+	jQuery('#variableAdd_' + cntr).toggle();
+}
+
 function maestro_saveTemplateName(id, cntr) {
 	maestro_hideErrorBar();
+	var errormsg=Drupal.t('There has been an error.  Please try your save again.');
+	var ajaxwaitobject='#maestro_updating_' + cntr;
 	var frmID = "#maestro_template_save_" + cntr;
 	dataString = jQuery(frmID).serialize();
 	dataString += "&id=" + id;
@@ -14,34 +20,29 @@ function maestro_saveTemplateName(id, cntr) {
 		cache : false,
 		url : ajax_url,
 		dataType : "json",
-		success : maestro_saveTemplateNameComplete,
-		error : maestro_saveTemplateNameError,
+		success : function (data) {
+			jQuery('#maestro_updating_' + maestro_structure_cntr).removeClass('maestro_working');
+			if (data.status == "0") { // query failed
+				maestro_showErrorBar();
+				var error = Drupal.t('There has been an error saving your template.  Please try your save again.');
+				jQuery('#maestro_error_message').html(error);
+			} else {
+				maestro_hideErrorBar();
+				jQuery('#maestro_error_message').html('');
+			}
+		},
+		
+		error : function (request, status, error){
+			maestro_structure_handleAjaxError(ajaxwaitobject, errormsg, request, status, error);
+		},
 		data : dataString
 	});
 }
 
-function maestro_saveTemplateNameError(XMLHttpRequest, textStatus, errorThrown) {
-	maestro_showErrorBar();
-	jQuery('#maestro_updating_' + maestro_structure_cntr).removeClass('maestro_working');
-	var error = Drupal.t('There has been an error.  Please try your save again.');
-	jQuery('#maestro_error_message').html(error);
-}
-
-function maestro_saveTemplateNameComplete(data) {
-	jQuery('#maestro_updating_' + maestro_structure_cntr).removeClass('maestro_working');
-	if (data.status == "0") { // query failed
-		maestro_showErrorBar();
-		var error = Drupal.t('There has been an error saving your template.  Please try your save again.');
-		jQuery('#maestro_error_message').html(error);
-	} else {
-		maestro_hideErrorBar();
-		jQuery('#maestro_error_message').html('');
-	}
-
-}
-
 function maestro_CreateVariable(id, cntr) {
 	maestro_hideErrorBar();
+	var errormsg=Drupal.t('There has been an error saving your variable.  Please try your save again.');
+	var ajaxwaitobject='#maestro_variable_updating_' + cntr;
 	var frmID = "#frmVariableAdd_" + cntr;
 	dataString = jQuery(frmID).serialize();
 	dataString += "&id=" + id;
@@ -54,34 +55,30 @@ function maestro_CreateVariable(id, cntr) {
 		cache : false,
 		url : ajax_url,
 		dataType : "json",
-		success : maestro_saveNewVariableComplete,
-		error : maestro_saveNewVariableError,
+		success : function(data){
+			jQuery("#newVariableName").attr("value", "");
+			jQuery("#newVariableValue").attr("value", "");
+			jQuery('#maestro_variable_updating_' + maestro_structure_cntr).removeClass('maestro_working');
+			if (data.status == "1") {
+				maestro_hideErrorBar();
+				jQuery('#ajaxReplaceTemplateVars_' + data.cntr).html(data.data);
+			} else {
+				maestro_showErrorBar();
+				var error = Drupal.t('There has been an error saving your template variable.  Please try your save again.');
+				jQuery('#maestro_error_message').html(error);
+			}
+		},
+		error : function (request, status, error){
+			maestro_structure_handleAjaxError(ajaxwaitobject, errormsg, request, status, error);
+		},
 		data : dataString
 	});
 }
 
-function maestro_saveNewVariableError(XMLHttpRequest, textStatus, errorThrown) {
-	maestro_showErrorBar();
-	jQuery('#maestro_variable_updating_' + maestro_structure_cntr).removeClass(
-			'maestro_working');
-}
-
-function maestro_saveNewVariableComplete(data) {
-	jQuery("#newVariableName").attr("value", "");
-	jQuery("#newVariableValue").attr("value", "");
-	jQuery('#maestro_variable_updating_' + maestro_structure_cntr).removeClass('maestro_working');
-	if (data.status == "1") {
-		maestro_hideErrorBar();
-		jQuery('#ajaxReplaceTemplateVars_' + data.cntr).html(data.data);
-	} else {
-		maestro_showErrorBar();
-		var error = Drupal.t('There has been an error saving your template variable.  Please try your save again.');
-		jQuery('#maestro_error_message').html(error);
-	}
-}
-
 function maestro_CancelTemplateVariable(id) {
 	maestro_hideErrorBar();
+	var errormsg=Drupal.t('There has been an error cancelling your variable edit.  Please try your cancel again.');
+	var ajaxwaitobject='#maestro_variable_updating_' + maestro_structure_cntr;
 	dataString = "";
 	dataString += "id=" + id;
 	dataString += "&op=showvariables";
@@ -90,20 +87,32 @@ function maestro_CancelTemplateVariable(id) {
 		cache : false,
 		url : ajax_url,
 		dataType : "json",
-		success : maestro_saveNewVariableComplete,
-		error : maestro_saveNewVariableError,
+		success : function(data){
+			jQuery("#newVariableName").attr("value", "");
+			jQuery("#newVariableValue").attr("value", "");
+			jQuery('#maestro_variable_updating_' + maestro_structure_cntr).removeClass('maestro_working');
+			if (data.status == "1") {
+				maestro_hideErrorBar();
+				jQuery('#ajaxReplaceTemplateVars_' + data.cntr).html(data.data);
+			} else {
+				maestro_showErrorBar();
+				var error = Drupal.t('There has been an error saving your template variable.  Please try your save again.');
+				jQuery('#maestro_error_message').html(error);
+			}
+		},
+		error : function (request, status, error){
+			maestro_structure_handleAjaxError(ajaxwaitobject, errormsg, request, status, error);
+		},
 		data : dataString
 	});
-}
-function maestro_OpenCloseCreateVariable(cntr) {
-	jQuery('#variableAdd_' + cntr).toggle();
 }
 
 function maestro_saveTemplateVariable(tid, var_id) {
 	maestro_hideErrorBar();
+	var errormsg=Drupal.t('There has been an error saving your variable.  Please try your save again.');
+	var ajaxwaitobject='#maestro_updating_variable_' + maestro_structure_cntr;
 	var name = jQuery('#editVarName_' + var_id).attr("value");
 	var val = jQuery('#editVarValue_' + var_id).attr("value");
-
 	dataString = "";
 	dataString += "id=" + var_id;
 	dataString += "&name=" + name;
@@ -116,47 +125,30 @@ function maestro_saveTemplateVariable(tid, var_id) {
 		cache : false,
 		url : ajax_url,
 		dataType : "json",
-		success : maestro_updateTemplateVariableComplete,
-		error : maestro_updateVariableError,
+		success : function(data){
+			jQuery('#maestro_updating_variable_' + data.var_id).removeClass('maestro_working');
+			if (data.status == "1") {
+				maestro_hideErrorBar();
+				jQuery('#ajaxReplaceTemplateVars_' + data.cntr).html(data.data);
+			} else {
+				maestro_showErrorBar();
+				var error = Drupal.t('There has been an error saving your template variable.  Please try your save again.');
+				jQuery('#maestro_error_message').html(error);
+			}
+		},
+		error : function (request, status, error){
+			maestro_structure_handleAjaxError(ajaxwaitobject, errormsg, request, status, error);
+		},
 		data : dataString
 	});
 }
 
-function maestro_updateTemplateVariableComplete(data) {
-	jQuery('#maestro_updating_variable_' + data.var_id).removeClass(
-			'maestro_working');
-	if (data.status == "1") {
-		maestro_hideErrorBar();
-		jQuery('#ajaxReplaceTemplateVars_' + data.cntr).html(data.data);
-	} else {
-		maestro_showErrorBar();
-		var error = Drupal.t('There has been an error saving your template variable.  Please try your save again.');
-		jQuery('#maestro_error_message').html(error);
-	}
-}
-
-function maestro_deleteTemplateVariableComplete(data) {
-	jQuery('#maestro_updating_variable_' + data.var_id).removeClass(
-			'maestro_working');
-	if (data.status == "1") {
-		maestro_hideErrorBar();
-		jQuery('#ajaxReplaceTemplateVars_' + data.cntr).html(data.data);
-	} else {
-		maestro_showErrorBar();
-		var error = Drupal.t('There has been an error deleting your template variable.\nYou can\'t delete the "initiator" variable.\nPlease try your delete again.');
-		alert(error);
-
-	}
-}
-
-function maestro_updateVariableError(XMLHttpRequest, textStatus, errorThrown) {
-	maestro_showErrorBar();
-	jQuery('#maestro_updating_variable_' + maestro_structure_cntr).removeClass(
-			'maestro_working');
-}
-
 function maestro_deleteTemplateVariable(tid, var_id, cntr) {
 	maestro_hideErrorBar();
+	var errormsg=Drupal.t('There has been an error deleting your variable.  Please try your delete again.');
+	var ajaxwaitobject='#maestro_updating_variable_' + maestro_structure_cntr;
+	var name = jQuery('#editVarName_' + var_id).attr("value");
+	var val = jQuery('#editVarValue_' + var_id).attr("value");
 	var x = confirm(Drupal.t('Delete this variable?'));
 	if (x) {
 		dataString = "";
@@ -169,8 +161,21 @@ function maestro_deleteTemplateVariable(tid, var_id, cntr) {
 			cache : false,
 			url : ajax_url,
 			dataType : "json",
-			success : maestro_deleteTemplateVariableComplete,
-			error : maestro_updateVariableError,
+			success : function(data){
+				jQuery('#maestro_updating_variable_' + data.var_id).removeClass('maestro_working');
+				if (data.status == "1") {
+					maestro_hideErrorBar();
+					jQuery('#ajaxReplaceTemplateVars_' + data.cntr).html(data.data);
+				} else {
+					maestro_showErrorBar();
+					var error = Drupal.t('There has been an error deleting your template variable.\nYou can\'t delete the "initiator" variable.\nPlease try your delete again.');
+					alert(error);
+			
+				}
+			},
+			error : function (request, status, error){
+				maestro_structure_handleAjaxError(ajaxwaitobject, errormsg, request, status, error);
+			},
 			data : dataString
 		});
 	} else {
@@ -180,6 +185,8 @@ function maestro_deleteTemplateVariable(tid, var_id, cntr) {
 
 function maestro_editTemplateVariable(tid, var_id) {
 	maestro_hideErrorBar();
+	var errormsg=Drupal.t('There has been an error editing your variable.  Please try your edit again.');
+	var ajaxwaitobject='#maestro_updating_variable_' + maestro_structure_cntr;
 	dataString = "";
 	dataString += "id=" + var_id;
 	dataString += "&tid=" + tid;
@@ -189,14 +196,28 @@ function maestro_editTemplateVariable(tid, var_id) {
 		cache : false,
 		url : ajax_url,
 		dataType : "json",
-		success : maestro_updateTemplateVariableComplete,
-		error : maestro_updateVariableError,
+		success : function(data){
+			jQuery('#maestro_updating_variable_' + data.var_id).removeClass('maestro_working');
+			if (data.status == "1") {
+				maestro_hideErrorBar();
+				jQuery('#ajaxReplaceTemplateVars_' + data.cntr).html(data.data);
+			} else {
+				maestro_showErrorBar();
+				var error = Drupal.t('There has been an error saving your template variable.  Please try your save again.');
+				jQuery('#maestro_error_message').html(error);
+			}
+		},
+		error : function (request, status, error){
+			maestro_structure_handleAjaxError(ajaxwaitobject, errormsg, request, status, error);
+		},
 		data : dataString
 	});
 }
 
 function maestro_CreateTemplate() {
 	maestro_hideErrorBar();
+	var errormsg=Drupal.t('There has been an error creating your template.  Please try your create again.');
+	var ajaxwaitobject='#maestro_new_template_updating';
 	jQuery('#maestro_new_template_updating').addClass('maestro_working');
 	var name = jQuery('#newTemplateName').attr("value");
 	dataString = "";
@@ -207,31 +228,28 @@ function maestro_CreateTemplate() {
 		cache : false,
 		url : ajax_url,
 		dataType : "json",
-		success : maestro_createTemplateComplete,
-		error : maestro_createTemplateError,
+		success : function(data){
+			jQuery('#maestro_new_template_updating').removeClass('maestro_working');
+			if (data.status == "1") {
+				maestro_hideErrorBar();
+				jQuery('#maestro_template_admin').html(data.data);
+			} else {
+				maestro_showErrorBar();
+				var error = Drupal.t('There has been an error saving your template.  Please try your save again.');
+				jQuery('#maestro_error_message').html(error);
+			}
+		},
+		error : function (request, status, error){
+			maestro_structure_handleAjaxError(ajaxwaitobject, errormsg, request, status, error);
+		},
 		data : dataString
 	});
 }
 
-function maestro_createTemplateComplete(data) {
-	jQuery('#maestro_new_template_updating').removeClass('maestro_working');
-	if (data.status == "1") {
-		maestro_hideErrorBar();
-		jQuery('#maestro_template_admin').html(data.data);
-	} else {
-		maestro_showErrorBar();
-		var error = Drupal.t('There has been an error saving your template.  Please try your save again.');
-		jQuery('#maestro_error_message').html(error);
-	}
-}
-
-function maestro_createTemplateError(XMLHttpRequest, textStatus, errorThrown) {
-	jQuery('#maestro_new_template_updating').removeClass('maestro_working');
-}
-
-
 function maestro_CreateAppgroup() {
 	maestro_hideErrorBar();
+	var errormsg=Drupal.t('There has been an error creating your Application Group.  Please try your create again.');
+	var ajaxwaitobject='#maestro_new_appgroup_updating';
 	jQuery('#maestro_new_appgroup_updating').addClass('maestro_working');
 	var name = jQuery('#appGroupName').attr("value");
 	dataString = "";
@@ -242,33 +260,30 @@ function maestro_CreateAppgroup() {
 		cache : false,
 		url : ajax_url,
 		dataType : "json",
-		success : maestro_createAppgroupComplete,
-		error : maestro_createAppgroupError,
+		success : function(data){
+			jQuery('#maestro_new_appgroup_updating').removeClass('maestro_working');
+			jQuery('#appGroupName').attr("value","");
+			if (data.status == "0") {
+				maestro_showErrorBar();
+				var error = Drupal.t('There has been an error saving your App Group.  Please try your save again.');
+				jQuery('#maestro_error_message').html(error);
+			}
+			else {
+				maestro_hideErrorBar();
+				maestro_refreshAppGroup('deleteAppGroup');
+			}
+		},
+		error : function (request, status, error){
+			maestro_structure_handleAjaxError(ajaxwaitobject, errormsg, request, status, error);
+		},
 		data : dataString
 	});
 }
 
-function maestro_createAppgroupComplete(data) {
-	jQuery('#maestro_new_appgroup_updating').removeClass('maestro_working');
-	jQuery('#appGroupName').attr("value","");
-	if (data.status == "0") {
-		maestro_showErrorBar();
-		var error = Drupal.t('There has been an error saving your App Group.  Please try your save again.');
-		jQuery('#maestro_error_message').html(error);
-	}
-	else {
-		maestro_hideErrorBar();
-		maestro_refreshAppGroup('deleteAppGroup');
-	}
-}
-
-function maestro_createAppgroupError(XMLHttpRequest, textStatus, errorThrown) {
-	jQuery('#maestro_new_appgroup_updating').removeClass('maestro_working');
-
-}
-
 function maestro_refreshAppGroup(which) {
 	maestro_hideErrorBar();
+	var errormsg=Drupal.t('There has been an AJAX error refreshing your Application Group.');
+	var ajaxwaitobject='#maestro_new_appgroup_updating';
 	dataString = "";
 	dataString += "id=" + name;
 	dataString += "&which=" + which;
@@ -278,13 +293,29 @@ function maestro_refreshAppGroup(which) {
 		cache : false,
 		url : ajax_url,
 		dataType : "json",
-		success : maestro_deleteAppgroupComplete,
+		success :  function(data){
+			jQuery('#maestro_del_appgroup_updating').removeClass('maestro_working');
+			if (data.status == "1") {
+				maestro_hideErrorBar();
+				jQuery('#replaceDeleteAppGroup').html(data.data);
+			} else {
+				maestro_showErrorBar();
+				var error = Drupal.t('There has been an error deleting your app gropu.  Please try your delete again.');
+				jQuery('#maestro_error_message').html(error);
+	
+			}
+		},
+		error : function (request, status, error){
+			maestro_structure_handleAjaxError(ajaxwaitobject, errormsg, request, status, error);
+		},
 		data : dataString
 	});
 }
 
 function maestro_DeleteAppgroup() {
 	maestro_hideErrorBar();
+	var errormsg=Drupal.t('There has been an error deleting your Application Group.  Please try your delete again.');
+	var ajaxwaitobject='#maestro_del_appgroup_updating';
 	jQuery('#maestro_del_appgroup_updating').addClass('maestro_working');
 	var name = jQuery('#deleteAppGroup').attr("value");
 	dataString = "";
@@ -295,28 +326,29 @@ function maestro_DeleteAppgroup() {
 		cache : false,
 		url : ajax_url,
 		dataType : "json",
-		success : maestro_deleteAppgroupComplete,
-		error : maestro_createAppgroupError,
+		success : function(data){
+		jQuery('#maestro_del_appgroup_updating').removeClass('maestro_working');
+			if (data.status == "1") {
+				maestro_hideErrorBar();
+				jQuery('#replaceDeleteAppGroup').html(data.data);
+			} else {
+				maestro_showErrorBar();
+				var error = Drupal.t('There has been an error deleting your app gropu.  Please try your delete again.');
+				jQuery('#maestro_error_message').html(error);
+	
+			}
+		},
+		error : function (request, status, error){
+			maestro_structure_handleAjaxError(ajaxwaitobject, errormsg, request, status, error);
+		},
 		data : dataString
 	});
 }
 
-
-function maestro_deleteAppgroupComplete(data) {
-	jQuery('#maestro_del_appgroup_updating').removeClass('maestro_working');
-	if (data.status == "1") {
-		maestro_hideErrorBar();
-		jQuery('#replaceDeleteAppGroup').html(data.data);
-	} else {
-		maestro_showErrorBar();
-		var error = Drupal.t('There has been an error deleting your app gropu.  Please try your delete again.');
-		jQuery('#maestro_error_message').html(error);
-
-	}
-}
-
 function maestro_deleteTemplate(tid) {
 	maestro_hideErrorBar();
+	var errormsg=Drupal.t('There has been an error deleting your Template.  Please try your delete again.');
+	var ajaxwaitobject='';
 	var x = confirm(Drupal.t('Delete this template?'));
 	if (x) {
 		dataString = "";
@@ -327,7 +359,19 @@ function maestro_deleteTemplate(tid) {
 			cache : false,
 			url : ajax_url,
 			dataType : "json",
-			success : maestro_deleteTemplateComplete,
+			success : function(data){
+				if (data.status == "1") {
+					maestro_hideErrorBar();
+					jQuery('#maestro_template_admin').html(data.data);
+				} else {
+					maestro_showErrorBar();
+					var error = Drupal.t('There has been an error deleting your template.  Please try your save again.');
+					jQuery('#maestro_error_message').html(error);
+				}
+			},
+			error : function (request, status, error){
+				maestro_structure_handleAjaxError(ajaxwaitobject, errormsg, request, status, error);
+			},
 			data : dataString
 		});
 	} else {
@@ -335,20 +379,10 @@ function maestro_deleteTemplate(tid) {
 	}
 }
 
-function maestro_deleteTemplateComplete(data) {
-	if (data.status == "1") {
-		maestro_hideErrorBar();
-		jQuery('#maestro_template_admin').html(data.data);
-	} else {
-		maestro_showErrorBar();
-		var error = Drupal.t('There has been an error deleting your template.  Please try your save again.');
-		jQuery('#maestro_error_message').html(error);
-	}
-}
-
-
 function maestro_copyTemplate(tid) {
 	maestro_hideErrorBar();
+	var errormsg=Drupal.t('There has been an error copying your Template.  Please try your copy again.');
+	var ajaxwaitobject='';
 	dataString = "";
 	dataString += "id=" + tid;
 	dataString += "&op=copytemplate";
@@ -357,23 +391,22 @@ function maestro_copyTemplate(tid) {
 		cache : false,
 		url : ajax_url,
 		dataType : "json",
-		success : maestro_copyTemplateComplete,
+		success : function(data){
+			if (data.status == "1") {
+				maestro_hideErrorBar();
+				jQuery('#maestro_template_admin').html(data.data);
+			} else {
+				maestro_showErrorBar();
+				var error = Drupal.t('There has been an error copying your template.  Please try your save again.');
+				jQuery('#maestro_error_message').html(error);
+			}
+		},
+		error : function (request, status, error){
+			maestro_structure_handleAjaxError(ajaxwaitobject, errormsg, request, status, error);
+		},
 		data : dataString
 	});
 }
-
-
-function maestro_copyTemplateComplete(data) {
-	if (data.status == "1") {
-		maestro_hideErrorBar();
-		jQuery('#maestro_template_admin').html(data.data);
-	} else {
-		maestro_showErrorBar();
-		var error = Drupal.t('There has been an error copying your template.  Please try your save again.');
-		jQuery('#maestro_error_message').html(error);
-	}
-}
-
 
 function maestro_showErrorBar() {
 	jQuery('#maestro_error_row').removeClass('maestro_hide_error_bar');
@@ -384,5 +417,16 @@ function maestro_hideErrorBar() {
 	jQuery('#maestro_error_message').html(error);
 	jQuery('#maestro_error_row').removeClass('maestro_show_error_bar');
 	jQuery('#maestro_error_row').addClass('maestro_hide_error_bar');
+}
+
+
+function maestro_structure_handleAjaxError(ajaxwaitobject, errormsg, request, status, error) {
+	if(errormsg != '') {
+		maestro_showErrorBar();
+		jQuery('#maestro_error_message').html(errormsg);
+		var el=document.getElementById('maestro_template_admin');
+		el.scrollIntoView(true);
+	}
+	if(ajaxwaitobject != '') jQuery(ajaxwaitobject).removeClass('maestro_working');
 }
 
