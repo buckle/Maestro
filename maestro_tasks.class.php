@@ -359,13 +359,32 @@ class MaestroTaskTypeInteractivefunction extends MaestroTask {
     array(':id' => $this->_properties->queue_id))->fetchField();
     $taskdata = @unserialize($serializedData);
     if (function_exists($taskdata['handler'])) {
-      $retval = $taskdata['handler']($taskdata['optional_parm']);
+      $ret = $taskdata['handler']('display',$this->_properties,$taskdata['optional_parm']);
+      if ($ret->retcode === TRUE) {
+        $retval = $ret->html;
+      }
     } else {
       $retval = '<div style="text-align:center;margin:5px;padding:10px;border:1px solid #CCC;font-size:14pt;">';
       $retval .= t('Interactive Function "@taskname" was  not found.',array('@taskname' => $taskdata['handler']));
       $retval .= '</div>';
     }
     return $retval;
+  }
+
+  function processInteractiveTask($taskid,$taskop) {
+    $ret = new stdClass();
+    $ret->retcode = FALSE;
+    $ret->engineop = '';
+    /* Place our custom interactive functions in this file for now but we need a far more automatic method */
+    include_once './' . drupal_get_path('module', 'maestro') . '/custom_functions/myfunctions.php';
+    $serializedData = db_query("SELECT task_data FROM {maestro_queue} WHERE id = :id",
+    array(':id' => $taskid))->fetchField();
+    $taskdata = @unserialize($serializedData);
+    if (function_exists($taskdata['handler'])) {
+      $ret = $taskdata['handler']($taskop,$this->_properties,$taskdata['optional_parm']);
+    }
+    return $ret;
+
   }
 
 }

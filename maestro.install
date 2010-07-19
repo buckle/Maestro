@@ -784,6 +784,10 @@ function maestro_schema() {
         'description' => 'Serialized array of task specific data or options.',
         'type' => 'text'
       ),
+      'temp_data' => array(
+        'description' => 'Serialized array of task temporary data the developer can us to save data while task is active.',
+        'type' => 'text'
+      ),
       'status' => array(
         'description' => '',
         'type' => 'int',

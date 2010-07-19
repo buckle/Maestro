@@ -35,7 +35,7 @@
       /* Common HTML container with an ID set that we will hook onto to show/hide.
        * This lets developer not have to worry about returning a table row with 5 columns
        */
-      $prehtmlfragment = '<tr id="maestro_actionrec' . $taskid . '" style="display:none;"><td colspan="5">';
+      $prehtmlfragment = '<tr class="maestro_taskconsole_interactivetaskcontent" id="maestro_actionrec' . $taskid . '" style="display:none;"><td colspan="5">';
       $posthtmlfragment = '</td></tr>';
       $retval = $task->showInteractiveTask();
       if ($retval === FALSE OR empty($retval)) {
