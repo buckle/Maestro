@@ -34,7 +34,13 @@ function initialize_drag_drop() {
       var task_class = this.className.split(' ')[0];
       var task_id = this.id.substring(4, this.id.length);
       enable_ajax_indicator();
-      $.post(ajax_url + task_class + '/' + task_id + '/0/move/', {offset_left: this.offsetLeft, offset_top: this.offsetTop}, disable_ajax_indicator());
+      $.ajax({
+        type: 'POST',
+        url: ajax_url + task_class + '/' + task_id + '/0/move/',
+        data: {offset_left: this.offsetLeft, offset_top: this.offsetTop},
+        success: disable_ajax_indicator,
+        error: editor_ajax_error
+      });
     });
     $(".maestro_task_container").bind("drag", function(event, ui) {
       if (document.frm_animate.animateFlag.checked) {
@@ -288,7 +294,7 @@ function redraw_lines() {
 
 function display_task_panel(r) {
   (function($) {
-    $.modal(r.html, { modal: true, overlayClose: true, autoPosition: true, overlayCss: {backgroundColor:"#888"}, opacity:80 });
+    $.modal(r.html, { modal: true, overlayClose: false, autoPosition: true, overlayCss: {backgroundColor:"#888"}, opacity:80 });
     disable_ajax_indicator();
   })(jQuery);
 }
@@ -311,7 +317,13 @@ function save_task(frm) {
   select_all_options(document.getElementById('assign_by_pv'));
   (function($) {
     enable_ajax_indicator();
-    $.post(ajax_url + frm.task_class.value + '/' + frm.template_data_id.value + '/0/save/', $("#maestro_task_edit_form").serialize(), save_task_success);
+    $.ajax({
+      type: 'POST',
+      url: ajax_url + frm.task_class.value + '/' + frm.template_data_id.value + '/0/save/',
+      data: $("#maestro_task_edit_form").serialize(),
+      success: save_task_success,
+      error: editor_ajax_error
+    });
   })(jQuery);
   return false;
 }
@@ -338,10 +350,22 @@ function draw_line_to(element) {
         var task_class = line_start.className.split(' ')[0];
 
         if (draw_type == 2) {
-          $.post(ajax_url + task_class + '/' + template_data_id + '/0/drawLineFalse/', { line_to: template_data_id2 }, disable_ajax_indicator);
+          $.ajax({
+            type: 'POST',
+            url: ajax_url + task_class + '/' + template_data_id + '/0/drawLineFalse/',
+            data: { line_to: template_data_id2 },
+            success: disable_ajax_indicator,
+            error: editor_ajax_error
+          });
         }
         else {
-          $.post(ajax_url + task_class + '/' + template_data_id + '/0/drawLine/', { line_to: template_data_id2 }, disable_ajax_indicator);
+          $.ajax({
+            type: 'POST',
+            url: ajax_url + task_class + '/' + template_data_id + '/0/drawLine/',
+            data: { line_to: template_data_id2 },
+            success: disable_ajax_indicator,
+            error: editor_ajax_error
+          });
         }
 
         enable_ajax_indicator();
@@ -377,7 +401,13 @@ function clear_task_lines(el) {
       lines.splice(indexes[i] - j++, 1);
     }
 
-    $.post(ajax_url + task_class + '/' + template_data_id + '/0/clearAdjacentLines/');
+    enable_ajax_indicator();
+    $.ajax({
+      type: 'POST',
+      url: ajax_url + task_class + '/' + template_data_id + '/0/clearAdjacentLines/',
+      success: disable_ajax_indicator,
+      error: editor_ajax_error
+    });
   })(jQuery);
 }
 
@@ -399,7 +429,13 @@ function grow_canvas() {
   (function($) {
     $('#maestro_workflow_container').height($('#maestro_workflow_container').height() + 100);
     enable_ajax_indicator();
-    $.post(ajax_url + 'MaestroTaskInterfaceStart/0/' + template_id + '/setCanvasHeight/', { height: $('#maestro_workflow_container').height() }, disable_ajax_indicator);
+    $.ajax({
+      type: 'POST',
+      url: ajax_url + 'MaestroTaskInterfaceStart/0/' + template_id + '/setCanvasHeight/',
+      data: { height: $('#maestro_workflow_container').height() },
+      success: disable_ajax_indicator,
+      error: editor_ajax_error
+    });
   })(jQuery);
 }
 
@@ -407,19 +443,39 @@ function shrink_canvas() {
   (function($) {
     $('#maestro_workflow_container').height($('#maestro_workflow_container').height() - 100);
     enable_ajax_indicator();
-    $.post(ajax_url + 'MaestroTaskInterfaceStart/0/' + template_id + '/setCanvasHeight/', { height: $('#maestro_workflow_container').height() }, disable_ajax_indicator);
+    $.ajax({
+      type: 'POST',
+      url: ajax_url + 'MaestroTaskInterfaceStart/0/' + template_id + '/setCanvasHeight/',
+      data: { height: $('#maestro_workflow_container').height() },
+      success: disable_ajax_indicator,
+      error: editor_ajax_error
+    });
   })(jQuery);
 }
 
 function switch_task_edit_section(id) {
+  var el;
+
   document.getElementById('task_edit_main').style.display = 'none';
   document.getElementById('task_edit_tab_main').className = 'unactive';
-  document.getElementById('task_edit_optional').style.display = 'none';
-  document.getElementById('task_edit_tab_optional').className = 'unactive';
-  document.getElementById('task_edit_assignment').style.display = 'none';
-  document.getElementById('task_edit_tab_assignment').className = 'unactive';
-  document.getElementById('task_edit_notification').style.display = 'none';
-  document.getElementById('task_edit_tab_notification').className = 'unactive';
+
+  el = document.getElementById('task_edit_optional');
+  if (el != null) {
+    el.style.display = 'none';
+    document.getElementById('task_edit_tab_optional').className = 'unactive';
+  }
+
+  el = document.getElementById('task_edit_assignment');
+  if (el != null) {
+    el.style.display = 'none';
+    document.getElementById('task_edit_tab_assignment').className = 'unactive';
+  }
+
+  el = document.getElementById('task_edit_notification');
+  if (el != null) {
+    el.style.display = 'none';
+    document.getElementById('task_edit_tab_notification').className = 'unactive';
+  }
 
   document.getElementById('task_edit_' + id).style.display = '';
   document.getElementById('task_edit_tab_' + id).className = 'active';
@@ -472,12 +528,19 @@ function add_option(sel, text, value) {
 }
 
 function select_all_options(sel) {
-  var len = sel.length;
-  var i;
+  if (sel != null) {
+    var len = sel.length;
+    var i;
 
-  for (i = len - 1; i >= 0; i--) {
-    sel.options[i].selected = true;
+    for (i = len - 1; i >= 0; i--) {
+      sel.options[i].selected = true;
+    }
   }
+}
+
+function editor_ajax_error() {
+  disable_ajax_indicator();
+  set_tool_tip('An AJAX error has occurred. The operation has failed.');
 }
 
 //general helper functions

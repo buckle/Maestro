@@ -402,7 +402,6 @@ class MaestroTaskTypeInteractivefunction extends MaestroTask {
       $ret = $taskdata['handler']($taskop,$this,$taskdata['optional_parm']);
     }
     return $ret;
-
   }
 
 }
@@ -418,38 +417,40 @@ class MaestroTaskTypeSetProcessVariable extends MaestroTask {
     watchdog('maestro',$msg);
 
     $query = db_select('maestro_template_data', 'a');
-    $query->fields('a',array('form_id','field_id','var_value','inc_value','var_to_set'));
+    $query->fields('a',array('form_id','field_id','task_data'));
     $query->condition('a.id', $this->_properties->template_data_id,'=');
     $taskDefinitionRec = $query->execute()->fetchObject();
-    if ($taskDefinitionRec AND $taskDefinitionRec->var_to_set > 0) {   // Needs to be valid variable to set
-      if ($taskDefinitionRec->var_value != '') {  // Set by input
-        $count = db_update('maestro_process_variables')
-        ->fields(array('variable_value' => intval($taskDefinitionRec->var_value)) )
-        ->condition('process_id', $this->_properties->process_id, '=')
-        ->condition('template_variable_id',$taskDefinitionRec->var_to_set,'=')
-        ->execute();
-        if ($count == 1)  $this->executionStatus = TRUE;
+    if ($taskDefinitionRec) {   // Needs to be valid variable to set
+      $taskDefinitionRec->task_data = unserialize($taskDefinitionRec->task_data);
+      if ($taskDefinitionRec->task_data['var_to_set'] > 0) {
+        if ($taskDefinitionRec->task_data['var_value'] != '') {  // Set by input
+          $count = db_update('maestro_process_variables')
+          ->fields(array('variable_value' => intval($taskDefinitionRec->task_data['var_value'])) )
+          ->condition('process_id', $this->_properties->process_id, '=')
+          ->condition('template_variable_id',$taskDefinitionRec->task_data['var_to_set'],'=')
+          ->execute();
+          if ($count == 1)  $this->executionStatus = TRUE;
+        }
+        else if ($taskDefinitionRec->task_data['form_id'] > 0 && $taskDefinitionRec->task_data['field_id'] > 0) {  //set by form result
+          // Have to find the form result, first need to get the project id
+          // @TODO: Need to complete logic to set process variable from a web form field id
+          watchdog('maestro',"Incomplete Code - MaestroTaskTypeSetProcessVariable via form field not complete");
+        }
+        else if ($taskDefinitionRec->task_data['inc_value'] != 0) {  // Set by increment
+          $query = db_select('maestro_process_variables', 'a');
+          $query->addField('a','variable_value');
+          $query->condition('a.process_id', $this->_properties->process_id,'=');
+          $query->condition('a.template_variable_id', $taskDefinitionRec->task_data['var_to_set'],'=');
+          $curvalue = intval($query->execute()->fetchField());
+          $setvalue = $curvalue + intval($taskDefinitionRec->task_data['inc_value']);
+          $count = db_update('maestro_process_variables')
+          ->fields(array('variable_value' => $setvalue))
+          ->condition('process_id', $this->_properties->process_id, '=')
+          ->condition('template_variable_id',$taskDefinitionRec->task_data['var_to_set'],'=')
+          ->execute();
+          if ($count == 1)  $this->executionStatus = TRUE;
+        }
       }
-      else if ($taskDefinitionRec->form_id > 0 && $taskDefinitionRec->field_id > 0) {  //set by form result
-        // Have to find the form result, first need to get the project id
-        /* @TODO: Need to complete logic to set process variable from a web form field id */
-        watchdog('maestro',"Incomplete Code - MaestroTaskTypeSetProcessVariable via form field not complete");
-      }
-      else if ($taskDefinitionRec->inc_value != 0) {  // Set by increment
-        $query = db_select('maestro_process_variables', 'a');
-        $query->addField('a','variable_value');
-        $query->condition('a.process_id', $this->_properties->process_id,'=');
-        $query->condition('a.template_variable_id', $taskDefinitionRec->var_to_set,'=');
-        $curvalue = intval($query->execute()->fetchField());
-        $setvalue = $curvalue + intval($taskDefinitionRec->var_value);
-        $count = db_update('maestro_process_variables')
-        ->fields(array('variable_value' => $setvalue))
-        ->condition('process_id', $this->_properties->process_id, '=')
-        ->condition('template_variable_id',$taskDefinitionRec->var_to_set,'=')
-        ->execute();
-        if ($count == 1)  $this->executionStatus = TRUE;
-      }
-
     }
     return $this;
   }

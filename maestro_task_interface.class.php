@@ -13,10 +13,12 @@ abstract class MaestroTaskInterface {
   protected $_is_interactive;
   protected $_task_data;  //used when fetching task information
   protected $_task_assignment_data;  //used when fetching task process information
+  protected $_task_edit_tabs;
 
   function __construct($task_id=0, $template_id=0) {
     $this->_task_id = $task_id;
-    $this->_task_type = '';
+    $this->_task_data = NULL;
+    $this->_task_process_data = NULL;
 
     if ($template_id == 0 && $task_id > 0) {
       $res = db_select('maestro_template_data', 'a');
@@ -28,11 +30,16 @@ abstract class MaestroTaskInterface {
     else {
       $this->_template_id = $template_id;
     }
-    $this->_task_data = NULL;
-    $this->_task_process_data = NULL;
+
+    if ($this->_is_interactive == 1) {
+      $this->_task_edit_tabs = array('assignment' => 1, 'notification' => 1);
+    }
+    else {
+      $this->_task_edit_tabs = array();
+    }
   }
 
-  protected function _fetch_task_information() {
+  protected function _fetchTaskInformation() {
     $res = db_select('maestro_template_data', 'a');
     $res->fields('a', array('taskname', 'task_data'));
     $res->condition('a.id', $this->_task_id, '=');
@@ -94,7 +101,14 @@ abstract class MaestroTaskInterface {
       $retval .= t("Continue with delete?");
       $retval .= '&nbsp;&nbsp;&nbsp;';
       $retval .= "<input type=\"button\" value=\"" . t('Yes') . "\" onclick=\"set_tool_tip(''); ";
-      $retval .= "enable_ajax_indicator(); (function($) {\$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/destroy/', {confirm_delete: 1}, delete_task, 'json'); })(jQuery);\">";
+      $retval .= "enable_ajax_indicator(); (function($) {\$.ajax({
+        type: 'POST',
+        url: ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/destroy/',
+        data: {confirm_delete: 1},
+        dataType: 'json',
+        success: delete_task,
+        error: editor_ajax_error
+      }); })(jQuery);\">";
       $retval .= "<input type=\"button\" value=\"" . t('No') . "\" onclick=\"set_tool_tip('');\">";
       $success = 0;
     }
@@ -185,11 +199,23 @@ abstract class MaestroTaskInterface {
       ),
       'edit_task' => array(
         'label' => t('Edit Task'),
-        'js' => "enable_ajax_indicator(); \$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/edit/', display_task_panel, 'json');"
+        'js' => "enable_ajax_indicator(); \$.ajax({
+          type: 'POST',
+          url: ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/edit/',
+          dataType: 'json',
+          success: display_task_panel,
+          error: editor_ajax_error
+        });"
       ),
       'delete_task' => array(
         'label' => t('Delete Task'),
-        'js' => "enable_ajax_indicator(); \$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/destroy/', delete_task, 'json');\n"
+        'js' => "enable_ajax_indicator(); \$.ajax({
+          type: 'POST',
+          url: ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/destroy/',
+          success: delete_task,
+          dataType: 'json',
+          error: editor_ajax_error
+        });\n"
       )
     );
 
@@ -274,7 +300,7 @@ abstract class MaestroTaskInterface {
       $pv_options[$rec->id] = array('label' => $rec->variable_name, 'selected' => (in_array($rec->id, $selected_pvs) ? 1:0));
     }
 
-    return array('html' => theme('maestro_workflow_edit_tasks_frame', array('tdid' => $this->_task_id, 'tid' => $this->_template_id, 'form_content' => $this->get_edit_form_content(), 'maestro_url' => $maestro_url, 'pv_options' => $pv_options, 'uid_options' => $uid_options, 'task_class' => $task_class)));
+    return array('html' => theme('maestro_workflow_edit_tasks_frame', array('tdid' => $this->_task_id, 'tid' => $this->_template_id, 'form_content' => $this->getEditFormContent(), 'maestro_url' => $maestro_url, 'pv_options' => $pv_options, 'uid_options' => $uid_options, 'task_class' => $task_class, 'task_edit_tabs' => $this->_task_edit_tabs)));
   }
 
   function save() {
@@ -302,14 +328,15 @@ abstract class MaestroTaskInterface {
   }
 
   abstract function display();
-  abstract function get_edit_form_content();
+  abstract function getEditFormContent();
 }
 
 class MaestroTaskInterfaceStart extends MaestroTaskInterface {
   function __construct($task_id=0, $template_id=0) {
-    parent::__construct($task_id, $template_id);
     $this->_task_type = 'Start';
     $this->_is_interactive = 0;
+
+    parent::__construct($task_id, $template_id);
   }
 
   function create() {
@@ -328,7 +355,7 @@ class MaestroTaskInterfaceStart extends MaestroTaskInterface {
     return theme('maestro_task_start', array('tdid' => $this->_task_id));
   }
 
-  function get_edit_form_content() {
+  function getEditFormContent() {
   }
 
   function save() {
@@ -353,9 +380,10 @@ class MaestroTaskInterfaceStart extends MaestroTaskInterface {
 
 class MaestroTaskInterfaceEnd extends MaestroTaskInterface {
   function __construct($task_id=0, $template_id=0) {
-    parent::__construct($task_id, $template_id);
     $this->_task_type = 'End';
     $this->_is_interactive = 0;
+
+    parent::__construct($task_id, $template_id);
   }
 
   function create() {
@@ -373,7 +401,7 @@ class MaestroTaskInterfaceEnd extends MaestroTaskInterface {
     return theme('maestro_task_end', array('tdid' => $this->_task_id));
   }
 
-  function get_edit_form_content() {
+  function getEditFormContent() {
   }
 
   function save() {
@@ -393,16 +421,17 @@ class MaestroTaskInterfaceEnd extends MaestroTaskInterface {
 
 class MaestroTaskInterfaceIf extends MaestroTaskInterface {
   function __construct($task_id=0, $template_id=0) {
-    parent::__construct($task_id, $template_id);
     $this->_task_type = 'If';
     $this->_is_interactive = 0;
+
+    parent::__construct($task_id, $template_id);
   }
 
   function display() {
     return theme('maestro_task_if', array('tdid' => $this->_task_id));
   }
 
-  function get_edit_form_content() {
+  function getEditFormContent() {
     $this->_fetch_task_information();
 
     $res = db_query("SELECT id, variable_name, variable_value FROM {maestro_template_variables} WHERE template_id=:tid", array('tid' => $this->_template_id));
@@ -446,11 +475,23 @@ class MaestroTaskInterfaceIf extends MaestroTaskInterface {
       ),
       'edit_task' => array(
         'label' => t('Edit Task'),
-        'js' => "enable_ajax_indicator(); \$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/edit/', display_task_panel, 'json');"
+        'js' => "enable_ajax_indicator(); \$.ajax({
+          type: 'POST',
+          url: ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/edit/',
+          dataType: 'json',
+          success: display_task_panel,
+          error: editor_ajax_error
+        });"
       ),
       'delete_task' => array(
         'label' => t('Delete Task'),
-        'js' => "enable_ajax_indicator(); \$.post(ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/destroy/', delete_task, 'json');\n"
+        'js' => "enable_ajax_indicator(); \$.ajax({
+          type: 'POST',
+          url: ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/destroy/',
+          dataType: 'json',
+          success: delete_task,
+          error: editor_ajax_error
+        });\n"
       )
     );
 
@@ -460,17 +501,18 @@ class MaestroTaskInterfaceIf extends MaestroTaskInterface {
 
 class MaestroTaskInterfaceBatch extends MaestroTaskInterface {
   function __construct($task_id=0, $template_id=0) {
-    parent::__construct($task_id, $template_id);
     $this->_task_type = 'Batch';
     $this->_is_interactive = 0;
+
+    parent::__construct($task_id, $template_id);
   }
 
   function display() {
     return theme('maestro_task_batch', array('tdid' => $this->_task_id));
   }
 
-  function get_edit_form_content() {
-    $this->_fetch_task_information();
+  function getEditFormContent() {
+    $this->_fetchTaskInformation();
     $this->_task_data->task_data['handler_location'] = variable_get('maestro_batch_script_location', drupal_get_path('module','maestro') . "/batch/");
     return theme('maestro_task_batch_edit', array('tdid' => $this->_task_id, 'td_rec' => $this->_task_data, 'ta_rec' => $this->_task_assignment_data));
   }
@@ -486,17 +528,18 @@ class MaestroTaskInterfaceBatch extends MaestroTaskInterface {
 
 class MaestroTaskInterfaceBatchFunction extends MaestroTaskInterface {
   function __construct($task_id=0, $template_id=0) {
-    parent::__construct($task_id, $template_id);
     $this->_task_type = 'BatchFunction';
     $this->_is_interactive = 0;
+
+    parent::__construct($task_id, $template_id);
   }
 
   function display() {
     return theme('maestro_task_batch_function', array('tdid' => $this->_task_id));
   }
 
-  function get_edit_form_content() {
-    $this->_fetch_task_information();
+  function getEditFormContent() {
+    $this->_fetchTaskInformation();
     $batch_function = drupal_get_path('module','maestro') . "/batch/batch_functions.php";
     $this->_task_data->task_data['handler_location'] = $batch_function;
     return theme('maestro_task_batch_function_edit', array('tdid' => $this->_task_id, 'td_rec' => $this->_task_data, 'ta_rec' => $this->_task_assignment_data));
@@ -513,17 +556,18 @@ class MaestroTaskInterfaceBatchFunction extends MaestroTaskInterface {
 
 class MaestroTaskInterfaceInteractiveFunction extends MaestroTaskInterface {
   function __construct($task_id=0, $template_id=0) {
-    parent::__construct($task_id, $template_id);
-    $this->_task_type = 'InteractiveFunction';
     $this->_is_interactive = 1;
+    $this->_task_type = 'InteractiveFunction';
+
+    parent::__construct($task_id, $template_id);
   }
 
   function display() {
     return theme('maestro_task_interactive_function', array('tdid' => $this->_task_id));
   }
 
-  function get_edit_form_content() {
-    $this->_fetch_task_information();
+  function getEditFormContent() {
+    $this->_fetchTaskInformation();
     if (@($this->_task_data->optional_parm) == NULL) {
       $this->_task_data->optional_parm = '';
     }
@@ -543,19 +587,39 @@ class MaestroTaskInterfaceInteractiveFunction extends MaestroTaskInterface {
 
 class MaestroTaskInterfaceSetProcessVariable extends MaestroTaskInterface {
   function __construct($task_id=0, $template_id=0) {
-    parent::__construct($task_id, $template_id);
     $this->_task_type = 'SetProcessVariable';
     $this->_is_interactive = 0;
+
+    parent::__construct($task_id, $template_id);
   }
 
   function display() {
     return theme('maestro_task_set_process_variable', array('tdid' => $this->_task_id));
   }
 
-  function get_edit_form_content() {
+  function getEditFormContent() {
+    $this->_fetchTaskInformation();
+    if (@($this->_task_data->optional_parm) == NULL) {
+      $this->_task_data->var_to_set = 0;
+      $this->_task_data->inc_value = 0;
+      $this->_task_data->var_value = 0;
+    }
+
+    $res = db_query("SELECT id, variable_name FROM {maestro_template_variables} WHERE template_id=:tid", array('tid' => $this->_template_id));
+    foreach ($res as $rec) {
+      $pvars[$rec->id] = $rec->variable_name;
+    }
+
+    return theme('maestro_task_set_process_variable_edit', array('tdid' => $this->_task_id, 'td_rec' => $this->_task_data, 'ta_rec' => $this->_task_assignment_data, 'pvars' => $pvars));
   }
 
   function save() {
+    parent::save();
+    $rec = new stdClass();
+    $rec->id = $_POST['template_data_id'];
+    $rec->taskname = $_POST['taskname'];
+    $rec->task_data = serialize(array('var_to_set' => $_POST['var_to_set'], 'inc_value' => $_POST['inc_value'], 'var_value' => $_POST['var_value'], 'form_id' => 0, 'field_id' => 0));
+    drupal_write_record('maestro_template_data', $rec, array('id'));
   }
 }
 
