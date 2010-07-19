@@ -403,9 +403,30 @@ class MaestroTaskInterfaceIf extends MaestroTaskInterface {
   }
 
   function get_edit_form_content() {
+    $this->_fetch_task_information();
+
+    $res = db_query("SELECT id, variable_name, variable_value FROM {maestro_template_variables} WHERE template_id=:tid", array('tid' => $this->_template_id));
+    $argument_variables = "<option></option>";
+    foreach ($res as $rec) {
+      $selected = '';
+      if($this->_task_data->task_data['if_argument_variable'] == $rec->id) $selected = " selected ";
+      $argument_variables .= "<option value='{$rec->id}' {$selected}>{$rec->variable_name}</option>";
+    }
+
+    return theme('maestro_task_if_edit', array('tdid' => $this->_task_id, 'td_rec' => $this->_task_data, 'ta_rec' => $this->_task_assignment_data, 'argument_variables' => $argument_variables));
   }
 
   function save() {
+    $rec = new stdClass();
+    $rec->id = $_POST['template_data_id'];
+    $rec->taskname = $_POST['taskname'];
+    $rec->task_data = serialize(array(
+                                    'if_operator' => $_POST['ifOperator'],
+                                    'if_value' => $_POST['ifValue'],
+                                    'if_process_arguments' => $_POST['ifProcessArguments'],
+                                    'if_argument_variable' => $_POST['argumentVariable']
+    ));
+    drupal_write_record('maestro_template_data', $rec, array('id'));
   }
 
   function getContextMenu() {
