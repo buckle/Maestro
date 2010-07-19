@@ -474,17 +474,17 @@ function maestro_handle_taskconsole_ajax_request($action) {
       break;
 
     case 'interactivetask_post':
-      $queueid = intval($_POST['queueid']);
+      $queue_id = intval($_POST['queueid']);
       $taskop = CHECK_PLAIN($_POST['op']);
-      if ($queueid > 0) {
+      if ($queue_id > 0) {
         $tasktype = db_query("SELECT task_class_name FROM {maestro_queue} WHERE id = :tid",
-          array(':tid' => $queueid))->fetchField();
-        // Instantiate new task class object -- not using the engine, but __contructor for class is not firing
-        $task = new $tasktype;
-        /* Just for debugging - this is the format used in the template_preprocess_maestro_taskconsole() to process the users task queue
-         * $maestro->engine()->showInteractiveTask(new $task->tasktype($task),$task->queue_id);
-         */
-        $ret = $task->processInteractiveTask($queueid,$taskop);
+          array(':tid' => $queue_id))->fetchField();
+
+        $data = new stdClass();
+        // Need to pass in data object when instantiating task class and queueid needs to be set in class _properties.
+        $data->queue_id = $queue_id;
+        $task = new $tasktype($data);
+        $ret = $task->processInteractiveTask($queue_id,$taskop);
         if ($ret->retcode === TRUE) {
           if ($ret->engineop == 'completetask') {
             $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
@@ -496,6 +496,8 @@ function maestro_handle_taskconsole_ajax_request($action) {
         } else{
             $retdata = array('status' => FALSE, 'hidetask' => FALSE);
         }
+      } else {
+        $retdata = array('status' => FALSE, 'hidetask' => FALSE);
       }
       echo json_encode($retdata);
       break;

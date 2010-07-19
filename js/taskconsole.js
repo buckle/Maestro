@@ -20,7 +20,7 @@ jQuery(function($) {
     var idparts = id.split('maestro_actionrec');
     var taskid = idparts[1];
     var op = jQuery(this).attr('maestro');
-    dataString = jQuery("#" + id).serialize();
+    dataString = jQuery(this).closest('form').serialize();
     dataString += "&queueid=" + taskid;
     dataString += "&op=" + op;
     jQuery.ajax( {

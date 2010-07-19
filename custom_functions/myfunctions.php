@@ -51,7 +51,7 @@ function maestro_basicformtest($op,&$task,$optionaldata) {
       $retval->html = '<div style="margin:5px;padding:10px;border:1px solid #CCC;">';
       $retval->html .= '<form style="margin:0px;">';
       $retval->html .= '<div style="float:left;width:75%;">';
-      $retval->html .= '<div>This is a basic form test which would some message here</div>';
+      $retval->html .= '<div>This is a basic form test which would display some message here</div>';
       $retval->html .= '<p><label>What is your name: </label><input type="text" name="name" value="'.$data['name'] .'"></p>';
       $retval->html .= '<p><label>What is your company name: </label><input type="text" name="company" value="'.$data['company'] .'"></p>';
       $retval->html .= '</div>';

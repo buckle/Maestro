@@ -42,6 +42,24 @@ abstract class MaestroTask {
     return $this->_archiveStatus;
   }
 
+  function saveTempData($data) {
+    if ($this->_properties->queue_id > 0) {
+      db_update('maestro_queue')
+        ->fields(array('temp_data' => serialize($data)))
+        ->condition('id', $this->_properties->queue_id, '=')
+        ->execute();
+    }
+  }
+
+  function getTempData() {
+    if ($this->_properties->queue_id > 0) {
+        $data = db_query("SELECT temp_data FROM {maestro_queue} WHERE id = :tid",
+          array(':tid' => $this->_properties->queue_id))->fetchField();
+        $retval = unserialize($data);
+        return $retval;
+    }
+  }
+
 }
 
 
@@ -359,7 +377,7 @@ class MaestroTaskTypeInteractivefunction extends MaestroTask {
     array(':id' => $this->_properties->queue_id))->fetchField();
     $taskdata = @unserialize($serializedData);
     if (function_exists($taskdata['handler'])) {
-      $ret = $taskdata['handler']('display',$this->_properties,$taskdata['optional_parm']);
+      $ret = $taskdata['handler']('display',$this,$taskdata['optional_parm']);
       if ($ret->retcode === TRUE) {
         $retval = $ret->html;
       }
@@ -381,7 +399,7 @@ class MaestroTaskTypeInteractivefunction extends MaestroTask {
     array(':id' => $taskid))->fetchField();
     $taskdata = @unserialize($serializedData);
     if (function_exists($taskdata['handler'])) {
-      $ret = $taskdata['handler']($taskop,$this->_properties,$taskdata['optional_parm']);
+      $ret = $taskdata['handler']($taskop,$this,$taskdata['optional_parm']);
     }
     return $ret;
 
