@@ -6,7 +6,7 @@
  * myfunctions.php
  */
 
-function maestro_showmessage($op,$properties,$msg) {
+function maestro_showmessage($op,&$task,$msg) {
   global $base_url;
 
   $retval = new stdClass();
@@ -37,7 +37,7 @@ function maestro_showmessage($op,$properties,$msg) {
 }
 
 
-function maestro_basicformtest($op,$properties,$msg) {
+function maestro_basicformtest($op,&$task,$optionaldata) {
   global $base_url;
 
   $retval = new stdClass();
@@ -47,12 +47,13 @@ function maestro_basicformtest($op,$properties,$msg) {
 
   switch ($op) {
     case 'display':
+      $data = $task->getTempData();
       $retval->html = '<div style="margin:5px;padding:10px;border:1px solid #CCC;">';
       $retval->html .= '<form style="margin:0px;">';
       $retval->html .= '<div style="float:left;width:75%;">';
       $retval->html .= '<div>This is a basic form test which would some message here</div>';
-      $retval->html .= '<p><label>What is your name: </label><input type="text" name="name" value=""></p>';
-      $retval->html .= '<p><label>What is your company name: </label><input type="text" name="company" value=""></p>';
+      $retval->html .= '<p><label>What is your name: </label><input type="text" name="name" value="'.$data['name'] .'"></p>';
+      $retval->html .= '<p><label>What is your company name: </label><input type="text" name="company" value="'.$data['company'] .'"></p>';
       $retval->html .= '</div>';
       $retval->html .= '<div style="float:right;width:25%;white-space:nowrap">';
       $retval->html .= '<span style="float:right;"><input maestro="complete" type="button" value="Complete Task"></span>';
@@ -69,8 +70,10 @@ function maestro_basicformtest($op,$properties,$msg) {
       $retval->engineop = 'completetask';
       break;
     case 'save':
+      $data['name'] = $_POST['name'];
+      $data['company'] = $_POST['company'];
+      $task->saveTempData($data);
       $retval->retcode = TRUE;
-      drupal_set_message('Save Task Data Method');
       break;
   }
 
