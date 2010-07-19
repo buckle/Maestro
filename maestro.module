@@ -165,7 +165,7 @@ function maestro_theme() {
     ),
     'maestro_workflow_edit_tasks_frame' => array(
       'template' => 'theme/structure/maestro-workflow-edit-tasks-frame',
-      'variables' => array('tdid' => NULL, 'tid' => NULL, 'form_content' => NULL, 'maestro_url' => NULL, 'pv_options' => NULL, 'uid_options' => NULL, 'task_class' => NULL)
+      'variables' => array('tdid' => NULL, 'tid' => NULL, 'form_content' => NULL, 'maestro_url' => NULL, 'pv_options' => NULL, 'uid_options' => NULL, 'task_class' => NULL, 'task_edit_tabs' => NULL)
     ),
     'maestro_task_start' => array(
       'template' => 'theme/structure/tasks/maestro-task-start',
@@ -193,11 +193,15 @@ function maestro_theme() {
     ),
     'maestro_task_interactive_function' => array(
       'template' => 'theme/structure/tasks/maestro-task-interactive-function',
-      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL)
+      'variables' => array('tdid' => NULL)
     ),
     'maestro_task_interactive_function_edit' => array(
       'template' => 'theme/structure/tasks/maestro-task-interactive-function-edit',
-      'variables' => array('form' => NULL)
+      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL)
+    ),
+    'maestro_task_set_process_variable_edit' => array(
+      'template' => 'theme/structure/tasks/maestro-task-set-process-variable-edit',
+      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL, 'pvars' => NULL)
     ),
     'maestro_task_batch_edit' => array(
       'template' => 'theme/structure/tasks/maestro-task-batch-edit',
