@@ -636,4 +636,29 @@ class MaestroTaskInterfaceSetProcessVariable extends MaestroTaskInterface {
   }
 }
 
+class MaestroTaskInterfaceAnd extends MaestroTaskInterface {
+  function __construct($task_id=0, $template_id=0) {
+    $this->_task_type = 'And';
+    $this->_is_interactive = 0;
+
+    parent::__construct($task_id, $template_id);
+  }
+
+  function display() {
+    return theme('maestro_task_and', array('tdid' => $this->_task_id));
+  }
+
+  function getEditFormContent() {
+    $this->_fetchTaskInformation();
+    return theme('maestro_task_and_edit', array('tdid' => $this->_task_id, 'td_rec' => $this->_task_data, 'ta_rec' => $this->_task_assignment_data));
+  }
+
+  function save() {
+    $rec = new stdClass();
+    $rec->id = $_POST['template_data_id'];
+    $rec->taskname = $_POST['taskname'];
+    drupal_write_record('maestro_template_data', $rec, array('id'));
+  }
+}
+
 ?>
