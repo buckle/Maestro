@@ -432,7 +432,7 @@ class MaestroTaskInterfaceIf extends MaestroTaskInterface {
   }
 
   function getEditFormContent() {
-    $this->_fetch_task_information();
+    $this->_fetchTaskInformation();
 
     $res = db_query("SELECT id, variable_name, variable_value FROM {maestro_template_variables} WHERE template_id=:tid", array('tid' => $this->_template_id));
     $argument_variables = "<option></option>";
