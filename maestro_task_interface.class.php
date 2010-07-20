@@ -449,12 +449,25 @@ class MaestroTaskInterfaceIf extends MaestroTaskInterface {
     $rec = new stdClass();
     $rec->id = $_POST['template_data_id'];
     $rec->taskname = $_POST['taskname'];
-    $rec->task_data = serialize(array(
-                                    'if_operator' => $_POST['ifOperator'],
-                                    'if_value' => $_POST['ifValue'],
+
+    if(check_plain($_POST['ifTaskArguments']) == 'status'){
+      $rec->task_data = serialize(array(
+                                    'if_operator' => '',
+                                    'if_value' => '',
                                     'if_process_arguments' => $_POST['ifProcessArguments'],
-                                    'if_argument_variable' => $_POST['argumentVariable']
-    ));
+                                    'if_argument_variable' => '',
+                                    'if_task_arguments' => $_POST['ifTaskArguments']
+      ));
+    }
+    else {
+      $rec->task_data = serialize(array(
+                                    'if_operator' => $_POST['ifOperator'],
+                                    'if_value' => check_plain($_POST['ifValue']),
+                                    'if_process_arguments' => '',
+                                    'if_argument_variable' => $_POST['argumentVariable'],
+                                    'if_task_arguments' => $_POST['ifTaskArguments']
+      ));
+    }
     drupal_write_record('maestro_template_data', $rec, array('id'));
   }
 
