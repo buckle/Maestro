@@ -112,7 +112,8 @@ class MaestroTaskTypeBatch extends MaestroTask {
     //Assumption made here that the $success variable is set by the batch task.
     if ($success) {
       $this->executionStatus = TRUE;
-    }else{
+    }
+    else {
       $this->executionStatus = FALSE;
     }
 
@@ -126,9 +127,6 @@ class MaestroTaskTypeBatch extends MaestroTask {
     $taskdata = @unserialize($serializedData);
     return array('handler' => $taskdata['handler'],'serialized_data' => $serializedData);
   }
-
-
-
 }
 
 class MaestroTaskTypeBatchFunction extends MaestroTask {
@@ -146,7 +144,8 @@ class MaestroTaskTypeBatchFunction extends MaestroTask {
     //Assumption made here that the $success variable is set by the batch task.
     if ($success) {
       $this->executionStatus = TRUE;
-    }else{
+    }
+    else {
       $this->executionStatus = FALSE;
     }
 
@@ -457,4 +456,32 @@ class MaestroTaskTypeSetProcessVariable extends MaestroTask {
 
   function prepareTask() {}
 
+}
+
+
+class MaestroTaskTypeManualWeb extends MaestroTask {
+
+  function execute() {
+    $msg = 'Execute Task Type: "Manual Web" - properties: ' . print_r($this->_properties, true);
+    watchdog('maestro',$msg);
+    $success = FALSE;
+
+    //Assumption made here that the $success variable is set by the batch task.
+    if ($success) {
+      $this->executionStatus = TRUE;
+    }
+    else {
+      $this->executionStatus = FALSE;
+    }
+
+    $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
+    return $this;
+  }
+
+  function prepareTask() {
+    $serializedData = db_query("SELECT task_data FROM {maestro_template_data} WHERE id = :tid",
+      array(':tid' => $this->_properties->taskid))->fetchField();
+    $taskdata = @unserialize($serializedData);
+    return array('handler' => $taskdata['handler'],'serialized_data' => $serializedData);
+  }
 }

@@ -223,6 +223,14 @@ function maestro_theme() {
       'template' => 'theme/structure/tasks/maestro-task-and-edit',
       'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL)
     ),
+    'maestro_task_manual_web' => array(
+      'template' => 'theme/structure/tasks/maestro-task-manual-web',
+      'variables' => array('tdid' => NULL)
+    ),
+    'maestro_task_manual_web_edit' => array(
+      'template' => 'theme/structure/tasks/maestro-task-manual-web-edit',
+      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL)
+    ),
   );
 }
 
@@ -287,7 +295,19 @@ function template_preprocess_maestro_taskconsole(&$variables) {
       $formatted_task->hidetaskinfo = 'none';
       $formatted_task->onholdnotice = '';
       $formatted_task->task_onclick = 'onclick="alert(\'Task Type:  ' . $task->tasktype . '\');"';
-      $formatted_task->task_action_url = '#';
+      if($task->url != '') {
+        //we now format the queueID to tack on the end of the url
+        if(strpos($task->url,"?")){
+          $task->url .= "&queueid=" . $task->queue_id;
+        }
+        else {
+          $task->url .= "?queueid=" . $task->queue_id;
+        }
+        $formatted_task->task_action_url = $task->url;
+      }
+      else {
+        $formatted_task->task_action_url = '#';
+      }
       if ($task->dates['started'] > 0) {
         $formatted_task->task_started = ', Started: ' . format_date($task->dates['started'],'short');
         $formatted_task->task_icon = $maestro_path . '/images/taskconsole/task.gif';
@@ -478,9 +498,7 @@ function maestro_maestro_context_menu() {
 }
 
 
-
 function maestro_handle_taskconsole_ajax_request($action) {
-
   switch ($action) {
     case 'starttask':
       $startedDate = db_query("SELECT started_date FROM {maestro_queue} WHERE id = :tid",
@@ -523,6 +541,4 @@ function maestro_handle_taskconsole_ajax_request($action) {
       break;
 
   }
-
-
 }
