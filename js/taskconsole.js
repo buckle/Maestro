@@ -26,7 +26,7 @@ jQuery(function($) {
  */
 jQuery(function($) {
   $('.maestro_taskconsole_interactivetaskcontent input[type=button]').click(function() {
-    var id = jQuery(this).closest('tr').attr('id');
+    var id = jQuery(this).parents('tr').filter(".maestro_taskconsole_interactivetaskcontent").attr('id');
     var idparts = id.split('maestro_actionrec');
     var taskid = idparts[1];
     var op = jQuery(this).attr('maestro');
