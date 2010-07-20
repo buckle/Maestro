@@ -10,7 +10,7 @@
 <table>
   <tr>
     <td style="width:120px;"><?php print t('Task Name:'); ?></td>
-    <td><input type="text" name="taskname" value="<?php print $td_rec->taskname; ?>"></td>
+    <td><input type="text" name="taskname" value="<?php print filter_xss($td_rec->taskname); ?>"></td>
   </tr>
   <tr>
     <td colspan="2" style="text-align:center;">
@@ -34,7 +34,7 @@
         <option value="<" <?php if($td_rec->task_data['if_operator'] == '<') print 'selected'; ?>>&lt;</option>
         <option value="!=" <?php if($td_rec->task_data['if_operator'] == '!=') print 'selected'; ?>>!=</option>
       </select>
-      <input type="text" name="ifValue" id="ifValue" value="<?php print $td_rec->task_data['if_value']; ?>" size="3" <?php if($td_rec->task_data['if_task_arguments'] != 'variable') print 'disabled="true"'; ?>></input>
+      <input type="text" name="ifValue" id="ifValue" value="<?php print filter_xss($td_rec->task_data['if_value']); ?>" size="3" <?php if($td_rec->task_data['if_task_arguments'] != 'variable') print 'disabled="true"'; ?>></input>
     </td>
   </tr>
     <td>
