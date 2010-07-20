@@ -43,7 +43,7 @@ function maestro_basicformtest($op,&$task,$optionaldata) {
   $retval = new stdClass();
   $retval->html = '';
   $retval->retcode = FALSE;
-  $retval->engineop = '';
+  $retval->engineop = '';  // Optionally set the engineop value if you want to complete the task
 
   switch ($op) {
     case 'display':

@@ -492,7 +492,7 @@ function maestro_handle_taskconsole_ajax_request($action) {
         if ($ret->retcode === TRUE) {
           if ($ret->engineop == 'completetask') {
             $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
-            $maestro->engine()->completeTask($queueid);
+            $maestro->engine()->completeTask($queue_id);
             $retdata = array('status' => TRUE, 'hidetask' => TRUE);
           } else {
             $retdata = array('status' => TRUE, 'hidetask' => FALSE);
