@@ -17,8 +17,4 @@
     <td><?php print t('Handler:'); ?></td>
     <td><input type="text" name="handler" value="<?php print $td_rec->task_data['handler']; ?>"></td>
   </tr>
-  <tr>
-    <td><?php print t('Optional Parameter:'); ?></td>
-    <td><input type="text" name="optional_parm" value="<?php print $td_rec->task_data['optional_parm']; ?>"></td>
-  </tr>
 </table>

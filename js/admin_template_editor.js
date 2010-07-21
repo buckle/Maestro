@@ -37,6 +37,7 @@ function initialize_drag_drop() {
       $.ajax({
         type: 'POST',
         url: ajax_url + task_class + '/' + task_id + '/0/move/',
+        cache: false,
         data: {offset_left: this.offsetLeft, offset_top: this.offsetTop},
         success: disable_ajax_indicator,
         error: editor_ajax_error
@@ -320,11 +321,13 @@ function save_task(frm) {
     $.ajax({
       type: 'POST',
       url: ajax_url + frm.task_class.value + '/' + frm.template_data_id.value + '/0/save/',
+      cache: false,
       data: $("#maestro_task_edit_form").serialize(),
       success: save_task_success,
       error: editor_ajax_error
     });
   })(jQuery);
+
   return false;
 }
 
@@ -353,6 +356,7 @@ function draw_line_to(element) {
           $.ajax({
             type: 'POST',
             url: ajax_url + task_class + '/' + template_data_id + '/0/drawLineFalse/',
+            cache: false,
             data: { line_to: template_data_id2 },
             success: disable_ajax_indicator,
             error: editor_ajax_error
@@ -362,6 +366,7 @@ function draw_line_to(element) {
           $.ajax({
             type: 'POST',
             url: ajax_url + task_class + '/' + template_data_id + '/0/drawLine/',
+            cache: false,
             data: { line_to: template_data_id2 },
             success: disable_ajax_indicator,
             error: editor_ajax_error
@@ -405,6 +410,7 @@ function clear_task_lines(el) {
     $.ajax({
       type: 'POST',
       url: ajax_url + task_class + '/' + template_data_id + '/0/clearAdjacentLines/',
+      cache: false,
       success: disable_ajax_indicator,
       error: editor_ajax_error
     });
@@ -432,6 +438,7 @@ function grow_canvas() {
     $.ajax({
       type: 'POST',
       url: ajax_url + 'MaestroTaskInterfaceStart/0/' + template_id + '/setCanvasHeight/',
+      cache: false,
       data: { height: $('#maestro_workflow_container').height() },
       success: disable_ajax_indicator,
       error: editor_ajax_error
@@ -446,6 +453,7 @@ function shrink_canvas() {
     $.ajax({
       type: 'POST',
       url: ajax_url + 'MaestroTaskInterfaceStart/0/' + template_id + '/setCanvasHeight/',
+      cache: false,
       data: { height: $('#maestro_workflow_container').height() },
       success: disable_ajax_indicator,
       error: editor_ajax_error
@@ -536,6 +544,12 @@ function select_all_options(sel) {
       sel.options[i].selected = true;
     }
   }
+}
+
+function add_variable() {
+  (function ($) {
+    document.getElementById('optional_parm_vars').innerHTML += document.getElementById('optional_parm_form').innerHTML;
+  })(jQuery);
 }
 
 function editor_ajax_error() {

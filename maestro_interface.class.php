@@ -95,6 +95,7 @@ class MaestroInterface {
       $js .= "\$.ajax({
         type: 'POST',
         url: ajax_url + 'MaestroTaskInterface$task_type/0/{$this->_template_id}/create/',
+        cache: false,
         data: {task_type: '$task_type', offset_left: t.offsetLeft, offset_top: t.offsetTop},
         dataType: 'json',
         success: add_task_success,

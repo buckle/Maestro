@@ -104,6 +104,7 @@ abstract class MaestroTaskInterface {
       $retval .= "enable_ajax_indicator(); (function($) {\$.ajax({
         type: 'POST',
         url: ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/destroy/',
+        cache: false,
         data: {confirm_delete: 1},
         dataType: 'json',
         success: delete_task,
@@ -202,6 +203,7 @@ abstract class MaestroTaskInterface {
         'js' => "enable_ajax_indicator(); \$.ajax({
           type: 'POST',
           url: ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/edit/',
+          cache: false,
           dataType: 'json',
           success: display_task_panel,
           error: editor_ajax_error
@@ -212,6 +214,7 @@ abstract class MaestroTaskInterface {
         'js' => "enable_ajax_indicator(); \$.ajax({
           type: 'POST',
           url: ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/destroy/',
+          cache: false,
           success: delete_task,
           dataType: 'json',
           error: editor_ajax_error
@@ -277,30 +280,48 @@ abstract class MaestroTaskInterface {
     $task_class = 'MaestroTaskInterface' . $task_type;
 
     $selected_uids = array();
-    $res = db_query("SELECT uid FROM {maestro_template_assignment} WHERE template_data_id=:tdid AND uid!=0", array(':tdid' => $this->_task_id));
-    foreach ($res as $rec) {
-      $selected_uids[] = $rec->uid;
-    }
-
     $uid_options = array();
-    $res = db_query("SELECT uid, name FROM {users} WHERE uid > 0");
-    foreach ($res as $rec) {
-      $uid_options[$rec->uid] = array('label' => $rec->name, 'selected' => (in_array($rec->uid, $selected_uids) ? 1:0));
-    }
-
     $selected_pvs = array();
-    $res = db_query("SELECT process_variable FROM {maestro_template_assignment} WHERE template_data_id=:tdid AND process_variable!=0", array(':tdid' => $this->_task_id));
-    foreach ($res as $rec) {
-      $selected_pvs[] = $rec->process_variable;
-    }
-
     $pv_options = array();
-    $res = db_query("SELECT id, variable_name FROM {maestro_template_variables} WHERE template_id=:tid", array(':tid' => $this->_template_id));
-    foreach ($res as $rec) {
-      $pv_options[$rec->id] = array('label' => $rec->variable_name, 'selected' => (in_array($rec->id, $selected_pvs) ? 1:0));
+
+    if (array_key_exists('assignment', $this->_task_edit_tabs) && $this->_task_edit_tabs['assignment'] == 1) {
+      $res = db_query("SELECT uid FROM {maestro_template_assignment} WHERE template_data_id=:tdid AND uid!=0", array(':tdid' => $this->_task_id));
+      foreach ($res as $rec) {
+        $selected_uids[] = $rec->uid;
+      }
+
+      $res = db_query("SELECT uid, name FROM {users} WHERE uid > 0");
+      foreach ($res as $rec) {
+        $uid_options[$rec->uid] = array('label' => $rec->name, 'selected' => (in_array($rec->uid, $selected_uids) ? 1:0));
+      }
+
+      $res = db_query("SELECT process_variable FROM {maestro_template_assignment} WHERE template_data_id=:tdid AND process_variable!=0", array(':tdid' => $this->_task_id));
+      foreach ($res as $rec) {
+        $selected_pvs[] = $rec->process_variable;
+      }
+
+      $res = db_query("SELECT id, variable_name FROM {maestro_template_variables} WHERE template_id=:tid", array(':tid' => $this->_template_id));
+      foreach ($res as $rec) {
+        $pv_options[$rec->id] = array('label' => $rec->variable_name, 'selected' => (in_array($rec->id, $selected_pvs) ? 1:0));
+      }
     }
 
-    return array('html' => theme('maestro_workflow_edit_tasks_frame', array('tdid' => $this->_task_id, 'tid' => $this->_template_id, 'form_content' => $this->getEditFormContent(), 'maestro_url' => $maestro_url, 'pv_options' => $pv_options, 'uid_options' => $uid_options, 'task_class' => $task_class, 'task_edit_tabs' => $this->_task_edit_tabs)));
+    $optional_parms = array();
+    if (array_key_exists('optional', $this->_task_edit_tabs) && $this->_task_edit_tabs['optional'] == 1) {
+      $res = db_select('maestro_template_data', 'a');
+      $res->fields('a', array('task_data'));
+      $res->condition('a.id', $this->_task_id, '=');
+      $rec = current($res->execute()->fetchAll());
+      $rec->task_data = unserialize($rec->task_data);
+
+      if (is_array($rec->task_data) && array_key_exists('optional_parm', $rec->task_data)) {
+        foreach ($rec->task_data['optional_parm'] as $var_name => $var_value) {
+          $optional_parms[$var_name] = $var_value;
+        }
+      }
+    }
+
+    return array('html' => theme('maestro_workflow_edit_tasks_frame', array('tdid' => $this->_task_id, 'tid' => $this->_template_id, 'form_content' => $this->getEditFormContent(), 'maestro_url' => $maestro_url, 'pv_options' => $pv_options, 'uid_options' => $uid_options, 'task_class' => $task_class, 'task_edit_tabs' => $this->_task_edit_tabs, 'optional_parms' => $optional_parms)));
   }
 
   function save() {
@@ -316,6 +337,26 @@ abstract class MaestroTaskInterface {
       foreach ($_POST['assign_by_pv'] as $id) {
         db_query("INSERT INTO {maestro_template_assignment} (template_data_id, process_variable) VALUES (:tdid, :id)", array(':tdid' => $this->_task_id, ':id' => $id));
       }
+    }
+
+    if (array_key_exists('op_var_names', $_POST)) {
+      $optional_parms = array();
+
+      foreach ($_POST['op_var_names'] as $key => $var_name) {
+        if ($var_name != '') {
+          $optional_parms[$var_name] = $_POST['op_var_values'][$key];
+        }
+      }
+
+      $res = db_select('maestro_template_data', 'a');
+      $res->fields('a', array('id', 'task_data'));
+      $res->condition('a.id', $this->_task_id, '=');
+      $rec = current($res->execute()->fetchAll());
+      $rec->task_data = unserialize($rec->task_data);
+      $rec->task_data['optional_parm'] = $optional_parms;
+      $rec->task_data = serialize($rec->task_data);
+
+      drupal_write_record('maestro_template_data', $rec, array('id'));
     }
   }
 
@@ -491,6 +532,7 @@ class MaestroTaskInterfaceIf extends MaestroTaskInterface {
         'js' => "enable_ajax_indicator(); \$.ajax({
           type: 'POST',
           url: ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/edit/',
+          cache: false,
           dataType: 'json',
           success: display_task_panel,
           error: editor_ajax_error
@@ -501,6 +543,7 @@ class MaestroTaskInterfaceIf extends MaestroTaskInterface {
         'js' => "enable_ajax_indicator(); \$.ajax({
           type: 'POST',
           url: ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/destroy/',
+          cache: false,
           dataType: 'json',
           success: delete_task,
           error: editor_ajax_error
@@ -573,6 +616,8 @@ class MaestroTaskInterfaceInteractiveFunction extends MaestroTaskInterface {
     $this->_task_type = 'InteractiveFunction';
 
     parent::__construct($task_id, $template_id);
+
+    $this->_task_edit_tabs = array('assignment' => 1, 'notification' => 1, 'optional' => 1);
   }
 
   function display() {
@@ -589,12 +634,13 @@ class MaestroTaskInterfaceInteractiveFunction extends MaestroTaskInterface {
   }
 
   function save() {
-    parent::save();
     $rec = new stdClass();
     $rec->id = $_POST['template_data_id'];
     $rec->taskname = $_POST['taskname'];
-    $rec->task_data = serialize(array('handler' => $_POST['handler'], 'optional_parm' => $_POST['optional_parm']));
+    $rec->task_data = serialize(array('handler' => $_POST['handler']));
+
     drupal_write_record('maestro_template_data', $rec, array('id'));
+    parent::save();
   }
 }
 

@@ -46,8 +46,8 @@
 
   <div style="margin: 0px 10px 0px 0px; float: right;">&nbsp;</div>
 
-  <div class="active"><div class="maestro_task_edit_tab" style="float: right;"><div class="t"><div class=""><div class="r"><div class="l"><div class="bl-tab"><div class="br-tab"><div class="tl-tab"><div class="tr-tab">
-  <a href="#" onclick="(function($) { $.modal.close(); })(jQuery); return false;"><?php print t('x'); ?></a>
+  <div class="active"><div class="maestro_task_edit_tab_close" style="float: right;"><div class="t"><div class=""><div class="r"><div class="l"><div class="bl-cl"><div class="br-cl"><div class="tl-cl"><div class="tr-cl">
+  <a href="#" onclick="(function($) { $.modal.close(); })(jQuery); return false;"><img src="<?php print $maestro_url; ?>/images/admin/close.png"></a>
   </div></div></div></div></div></div></div></div></div></div>
 
   <div style="clear: both;"></div>
@@ -66,6 +66,38 @@
   if (array_key_exists('optional', $task_edit_tabs) && $task_edit_tabs['optional'] == 1) {
 ?>
         <div id="task_edit_optional" style="display: none;">
+          <table style="display: none;">
+            <tbody id="optional_parm_form">
+              <tr>
+                <td style="vertical-align: top;">
+                  <input type="text" name="op_var_names[]" value="">
+                  <a href="#" onclick="(function ($) { $(this).closest('tr').remove(); })(jQuery); return false;"><img src="<?php print $maestro_url; ?>/images/admin/remove.png" style="vertical-align: middle;"></a>
+                </td>
+                <td><textarea name="op_var_values[]" rows="1" cols="32"></textarea></td>
+              <tr>
+            </tbody>
+          </table>
+          <table id="optional_parm_vars">
+            <tr>
+              <td>
+                <a href="#" onclick="add_variable(); return false;"><?php print t('Add Variable'); ?></a>
+                <a href="#" onclick="remove_variable(); return false;"><?php print t('Remove Variable'); ?></a>
+              </td>
+            </tr>
+<?php
+            foreach ($optional_parms as $var_name => $var_value) {
+?>
+              <tr class="hello world">
+                <td style="vertical-align: top;">
+                  <input type="text" name="op_var_names[]" value="<?php print $var_name; ?>">
+                  <a href="#" onclick="(function($) { alert($(this).closest('tr').className); $(this).closest('tr').remove(); })(jQuery); return false;"><img src="<?php print $maestro_url; ?>/images/admin/remove.png" style="vertical-align: middle;"></a>
+                </td>
+                <td><textarea name="op_var_values[]" rows="1" cols="32"><?php print $var_value; ?></textarea></td>
+              </tr>
+<?php
+            }
+?>
+          </table>
         </div>
 <?php
   }
@@ -136,7 +168,6 @@
                 <select size="4" multiple="multiple" style="width: 200px;" id="assign_by_pv" name="assign_by_pv[]">
 <?php
                   foreach ($pv_options as $value => $rec) {
-                      print $value;
                     if ($rec['selected'] == 1) {
 ?>
                       <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
@@ -159,7 +190,7 @@
 <?php
   }
 ?>
-        <div class="maestro_task_edit_save_div"><input type="submit" value="<?php print t('Save'); ?>"></div>
+        <div class="maestro_task_edit_save_div"><input class="form-submit" type="submit" value="<?php print t('Save'); ?>"></div>
 
 
       </form>

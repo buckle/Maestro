@@ -165,7 +165,7 @@ function maestro_theme() {
     ),
     'maestro_workflow_edit_tasks_frame' => array(
       'template' => 'theme/structure/maestro-workflow-edit-tasks-frame',
-      'variables' => array('tdid' => NULL, 'tid' => NULL, 'form_content' => NULL, 'maestro_url' => NULL, 'pv_options' => NULL, 'uid_options' => NULL, 'task_class' => NULL, 'task_edit_tabs' => NULL)
+      'variables' => array('tdid' => NULL, 'tid' => NULL, 'form_content' => NULL, 'maestro_url' => NULL, 'pv_options' => NULL, 'uid_options' => NULL, 'task_class' => NULL, 'task_edit_tabs' => NULL, 'optional_parms' => NULL)
     ),
     'maestro_task_start' => array(
       'template' => 'theme/structure/tasks/maestro-task-start',

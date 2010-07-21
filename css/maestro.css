@@ -68,7 +68,8 @@
 }
 
 .maestro_task_edit_panel input,
-.maestro_task_edit_panel select {
+.maestro_task_edit_panel select,
+.maestro_task_edit_panel textarea {
   border: 1px solid #ccc;
 }
 
@@ -87,6 +88,9 @@
 .active .maestro_task_edit_tab {
   background: #fff;
 }
+.maestro_task_edit_tab_close {
+  background: #c00;
+}
 
 .maestro_task_title {
   height: 22px;
@@ -104,6 +108,8 @@
 
 .tl { background: url(../images/admin/corners/tl.gif) 0 0 no-repeat; }
 .tr { background: url(../images/admin/corners/tr.gif) 100% 0 no-repeat; padding: 10px; }
+.bl { background: url(../images/admin/corners/bl.gif) 0 100% no-repeat; }
+.br { background: url(../images/admin/corners/br.gif) 100% 100% no-repeat; }
 .tl-grn { background: url(../images/admin/corners/tl-grn.gif) 0 0 no-repeat; }
 .tr-grn { background: url(../images/admin/corners/tr-grn.gif) 100% 0 no-repeat; padding: 1px 10px 1px 10px; }
 .tl-red { background: url(../images/admin/corners/tl-red.gif) 0 0 no-repeat; }
@@ -116,22 +122,24 @@
 .tr-gry { background: url(../images/admin/corners/tr-gry.gif) 100% 0 no-repeat; padding: 1px 10px 1px 10px; }
 .tl-bge { background: url(../images/admin/corners/tl-bge.gif) 0 0 no-repeat; }
 .tr-bge { background: url(../images/admin/corners/tr-bge.gif) 100% 0 no-repeat; padding: 1px 10px 1px 10px; }
-.tl-wht { background: url(../images/admin/corners/tl-wht.gif) 0 0 no-repeat; }
-.tr-wht { background: url(../images/admin/corners/tr-wht.gif) 100% 0 no-repeat; padding: 1px 10px 1px 10px; }
-.unactive .tl-tab { background: url(../images/admin/corners/tl-wht2.gif) 0 0 no-repeat; }
-.unactive .tr-tab { background: url(../images/admin/corners/tr-wht2.gif) 100% 0 no-repeat; padding: 1px 10px 1px 10px; }
-.active .tl-tab { background: url(../images/admin/corners/tl-wht.gif) 0 0 no-repeat; }
-.active .tr-tab { background: url(../images/admin/corners/tr-wht.gif) 100% 0 no-repeat; padding: 1px 10px 1px 10px; }
-.bl { background: url(../images/admin/corners/bl.gif) 0 100% no-repeat; }
-.br { background: url(../images/admin/corners/br.gif) 100% 100% no-repeat; }
 .bl-bge { background: url(../images/admin/corners/bl-bge.gif) 0 100% no-repeat; }
 .br-bge { background: url(../images/admin/corners/br-bge.gif) 100% 100% no-repeat; }
+.tl-wht { background: url(../images/admin/corners/tl-wht.gif) 0 0 no-repeat; }
+.tr-wht { background: url(../images/admin/corners/tr-wht.gif) 100% 0 no-repeat; padding: 1px 10px 1px 10px; }
 .bl-wht { background: url(../images/admin/corners/bl-wht.gif) 0 100% no-repeat; }
 .br-wht { background: url(../images/admin/corners/br-wht.gif) 100% 100% no-repeat; }
+.unactive .tl-tab { background: url(../images/admin/corners/tl-wht2.gif) 0 0 no-repeat; }
+.unactive .tr-tab { background: url(../images/admin/corners/tr-wht2.gif) 100% 0 no-repeat; padding: 1px 10px 1px 10px; }
 .unactive .bl-tab { background: url(../images/admin/corners/bl-wht-ex2.gif) 0 100% no-repeat; }
 .unactive .br-tab { background: url(../images/admin/corners/br-wht-ex2.gif) 100% 100% no-repeat; }
+.active .tl-tab { background: url(../images/admin/corners/tl-wht.gif) 0 0 no-repeat; }
+.active .tr-tab { background: url(../images/admin/corners/tr-wht.gif) 100% 0 no-repeat; padding: 1px 10px 1px 10px; }
 .active .bl-tab { background: url(../images/admin/corners/bl-wht-ex.gif) 0 100% no-repeat; }
 .active .br-tab { background: url(../images/admin/corners/br-wht-ex.gif) 100% 100% no-repeat; }
+.tl-cl { background: url(../images/admin/corners/tl-cl.gif) 0 0 no-repeat; }
+.tr-cl { background: url(../images/admin/corners/tr-cl.gif) 100% 0 no-repeat; padding: 1px 10px 1px 10px; }
+.bl-cl { }
+.br-cl { }
 
 .t { background: url(../images/admin/corners/dot.gif) 0 0 repeat-x; }
 .b { background: url(../images/admin/corners/dot.gif) 0 100% repeat-x; }
