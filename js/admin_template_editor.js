@@ -547,8 +547,14 @@ function select_all_options(sel) {
 }
 
 function add_variable() {
+  (function($) {
+    $('#optional_parm_vars').append(document.getElementById('optional_parm_form').innerHTML);
+  })(jQuery);
+}
+
+function remove_variable(el) {
   (function ($) {
-    document.getElementById('optional_parm_vars').innerHTML += document.getElementById('optional_parm_form').innerHTML;
+    $(el).closest('tr').remove();
   })(jQuery);
 }
 

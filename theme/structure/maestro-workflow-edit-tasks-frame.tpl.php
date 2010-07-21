@@ -69,30 +69,29 @@
           <table style="display: none;">
             <tbody id="optional_parm_form">
               <tr>
-                <td style="vertical-align: top;">
+                <td width="33%" style="vertical-align: top; white-space: nowrap;">
                   <input type="text" name="op_var_names[]" value="">
-                  <a href="#" onclick="(function ($) { $(this).closest('tr').remove(); })(jQuery); return false;"><img src="<?php print $maestro_url; ?>/images/admin/remove.png" style="vertical-align: middle;"></a>
+                  <a href="#" onclick="remove_variable(this); return false;"><img src="<?php print $maestro_url; ?>/images/admin/remove.png" style="vertical-align: middle;"></a>
                 </td>
-                <td><textarea name="op_var_values[]" rows="1" cols="32"></textarea></td>
+                <td width="67%"><textarea name="op_var_values[]" rows="1" cols="32"></textarea></td>
               <tr>
             </tbody>
           </table>
           <table id="optional_parm_vars">
             <tr>
-              <td>
+              <td colspan="2">
                 <a href="#" onclick="add_variable(); return false;"><?php print t('Add Variable'); ?></a>
-                <a href="#" onclick="remove_variable(); return false;"><?php print t('Remove Variable'); ?></a>
               </td>
             </tr>
 <?php
             foreach ($optional_parms as $var_name => $var_value) {
 ?>
               <tr class="hello world">
-                <td style="vertical-align: top;">
+                <td width="33%" style="vertical-align: top; white-space: nowrap;">
                   <input type="text" name="op_var_names[]" value="<?php print $var_name; ?>">
-                  <a href="#" onclick="(function($) { alert($(this).closest('tr').className); $(this).closest('tr').remove(); })(jQuery); return false;"><img src="<?php print $maestro_url; ?>/images/admin/remove.png" style="vertical-align: middle;"></a>
+                  <a href="#" onclick="remove_variable(this); return false;"><img src="<?php print $maestro_url; ?>/images/admin/remove.png" style="vertical-align: middle;"></a>
                 </td>
-                <td><textarea name="op_var_values[]" rows="1" cols="32"><?php print $var_value; ?></textarea></td>
+                <td width="67%"><textarea name="op_var_values[]" rows="1" cols="32"><?php print $var_value; ?></textarea></td>
               </tr>
 <?php
             }
