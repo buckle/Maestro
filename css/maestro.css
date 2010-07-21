@@ -92,6 +92,10 @@
   background: #c00;
 }
 
+.maestro_taskname {
+  margin: 10px 0px 0px 0px;
+}
+
 .maestro_task_title {
   height: 22px;
   padding: 0px 3px 0px 3px;

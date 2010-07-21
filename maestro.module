@@ -165,7 +165,7 @@ function maestro_theme() {
     ),
     'maestro_workflow_edit_tasks_frame' => array(
       'template' => 'theme/structure/maestro-workflow-edit-tasks-frame',
-      'variables' => array('tdid' => NULL, 'tid' => NULL, 'form_content' => NULL, 'maestro_url' => NULL, 'pv_options' => NULL, 'uid_options' => NULL, 'task_class' => NULL, 'task_edit_tabs' => NULL, 'optional_parms' => NULL)
+      'variables' => array('tdid' => NULL, 'tid' => NULL, 'form_content' => NULL, 'maestro_url' => NULL, 'pv_options' => NULL, 'uid_options' => NULL, 'task_class' => NULL, 'taskname' => NULL, 'task_edit_tabs' => NULL, 'optional_parms' => NULL)
     ),
     'maestro_task_start' => array(
       'template' => 'theme/structure/tasks/maestro-task-start',
@@ -218,10 +218,6 @@ function maestro_theme() {
     'maestro_task_and' => array(
       'template' => 'theme/structure/tasks/maestro-task-and',
       'variables' => array('tdid' => NULL)
-    ),
-    'maestro_task_and_edit' => array(
-      'template' => 'theme/structure/tasks/maestro-task-and-edit',
-      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL)
     ),
     'maestro_task_manual_web' => array(
       'template' => 'theme/structure/tasks/maestro-task-manual-web',

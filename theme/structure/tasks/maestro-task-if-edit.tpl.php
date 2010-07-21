@@ -1,5 +1,5 @@
 <?php
-// $Id:
+// $Id$
 
 /**
  * @file
@@ -8,10 +8,6 @@
 
 ?>
 <table>
-  <tr>
-    <td style="width:120px;"><?php print t('Task Name:'); ?></td>
-    <td><input type="text" name="taskname" value="<?php print filter_xss($td_rec->taskname); ?>"></td>
-  </tr>
   <tr>
     <td colspan="2" style="text-align:center;">
       <?php print t('Set your IF parameters to check by variable OR by Last Task Status below:'); ?><br></br>

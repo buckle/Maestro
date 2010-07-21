@@ -41,7 +41,7 @@ abstract class MaestroTaskInterface {
 
   protected function _fetchTaskInformation() {
     $res = db_select('maestro_template_data', 'a');
-    $res->fields('a', array('taskname', 'task_data'));
+    $res->fields('a', array('task_data'));
     $res->condition('a.id', $this->_task_id, '=');
     $td_rec = current($res->execute()->fetchAll());
     $td_rec->task_data = unserialize($td_rec->task_data);
@@ -272,12 +272,13 @@ abstract class MaestroTaskInterface {
     $maestro_url = $base_url . '/' . drupal_get_path('module', 'maestro');
 
     $res = db_select('maestro_template_data', 'a');
-    $res->fields('a', array('task_class_name'));
+    $res->fields('a', array('task_class_name', 'taskname'));
     $res->condition('a.id', $this->_task_id, '=');
     $rec = current($res->execute()->fetchAll());
 
     $task_type = substr($rec->task_class_name, 15);
     $task_class = 'MaestroTaskInterface' . $task_type;
+    $taskname = $rec->taskname;
 
     $selected_uids = array();
     $uid_options = array();
@@ -321,7 +322,7 @@ abstract class MaestroTaskInterface {
       }
     }
 
-    return array('html' => theme('maestro_workflow_edit_tasks_frame', array('tdid' => $this->_task_id, 'tid' => $this->_template_id, 'form_content' => $this->getEditFormContent(), 'maestro_url' => $maestro_url, 'pv_options' => $pv_options, 'uid_options' => $uid_options, 'task_class' => $task_class, 'task_edit_tabs' => $this->_task_edit_tabs, 'optional_parms' => $optional_parms)));
+    return array('html' => theme('maestro_workflow_edit_tasks_frame', array('tdid' => $this->_task_id, 'tid' => $this->_template_id, 'form_content' => $this->getEditFormContent(), 'maestro_url' => $maestro_url, 'pv_options' => $pv_options, 'uid_options' => $uid_options, 'task_class' => $task_class, 'taskname' => $taskname, 'task_edit_tabs' => $this->_task_edit_tabs, 'optional_parms' => $optional_parms)));
   }
 
   function save() {
@@ -355,9 +356,12 @@ abstract class MaestroTaskInterface {
       $rec->task_data = unserialize($rec->task_data);
       $rec->task_data['optional_parm'] = $optional_parms;
       $rec->task_data = serialize($rec->task_data);
+      $rec->taskname = $_POST['taskname'];
 
       drupal_write_record('maestro_template_data', $rec, array('id'));
     }
+
+    return array('task_id' => $this->_task_id);
   }
 
   function setCanvasHeight() {
@@ -393,13 +397,16 @@ class MaestroTaskInterfaceStart extends MaestroTaskInterface {
   }
 
   function display() {
-    return theme('maestro_task_start', array('tdid' => $this->_task_id));
+    $res = db_select('maestro_template_data', 'a');
+    $res->fields('a', array('taskname'));
+    $res->condition('id', $this->_task_id, '=');
+    $rec = current($res->execute()->fetchAll());
+
+    return theme('maestro_task_start', array('tdid' => $this->_task_id, 'taskname' => $rec->taskname));
   }
 
   function getEditFormContent() {
-  }
-
-  function save() {
+    return '';
   }
 
   function getContextMenu() {
@@ -439,13 +446,16 @@ class MaestroTaskInterfaceEnd extends MaestroTaskInterface {
   }
 
   function display() {
-    return theme('maestro_task_end', array('tdid' => $this->_task_id));
+    $res = db_select('maestro_template_data', 'a');
+    $res->fields('a', array('taskname'));
+    $res->condition('id', $this->_task_id, '=');
+    $rec = current($res->execute()->fetchAll());
+
+    return theme('maestro_task_end', array('tdid' => $this->_task_id, 'taskname' => $rec->taskname));
   }
 
   function getEditFormContent() {
-  }
-
-  function save() {
+    return '';
   }
 
   function getContextMenu() {
@@ -469,7 +479,12 @@ class MaestroTaskInterfaceIf extends MaestroTaskInterface {
   }
 
   function display() {
-    return theme('maestro_task_if', array('tdid' => $this->_task_id));
+    $res = db_select('maestro_template_data', 'a');
+    $res->fields('a', array('taskname'));
+    $res->condition('id', $this->_task_id, '=');
+    $rec = current($res->execute()->fetchAll());
+
+    return theme('maestro_task_if', array('tdid' => $this->_task_id, 'taskname' => $rec->taskname));
   }
 
   function getEditFormContent() {
@@ -489,7 +504,6 @@ class MaestroTaskInterfaceIf extends MaestroTaskInterface {
   function save() {
     $rec = new stdClass();
     $rec->id = $_POST['template_data_id'];
-    $rec->taskname = $_POST['taskname'];
 
     if(check_plain($_POST['ifTaskArguments']) == 'status'){
       $rec->task_data = serialize(array(
@@ -510,6 +524,8 @@ class MaestroTaskInterfaceIf extends MaestroTaskInterface {
       ));
     }
     drupal_write_record('maestro_template_data', $rec, array('id'));
+
+    return parent::save();
   }
 
   function getContextMenu() {
@@ -564,7 +580,12 @@ class MaestroTaskInterfaceBatch extends MaestroTaskInterface {
   }
 
   function display() {
-    return theme('maestro_task_batch', array('tdid' => $this->_task_id));
+    $res = db_select('maestro_template_data', 'a');
+    $res->fields('a', array('taskname'));
+    $res->condition('id', $this->_task_id, '=');
+    $rec = current($res->execute()->fetchAll());
+
+    return theme('maestro_task_batch', array('tdid' => $this->_task_id, 'taskname' => $rec->taskname));
   }
 
   function getEditFormContent() {
@@ -576,9 +597,10 @@ class MaestroTaskInterfaceBatch extends MaestroTaskInterface {
   function save() {
     $rec = new stdClass();
     $rec->id = $_POST['template_data_id'];
-    $rec->taskname = $_POST['taskname'];
     $rec->task_data = serialize(array('handler' => $_POST['handler']));
     drupal_write_record('maestro_template_data', $rec, array('id'));
+
+    return parent::save();
   }
 }
 
@@ -591,7 +613,12 @@ class MaestroTaskInterfaceBatchFunction extends MaestroTaskInterface {
   }
 
   function display() {
-    return theme('maestro_task_batch_function', array('tdid' => $this->_task_id));
+    $res = db_select('maestro_template_data', 'a');
+    $res->fields('a', array('taskname'));
+    $res->condition('id', $this->_task_id, '=');
+    $rec = current($res->execute()->fetchAll());
+
+    return theme('maestro_task_batch_function', array('tdid' => $this->_task_id, 'taskname' => $rec->taskname));
   }
 
   function getEditFormContent() {
@@ -604,9 +631,10 @@ class MaestroTaskInterfaceBatchFunction extends MaestroTaskInterface {
   function save() {
     $rec = new stdClass();
     $rec->id = $_POST['template_data_id'];
-    $rec->taskname = $_POST['taskname'];
     $rec->task_data = serialize(array('handler' => $_POST['handler']));
     drupal_write_record('maestro_template_data', $rec, array('id'));
+
+    return parent::save();
   }
 }
 
@@ -621,7 +649,12 @@ class MaestroTaskInterfaceInteractiveFunction extends MaestroTaskInterface {
   }
 
   function display() {
-    return theme('maestro_task_interactive_function', array('tdid' => $this->_task_id));
+    $res = db_select('maestro_template_data', 'a');
+    $res->fields('a', array('taskname'));
+    $res->condition('id', $this->_task_id, '=');
+    $rec = current($res->execute()->fetchAll());
+
+    return theme('maestro_task_interactive_function', array('tdid' => $this->_task_id, 'taskname' => $rec->taskname));
   }
 
   function getEditFormContent() {
@@ -636,11 +669,11 @@ class MaestroTaskInterfaceInteractiveFunction extends MaestroTaskInterface {
   function save() {
     $rec = new stdClass();
     $rec->id = $_POST['template_data_id'];
-    $rec->taskname = $_POST['taskname'];
     $rec->task_data = serialize(array('handler' => $_POST['handler']));
 
     drupal_write_record('maestro_template_data', $rec, array('id'));
-    parent::save();
+
+    return parent::save();
   }
 }
 
@@ -653,7 +686,12 @@ class MaestroTaskInterfaceSetProcessVariable extends MaestroTaskInterface {
   }
 
   function display() {
-    return theme('maestro_task_set_process_variable', array('tdid' => $this->_task_id));
+    $res = db_select('maestro_template_data', 'a');
+    $res->fields('a', array('taskname'));
+    $res->condition('id', $this->_task_id, '=');
+    $rec = current($res->execute()->fetchAll());
+
+    return theme('maestro_task_set_process_variable', array('tdid' => $this->_task_id, 'taskname' => $rec->taskname));
   }
 
   function getEditFormContent() {
@@ -673,12 +711,12 @@ class MaestroTaskInterfaceSetProcessVariable extends MaestroTaskInterface {
   }
 
   function save() {
-    parent::save();
     $rec = new stdClass();
     $rec->id = $_POST['template_data_id'];
-    $rec->taskname = $_POST['taskname'];
     $rec->task_data = serialize(array('var_to_set' => $_POST['var_to_set'], 'inc_value' => $_POST['inc_value'], 'var_value' => $_POST['var_value'], 'form_id' => 0, 'field_id' => 0));
     drupal_write_record('maestro_template_data', $rec, array('id'));
+
+    return parent::save();
   }
 }
 
@@ -691,19 +729,16 @@ class MaestroTaskInterfaceAnd extends MaestroTaskInterface {
   }
 
   function display() {
-    return theme('maestro_task_and', array('tdid' => $this->_task_id));
+    $res = db_select('maestro_template_data', 'a');
+    $res->fields('a', array('taskname'));
+    $res->condition('id', $this->_task_id, '=');
+    $rec = current($res->execute()->fetchAll());
+
+    return theme('maestro_task_and', array('tdid' => $this->_task_id, 'taskname' => $rec->taskname));
   }
 
   function getEditFormContent() {
-    $this->_fetchTaskInformation();
-    return theme('maestro_task_and_edit', array('tdid' => $this->_task_id, 'td_rec' => $this->_task_data, 'ta_rec' => $this->_task_assignment_data));
-  }
-
-  function save() {
-    $rec = new stdClass();
-    $rec->id = $_POST['template_data_id'];
-    $rec->taskname = $_POST['taskname'];
-    drupal_write_record('maestro_template_data', $rec, array('id'));
+    return '';
   }
 }
 
@@ -716,7 +751,12 @@ class MaestroTaskInterfaceManualWeb extends MaestroTaskInterface {
   }
 
   function display() {
-    return theme('maestro_task_manual_web', array('tdid' => $this->_task_id));
+    $res = db_select('maestro_template_data', 'a');
+    $res->fields('a', array('taskname'));
+    $res->condition('id', $this->_task_id, '=');
+    $rec = current($res->execute()->fetchAll());
+
+    return theme('maestro_task_manual_web', array('tdid' => $this->_task_id, 'taskname' => $rec->taskname));
   }
 
   function getEditFormContent() {
@@ -725,10 +765,8 @@ class MaestroTaskInterfaceManualWeb extends MaestroTaskInterface {
   }
 
   function save() {
-    parent::save();
     $rec = new stdClass();
     $rec->id = $_POST['template_data_id'];
-    $rec->taskname = check_plain($_POST['taskname']);
     $rec->task_data = serialize(array(
                                     'handler' => $_POST['handler'],
                                     'new_window' => $_POST['newWindow'],
@@ -736,5 +774,7 @@ class MaestroTaskInterfaceManualWeb extends MaestroTaskInterface {
 
       ));
     drupal_write_record('maestro_template_data', $rec, array('id'));
+
+    return parent::save();
   }
 }

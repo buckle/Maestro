@@ -10,10 +10,6 @@
 
 <table>
   <tr>
-    <td><?php print t('Task Name:'); ?></td>
-    <td><input type="text" name="taskname" value="<?php print filter_xss($td_rec->taskname); ?>"></td>
-  </tr>
-  <tr>
     <td><?php print t('Handler URL:'); ?></td>
     <td><input type="text" name="handler" value="<?php print filter_xss($td_rec->task_data['handler']); ?>"></td>
   </tr>
@@ -25,6 +21,4 @@
     <td><?php print t('Use URL Token?:'); ?></td>
     <td><input type="checkbox" name="useToken" value="1" <?php if($td_rec->task_data['use_token'] == 1) print 'checked'; ?>></td>
   </tr>
-
-
 </table>

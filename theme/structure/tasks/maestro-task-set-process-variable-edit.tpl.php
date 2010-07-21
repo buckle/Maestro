@@ -3,16 +3,12 @@
 
 /**
  * @file
- * maestro-task-interactive-function-edit.tpl.php
+ * maestro-task-set-process-variable-edit.tpl.php
  */
 
 ?>
 
 <table>
-  <tr>
-    <td><?php print t('Task Name:'); ?></td>
-    <td><input type="text" name="taskname" value="<?php print $td_rec->taskname; ?>"></td>
-  </tr>
   <tr>
     <td><?php print t('Variable to Set:'); ?></td>
     <td>

@@ -59,7 +59,12 @@
         <input type="hidden" name="template_data_id" value="<?php print $tdid; ?>">
 
         <div id="task_edit_main">
-            <?php print $form_content; ?>
+          <div class="maestro_tool_tip maestro_taskname"><div class="t"><div class="b"><div class="r"><div class="l"><div class="bl-bge"><div class="br-bge"><div class="tl-bge"><div class="tr-bge">
+            <?php print t('Task Name'); ?>:
+            <input id="maestro_task_name" type="text" name="taskname" value="<?php print $taskname; ?>">
+          </div></div></div></div></div></div></div></div></div>
+
+          <?php print $form_content; ?>
         </div>
 
 <?php
@@ -86,7 +91,7 @@
 <?php
             foreach ($optional_parms as $var_name => $var_value) {
 ?>
-              <tr class="hello world">
+              <tr>
                 <td width="33%" style="vertical-align: top; white-space: nowrap;">
                   <input type="text" name="op_var_names[]" value="<?php print $var_name; ?>">
                   <a href="#" onclick="remove_variable(this); return false;"><img src="<?php print $maestro_url; ?>/images/admin/remove.png" style="vertical-align: middle;"></a>

@@ -420,7 +420,7 @@ class MaestroTaskTypeSetProcessVariable extends MaestroTask {
     watchdog('maestro',$msg);
 
     $query = db_select('maestro_template_data', 'a');
-    $query->fields('a',array('form_id','field_id','task_data'));
+    $query->fields('a',array('task_data'));
     $query->condition('a.id', $this->_properties->template_data_id,'=');
     $taskDefinitionRec = $query->execute()->fetchObject();
     if ($taskDefinitionRec) {   // Needs to be valid variable to set
@@ -433,11 +433,6 @@ class MaestroTaskTypeSetProcessVariable extends MaestroTask {
           ->condition('template_variable_id',$taskDefinitionRec->task_data['var_to_set'],'=')
           ->execute();
           if ($count == 1)  $this->executionStatus = TRUE;
-        }
-        else if ($taskDefinitionRec->task_data['form_id'] > 0 && $taskDefinitionRec->task_data['field_id'] > 0) {  //set by form result
-          // Have to find the form result, first need to get the project id
-          // @TODO: Need to complete logic to set process variable from a web form field id
-          watchdog('maestro',"Incomplete Code - MaestroTaskTypeSetProcessVariable via form field not complete");
         }
         else if ($taskDefinitionRec->task_data['inc_value'] != 0) {  // Set by increment
           $query = db_select('maestro_process_variables', 'a');

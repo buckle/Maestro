@@ -323,6 +323,7 @@ function save_task(frm) {
       url: ajax_url + frm.task_class.value + '/' + frm.template_data_id.value + '/0/save/',
       cache: false,
       data: $("#maestro_task_edit_form").serialize(),
+      dataType: 'json',
       success: save_task_success,
       error: editor_ajax_error
     });
@@ -331,8 +332,12 @@ function save_task(frm) {
   return false;
 }
 
-function save_task_success() {
+function save_task_success(r) {
   (function($) {
+    var el = document.getElementById('task_title' + r.task_id);
+    if (el != null) {
+      el.innerHTML = document.getElementById('maestro_task_name').value;
+    }
     $.modal.close();
     disable_ajax_indicator();
   })(jQuery);
