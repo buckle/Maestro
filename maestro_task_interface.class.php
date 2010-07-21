@@ -728,8 +728,13 @@ class MaestroTaskInterfaceManualWeb extends MaestroTaskInterface {
     parent::save();
     $rec = new stdClass();
     $rec->id = $_POST['template_data_id'];
-    $rec->taskname = $_POST['taskname'];
-    $rec->task_data = serialize(array('handler' => $_POST['handler']));
+    $rec->taskname = check_plain($_POST['taskname']);
+    $rec->task_data = serialize(array(
+                                    'handler' => $_POST['handler'],
+                                    'new_window' => $_POST['newWindow'],
+                                    'use_token' => $_POST['useToken'],
+
+      ));
     drupal_write_record('maestro_template_data', $rec, array('id'));
   }
 }
