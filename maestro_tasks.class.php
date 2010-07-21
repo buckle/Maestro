@@ -30,6 +30,10 @@ abstract class MaestroTask {
     return FALSE;
   }
 
+  function getTaskConsoleURL(){
+    return "#";
+  }
+
   function setMessage($msg) {
     $this->_message = $msg;
   }
@@ -476,6 +480,18 @@ class MaestroTaskTypeManualWeb extends MaestroTask {
 
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
     return $this;
+  }
+
+  function getTaskConsoleURL(){
+    $prop=unserialize($this->_properties->task_data);
+    $url = $prop['handler'];
+    if(strpos($url, "?")) {
+      $url .= "&queueid=" . $this->_properties->queue_id;
+    }
+    else {
+      $url .= "?queueid=" . $this->_properties->queue_id;
+    }
+    return $url;
   }
 
   function prepareTask() {

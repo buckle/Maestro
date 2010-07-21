@@ -295,19 +295,8 @@ function template_preprocess_maestro_taskconsole(&$variables) {
       $formatted_task->hidetaskinfo = 'none';
       $formatted_task->onholdnotice = '';
       $formatted_task->task_onclick = 'onclick="alert(\'Task Type:  ' . $task->tasktype . '\');"';
-      if($task->url != '') {
-        //we now format the queueID to tack on the end of the url
-        if(strpos($task->url,"?")){
-          $task->url .= "&queueid=" . $task->queue_id;
-        }
-        else {
-          $task->url .= "?queueid=" . $task->queue_id;
-        }
-        $formatted_task->task_action_url = $task->url;
-      }
-      else {
-        $formatted_task->task_action_url = '#';
-      }
+      $formatted_task->task_action_url = '#';  //we let the interactive tasks override this later if need be.
+
       if ($task->dates['started'] > 0) {
         $formatted_task->task_started = ', Started: ' . format_date($task->dates['started'],'short');
         $formatted_task->task_icon = $maestro_path . '/images/taskconsole/task.gif';
@@ -317,14 +306,16 @@ function template_preprocess_maestro_taskconsole(&$variables) {
       }
       $formatted_task->assigned_shortdate = format_date($task->dates['created'],'custom','m/d/y');
       $formatted_task->assigned_longdate = format_date($task->dates['created'],'medium');
-      $formatted_task->project_details = 'yada yada';
+      $formatted_task->project_details = '';
       $formatted_task->hold = '';
       $formatted_task->view = '';
       $formatted_task->edit = '';
       $formatted_task->delete = '';
 
       if ($task->flags['is_interactive'] == 1) {
-        $action_record = $maestro->engine()->showInteractiveTask(new $task->tasktype($task),$task->queue_id);
+        $current_task = new $task->tasktype($task);  //fire up the engine task here to let us re-use its methods to create task console output.
+        $formatted_task->task_action_url = $current_task->getTaskConsoleURL();  //here is where we override the action url.
+        $action_record = $maestro->engine()->showInteractiveTask($current_task,$task->queue_id);
         if ($action_record === FALSE OR empty($action_record)) {
           $formatted_task->action_record = '';
         } else {
