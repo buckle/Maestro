@@ -239,6 +239,14 @@ function maestro_theme() {
       'template' => 'theme/examples/maestro-manual-web-example',
       'variables' => array('queue_id' => 0)
     ),
+    'maestro_task_content_type' => array(
+      'template' => 'theme/structure/tasks/maestro-task-content-type',
+      'variables' => array('tdid' => NULL)
+    ),
+    'maestro_task_content_type_edit' => array(
+      'template' => 'theme/structure/tasks/maestro-task-content-type-edit',
+      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL, 'content_types' => NULL)
+    ),
   );
 }
 
@@ -248,14 +256,11 @@ function maestro_theme() {
  */
 function maestro_taskconsole() {
   global $base_url, $base_path, $user;
-
   $maestro_path = $base_url . '/' . drupal_get_path('module', 'maestro');
   drupal_add_css($maestro_path . '/css/maestro.css');
-
   $modulepath = drupal_get_path('module', 'maestro');
   drupal_set_breadcrumb('');
   return theme('maestro_taskconsole');
-
 }
 
 
@@ -490,6 +495,10 @@ function maestro_maestro_context_menu() {
     ),
     array('display_name' => 'Manual Web Task',
       'class_name' => 'MaestroTaskInterfaceManualWeb',
+      'file_location' => ''
+    ),
+    array('display_name' => 'Content Type Task',
+      'class_name' => 'MaestroTaskInterfaceContentType',
       'file_location' => ''
     ),
   );

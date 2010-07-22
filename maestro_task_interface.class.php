@@ -746,3 +746,37 @@ class MaestroTaskInterfaceManualWeb extends MaestroTaskInterface {
     return parent::save();
   }
 }
+
+
+class MaestroTaskInterfaceContentType extends MaestroTaskInterface {
+  function __construct($task_id=0, $template_id=0) {
+    $this->_task_type = 'ContentType';
+    $this->_is_interactive = 1;
+    parent::__construct($task_id, $template_id);
+  }
+
+  function display() {
+    $res = db_select('maestro_template_data', 'a');
+    $res->fields('a', array('taskname'));
+    $res->condition('id', $this->_task_id, '=');
+    $rec = current($res->execute()->fetchAll());
+    return theme('maestro_task_content_type', array('tdid' => $this->_task_id, 'taskname' => $rec->taskname));
+  }
+
+  function getEditFormContent() {
+    $this->_fetchTaskInformation();
+    $content_types = node_type_get_types();
+
+    return theme('maestro_task_content_type_edit', array('tdid' => $this->_task_id, 'td_rec' => $this->_task_data, 'ta_rec' => $this->_task_assignment_data, 'content_types' => $content_types));
+  }
+
+  function save() {
+    $rec = new stdClass();
+    $rec->id = $_POST['template_data_id'];
+    $rec->task_data = serialize(array(
+                                    'content_type' => $_POST['contentType']
+      ));
+    drupal_write_record('maestro_template_data', $rec, array('id'));
+    return parent::save();
+  }
+}
