@@ -529,3 +529,56 @@ function maestro_handle_taskconsole_ajax_request($action) {
 
   }
 }
+/**
+ * Implements hook_admin_paths().
+ */
+function xmaestro_admin_paths() {
+  $paths = array(
+    'node/add/*/maestro' => TRUE,
+    'node/*/edit/maestro/*' => TRUE,
+  );
+  return $paths;
+}
+
+function maestro_form_alter(&$form, $form_state, $form_id) {
+
+  /* Need a better way to register forms that can be under maestro control */
+  if ($form_id == 'change_request_node_form') {
+    $request = request_uri();
+    $requestParms = explode('/',$request);
+    if (isset($requestParms[5]) AND $requestParms[5] == 'maestro' AND intval($requestParms[6]) > 0) {
+        $form['maestro_taskdata'] = array(
+          '#title'  => t('New Field'),
+          '#type'   => 'textfield',
+          '#description'  => 'Testing the hook_form_alter'
+        );
+        $form['maestro_taskid'] = array(
+          '#value'  => intval($requestParms[6]),
+          '#type'   => 'hidden',
+        );
+    }
+  }
+
+}
+
+function maestro_node_insert($node) {
+  if ($node->maestro_taskid > 0) {
+    $data = serialize(array('maestro_taskdata' => $node->maestro_taskdata));
+    db_insert('maestro_project_data_results')
+    ->fields(array(
+        'nid' => $node->nid,
+        'project_id' => 0,
+        'task_id' => $node->maestro_taskid,
+        'task_data' => $data,
+    ))
+    ->execute();
+  }
+}
+
+function maestro_node_load($nodes, $form) {
+  foreach ($nodes as $node) {
+    /* Check if there is a corresponding node record in the maestro_project_results_data table
+     * Retrieve the taskid (queueid) and any required data
+    */
+  }
+}
