@@ -310,6 +310,7 @@
         else {
           //Execution successful.  Complete the task here.
           //We will always complete a task, regardless of its task type.
+          if($queueRecord->is_interactive == 1) $task->setArchiveStatus(1);
           $this->completeTask($this->_queueId);
           $this->_archiveStatus=$task->getArchiveStatus();
           //@TODO:  any post complete task hooks?

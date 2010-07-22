@@ -42,8 +42,12 @@ abstract class MaestroTask {
     return $this->_message;
   }
 
-  function getArchiveStatus(){
+  function getArchiveStatus() {
     return $this->_archiveStatus;
+  }
+
+function setArchiveStatus($setval) {
+    $this->_archiveStatus = $setval;
   }
 
   function saveTempData($data) {
@@ -469,7 +473,6 @@ class MaestroTaskTypeManualWeb extends MaestroTask {
 
     if($this->_properties->status == 1) {
       $this->executionStatus = TRUE;  //just complete it!
-      $this->_archiveStatus = 1;
     }
     else {
       $this->executionStatus = FALSE;
@@ -510,22 +513,18 @@ class MaestroTaskTypeContentType extends MaestroTask {
 
     if($this->_properties->status == 1) {
       $this->executionStatus = TRUE;  //just complete it!
-      $this->_archiveStatus = 1;
     }
     else {
       $this->executionStatus = FALSE;
       $this->setMessage( 'Conent Type task -- status is 0.  Will not complete this task yet.');
     }
-
     return $this;
   }
 
   function getTaskConsoleURL(){
     global $base_url;
     $prop=unserialize($this->_properties->task_data);
-
     $url = $base_url . "/node/add/" . $prop['content_type'] . "/maestro/" . $this->_properties->queue_id;
-
     return $url;
   }
 
