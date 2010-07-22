@@ -498,3 +498,41 @@ class MaestroTaskTypeManualWeb extends MaestroTask {
     return array('handler' => $taskdata['handler'],'serialized_data' => $serializedData);
   }
 }
+
+class MaestroTaskTypeContentType extends MaestroTask {
+
+  function execute() {
+    $msg = 'Execute Task Type: "Content Type" - properties: ' . print_r($this->_properties, true);
+    watchdog('maestro',$msg);
+
+    //this is a manual web task.  we have to check to see if the current status has been set to 1.
+    //if so, execution status is set to true to complete the task.
+
+    if($this->_properties->status == 1) {
+      $this->executionStatus = TRUE;  //just complete it!
+      $this->_archiveStatus = 1;
+    }
+    else {
+      $this->executionStatus = FALSE;
+      $this->setMessage( 'Conent Type task -- status is 0.  Will not complete this task yet.');
+    }
+
+    return $this;
+  }
+
+  function getTaskConsoleURL(){
+    global $base_url;
+    $prop=unserialize($this->_properties->task_data);
+
+    $url = $base_url . "/node/add/" . $prop['content_type'] . "/maestro/" . $this->_properties->queue_id;
+
+    return $url;
+  }
+
+  function prepareTask() {
+    $serializedData = db_query("SELECT task_data FROM {maestro_template_data} WHERE id = :tid",
+      array(':tid' => $this->_properties->taskid))->fetchField();
+    $taskdata = @unserialize($serializedData);
+    return array('serialized_data' => $serializedData);
+  }
+}
