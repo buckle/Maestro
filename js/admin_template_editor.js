@@ -14,6 +14,7 @@ var oMenu;
 var panels = [];
 var oMenuBar;
 var menuCheckArray = [];
+var assignment_type = 0;
 
 (function($) {
   $(document).ready(function() {
@@ -296,6 +297,8 @@ function redraw_lines() {
 function display_task_panel(r) {
   (function($) {
     $.modal(r.html, { modal: true, overlayClose: false, autoPosition: true, overlayCss: {backgroundColor:"#888"}, opacity:80 });
+    alert(r.assigned_by_variable);
+    toggle_assignment(r.assigned_by_variable);
     disable_ajax_indicator();
   })(jQuery);
 }
@@ -429,9 +432,8 @@ function delete_task(r) {
       set_tool_tip(r.message);
     }
     else {  //just make the task invisible for now, it will get fully deleted on page reload
-      var el = document.getElementById('task' + r.task_id);
-      clear_task_lines(el);
-      el.style.display = 'none';
+      clear_task_lines(document.getElementById('task' + r.task_id));
+      $('#' + 'task' + r.task_id).hide(300);
     }
   })(jQuery);
 }
@@ -507,23 +509,25 @@ function move_to_right(id) {
 }
 
 function move_options(sel_from, sel_to) {
-  var len = sel_from.length;
-  var text = new Array();
-  var values = new Array();
-  var count = 0;
-  var i;
+  if (sel_from != null && sel_to != null) {
+    var len = sel_from.length;
+    var text = new Array();
+    var values = new Array();
+    var count = 0;
+    var i;
 
-  for (i = len - 1; i >= 0; i--) {
-    if (sel_from.options[i].selected) {
-      text[count] = sel_from.options[i].text;
-      values[count] = sel_from.options[i].value;
-      delete_option(sel_from, i);
-      count++;
+    for (i = len - 1; i >= 0; i--) {
+      if (sel_from.options[i].selected) {
+        text[count] = sel_from.options[i].text;
+        values[count] = sel_from.options[i].value;
+        delete_option(sel_from, i);
+        count++;
+      }
     }
-  }
 
-  for (i = count - 1; i >= 0; i--) {
-    add_option(sel_to, text[i], values[i]);
+    for (i = count - 1; i >= 0; i--) {
+      add_option(sel_to, text[i], values[i]);
+    }
   }
 }
 
@@ -551,6 +555,17 @@ function select_all_options(sel) {
   }
 }
 
+function unselect_all_options(sel) {
+  if (sel != null) {
+    var len = sel.length;
+    var i;
+
+    for (i = len - 1; i >= 0; i--) {
+      sel.options[i].selected = false;
+    }
+  }
+}
+
 function add_variable() {
   (function($) {
     $('#optional_parm_vars').append(document.getElementById('optional_parm_form').innerHTML);
@@ -567,6 +582,41 @@ function editor_ajax_error() {
   disable_ajax_indicator();
   set_tool_tip('An AJAX error has occurred. The operation has failed.');
 }
+
+function toggle_assignment(type) {
+  var sel1;
+  var sel2;
+
+  (function($) {
+    if (type == 1) {
+      $('#assign_by_uid').attr("disabled", true);
+      $('#assign_by_uid_unselected').attr("disabled", true);
+      $('#assign_by_pv').removeAttr("disabled");
+      $('#assign_by_pv_unselected').removeAttr("disabled");
+
+      sel1 = document.getElementById('assign_by_uid');
+      sel2 = document.getElementById('assign_by_uid_unselected');
+      select_all_options(sel1);
+      move_options(sel1, sel2);
+      unselect_all_options(sel2);
+    }
+    else {
+      $('#assign_by_uid').removeAttr("disabled");
+      $('#assign_by_uid_unselected').removeAttr("disabled");
+      $('#assign_by_pv').attr("disabled", true);
+      $('#assign_by_pv_unselected').attr("disabled", true);
+
+      sel1 = document.getElementById('assign_by_pv');
+      sel2 = document.getElementById('assign_by_pv_unselected');
+      select_all_options(sel1);
+      move_options(sel1, sel2);
+      unselect_all_options(sel2);
+    }
+  })(jQuery);
+}
+
+
+
 
 //general helper functions
 function set_tool_tip(msg) {

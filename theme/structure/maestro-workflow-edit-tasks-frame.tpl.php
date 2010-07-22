@@ -61,8 +61,8 @@
         <div id="task_edit_main">
           <div class="maestro_tool_tip maestro_taskname"><div class="t"><div class="b"><div class="r"><div class="l"><div class="bl-bge"><div class="br-bge"><div class="tl-bge"><div class="tr-bge">
             <?php print t('Task Name'); ?>:
-            <input id="maestro_task_name" type="text" name="taskname" value="<?php print $taskname; ?>">
-          </div></div></div></div></div></div></div></div></div>
+            <input id="maestro_task_name" type="text" name="taskname" value="<?php print $vars->taskname; ?>">
+          </div></div></div></div></div></div></div></div></div><br />
 
           <?php print $form_content; ?>
         </div>
@@ -111,7 +111,7 @@
         <div id="task_edit_assignment" style="display: none;">
           <table>
             <tr>
-              <td colspan="3" style="text-align: center;"><?php print t('Assign User(s) by Hardcoding'); ?></td>
+              <td colspan="3" style="text-align: center;"><input type="radio" name="assigned_by_variable" value="0" onchange="toggle_assignment(0);" <?php print ($vars->assigned_by_variable == 0) ? 'checked="checked"':''; ?>><?php print t('Assign User(s) by Hardcoding'); ?></td>
             </tr>
             <tr>
               <td>
@@ -147,7 +147,7 @@
               </td>
             </tr>
             <tr>
-              <td colspan="3" style="text-align: center;"><?php print t('Assign User(s) by Process Variable'); ?></td>
+              <td colspan="3" style="text-align: center;"><input type="radio" name="assigned_by_variable" value="1" onchange="toggle_assignment(1);" <?php print ($vars->assigned_by_variable == 1) ? 'checked="checked"':''; ?>><?php print t('Assign User(s) by Process Variable'); ?></td>
             </tr>
             <tr>
               <td>
