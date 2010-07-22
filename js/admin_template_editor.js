@@ -297,7 +297,6 @@ function redraw_lines() {
 function display_task_panel(r) {
   (function($) {
     $.modal(r.html, { modal: true, overlayClose: false, autoPosition: true, overlayCss: {backgroundColor:"#888"}, opacity:80 });
-    alert(r.assigned_by_variable);
     toggle_assignment(r.assigned_by_variable);
     disable_ajax_indicator();
   })(jQuery);
