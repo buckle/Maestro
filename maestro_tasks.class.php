@@ -334,7 +334,7 @@ class MaestroTaskTypeIf extends MaestroTask {
         // point to the false branch
         $statusToinsert = MaestroTaskStatusCodes::STATUS_IF_CONDITION_FALSE;
       }
-      $this->_archiveStatus=$statusToinsert;
+      $this->_archiveStatus = $statusToinsert;
       //now, at this point we need to set the archive task status of this task to the $statusToinsert variable.
       //so that the nextstep method of the engine can properly save it
 

@@ -273,7 +273,7 @@
       $processTaskList = array("id" => array(), "processid" => array() );
       $processTaskListcount = 0;
 
-      /* Call Observer Hooks to send out any task notifications and reminders */
+      /* @TODO: Call Observer Hooks to send out any task notifications and reminders */
       $interactiveCondition = db_and()->condition(db_or()->condition('a.status',0) ->condition('a.status',1))->condition('a.is_interactive',1);
       $batchStatusCondition = db_or()->condition('a.status',0)->condition('a.status',3)->condition('a.status',4);
       $batchOverallCondition = db_and()->condition($batchStatusCondition)->condition('a.is_interactive',0);
@@ -284,7 +284,7 @@
       $query->join('maestro_process', 'b', 'a.process_id = b.id');
       $query->join('maestro_template_data', 'c', 'a.template_data_id = c.id');
       $query->join('maestro_template', 'd', 'b.template_id = d.id');
-      $query->fields('a',array('id','status','template_data_id','task_class_name','engine_version','is_interactive'));
+      $query->fields('a',array('id','status','archived','template_data_id','task_class_name','engine_version','is_interactive'));
       $query->addField('b','id','process_id');
       $query->addField('c','task_class_name','step_type');
       $query->addField('c','handler');
@@ -299,24 +299,44 @@
         $this->_processId = $queueRecord->process_id;
         $this->_queueId = $queueRecord->id;
 
-        /* Using the strategy Design Pattern - Pass a new taskclass as the object to the maestro engine execute method */
-        $task = $this->executeTask(new $queueRecord->task_class_name($queueRecord));
-        if ($task->executionStatus === FALSE) {
-          watchdog('maestro',"Failed Task: {$this->_queueId}, Process: {$this->_processId} , Step Type: $this->_taskType");
-          watchdog('maestro',"Task Information: ". $task->getMessage());
-          //@TODO:  what do we do for a failed task?
-          //A task should have some sort of error recovery method
-        }
-        else {
-          //Execution successful.  Complete the task here.
-          //We will always complete a task, regardless of its task type.
-          if($queueRecord->is_interactive == 1) $task->setArchiveStatus(1);
-          $this->completeTask($this->_queueId);
-          $this->_archiveStatus=$task->getArchiveStatus();
-          //@TODO:  any post complete task hooks?
-          $this->nextStep();
+        /* Clean queue will execute Synchronous Tasks in one step - execute and then crank the process to setup the next task.
+         * The Asynchronouos tasks like manual web, interactive tasks and content type tasks will not complete immediately.
+         * The new interactive tasks (first appearance in the queue) will be executed now but do not complete immediately.
+         * They will complete at some time in the future. They will be flagged complete then but since there should only
+         * be one instance of the workflow engine that processes the tasks and sets up the next task.
+         * That's what this method is for and so we will look for any completed interactive tasks and archive them.
+         * Once archived, we crank that process forward (nextStep) and setup the next task for that workflow instance (process)
+         */
+
+        // Test for any interactive Tasks that have completed - we need to archive them now and crank the engine
+        if ($queueRecord->status == 1 AND $queueRecord->is_interactive == 1 AND $queueRecord->archived == 0) {
+            $this->_archiveStatus = 1;
+            $this->nextStep();
+        } else {
+
+          /* Using the strategy Design Pattern - Pass a new taskclass as the object to the maestro engine execute method
+           * All synchronous tasks will execute and complete in one step and return a true/false.
+           * The Synchronouos tasks like manual web, interactive tasks and content type tasks will not execute but
+           * not complete now, they will at some time in the future and be archived by this method.
+           */
+          $task = $this->executeTask(new $queueRecord->task_class_name($queueRecord));
+          if ($task->executionStatus === FALSE) {
+            watchdog('maestro',"Failed Task: {$this->_queueId}, Process: {$this->_processId} , Step Type: $this->_taskType");
+            watchdog('maestro',"Task Information: ". $task->getMessage());
+            // TODO:  what do we do for a failed task?
+            // A task should have some sort of error recovery method
+          }
+          else {
+            // Execution successful.  Complete the task here.
+            // We will always complete a task, regardless of its task type.
+            $this->completeTask($this->_queueId);
+            $this->_archiveStatus=$task->getArchiveStatus();
+            // @TODO:  any post complete task hooks?
+            $this->nextStep();
+          }
         }
       }
+
       if ($numrows == 0 AND $this->_debug) {
         watchdog('maestro','cleanQueue - 0 rows returned.  Nothing in queue.');
       }

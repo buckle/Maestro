@@ -565,7 +565,7 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
 /**
  * Implements hook_admin_paths().
  */
-function xmaestro_admin_paths() {
+function maestro_admin_paths() {
   $paths = array(
     'node/add/*/maestro' => TRUE,
     'node/*/edit/maestro/*' => TRUE,
