@@ -51,6 +51,21 @@ class MaestroInterface {
     return drupal_render($build);
   }
 
+  function displayTasks() {
+    $html = '';
+    $res = db_query('SELECT id, taskname, task_class_name FROM {maestro_template_data} WHERE template_id=:tid', array(':tid' => $this->_template_id));
+
+    foreach ($res as $rec) {
+      $task_type = substr($rec->task_class_name, 15);
+      $task_class = 'MaestroTaskInterface' . $task_type;
+
+      $ti = new $task_class($rec->id);
+      $html .= $ti->displayTask();
+    }
+
+    return $html;
+  }
+
   //should get the valid task types to create, excluding start and end tasks, from the drupal cache
   function getContextMenu() {
     //we need to rebuild the cache in the event it is empty.

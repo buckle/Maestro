@@ -21,14 +21,13 @@ abstract class MaestroTaskInterface {
     $this->_task_data = NULL;
     $this->_task_process_data = NULL;
 
-    $res = db_select('maestro_template_data', 'a');
-    $res->fields('a', array('template_id', 'taskname'));
-    $res->condition('a.id', $task_id, '=');
-    $rec = current($res->execute()->fetchAll());
-
-    $this->_taskname = $rec->taskname;
-
     if ($template_id == 0 && $task_id > 0) {
+      $res = db_select('maestro_template_data', 'a');
+      $res->fields('a', array('template_id', 'taskname'));
+      $res->condition('a.id', $task_id, '=');
+      $rec = current($res->execute()->fetchAll());
+
+      $this->_taskname = $rec->taskname;
       $this->_template_id = $rec->template_id;
     }
     else {
@@ -69,6 +68,7 @@ abstract class MaestroTaskInterface {
     $rec = new stdClass();
     $rec->template_id = $this->_template_id;
     $rec->taskname = t('New Task');
+    $this->_taskname = $rec->taskname;
     $rec->task_class_name = 'MaestroTaskType' . $this->_task_type;
     $rec->is_interactive = $this->_is_interactive;
     $rec->first_task = 0;
@@ -77,11 +77,7 @@ abstract class MaestroTaskInterface {
     drupal_write_record('maestro_template_data', $rec);
     $this->_task_id = $rec->id;
 
-    $retval  = "<div id=\"task{$this->_task_id}\" class=\"MaestroTaskInterface{$this->_task_type} maestro_task_container\" onclick=\"draw_line_to(this);\" style=\"position: absolute; left: {$_POST['offset_left']}px; top: {$_POST['offset_top']}px;\">";
-    $retval .= $this->display();
-    $retval .= '</div>';
-    $retval .= $this->getContextMenuHTML();
-    return array('html' => $retval, 'js' => $this->getContextMenuJS());
+    return array('html' => $this->displayTask());
   }
 
   //deletes the task
@@ -119,6 +115,126 @@ abstract class MaestroTaskInterface {
     }
 
     return array('message' => $retval, 'success' => $success, 'task_id' => $this->_task_id);
+  }
+
+  function displayTask() {
+    $res = db_select('maestro_template_data', 'a');
+    $res->fields('a', array('id', 'taskname', 'task_class_name', 'is_interactive', 'offset_left', 'offset_top'));
+    $res->condition('a.id', $this->_task_id, '=');
+    $rec = current($res->execute()->fetchAll());
+
+    $task_type = substr($rec->task_class_name, 15);
+    $task_class = 'MaestroTaskInterface' . $task_type;
+
+    return theme('maestro_workflow_task_frame', array('rec' => $rec, 'ti' => $this, 'task_class' => $task_class));
+  }
+
+  function edit() {
+    global $base_url;
+    $maestro_url = $base_url . '/' . drupal_get_path('module', 'maestro');
+
+    $res = db_select('maestro_template_data', 'a');
+    $res->fields('a', array('task_class_name', 'taskname', 'assigned_by_variable'));
+    $res->condition('a.id', $this->_task_id, '=');
+    $vars = current($res->execute()->fetchAll());
+
+    $task_type = substr($vars->task_class_name, 15);
+    $task_class = 'MaestroTaskInterface' . $task_type;
+
+    $selected_uids = array();
+    $uid_options = array();
+    $selected_pvs = array();
+    $pv_options = array();
+
+    if (array_key_exists('assignment', $this->_task_edit_tabs) && $this->_task_edit_tabs['assignment'] == 1) {
+
+      $res = db_query("SELECT uid FROM {maestro_template_assignment} WHERE template_data_id=:tdid AND uid!=0", array(':tdid' => $this->_task_id));
+      foreach ($res as $rec) {
+        $selected_uids[] = $rec->uid;
+      }
+
+      $res = db_query("SELECT uid, name FROM {users} WHERE uid > 0");
+      foreach ($res as $rec) {
+        $uid_options[$rec->uid] = array('label' => $rec->name, 'selected' => (in_array($rec->uid, $selected_uids) ? 1:0));
+      }
+
+      $res = db_query("SELECT process_variable FROM {maestro_template_assignment} WHERE template_data_id=:tdid AND process_variable!=0", array(':tdid' => $this->_task_id));
+      foreach ($res as $rec) {
+        $selected_pvs[] = $rec->process_variable;
+      }
+
+      $res = db_query("SELECT id, variable_name FROM {maestro_template_variables} WHERE template_id=:tid", array(':tid' => $this->_template_id));
+      foreach ($res as $rec) {
+        $pv_options[$rec->id] = array('label' => $rec->variable_name, 'selected' => (in_array($rec->id, $selected_pvs) ? 1:0));
+      }
+    }
+
+    $optional_parms = array();
+    if (array_key_exists('optional', $this->_task_edit_tabs) && $this->_task_edit_tabs['optional'] == 1) {
+      $res = db_select('maestro_template_data', 'a');
+      $res->fields('a', array('task_data'));
+      $res->condition('a.id', $this->_task_id, '=');
+      $rec = current($res->execute()->fetchAll());
+      $rec->task_data = unserialize($rec->task_data);
+
+      if (is_array($rec->task_data) && array_key_exists('optional_parm', $rec->task_data)) {
+        foreach ($rec->task_data['optional_parm'] as $var_name => $var_value) {
+          $optional_parms[$var_name] = $var_value;
+        }
+      }
+    }
+
+    return array('html' => theme('maestro_workflow_edit_tasks_frame', array('tdid' => $this->_task_id, 'tid' => $this->_template_id, 'form_content' => $this->getEditFormContent(), 'maestro_url' => $maestro_url, 'pv_options' => $pv_options, 'uid_options' => $uid_options, 'task_class' => $task_class, 'vars' => $vars, 'task_edit_tabs' => $this->_task_edit_tabs, 'optional_parms' => $optional_parms)), 'assigned_by_variable' => $vars->assigned_by_variable);
+  }
+
+  function save() {
+    $assigned_by_variable = 0;
+
+    $res = db_select('maestro_template_data', 'a');
+    $res->fields('a', array('id', 'task_data'));
+    $res->condition('a.id', $this->_task_id, '=');
+    $rec = current($res->execute()->fetchAll());
+
+    if (array_key_exists('assignment', $this->_task_edit_tabs) && $this->_task_edit_tabs['assignment'] == 1) {
+      $assigned_by_variable = $_POST['assigned_by_variable'];
+
+      db_query("DELETE FROM {maestro_template_assignment} WHERE template_data_id=:tdid AND uid!=0", array(':tdid' => $this->_task_id));
+      if (array_key_exists('assign_by_uid', $_POST)) {
+        foreach ($_POST['assign_by_uid'] as $id) {
+          db_query("INSERT INTO {maestro_template_assignment} (template_data_id, uid) VALUES (:tdid, :id)", array(':tdid' => $this->_task_id, ':id' => $id));
+        }
+      }
+
+      db_query("DELETE FROM {maestro_template_assignment} WHERE template_data_id=:tdid AND process_variable!=0", array(':tdid' => $this->_task_id));
+      if (array_key_exists('assign_by_pv', $_POST)) {
+        foreach ($_POST['assign_by_pv'] as $id) {
+          db_query("INSERT INTO {maestro_template_assignment} (template_data_id, process_variable) VALUES (:tdid, :id)", array(':tdid' => $this->_task_id, ':id' => $id));
+        }
+      }
+    }
+
+    if (array_key_exists('optional', $this->_task_edit_tabs) && $this->_task_edit_tabs['optional'] == 1) {
+      $optional_parms = array();
+
+      if (array_key_exists('op_var_names', $_POST)) {
+        foreach ($_POST['op_var_names'] as $key => $var_name) {
+          if ($var_name != '') {
+            $optional_parms[$var_name] = $_POST['op_var_values'][$key];
+          }
+        }
+      }
+
+      $rec->task_data = unserialize($rec->task_data);
+      $rec->task_data['optional_parm'] = $optional_parms;
+      $rec->task_data = serialize($rec->task_data);
+    }
+
+    $rec->assigned_by_variable = $assigned_by_variable;
+    $rec->taskname = $_POST['taskname'];
+
+    drupal_write_record('maestro_template_data', $rec, array('id'));
+
+    return array('task_id' => $this->_task_id);
   }
 
   //handles the update for the drag and drop
@@ -271,114 +387,7 @@ abstract class MaestroTaskInterface {
     return $js;
   }
 
-  function edit() {
-    global $base_url;
-    $maestro_url = $base_url . '/' . drupal_get_path('module', 'maestro');
-
-    $res = db_select('maestro_template_data', 'a');
-    $res->fields('a', array('task_class_name', 'taskname', 'assigned_by_variable'));
-    $res->condition('a.id', $this->_task_id, '=');
-    $vars = current($res->execute()->fetchAll());
-
-    $task_type = substr($vars->task_class_name, 15);
-    $task_class = 'MaestroTaskInterface' . $task_type;
-
-    $selected_uids = array();
-    $uid_options = array();
-    $selected_pvs = array();
-    $pv_options = array();
-
-    if (array_key_exists('assignment', $this->_task_edit_tabs) && $this->_task_edit_tabs['assignment'] == 1) {
-
-      $res = db_query("SELECT uid FROM {maestro_template_assignment} WHERE template_data_id=:tdid AND uid!=0", array(':tdid' => $this->_task_id));
-      foreach ($res as $rec) {
-        $selected_uids[] = $rec->uid;
-      }
-
-      $res = db_query("SELECT uid, name FROM {users} WHERE uid > 0");
-      foreach ($res as $rec) {
-        $uid_options[$rec->uid] = array('label' => $rec->name, 'selected' => (in_array($rec->uid, $selected_uids) ? 1:0));
-      }
-
-      $res = db_query("SELECT process_variable FROM {maestro_template_assignment} WHERE template_data_id=:tdid AND process_variable!=0", array(':tdid' => $this->_task_id));
-      foreach ($res as $rec) {
-        $selected_pvs[] = $rec->process_variable;
-      }
-
-      $res = db_query("SELECT id, variable_name FROM {maestro_template_variables} WHERE template_id=:tid", array(':tid' => $this->_template_id));
-      foreach ($res as $rec) {
-        $pv_options[$rec->id] = array('label' => $rec->variable_name, 'selected' => (in_array($rec->id, $selected_pvs) ? 1:0));
-      }
-    }
-
-    $optional_parms = array();
-    if (array_key_exists('optional', $this->_task_edit_tabs) && $this->_task_edit_tabs['optional'] == 1) {
-      $res = db_select('maestro_template_data', 'a');
-      $res->fields('a', array('task_data'));
-      $res->condition('a.id', $this->_task_id, '=');
-      $rec = current($res->execute()->fetchAll());
-      $rec->task_data = unserialize($rec->task_data);
-
-      if (is_array($rec->task_data) && array_key_exists('optional_parm', $rec->task_data)) {
-        foreach ($rec->task_data['optional_parm'] as $var_name => $var_value) {
-          $optional_parms[$var_name] = $var_value;
-        }
-      }
-    }
-
-    return array('html' => theme('maestro_workflow_edit_tasks_frame', array('tdid' => $this->_task_id, 'tid' => $this->_template_id, 'form_content' => $this->getEditFormContent(), 'maestro_url' => $maestro_url, 'pv_options' => $pv_options, 'uid_options' => $uid_options, 'task_class' => $task_class, 'vars' => $vars, 'task_edit_tabs' => $this->_task_edit_tabs, 'optional_parms' => $optional_parms)), 'assigned_by_variable' => $vars->assigned_by_variable);
-  }
-
-  function save() {
-    $assigned_by_variable = 0;
-
-    if (array_key_exists('assignment', $this->_task_edit_tabs) && $this->_task_edit_tabs['assignment'] == 1) {
-      $assigned_by_variable = $_POST['assigned_by_variable'];
-
-      db_query("DELETE FROM {maestro_template_assignment} WHERE template_data_id=:tdid AND uid!=0", array(':tdid' => $this->_task_id));
-      if (array_key_exists('assign_by_uid', $_POST)) {
-        foreach ($_POST['assign_by_uid'] as $id) {
-          db_query("INSERT INTO {maestro_template_assignment} (template_data_id, uid) VALUES (:tdid, :id)", array(':tdid' => $this->_task_id, ':id' => $id));
-        }
-      }
-
-      db_query("DELETE FROM {maestro_template_assignment} WHERE template_data_id=:tdid AND process_variable!=0", array(':tdid' => $this->_task_id));
-      if (array_key_exists('assign_by_pv', $_POST)) {
-        foreach ($_POST['assign_by_pv'] as $id) {
-          db_query("INSERT INTO {maestro_template_assignment} (template_data_id, process_variable) VALUES (:tdid, :id)", array(':tdid' => $this->_task_id, ':id' => $id));
-        }
-      }
-    }
-
-    if (array_key_exists('optional', $this->_task_edit_tabs) && $this->_task_edit_tabs['optional'] == 1) {
-      $optional_parms = array();
-
-      if (array_key_exists('op_var_names', $_POST)) {
-        foreach ($_POST['op_var_names'] as $key => $var_name) {
-          if ($var_name != '') {
-            $optional_parms[$var_name] = $_POST['op_var_values'][$key];
-          }
-        }
-      }
-
-      $res = db_select('maestro_template_data', 'a');
-      $res->fields('a', array('id', 'task_data'));
-      $res->condition('a.id', $this->_task_id, '=');
-      $rec = current($res->execute()->fetchAll());
-      $rec->task_data = unserialize($rec->task_data);
-      $rec->task_data['optional_parm'] = $optional_parms;
-      $rec->task_data = serialize($rec->task_data);
-      $rec->taskname = $_POST['taskname'];
-      $rec->assigned_by_variable = $assigned_by_variable;
-
-      drupal_write_record('maestro_template_data', $rec, array('id'));
-    }
-
-    return array('task_id' => $this->_task_id);
-  }
-
   function setCanvasHeight() {
-    watchdog('maestro', 'setCanvasHeight method');
     $rec = new stdClass();
     $rec->id = $this->_template_id;
     $rec->canvas_height = $_POST['height'];
@@ -678,6 +687,7 @@ class MaestroTaskInterfaceSetProcessVariable extends MaestroTaskInterface {
       $this->_task_data->var_to_set = 0;
       $this->_task_data->inc_value = 0;
       $this->_task_data->var_value = 0;
+      $this->_task_data->set_type = 0;
     }
 
     $res = db_query("SELECT id, variable_name FROM {maestro_template_variables} WHERE template_id=:tid", array('tid' => $this->_template_id));
@@ -691,7 +701,8 @@ class MaestroTaskInterfaceSetProcessVariable extends MaestroTaskInterface {
   function save() {
     $rec = new stdClass();
     $rec->id = $_POST['template_data_id'];
-    $rec->task_data = serialize(array('var_to_set' => $_POST['var_to_set'], 'inc_value' => $_POST['inc_value'], 'var_value' => $_POST['var_value'], 'form_id' => 0, 'field_id' => 0));
+    $rec->task_data = serialize(array('var_to_set' => $_POST['var_to_set'], 'inc_value' => $_POST['inc_value'], 'var_value' => $_POST['var_value'], 'set_type' => $_POST['set_type']));
+
     drupal_write_record('maestro_template_data', $rec, array('id'));
 
     return parent::save();

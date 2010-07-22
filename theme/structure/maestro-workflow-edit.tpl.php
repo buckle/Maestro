@@ -1,5 +1,5 @@
 <?php
-// $Id:
+// $Id$
 
 /**
  * @file
@@ -23,30 +23,11 @@
   </div></div></div></div></div></div></div></div></div>
 
   <div id="maestro_workflow_container" class="maestro_workflow_container" style="position: abosolute; height: <?php print $t_rec->canvas_height; ?>px;">
-
-<?php
-  $res = db_query('SELECT id, taskname, task_class_name, is_interactive, offset_left, offset_top FROM {maestro_template_data} WHERE template_id=:tid', array(':tid' => $tid));
-  $task_js = '';
-  foreach ($res as $rec) {
-    $task_type = substr($rec->task_class_name, 15);
-    $task_class = 'MaestroTaskInterface' . $task_type;
-    $ti = new $task_class($rec->id);
-
-    $task_js .= $ti->getContextMenuJS();
-?>
-    <div id="task<?php print $rec->id; ?>" class="<?php print $task_class; ?> maestro_task_container" onclick="draw_line_to(this);" style="position: absolute; left: <?php print $rec->offset_left; ?>px; top: <?php print $rec->offset_top; ?>px;">
-<?php
-      print $ti->display();
-?>
-    </div>
-    <?php print $ti->getContextMenuHTML(); ?>
-<?php
-  }
-
-  print $mi->getContextMenuHTML();
-?>
-
+    <?php print $mi->displayTasks(); ?>
   </div>
+
+  <?php print $mi->getContextMenuHTML(); ?>
+
   <div>
     <a href="#" onClick="grow_canvas(); return false;"><?php print t('Grow Canvas'); ?></a>
     <a href="#" onClick="shrink_canvas(); return false;"><?php print t('Shrink Canvas'); ?></a>
@@ -57,5 +38,4 @@
     var template_id = <?php print $tid; ?>;
     <?php print $additional_js; ?>
     <?php print $mi->getContextMenuJS(); ?>
-    <?php print $task_js; ?>
   </script>
