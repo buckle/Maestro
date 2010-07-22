@@ -155,11 +155,11 @@ span.maestro_working {
   padding-right:18px;
 }
 
-.maestro_hide_error_bar {
+.maestro_hide_item {
 	display: none;
 }
 
-.maestro_show_error_bar {
+.maestro_show_item {
 	display: ;
 }
 

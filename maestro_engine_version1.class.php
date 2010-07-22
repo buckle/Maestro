@@ -274,7 +274,7 @@
       $processTaskListcount = 0;
 
       /* Call Observer Hooks to send out any task notifications and reminders */
-      $interactiveCondition = db_and()->condition('a.status',0)->condition('a.is_interactive',1);
+      $interactiveCondition = db_and()->condition(db_or()->condition('a.status',0) ->condition('a.status',1))->condition('a.is_interactive',1);
       $batchStatusCondition = db_or()->condition('a.status',0)->condition('a.status',3)->condition('a.status',4);
       $batchOverallCondition = db_and()->condition($batchStatusCondition)->condition('a.is_interactive',0);
       $lastCondition = db_and()->condition('a.archived',0)->condition('b.complete',0);

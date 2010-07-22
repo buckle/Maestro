@@ -409,14 +409,14 @@ function maestro_copyTemplate(tid) {
 }
 
 function maestro_showErrorBar() {
-	jQuery('#maestro_error_row').removeClass('maestro_hide_error_bar');
-	jQuery('#maestro_error_row').addClass('maestro_show_error_bar');
+	jQuery('#maestro_error_row').removeClass('maestro_hide_item');
+	jQuery('#maestro_error_row').addClass('maestro_show_item');
 }
 function maestro_hideErrorBar() {
 	var error = '';
 	jQuery('#maestro_error_message').html(error);
-	jQuery('#maestro_error_row').removeClass('maestro_show_error_bar');
-	jQuery('#maestro_error_row').addClass('maestro_hide_error_bar');
+	jQuery('#maestro_error_row').removeClass('maestro_show_item');
+	jQuery('#maestro_error_row').addClass('maestro_hide_item');
 }
 
 

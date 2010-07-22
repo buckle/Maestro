@@ -43,7 +43,7 @@ function maestro_menu() {
 
     $items['maestro/taskconsole/ajax'] = array(
     'page callback' => 'maestro_handle_taskconsole_ajax_request',
-    'page arguments' => array(3) ,      // Passing in wildcard which should be parm 1
+    'page arguments' => array(3, 4) ,      // Passing in wildcard which should be parm 1
     'type' => MENU_CALLBACK,
     'access arguments' => array('maestro user')
     );
@@ -107,6 +107,14 @@ function maestro_menu() {
     'page callback' => 'maestro_configure',
     'access arguments' => array('maestro admin'),
     'file' => 'maestro.admin.inc'
+    );
+
+    $items['maestro_manual_web_example'] = array(
+    'title' => 'Maestro Manual Web Example',
+    'description' => 'Manual Web example.',
+    'page callback' => 'maestro_manual_web_example',
+    'access arguments' => array('maestro user'),
+    'type' => MENU_CALLBACK,
     );
 
     return $items;
@@ -226,6 +234,10 @@ function maestro_theme() {
     'maestro_task_manual_web_edit' => array(
       'template' => 'theme/structure/tasks/maestro-task-manual-web-edit',
       'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL)
+    ),
+    'maestro_manual_web_example' => array(
+      'template' => 'theme/examples/maestro-manual-web-example',
+      'variables' => array('queue_id' => 0)
     ),
   );
 }
@@ -485,7 +497,7 @@ function maestro_maestro_context_menu() {
 }
 
 
-function maestro_handle_taskconsole_ajax_request($action) {
+function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
   switch ($action) {
     case 'starttask':
       $startedDate = db_query("SELECT started_date FROM {maestro_queue} WHERE id = :tid",
@@ -527,6 +539,14 @@ function maestro_handle_taskconsole_ajax_request($action) {
       echo json_encode($retdata);
       break;
 
+    case 'complete_task':
+      //We require the queueID to be passed back to us in the URL
+      $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
+      $queue_id = intval($queue_id);
+      $maestro->engine()->completeTask($queue_id);
+      $retdata = array ('status' => "1");
+      echo json_encode($retdata);
+      break;
   }
 }
 /**
@@ -581,4 +601,12 @@ function maestro_node_load($nodes, $form) {
      * Retrieve the taskid (queueid) and any required data
     */
   }
+}
+
+function maestro_manual_web_example(){
+  global $base_url;
+  $maestro_path = $base_url . '/' . drupal_get_path('module', 'maestro');
+  drupal_add_css($maestro_path . '/css/maestro.css');
+  $queue_id=check_plain($_GET['queueid']);
+  return theme('maestro_manual_web_example', array('queue_id' => $queue_id));
 }

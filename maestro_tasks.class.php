@@ -463,17 +463,19 @@ class MaestroTaskTypeManualWeb extends MaestroTask {
   function execute() {
     $msg = 'Execute Task Type: "Manual Web" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
-    $success = FALSE;
 
-    //Assumption made here that the $success variable is set by the batch task.
-    if ($success) {
-      $this->executionStatus = TRUE;
+    //this is a manual web task.  we have to check to see if the current status has been set to 1.
+    //if so, execution status is set to true to complete the task.
+
+    if($this->_properties->status == 1) {
+      $this->executionStatus = TRUE;  //just complete it!
+      $this->_archiveStatus = 1;
     }
     else {
       $this->executionStatus = FALSE;
+      $this->setMessage( 'Manual web task -- status is 0.  Will not complete this task yet.');
     }
 
-    $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
     return $this;
   }
 
