@@ -299,8 +299,8 @@
         $this->_processId = $queueRecord->process_id;
         $this->_queueId = $queueRecord->id;
 
-        /* Clean queue will execute Synchronous Tasks in one step - execute and then crank the process to setup the next task.
-         * The Asynchronouos tasks like manual web, interactive tasks and content type tasks will not complete immediately.
+        /* Clean queue will execute non-interactive tasks in one step - execute and then crank the process to setup the next task.
+         * The interactive tasks like manual web, interactiveTasks and contentType tasks will not complete immediately.
          * The new interactive tasks (first appearance in the queue) will be executed now but do not complete immediately.
          * They will complete at some time in the future. They will be flagged complete then but since there should only
          * be one instance of the workflow engine that processes the tasks and sets up the next task.
@@ -315,9 +315,15 @@
         } else {
 
           /* Using the strategy Design Pattern - Pass a new taskclass as the object to the maestro engine execute method
-           * All synchronous tasks will execute and complete in one step and return a true/false.
-           * The Synchronouos tasks like manual web, interactive tasks and content type tasks will not execute but
+           * All non-interactive tasks will normally execute and complete in one step and return a true/false.
+           * There can be batchTasks like that test for a condition and if not yet met - they would return FALSE
+           * Example: have a batch task that holds up the workflow until it's Friday at 12:00 noon - then send out an email.
+           * The interactive tasks like manual web, interactiveTask and contentType tasks will not execute and
            * not complete now, they will at some time in the future and be archived by this method.
+           * InteractiveTasks will be picked up for the user via a call by the taskconsole to getQueue and presented
+           * to the user where they interact (example: inline interactive task, question, redirect or create/edit content)
+           * It's up to the code associated with the interactive task to trigger the completeTask operation - most likely by a
+           * a defined MENU CALLBACK to our defined menu handlers - review code for example interactiveTasks.
            */
           $task = $this->executeTask(new $queueRecord->task_class_name($queueRecord));
           if ($task->executionStatus === FALSE) {

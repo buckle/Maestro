@@ -18,7 +18,16 @@ abstract class MaestroTask {
     $this->_properties = $properties;
   }
 
+
+  /* execute: Nothing much for an interactiveTask to do in the execute method.
+   * For Interactive tasks, we will want to return an executionStatus of FALSE as this task
+   * is really executed from the task console by the user.
+   * The defined function for this task will execute and present the task to the user in the task console.
+   * The taskconsole will call the processInteractiveTask method for this task type.
+   * It's up to the defined interactiveTask function to complete the task.
+   */
   abstract function execute ();
+
 
   /* prepareTask: Opportunity to set task specific data that will be used to create the queue record
      Specifically, the task handler and task_data fields - which is a serialized array of task specific options/data
@@ -358,12 +367,14 @@ class MaestroTaskTypeIf extends MaestroTask {
 class MaestroTaskTypeInteractivefunction extends MaestroTask {
 
   function execute() {
+    /* Nothing much for an interactiveTask to do in the execute method.
+     * We want to return an executionStatus of FALSE as this task is really executed from the task console by the user.
+     * The defined function for this task will execute and present the task to the user in the task console.
+     * The taskconsole will call the processInteractiveTask method for this task type.
+     * It's up to the defined interactiveTask function to complete the task.
+     */
     $msg = 'Execute Task Type: "MaestroTaskTypeInteractivefunction" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
-    $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
-    $serializedData = db_query("SELECT task_data FROM {maestro_queue} WHERE id = :tid",
-      array(':tid' => $this->_properties->id))->fetchField();
-    $taskdata = @unserialize($serializedData);
     $this->executionStatus = FALSE;
     return $this;
   }

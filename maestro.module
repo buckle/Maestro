@@ -264,6 +264,10 @@ function maestro_taskconsole() {
   drupal_add_css($maestro_path . '/css/maestro.css');
   $modulepath = drupal_get_path('module', 'maestro');
   drupal_set_breadcrumb('');
+
+  $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
+  $maestro->engine()->cleanQueue();
+
   return theme('maestro_taskconsole');
 }
 
