@@ -45,16 +45,23 @@
 
 .maestro_task_container {
   z-index: 100;
-  background: #FFFFFF;
   cursor: move;
 }
 
 .maestro_task {
   cursor: move;
+  border: 0px;
+  padding: 0px;
+  margin: 0px;
+  width: auto;
+}
+.maestro_task td {
+  padding: 0px;
+  margin: 0px;
 }
 
 .maestro_task_body {
-  padding: 3px;
+  padding: 3px !important;
   text-align: center;
 }
 
@@ -71,6 +78,10 @@
 .maestro_task_edit_panel select,
 .maestro_task_edit_panel textarea {
   border: 1px solid #ccc;
+}
+.maestro_task_edit_panel input[type="checkbox"],
+.maestro_task_edit_panel input[type="radio"] {
+  border: 0px;
 }
 
 .maestro_task_edit_save_div {
@@ -104,26 +115,6 @@
   text-align: center;
 }
 
-.maestro_task_title_grn { background: url(../images/admin/header-green-bg.png) repeat-x; }
-.maestro_task_title_red { background: url(../images/admin/header-red-bg.png) repeat-x; }
-.maestro_task_title_yel { background: url(../images/admin/header-yellow-bg.png) repeat-x; }
-.maestro_task_title_bl { background: url(../images/admin/header-blue-bg.png) repeat-x; }
-.maestro_task_title_gry { background: url(../images/admin/header-gray-bg.png) repeat-x; }
-
-.tl { background: url(../images/admin/corners/tl.gif) 0 0 no-repeat; }
-.tr { background: url(../images/admin/corners/tr.gif) 100% 0 no-repeat; padding: 10px; }
-.bl { background: url(../images/admin/corners/bl.gif) 0 100% no-repeat; }
-.br { background: url(../images/admin/corners/br.gif) 100% 100% no-repeat; }
-.tl-grn { background: url(../images/admin/corners/tl-grn.gif) 0 0 no-repeat; }
-.tr-grn { background: url(../images/admin/corners/tr-grn.gif) 100% 0 no-repeat; padding: 1px 10px 1px 10px; }
-.tl-red { background: url(../images/admin/corners/tl-red.gif) 0 0 no-repeat; }
-.tr-red { background: url(../images/admin/corners/tr-red.gif) 100% 0 no-repeat; padding: 1px 10px 1px 10px; }
-.tl-yel { background: url(../images/admin/corners/tl-yel.gif) 0 0 no-repeat; }
-.tr-yel { background: url(../images/admin/corners/tr-yel.gif) 100% 0 no-repeat; padding: 1px 10px 1px 10px; }
-.tl-bl { background: url(../images/admin/corners/tl-bl.gif) 0 0 no-repeat; }
-.tr-bl { background: url(../images/admin/corners/tr-bl.gif) 100% 0 no-repeat; padding: 1px 10px 1px 10px; }
-.tl-gry { background: url(../images/admin/corners/tl-gry.gif) 0 0 no-repeat; }
-.tr-gry { background: url(../images/admin/corners/tr-gry.gif) 100% 0 no-repeat; padding: 1px 10px 1px 10px; }
 .tl-bge { background: url(../images/admin/corners/tl-bge.gif) 0 0 no-repeat; }
 .tr-bge { background: url(../images/admin/corners/tr-bge.gif) 100% 0 no-repeat; padding: 1px 10px 1px 10px; }
 .bl-bge { background: url(../images/admin/corners/bl-bge.gif) 0 100% no-repeat; }
@@ -134,21 +125,39 @@
 .br-wht { background: url(../images/admin/corners/br-wht.gif) 100% 100% no-repeat; }
 .unactive .tl-tab { background: url(../images/admin/corners/tl-wht2.gif) 0 0 no-repeat; }
 .unactive .tr-tab { background: url(../images/admin/corners/tr-wht2.gif) 100% 0 no-repeat; padding: 1px 10px 1px 10px; }
-.unactive .bl-tab { background: url(../images/admin/corners/bl-wht-ex2.gif) 0 100% no-repeat; }
-.unactive .br-tab { background: url(../images/admin/corners/br-wht-ex2.gif) 100% 100% no-repeat; }
+.unactive .bl-tab { }
+.unactive .br-tab { }
 .active .tl-tab { background: url(../images/admin/corners/tl-wht.gif) 0 0 no-repeat; }
 .active .tr-tab { background: url(../images/admin/corners/tr-wht.gif) 100% 0 no-repeat; padding: 1px 10px 1px 10px; }
-.active .bl-tab { background: url(../images/admin/corners/bl-wht-ex.gif) 0 100% no-repeat; }
-.active .br-tab { background: url(../images/admin/corners/br-wht-ex.gif) 100% 100% no-repeat; }
+.active .bl-tab { }
+.active .br-tab { }
 .tl-cl { background: url(../images/admin/corners/tl-cl.gif) 0 0 no-repeat; }
 .tr-cl { background: url(../images/admin/corners/tr-cl.gif) 100% 0 no-repeat; padding: 1px 10px 1px 10px; }
 .bl-cl { }
 .br-cl { }
-
 .t { background: url(../images/admin/corners/dot.gif) 0 0 repeat-x; }
 .b { background: url(../images/admin/corners/dot.gif) 0 100% repeat-x; }
 .l { background: url(../images/admin/corners/dot.gif) 0 0 repeat-y; }
 .r { background: url(../images/admin/corners/dot.gif) 100% 0 repeat-y; }
+
+.tl-grn { background: url(../images/admin/corners/tl-grn.gif) no-repeat; width: 10px; }
+.tr-grn { background: url(../images/admin/corners/tr-grn.gif) no-repeat; width: 10px; }
+.tm-grn { background: url(../images/admin/corners/tm-grn.gif) repeat-x; height: 23px; }
+.tl-red { background: url(../images/admin/corners/tl-red.gif) no-repeat; width: 10px; }
+.tr-red { background: url(../images/admin/corners/tr-red.gif) no-repeat; width: 10px; }
+.tm-red { background: url(../images/admin/corners/tm-red.gif) repeat-x; height: 23px; }
+.tl-bl { background: url(../images/admin/corners/tl-bl.gif) no-repeat; width: 10px; }
+.tr-bl { background: url(../images/admin/corners/tr-bl.gif) no-repeat; width: 10px; }
+.tm-bl { background: url(../images/admin/corners/tm-bl.gif) repeat-x; height: 23px; }
+.tl-gry { background: url(../images/admin/corners/tl-gry.gif) no-repeat; width: 10px; }
+.tr-gry { background: url(../images/admin/corners/tr-gry.gif) no-repeat; width: 10px; }
+.tm-gry { background: url(../images/admin/corners/tm-gry.gif) repeat-x; height: 23px; }
+.tl-yel { background: url(../images/admin/corners/tl-yel.gif) no-repeat; width: 10px; }
+.tr-yel { background: url(../images/admin/corners/tr-yel.gif) no-repeat; width: 10px; }
+.tm-yel { background: url(../images/admin/corners/tm-yel.gif) repeat-x; height: 23px; }
+.bl { background: url(../images/admin/corners/bl.gif) no-repeat bottom right; width: 10px; }
+.br { background: url(../images/admin/corners/br.gif) no-repeat bottom left; width: 10px; }
+.bm { background: url(../images/admin/corners/bm.gif) repeat-x bottom left; }
 
 span.maestro_working {
   background:url(../images/admin/status-active.gif) no-repeat right center;

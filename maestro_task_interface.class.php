@@ -71,6 +71,9 @@ abstract class MaestroTaskInterface {
     $this->_taskname = $rec->taskname;
     $rec->task_class_name = 'MaestroTaskType' . $this->_task_type;
     $rec->is_interactive = $this->_is_interactive;
+    if ($this->_is_interactive) {
+      $rec->assigned_by_variable = 1;
+    }
     $rec->first_task = 0;
     $rec->offset_left = $_POST['offset_left'];
     $rec->offset_top = $_POST['offset_top'];
@@ -147,7 +150,6 @@ abstract class MaestroTaskInterface {
     $pv_options = array();
 
     if (array_key_exists('assignment', $this->_task_edit_tabs) && $this->_task_edit_tabs['assignment'] == 1) {
-
       $res = db_query("SELECT uid FROM {maestro_template_assignment} WHERE template_data_id=:tdid AND uid!=0", array(':tdid' => $this->_task_id));
       foreach ($res as $rec) {
         $selected_uids[] = $rec->uid;

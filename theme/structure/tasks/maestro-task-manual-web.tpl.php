@@ -7,15 +7,19 @@
  */
 ?>
 
-<div class="t"><div class="b"><div class="r"><div class="l"><div class="bl"><div class="br"><div class="tl-bl"><div class="tr-bl">
-
-<div class="maestro_task">
-  <div id="task_title<?php print $tdid; ?>" class="maestro_task_title maestro_task_title_bl">
-    <?php print $taskname; ?>
-  </div>
-  <div class="maestro_task_body">
-    <?php print t('Manual Web Task'); ?>
-  </div>
-</div>
-
-</div></div></div></div></div></div></div></div>
+<table class="maestro_task">
+  <tr>
+    <td class="tl-bl"></td>
+    <td id="task_title<?php print $tdid; ?>" class="tm-bl maestro_task_title">
+      <?php print $taskname; ?>
+    </td>
+    <td class="tr-bl"></td>
+  </tr>
+  <tr>
+    <td class="bl"></td>
+    <td class="bm maestro_task_body">
+      <?php print t('Manual Web Task'); ?>
+    </td>
+    <td class="br"></td>
+  </tr>
+</table>

@@ -592,6 +592,8 @@ function toggle_assignment(type) {
       $('#assign_by_uid_unselected').attr("disabled", true);
       $('#assign_by_pv').removeAttr("disabled");
       $('#assign_by_pv_unselected').removeAttr("disabled");
+      $('#assign_by_uid_row').hide();
+      $('#assign_by_pv_row').show();
 
       sel1 = document.getElementById('assign_by_uid');
       sel2 = document.getElementById('assign_by_uid_unselected');
@@ -604,6 +606,8 @@ function toggle_assignment(type) {
       $('#assign_by_uid_unselected').removeAttr("disabled");
       $('#assign_by_pv').attr("disabled", true);
       $('#assign_by_pv_unselected').attr("disabled", true);
+      $('#assign_by_uid_row').show();
+      $('#assign_by_pv_row').hide();
 
       sel1 = document.getElementById('assign_by_pv');
       sel2 = document.getElementById('assign_by_pv_unselected');

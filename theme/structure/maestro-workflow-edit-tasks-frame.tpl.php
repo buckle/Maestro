@@ -8,11 +8,12 @@
 
 ?>
 
+<div>
   <div style="margin: 0px 0px 0px 10px; float: left;">&nbsp;</div>
 
   <div id="task_edit_tab_main" class="active"><div class="maestro_task_edit_tab"><div class="t"><div class=""><div class="r"><div class="l"><div class="bl-tab"><div class="br-tab"><div class="tl-tab"><div class="tr-tab">
   <a href="#" onclick="switch_task_edit_section('main'); return false;"><?php print t('Main'); ?></a>
-  </div></div></div></div></div></div></div></div></div></div></div>
+  </div></div></div></div></div></div></div></div></div></div>
 
 <?php
   if (array_key_exists('optional', $task_edit_tabs) && $task_edit_tabs['optional'] == 1) {
@@ -111,9 +112,12 @@
         <div id="task_edit_assignment" style="display: none;">
           <table>
             <tr>
-              <td colspan="3" style="text-align: center;"><input type="radio" name="assigned_by_variable" value="0" onchange="toggle_assignment(0);" <?php print ($vars->assigned_by_variable == 0) ? 'checked="checked"':''; ?>><?php print t('Assign User(s) by Hardcoding'); ?></td>
+              <td colspan="3" style="text-align: center;">
+                <input type="radio" name="assigned_by_variable" value="0" onchange="toggle_assignment(0);" <?php print ($vars->assigned_by_variable == 0) ? 'checked="checked"':''; ?>><?php print t('Assign User(s) by Hardcoding'); ?>&nbsp;&nbsp;&nbsp;
+                <input type="radio" name="assigned_by_variable" value="1" onchange="toggle_assignment(1);" <?php print ($vars->assigned_by_variable == 1) ? 'checked="checked"':''; ?>><?php print t('Assign User(s) by Process Variable'); ?>
+              </td>
             </tr>
-            <tr>
+            <tr id="assign_by_uid_row">
               <td>
                 <select size="4" multiple="multiple" style="width: 200px;" id="assign_by_uid_unselected">
 <?php
@@ -146,10 +150,7 @@
                 </select>
               </td>
             </tr>
-            <tr>
-              <td colspan="3" style="text-align: center;"><input type="radio" name="assigned_by_variable" value="1" onchange="toggle_assignment(1);" <?php print ($vars->assigned_by_variable == 1) ? 'checked="checked"':''; ?>><?php print t('Assign User(s) by Process Variable'); ?></td>
-            </tr>
-            <tr>
+            <tr id="assign_by_pv_row">
               <td>
                 <select size="4" multiple="multiple" style="width: 200px;" id="assign_by_pv_unselected">
 <?php
@@ -194,10 +195,11 @@
 <?php
   }
 ?>
+        <br />
         <div class="maestro_task_edit_save_div"><input class="form-submit" type="submit" value="<?php print t('Save'); ?>"></div>
 
 
       </form>
     </div></div></div></div></div></div></div></div>
   </div>
-
+</div>
