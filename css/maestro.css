@@ -83,7 +83,9 @@
 .maestro_task_edit_panel input[type="radio"] {
   border: 0px;
 }
-
+.maestro_task_edit_panel input[type="text"] {
+  width: 250px;
+}
 .maestro_task_edit_save_div {
   text-align: center;
   margin: 10px 0px 10px 0px;
