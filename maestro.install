@@ -1319,5 +1319,86 @@ function maestro_schema() {
     'primary key' => array('uid'),
   );
 
+
+  //maestro_project_content
+  $schema['maestro_project_content'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'nid' => array(
+        'description' => 'Node ID',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'project_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'qid' => array(
+        'description' => 'Created by this queue record id',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'task_id' => array(
+        'description' => 'Created by this task id - template_data id',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'process_id' => array(
+        'description' => 'Workflow Process that created this record',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'instance'=> array(
+        'description' => 'Instance of this content type for this project',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'content_type' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'task_data' => array(
+        'description' => 'Optional serialized array of task specific data or options.',
+        'type' => 'text'
+      ),
+      'created_by_uid' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'is_locked_by_uid' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'status' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'nid' => array('nid'),
+      'project_id' => array('project_id'),
+    ),
+  );
+
+
   return $schema;
 }
+
+

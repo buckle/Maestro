@@ -9,10 +9,11 @@ class MaestroTaskStatusCodes {
 }
 
 abstract class MaestroTask {
-  protected $_properties = NULL;
+  public $_properties = NULL;
   protected $_message = NULL;
-  protected $_archiveStatus = 0;
-  public $executionStatus = NULL;
+  protected $_lastTestStatus = 0;
+  public $executionStatus = NULL;   // Did task's execute method execute of was there an error
+  public $completionStatus = NULL;  // Did the task's execution method complete and if so set to one of the defined status code CONST values
 
   function __construct($properties) {
     $this->_properties = $properties;
@@ -51,12 +52,12 @@ abstract class MaestroTask {
     return $this->_message;
   }
 
-  function getArchiveStatus() {
-    return $this->_archiveStatus;
+  function getLastTestStatus() {
+    return $this->_lastTestStatus;
   }
 
-function setArchiveStatus($setval) {
-    $this->_archiveStatus = $setval;
+  function setLastTestStatus($setval) {
+    $this->_lastTestStatus = $setval;
   }
 
   function saveTempData($data) {
@@ -89,6 +90,7 @@ class MaestroTaskTypeStart extends MaestroTask {
     watchdog('maestro',$msg);
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
     $this->executionStatus = TRUE;
+    $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
     return $this;
   }
 
@@ -104,6 +106,7 @@ class MaestroTaskTypeEnd extends MaestroTask {
     watchdog('maestro',$msg);
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
     $this->executionStatus = TRUE;
+    $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
     return $this;
   }
 
@@ -128,12 +131,12 @@ class MaestroTaskTypeBatch extends MaestroTask {
     }
     //Assumption made here that the $success variable is set by the batch task.
     if ($success) {
-      $this->executionStatus = TRUE;
+      $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
     }
     else {
-      $this->executionStatus = FALSE;
+      $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
     }
-
+    $this->executionStatus = TRUE;
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
     return $this;
   }
@@ -158,14 +161,14 @@ class MaestroTaskTypeBatchFunction extends MaestroTask {
     if (function_exists($this->_properties->handler)) {
       $this->_properties->handler($this->_properties->id,$this->_properties->process_id);
     }
-    //Assumption made here that the $success variable is set by the batch task.
+    // Assumption made here that the $success variable is set by the batch task.
     if ($success) {
-      $this->executionStatus = TRUE;
+      $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
     }
     else {
-      $this->executionStatus = FALSE;
+      $this->completionStatus = FALSE;
     }
-
+    $this->executionStatus = TRUE;
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
     return $this;
   }
@@ -203,15 +206,13 @@ class MaestroTaskTypeAnd extends MaestroTask {
 
     // sounds confusing, but if the processCount is greater than the completed ones, we're ok too
     if ($numIncomplete->processCount == $numComplete->templateCount || $numIncomplete->processCount > $numComplete->templateCount ) {
-      // we have all of the incoming items done for this AND
-      // we can now carry out updating this queue item's information
-      $this->executionStatus = TRUE;
+      // All of the incoming items done for this AND we can now carry out updating this queue item's information
+      $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
     } else {
-      // not all the incomings for the AND are done
-      // just here for troubleshooting purposes
-      $this->executionStatus = FALSE;
+      // Not all the incomings for the AND are done - can not complete task yet
+      $this->completionStatus = FALSE;
     }
-
+    $this->executionStatus = TRUE;
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
     return $this;
   }
@@ -246,111 +247,111 @@ class MaestroTaskTypeIf extends MaestroTask {
       $res = $query->execute();
       $row=$res->fetchObject();
       $lastStatus = intval($row->status);
-      $whichBranch = null;
+      $useTrueBranch = null;
       switch (strtolower($ifArgumentProcess) ) {
         case 'lasttasksuccess':
           if ($lastStatus == 0 or $lastStatus == 1) {
-            $whichBranch = 1;
+            $useTrueBranch = TRUE;
           }
           else {
-            $whichBranch = 0;
+            $useTrueBranch = FALSE;
           }
           break;
         case 'lasttaskcancel':
           if ($lastStatus == 3) {
-            $whichBranch = 1;
+            $useTrueBranch = TRUE;
           }
           else {
-            $whichBranch = 0;
+            $useTrueBranch = FALSE;
           }
           break;
         case 'lasttaskhold':
           if ($lastStatus == 2) {
-            $whichBranch = 1;
+            $useTrueBranch = TRUE;
           }
           else {
-            $whichBranch = 0;
+            $useTrueBranch = FALSE;
           }
           break;
         case 'lasttaskaborted':
           if ($lastStatus == 3) {
-            $whichBranch = 1;
+            $useTrueBranch = TRUE;
           }
           else {
-            $whichBranch = 0;
+            $useTrueBranch = FALSE;
           }
           break;
-      } //end switch
+      }
     }
-    else {// variableID it is
-      //we're using a variable here.
+    else {    // variableID it is - we're using a variable for testing the IF condition
 
-      // need to perform a variable to value operation based on the selected operation!
-      // $templateVariableID ,$operator ,$ifValue, $processID
-      // need to select the process variable using the ID from the current process
-
+      /* need to perform a variable to value operation based on the selected operation!
+       * $templateVariableID ,$operator ,$ifValue, $processID
+       * need to select the process variable using the ID from the current process
+       */
       $query = db_select('maestro_process_variables', 'a');
       $query->fields('a',array('variable_value'));
       $query->condition(db_and()->condition("a.process_id",$this->_properties->process_id)->condition('a.template_variable_id',$templateVariableID));
       $ifRes = $query->execute();
       $ifQueryNumRows = $query->countQuery()->execute()->fetchField();
       if ($ifQueryNumRows > 0 ) {
-        // should have a variable Value here.
         $ifArray = $ifRes->fetchObject();
         $variableValue = $ifArray->variable_value;
         switch ($operator ) {
           case '=':
             if ($variableValue == $ifValue ) {
-              $whichBranch = 1;
+              $useTrueBranch = TRUE;
             } else {
-              $whichBranch = 0;
+              $useTrueBranch = FALSE;
             }
             break;
           case '<':
             if ($variableValue < $ifValue ) {
-              $whichBranch = 1;
+              $useTrueBranch = TRUE;
             } else {
-              $whichBranch = 0;
+              $useTrueBranch = FALSE;
             }
             break;
           case '>':
             if ($variableValue > $ifValue ) {
-              $whichBranch = 1;
+              $useTrueBranch = TRUE;
             } else {
-              $whichBranch = 0;
+              $useTrueBranch = FALSE;
             }
             break;
           case '!=':
             if ($variableValue != $ifValue ) {
-              $whichBranch = 1;
+              $useTrueBranch = TRUE;
             } else {
-              $whichBranch = 0;
+              $useTrueBranch = FALSE;
             }
 
             break;
-        } //end switch($operator)
-      } //end if$ifQueryNumRows>0)
-      else { // force the branch to the false side since the variable dosent exist...
-        // can't be true if it dosent exist!!!
-        $whichBranch = 0;
+        }
+      }
+      else { // force the branch to the false side since the variable does not exist...
+        $useTrueBranch = FALSE;
       }
 
-      if ($whichBranch == 1 ) {
-        // point to the true branch
-        $statusToinsert = MaestroTaskStatusCodes::STATUS_COMPLETE;
-      }
-      else {
-        // point to the false branch
-        $statusToinsert = MaestroTaskStatusCodes::STATUS_IF_CONDITION_FALSE;
-      }
-      $this->_archiveStatus = $statusToinsert;
-      //now, at this point we need to set the archive task status of this task to the $statusToinsert variable.
-      //so that the nextstep method of the engine can properly save it
+    }
 
-    }//end if/else for using variable or not in the IF
+    if ($useTrueBranch === TRUE ) {  // point to the true branch
+      // This task completed successfully but we want to signal to the engine the condition it was testing
+      // for should use the default workflow path in the engines->nextStep method
+      $this->_lastTestStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
+      $this->executionStatus = TRUE;
+      $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
+    }
+    else if ($useTrueBranch === FALSE) { // point to the false branch
+      // This task completed successfully but we want to signal to the engine the condition it was testing
+      // for should branching to the alternate workflow path in the engines->nextStep method
+      $this->_lastTestStatus = MaestroTaskStatusCodes::STATUS_IF_CONDITION_FALSE;
+      $this->executionStatus = TRUE;
+      $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
+    } else {   // We have an unexpected situation - so flag a task error
+      $this->executionStatus = FALSE;
+    }
 
-
-    $this->executionStatus = TRUE;
     return $this;
   }
 
@@ -375,7 +376,8 @@ class MaestroTaskTypeInteractivefunction extends MaestroTask {
      */
     $msg = 'Execute Task Type: "MaestroTaskTypeInteractivefunction" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
-    $this->executionStatus = FALSE;
+    $this->completionStatus = FALSE;
+    $this->executionStatus = TRUE;
     return $this;
   }
 
@@ -441,13 +443,13 @@ class MaestroTaskTypeSetProcessVariable extends MaestroTask {
     if ($taskDefinitionRec) {   // Needs to be valid variable to set
       $taskDefinitionRec->task_data = unserialize($taskDefinitionRec->task_data);
       if ($taskDefinitionRec->task_data['var_to_set'] > 0) {
+        $count = 0;
         if ($taskDefinitionRec->task_data['var_value'] != '') {  // Set by input
           $count = db_update('maestro_process_variables')
           ->fields(array('variable_value' => intval($taskDefinitionRec->task_data['var_value'])) )
           ->condition('process_id', $this->_properties->process_id, '=')
           ->condition('template_variable_id',$taskDefinitionRec->task_data['var_to_set'],'=')
           ->execute();
-          if ($count == 1)  $this->executionStatus = TRUE;
         }
         else if ($taskDefinitionRec->task_data['inc_value'] != 0) {  // Set by increment
           $query = db_select('maestro_process_variables', 'a');
@@ -461,9 +463,12 @@ class MaestroTaskTypeSetProcessVariable extends MaestroTask {
           ->condition('process_id', $this->_properties->process_id, '=')
           ->condition('template_variable_id',$taskDefinitionRec->task_data['var_to_set'],'=')
           ->execute();
-          if ($count == 1)  $this->executionStatus = TRUE;
         }
+        if ($count == 1)  $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
       }
+      $this->executionStatus = TRUE;
+    } else {
+      $this->executionStatus = FALSE;
     }
     return $this;
   }
@@ -476,20 +481,16 @@ class MaestroTaskTypeSetProcessVariable extends MaestroTask {
 class MaestroTaskTypeManualWeb extends MaestroTask {
 
   function execute() {
+    /* Nothing much for us to do for this interactiveTask in the execute method.
+     * We want to return an executionStatus of FALSE as this task is really executed from the task console by the user.
+     * The user will be redirected to create the defined piece of content.
+     * We have a hook_node_insert method that will trigger a completeTask to tell the masesto engine
+     * this task is now complete and it can be archived and crank the engine forward for this w/f instance (process).
+     */
     $msg = 'Execute Task Type: "Manual Web" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
-
-    //this is a manual web task.  we have to check to see if the current status has been set to 1.
-    //if so, execution status is set to true to complete the task.
-
-    if($this->_properties->status == 1) {
-      $this->executionStatus = TRUE;  //just complete it!
-    }
-    else {
-      $this->executionStatus = FALSE;
-      $this->setMessage( 'Manual web task -- status is 0.  Will not complete this task yet.');
-    }
-
+    $this->completionStatus = FALSE;
+    $this->executionStatus = TRUE;
     return $this;
   }
 
@@ -519,16 +520,17 @@ class MaestroTaskTypeContentType extends MaestroTask {
     $msg = 'Execute Task Type: "Content Type" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
 
-    //this is a manual web task.  we have to check to see if the current status has been set to 1.
-    //if so, execution status is set to true to complete the task.
+    // Check to see if the current status has been set to 1.
+    // If so, completion status is set to true to complete the task.
 
     if($this->_properties->status == 1) {
-      $this->executionStatus = TRUE;  //just complete it!
+      $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;  //just complete it!
     }
     else {
-      $this->executionStatus = FALSE;
+      $this->completionStatus = FALSE;
       $this->setMessage( 'Conent Type task -- status is 0.  Will not complete this task yet.');
     }
+    $this->executionStatus = TRUE;
     return $this;
   }
 

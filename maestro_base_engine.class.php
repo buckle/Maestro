@@ -16,8 +16,16 @@
     var $_userTaskObject          = NULL;     // Users Active Tasks in the queue
     var $_templateCount           = 0;        // Number of templates the user is able to kick off
     var $_processTaskCount        = 0;        // Number of tasks the current process has in the queue
-    var $_archiveStatus           = 0;        // Set by the executing task to signify what status the archive routine should set.
+    var $_status                  = 0;        // Set in cleanQueue to indicate status of last executing task before calling nextStep method
+    var $_lastTestStatus          = 0;        // Used in nextStep when the task that last executed will branch to different tasks - like an IF task
     var $task = null;
+
+
+    public function setProcessId($id) {
+      if (intval($id) > 0) {
+        $this->_processId = $id;
+      }
+    }
 
     public function getUserTaskCount() {
       return $this->_userTaskCount;
@@ -60,13 +68,12 @@
     // if both the process and the name exist, you get a value..
     // otherwise, you get NULL
     function getProcessVariable($variable) {
-        $retval = null;
+        $retval = NULL;
         $thisvar = strtolower($variable);
         if(empty($this->_processId)) {
             if ($this->_debug ) {
                 watchdog('maestro',"get_ProcessVariable: The Process ID has not been set.");
             }
-            $retval=NULL;
         }
         else {
           $query = db_select('maestro_process_variables', 'a');
@@ -78,8 +85,9 @@
           $numrows = $query->countQuery()->execute()->fetchField();
           if ($numrows > 0 ) {
             $record = $result->fetchObject();
+            $retval = $record->variable_value;
             if ($this->_debug ) {
-              watchdog('maestro',"get_ProcessVariable: $variable -> {$record->variable_value}");
+              watchdog('maestro',"get_ProcessVariable: $variable -> $retval");
             }
           }
           else {
@@ -97,13 +105,12 @@
     // if both the process and the name exist, you get a value..
     // otherwise, you get NULL
     function setProcessVariable($variableName, $variableValue=0) {
-        $retval = null;
+        $retval = NULL;
         $thisvar = strtolower($variableName);
            if(empty($this->_processId)) {
             if ($this->_debug ) {
                 watchdog('maestro',"get_ProcessVariable: The Process ID has not been set.");
             }
-            $retval = NULL;
         }
         else {
           // setting the value
@@ -141,7 +148,6 @@
                 foreach ($queueRecords as $queueRecord) {
                     $this->assignTask($queueRecord->id,array($processVariableRecord->variable_id => $variableValue));
                 }
-
             }
             else {
                 if ($this->_debug ) {
@@ -158,12 +164,11 @@
 
     abstract function getAssignedUID();
 
-    abstract function completeTask($queueId);
+    abstract function completeTask($queueId,$status = 1);
 
     abstract function archiveTask($queueId);
 
     abstract function cancelTask($queueId);
-
 
     /* Main method for the Maestro Workflow Engine. Query the queue table and determine if
      * any items in the queue associated with a process are complete.

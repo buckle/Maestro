@@ -45,7 +45,7 @@ function maestro_menu() {
     'page callback' => 'maestro_handle_taskconsole_ajax_request',
     'page arguments' => array(3, 4) ,      // Passing in wildcard which should be parm 1
     'type' => MENU_CALLBACK,
-    'access arguments' => array('maestro user')
+    'access arguments' => array('maestro taskconsole')
     );
 
     $items['admin/structure/maestro/ajax'] = array(
@@ -541,8 +541,9 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
         $ret = $task->processInteractiveTask($queue_id,$taskop);
         if ($ret->retcode === TRUE) {
           if ($ret->engineop == 'completetask') {
+            if (!isset($ret->status)) $ret->status = 1;    // Just in case interactive function has not set this - set to default 'success'
             $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
-            $maestro->engine()->completeTask($queue_id);
+            $maestro->engine()->completeTask($queue_id,$ret->status);
             $retdata = array('status' => TRUE, 'hidetask' => TRUE);
           } else {
             $retdata = array('status' => TRUE, 'hidetask' => FALSE);
@@ -583,16 +584,19 @@ function maestro_form_alter(&$form, $form_state, $form_id) {
   if ($form_id == 'change_request_node_form') {
     $request = request_uri();
     $requestParms = explode('/',$request);
-    if (isset($requestParms[5]) AND $requestParms[5] == 'maestro' AND intval($requestParms[6]) > 0) {
-        $form['maestro_taskdata'] = array(
-          '#title'  => t('New Field'),
-          '#type'   => 'textfield',
-          '#description'  => 'Testing the hook_form_alter'
+    if (isset($requestParms[5]) AND $requestParms[5] == 'maestro' AND isset($requestParms[6])) {
+      if ($requestParms[6] == 'edit' AND intval($requestParms[7] > 0)) {
+        $form['maestro_taskid'] = array(
+          '#value'  => intval($requestParms[7]),
+          '#type'   => 'hidden',
         );
+      }
+      else {
         $form['maestro_taskid'] = array(
           '#value'  => intval($requestParms[6]),
           '#type'   => 'hidden',
         );
+      }
     }
   }
 
@@ -600,23 +604,36 @@ function maestro_form_alter(&$form, $form_state, $form_id) {
 
 function maestro_node_insert($node) {
   if ($node->maestro_taskid > 0) {
-    $data = serialize(array('maestro_taskdata' => $node->maestro_taskdata));
-    db_insert('maestro_project_data_results')
+    $process_id = db_query("SELECT process_id FROM {maestro_queue} WHERE id = :tid",
+       array(':tid' => $node->maestro_taskid))->fetchField();
+
+    db_insert('maestro_project_content')
     ->fields(array(
         'nid' => $node->nid,
         'project_id' => 0,
-        'task_id' => $node->maestro_taskid,
-        'task_data' => $data,
+        'qid' => $node->maestro_taskid,
+        'process_id' => $process_id,
+        'content_type' => $node->type,
     ))
     ->execute();
+    // Initiate the mestro workflow engine and complete the task
+    $maestro = Maestro::createMaestroObject(1);
+    $queue_id = intval($node->maestro_taskid);
+    $maestro->engine()->completeTask($node->maestro_taskid);
   }
 }
 
-function maestro_node_load($nodes, $form) {
-  foreach ($nodes as $node) {
-    /* Check if there is a corresponding node record in the maestro_project_results_data table
-     * Retrieve the taskid (queueid) and any required data
-    */
+ /**
+ * Implements hook_node_update().
+ *
+ * Check if content_type is being updated via a maestro task
+ */
+function maestro_node_update($node) {
+  if ($node->maestro_taskid > 0) {
+    // Initiate the maestro workflow engine and complete the task
+    $maestro = Maestro::createMaestroObject(1);
+    $queue_id = intval($node->maestro_taskid);
+    $maestro->engine()->completeTask($node->maestro_taskid);
   }
 }
 
