@@ -11,15 +11,15 @@
   <tr>
     <td colspan="2" style="text-align:center;">
       <?php print t('Set your IF parameters to check by variable OR by Last Task Status below:'); ?><br></br>
-      By Variable:<input type="radio" name="ifTaskArguments" value="variable" <?php if($td_rec->task_data['if_task_arguments'] == 'variable') print 'checked'; ?> onclick="if_task_enable_disable_agruments('variable');"></input>
-      By Last Task Status:<input type="radio" name="ifTaskArguments" value="status" <?php if($td_rec->task_data['if_task_arguments'] == 'status') print 'checked'; ?> onclick="if_task_enable_disable_agruments('status');"></input>
+      <label for="ifTaskArguments0"><input type="radio" id="ifTaskArguments0" name="ifTaskArguments" value="variable" <?php if($td_rec->task_data['if_task_arguments'] == 'variable') print 'checked'; ?> onclick="if_task_enable_disable_agruments('variable');"><?php print t('By Variable'); ?></label>&nbsp;&nbsp;&nbsp;
+      <label for="ifTaskArguments1"><input type="radio" id="ifTaskArguments1" name="ifTaskArguments" value="status" <?php if($td_rec->task_data['if_task_arguments'] == 'status') print 'checked'; ?> onclick="if_task_enable_disable_agruments('status');"><?php print t('By Last Task Status'); ?></label>
     </td>
   </tr>
   <tr>
     <td>
       <?php print t('Argument Variable:'); ?>
     </td>
-    <td>
+    <td id="ifArgumentVariableRow">
       <select name="argumentVariable" id="argumentVariable"<?php if($td_rec->task_data['if_task_arguments'] != 'variable') print 'disabled="true"'; ?>>
       <?php print $argument_variables; ?>
       </select>
@@ -36,8 +36,8 @@
     <td>
       <?php print t('Last Task Status:'); ?>
     </td>
-    <td>
-    <select name="ifProcessArguments" id="ifProcessArguments" <?php if($td_rec->task_data['if_task_arguments'] != 'status') print 'disabled="true"'; ?>>
+    <td id="ifArgumentStatusRow">
+      <select name="ifProcessArguments" id="ifProcessArguments" <?php if($td_rec->task_data['if_task_arguments'] != 'status') print 'disabled="true"'; ?>>
         <option value="0"></option>
         <option value="lasttasksuccess" <?php if($td_rec->task_data['if_process_arguments'] == 'lasttasksuccess') print 'selected'; ?>>Last Task Status is Success</option>
         <option value="lasttaskcancel" <?php if($td_rec->task_data['if_process_arguments'] == 'lasttaskcancel') print 'selected'; ?>>Last Task Status is Cancel</option>
@@ -47,21 +47,35 @@
     </td>
   <tr>
 </table>
+
 <script type="text/javascript">
+  setTimeout(tick, 500);
+
+  function tick() {
+    if_task_enable_disable_agruments('<?php print $td_rec->task_data['if_task_arguments']; ?>');
+  }
+
   function if_task_enable_disable_agruments(val){
-    switch(val) {
+    (function ($) {
+      //alert(val);
+      switch(val) {
       case 'status':
-        jQuery('#ifOperator').attr('disabled','true');
-        jQuery('#ifValue').attr('disabled','true');
-        jQuery('#argumentVariable').attr('disabled','true');
-        jQuery('#ifProcessArguments').removeAttr('disabled');
+        $('#ifArgumentVariableRow').hide();
+        $('#ifArgumentStatusRow').show();
+        $('#ifOperator').attr('disabled','true');
+        $('#ifValue').attr('disabled','true');
+        $('#argumentVariable').attr('disabled','true');
+        $('#ifProcessArguments').removeAttr('disabled');
         break;
       case 'variable':
-    	  jQuery('#ifOperator').removeAttr('disabled');
-        jQuery('#ifValue').removeAttr('disabled');
-        jQuery('#argumentVariable').removeAttr('disabled');
-        jQuery('#ifProcessArguments').attr('disabled','true');
+        $('#ifArgumentStatusRow').hide();
+        $('#ifArgumentVariableRow').show();
+    	  $('#ifOperator').removeAttr('disabled');
+        $('#ifValue').removeAttr('disabled');
+        $('#argumentVariable').removeAttr('disabled');
+        $('#ifProcessArguments').attr('disabled','true');
     	  break;
-    }
+      }
+    })(jQuery);
   }
 </script>

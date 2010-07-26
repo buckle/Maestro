@@ -61,9 +61,10 @@
 
         <div id="task_edit_main">
           <div class="maestro_tool_tip maestro_taskname"><div class="t"><div class="b"><div class="r"><div class="l"><div class="bl-bge"><div class="br-bge"><div class="tl-bge"><div class="tr-bge">
-            <?php print t('Task Name'); ?>:
-            <input id="maestro_task_name" type="text" name="taskname" value="<?php print $vars->taskname; ?>">
-          </div></div></div></div></div></div></div></div></div><br />
+            <?php print t('Task Name'); ?>: <input id="maestro_task_name" type="text" name="taskname" value="<?php print $vars->taskname; ?>"><br>
+            <label for="regen"><input type="checkbox" id="regen" name="regen" value="1" <?php print ($vars->regenerate == 1) ? 'checked="checked"':''; ?>><?php print t('Regenerate This Task'); ?></label>&nbsp;&nbsp;&nbsp;
+            <label for="regenall"><input type="checkbox" id="regenall" name="regenall" value="1" <?php print ($vars->regen_all_live_tasks == 1) ? 'checked="checked"':''; ?>><?php print t('Regenerate All In-Production Tasks'); ?></label>
+          </div></div></div></div></div></div></div></div></div><br /><br />
 
           <?php print $form_content; ?>
         </div>

@@ -5,21 +5,18 @@
  * @file
  * maestro-task-and.tpl.php
  */
+
 ?>
 
-<table class="maestro_task">
-  <tr>
-    <td class="tl-gry"></td>
-    <td id="task_title<?php print $tdid; ?>" class="tm-gry maestro_task_title">
-      <?php print $taskname; ?>
-    </td>
-    <td class="tr-gry"></td>
-  </tr>
-  <tr>
-    <td class="bl"></td>
-    <td class="bm maestro_task_body">
-      <?php print t('AND Branches Together'); ?>
-    </td>
-    <td class="br"></td>
-  </tr>
-</table>
+<div class="maestro_task">
+  <div class="t"><div class="b"><div class="r"><div class="l"><div class="bl"><div class="br"><div class="tl-gry"><div class="tr-gry">
+
+    <div id="task_title<?php print $tdid; ?>" class="tm-gry maestro_task_title">
+      <?php print t($taskname); ?>
+    </div>
+    <div class="maestro_task_body">
+      <?php print t('AND branches together'); ?>
+    </div>
+
+  </div></div></div></div></div></div></div></div>
+</div>

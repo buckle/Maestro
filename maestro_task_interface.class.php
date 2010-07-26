@@ -137,7 +137,7 @@ abstract class MaestroTaskInterface {
     $maestro_url = $base_url . '/' . drupal_get_path('module', 'maestro');
 
     $res = db_select('maestro_template_data', 'a');
-    $res->fields('a', array('task_class_name', 'taskname', 'assigned_by_variable'));
+    $res->fields('a', array('task_class_name', 'taskname', 'assigned_by_variable', 'regenerate', 'regen_all_live_tasks'));
     $res->condition('a.id', $this->_task_id, '=');
     $vars = current($res->execute()->fetchAll());
 
@@ -233,6 +233,8 @@ abstract class MaestroTaskInterface {
 
     $rec->assigned_by_variable = $assigned_by_variable;
     $rec->taskname = $_POST['taskname'];
+    $rec->regenerate = $_POST['regen'];
+    $rec->regen_all_live_tasks = $_POST['regenall'];
 
     drupal_write_record('maestro_template_data', $rec, array('id'));
 
@@ -685,11 +687,11 @@ class MaestroTaskInterfaceSetProcessVariable extends MaestroTaskInterface {
 
   function getEditFormContent() {
     $this->_fetchTaskInformation();
-    if (@($this->_task_data->optional_parm) == NULL) {
-      $this->_task_data->var_to_set = 0;
-      $this->_task_data->inc_value = 0;
-      $this->_task_data->var_value = 0;
-      $this->_task_data->set_type = 0;
+    if (!is_array(@($this->_task_data->task_data)) || !array_key_exists('set_type', $this->_task_data->task_data)) {
+      $this->_task_data->task_data['var_to_set'] = '';
+      $this->_task_data->task_data['inc_value'] = '';
+      $this->_task_data->task_data['var_value'] = 0;
+      $this->_task_data->task_data['set_type'] = 0;
     }
 
     $res = db_query("SELECT id, variable_name FROM {maestro_template_variables} WHERE template_id=:tid", array('tid' => $this->_template_id));
