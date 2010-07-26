@@ -44,7 +44,7 @@
         if ($startoffset == null ) {
             $query = db_select('maestro_template_data_next_step', 'a');
             $query->fields('a',array('template_data_from'));
-            $query->fields('b',array('regen_all_live_tasks','reminder_interval','task_class_name'));
+            $query->fields('b',array('regen_all_live_tasks','reminder_interval','task_class_name','is_interactive','task_data','handler'));
             $query->addField('b','id','template_data_id');
             $query->addField('c','use_project','template_name');
             $query->join('maestro_template_data', 'b', 'a.template_data_from = b.id');     // default is an INNER JOIN
@@ -60,7 +60,7 @@
             $query = db_select('maestro_template_data','a');
             $query->addField('a','id','template_data_id');
             $query->addField('b','template_name');
-            $query->fields('a',array('regen_all_live_tasks','reminder_interval','task_class_name'));
+            $query->fields('a',array('regen_all_live_tasks','reminder_interval','task_class_name','is_interactive','task_data','handler'));
             $query->join('maestro_template', 'b', 'b.id = a.template_id');
             $query->condition('a.id',$startoffset);
         }
@@ -108,6 +108,9 @@
             $queue_record->process_id = $this->_processId;
             $queue_record->template_data_id = $templaterec->template_data_id;
             $queue_record->task_class_name = $templaterec->task_class_name;
+            $queue_record->is_interactive = $templaterec->is_interactive;
+            $queue_record->handler = $templaterec->handler;
+            $queue_record->task_data = $templaterec->task_data;
             $queue_record->status = 0;
             $queue_record->archived = 0;
             $queue_record->engine_version = $this->_version;
@@ -134,7 +137,7 @@
 
                 // Within this section we need to detect whether or not the startoffset task has the "regenerate all live tasks" option set.
                 // if so, the process we just layed to rest will hold some in-production tasks, and those tasks will have their pids set to the new pid.
-                // @TODO: Need to test this condition -- RK to add more comments to explain what we are doing here
+                // @TODO: Need to test this condition -- RK to add more comments to explain what we are doing here and regen all vs not
                 if($templaterec->regen_all_live_tasks == 1) {
                   $q2 = db_select('maestro_queue','a');
                   $q2->addField('a','id','id');
@@ -194,7 +197,6 @@
             if ($this->getProcessVariable('INITIATOR') == 0) {
                 $this->setProcessVariable('INITIATOR',$user->uid);
             }
-
             $newTaskAssignedUsers = $this->getAssignedUID();
             if (is_array($newTaskAssignedUsers) AND count($newTaskAssignedUsers) > 0) {
                 $this->assignTask($this->_queueId,$newTaskAssignedUsers);
@@ -230,7 +232,7 @@
             }
             else {
                 // Condition here where we are spawning a new process from an already existing process
-                // BUT we are not going to create a new tracking project.  Rather we are going to associate this process with the
+                // BUT we are not going to create a new tracking project, rather we are going to associate this process with the
                 // parent's already established tracking project
                 if(!empty($pid)) {
                     // First, pull back the existing projects entry
@@ -760,8 +762,10 @@
           $query = db_select('maestro_queue', 'a');
           $query->join('maestro_template_data', 'b', 'a.template_data_id = b.id');
           $query->join('maestro_production_assignments', 'c', 'a.id = c.task_id');
+          $query->join('maestro_process', 'd', 'a.process_id = d.id');
           $query->fields('a',array('id','template_data_id','process_id','is_interactive','handler','task_data','created_date','started_date'));
           $query->fields('b',array('task_class_name','template_id','taskname','is_dynamic_taskname','dynamic_taskname_variable_id'));
+          $query->addField('d','pid','parent_process_id');
           $query->condition('c.uid',$this->_userId,'=');
           $query->condition(db_or()->condition('a.archived',0)->condition('a.archived',NULL));
           $userTaskResult = $query->execute();
@@ -791,12 +795,28 @@
                 $taskObject = new stdClass();
                 $templatename = db_query("SELECT template_name FROM {maestro_template} WHERE id = :tid",
                   array(':tid' => $userTaskRecord->template_id))->fetchField();
+
+                // Determine if this task is for a regenerated workflow and we need to update the main project/request record
+                $taskObject->regen = FALSE;
+                if ($userTaskRecord->parent_process_id > 0) {
+                    // Now check if this same template task id was executed in the previous process - if so then it is a recycled task
+                    // Don't show the re-generated attribute if in this instance of the process we proceed further and are executing new tasks
+                    $regenquery = db_select('maestro_queue', 'a');
+                    $regenquery->addExpression('COUNT(id)','rec_count');
+                    $regenquery->condition('a.process_id', $userTaskRecord->process_id,'=');
+                    $regenquery->condition(db_and()->condition('a.template_data_id', $userTaskRecord->template_data_id,'='));
+                    if ($regenquery->execute()->fetchField() > 0 ) {
+                      $taskObject->regen = TRUE;
+                    }
+                }
+
                 $queueRecDates = array('created' => $userTaskRecord->created_date, 'started' => $userTaskRecord->started_date);
                 $queueRecFlags = array('is_interactive' => $userTaskRecord->is_interactive);
                 $taskObject->task_data = $userTaskRecord->task_data;
                 $taskObject->queue_id = $userTaskRecord->id;
                 $taskObject->task_id = $userTaskRecord->template_data_id;
                 $taskObject->process_id = $userTaskRecord->process_id;
+                $taskObject->parent_process_id = $userTaskRecord->parent_process_id;
                 $taskObject->template_id = $userTaskRecord->template_id;
                 $taskObject->template_name = $templatename;
                 $taskObject->url = $userTaskRecord->handler;

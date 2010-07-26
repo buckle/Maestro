@@ -536,8 +536,22 @@ class MaestroTaskTypeContentType extends MaestroTask {
 
   function getTaskConsoleURL(){
     global $base_url;
-    $prop=unserialize($this->_properties->task_data);
-    $url = $base_url . "/node/add/" . $prop['content_type'] . "/maestro/" . $this->_properties->queue_id;
+    $taskdata = unserialize($this->_properties->task_data);
+    /* Drupal wants to see all underscores in content type names as hyphens for URL's
+     * so we need to test for that and update that for any URL link
+     */
+    $content_type = str_replace('_','-',$taskdata['content_type']);
+    if ($this->_properties->regen) {
+      // Determine the content nid
+      $query = db_select('maestro_project_content', 'a');
+      $query->addField('a','nid');
+      $query->condition('a.process_id', $this->_properties->parent_process_id,'=');
+      $query->condition(db_and()->condition('a.content_type', $taskdata['content_type'],'='));
+      $nid = $query->execute()->fetchField();;
+      $url = $base_url . "/node/$nid/edit/maestro/edit/{$this->_properties->queue_id}/";
+    } else {
+      $url = $base_url . "/node/add/{$content_type}/maestro/{$this->_properties->queue_id}/";
+    }
     return $url;
   }
 

@@ -788,13 +788,7 @@ class MaestroTaskInterfaceContentType extends MaestroTaskInterface {
   function save() {
     $rec = new stdClass();
     $rec->id = $_POST['template_data_id'];
-    /* Drupal wants to see all underscores in content type names as hyphens for URL's
-     * so we need to test for that and save in the format it expects in a URL link
-     */
-    $_POST['content_type'] = str_replace('_','-',$_POST['content_type']);
-    $rec->task_data = serialize(array(
-                                    'content_type' => $_POST['contentType']
-      ));
+    $rec->task_data = serialize(array('content_type' => $_POST['content_type']));
     drupal_write_record('maestro_template_data', $rec, array('id'));
     return parent::save();
   }
