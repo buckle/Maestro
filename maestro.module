@@ -595,6 +595,14 @@ function maestro_form_alter(&$form, $form_state, $form_id) {
           '#value'  => intval($requestParms[7]),
           '#type'   => 'hidden',
         );
+        // The extra option is added to the URL via MaestroTaskTypeContentType->getTaskConsoleURL()
+        // Clicking on a EDIT Form as a direct task - should complete the task on submit.
+        if ($requestParms[8] == 'completeonsubmit') {
+          $form['maestro_completeonsubmit'] = array(
+            '#value'  => 1,
+            '#type'   => 'hidden',
+            );
+        }
       }
       else {
         $form['maestro_taskid'] = array(
@@ -635,14 +643,32 @@ function maestro_node_insert($node) {
  */
 function maestro_node_update($node) {
   if ($node->maestro_taskid > 0) {
-    // Initiate the maestro workflow engine and complete the task
-    $maestro = Maestro::createMaestroObject(1);
-    $queue_id = intval($node->maestro_taskid);
-    $maestro->engine()->completeTask($node->maestro_taskid);
+
+    // Check and see if the project_content record has the correct process id
+    // Needs to be updated if this is a regenerated process
+    $process_id = db_query("SELECT process_id FROM {maestro_queue} WHERE id = :tid",
+       array(':tid' => $node->maestro_taskid))->fetchField();
+    db_update('maestro_project_content')
+    ->fields(array('process_id' => $process_id))
+    ->condition('nid', $node->nid, '=')
+    ->execute();
+
+    // Extra form field set by maestro_form_alter if taskconsole task is a contentType task - Edit operation
+    // Inline tasks that prompt user to review/edit a node (contentType) may also redirect user to Edit but
+    // It's up to the interactiveFunction's code to complete that task.
+    // Usually after someone clicks on 'accept' or 'reject' in the custom interactiveFunctions inline action form.
+    if (isset($node->maestro_completeonsubmit) AND $node->maestro_completeonsubmit == 1) {
+      // Initiate the maestro workflow engine and complete the task
+      $maestro = Maestro::createMaestroObject(1);
+      $queue_id = intval($node->maestro_taskid);
+      $maestro->engine()->completeTask($node->maestro_taskid);
+    }
   }
+
 }
 
-function maestro_manual_web_example(){
+
+function maestro_manual_web_example() {
   global $base_url;
   $maestro_path = $base_url . '/' . drupal_get_path('module', 'maestro');
   drupal_add_css($maestro_path . '/css/maestro.css');

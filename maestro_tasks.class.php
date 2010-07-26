@@ -443,10 +443,10 @@ class MaestroTaskTypeSetProcessVariable extends MaestroTask {
     if ($taskDefinitionRec) {   // Needs to be valid variable to set
       $taskDefinitionRec->task_data = unserialize($taskDefinitionRec->task_data);
       if ($taskDefinitionRec->task_data['var_to_set'] > 0) {
-        $count = 0;
         if ($taskDefinitionRec->task_data['var_value'] != '') {  // Set by input
-          $count = db_update('maestro_process_variables')
-          ->fields(array('variable_value' => intval($taskDefinitionRec->task_data['var_value'])) )
+          $setvalue = intval($taskDefinitionRec->task_data['var_value']);
+          db_update('maestro_process_variables')
+          ->fields(array('variable_value' => $setvalue))
           ->condition('process_id', $this->_properties->process_id, '=')
           ->condition('template_variable_id',$taskDefinitionRec->task_data['var_to_set'],'=')
           ->execute();
@@ -458,13 +458,18 @@ class MaestroTaskTypeSetProcessVariable extends MaestroTask {
           $query->condition('a.template_variable_id', $taskDefinitionRec->task_data['var_to_set'],'=');
           $curvalue = intval($query->execute()->fetchField());
           $setvalue = $curvalue + intval($taskDefinitionRec->task_data['inc_value']);
-          $count = db_update('maestro_process_variables')
+          db_update('maestro_process_variables')
           ->fields(array('variable_value' => $setvalue))
           ->condition('process_id', $this->_properties->process_id, '=')
           ->condition('template_variable_id',$taskDefinitionRec->task_data['var_to_set'],'=')
           ->execute();
         }
-        if ($count == 1)  $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
+        $query = db_select('maestro_process_variables', 'a');
+        $query->addField('a','variable_value');
+        $query->condition('a.process_id', $this->_properties->process_id,'=');
+        $query->condition(db_and()->condition('a.template_variable_id', $taskDefinitionRec->task_data['var_to_set'],'='));
+        $varvalue = $query->execute()->fetchField();
+        if ($varvalue == $setvalue) $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
       }
       $this->executionStatus = TRUE;
     } else {
@@ -547,8 +552,8 @@ class MaestroTaskTypeContentType extends MaestroTask {
       $query->addField('a','nid');
       $query->condition('a.process_id', $this->_properties->parent_process_id,'=');
       $query->condition(db_and()->condition('a.content_type', $taskdata['content_type'],'='));
-      $nid = $query->execute()->fetchField();;
-      $url = $base_url . "/node/$nid/edit/maestro/edit/{$this->_properties->queue_id}/";
+      $nid = $query->execute()->fetchField();
+      $url = $base_url . "/node/$nid/edit/maestro/edit/{$this->_properties->queue_id}/completeonsubmit/";
     } else {
       $url = $base_url . "/node/add/{$content_type}/maestro/{$this->_properties->queue_id}/";
     }
