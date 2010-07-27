@@ -114,8 +114,8 @@
           <table>
             <tr>
               <td colspan="3" style="text-align: center;">
-                <input type="radio" name="assigned_by_variable" value="0" onchange="toggle_assignment(0);" <?php print ($vars->assigned_by_variable == 0) ? 'checked="checked"':''; ?>><?php print t('Assign User(s) by Hardcoding'); ?>&nbsp;&nbsp;&nbsp;
-                <input type="radio" name="assigned_by_variable" value="1" onchange="toggle_assignment(1);" <?php print ($vars->assigned_by_variable == 1) ? 'checked="checked"':''; ?>><?php print t('Assign User(s) by Process Variable'); ?>
+                <label for="assigned_by_variable_opt1"><input type="radio" id="assigned_by_variable_opt1" name="assigned_by_variable" value="0" onchange="toggle_assignment(0);" <?php print ($vars->assigned_by_variable == 0) ? 'checked="checked"':''; ?>><?php print t('Assign User(s) by Hardcoding'); ?></label>&nbsp;&nbsp;&nbsp;
+                <label for="assigned_by_variable_opt2"><input type="radio" id="assigned_by_variable_opt2" name="assigned_by_variable" value="1" onchange="toggle_assignment(1);" <?php print ($vars->assigned_by_variable == 1) ? 'checked="checked"':''; ?>><?php print t('Assign User(s) by Process Variable'); ?></label>
               </td>
             </tr>
             <tr id="assign_by_uid_row">

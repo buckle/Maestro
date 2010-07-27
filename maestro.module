@@ -254,6 +254,66 @@ function maestro_theme() {
   );
 }
 
+/* maestro custom action logic */
+
+function maestro_action_info() {
+  return array(
+    'launch_workflow_action' => array(
+      'type' => 'system',
+      'label' => t('Launch a Maestro Workflow'),
+      'configurable' => TRUE,
+      'triggers' => array ('any'),
+    )
+  );
+}
+
+function launch_workflow_action(&$object, $context = array()) {
+  global $base_url;
+
+  $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
+  $template = intval($context['workflow']);
+
+  if ($template > 0) {
+    $newprocess = $maestro->engine()->newProcess($template);
+  }
+  else {
+    $newprocess = 0;
+  }
+
+  if ($newprocess > 0) {
+    watchdog('maestro', "Maestro Launch Workflow Action has been invoked. New process of template $template has been started.");
+  }
+  else {
+    watchdog('maestro', "Maestro Launch Workflow Action has been invoked. Failed to launch new process of $template.");
+  }
+}
+
+function launch_workflow_action_submit($form, $form_state) {
+  return array('workflow' => $form_state['values']['workflow']);
+}
+
+function launch_workflow_action_form($context) {
+  $form = array();
+
+  $res = db_query("SELECT id, template_name FROM {maestro_template}");
+  $options = array('' => t('Select Workflow'));
+  foreach ($res as $rec) {
+    $options[$rec->id] = t($rec->template_name);
+  }
+
+  $form['workflow'] = array(
+    '#title' => t("Workflow to Launch"),
+    '#type' => 'select',
+    '#options' => $options,
+    '#default_value' => isset($context['workflow']) ? $context['workflow']:'',
+    '#required' => TRUE
+  );
+
+  return $form;
+}
+
+/* end of custom action logic */
+
 
 /**
  * Display of the Task Console - called from hook_menu callback.
