@@ -15,7 +15,8 @@
       <?php print t($taskname); ?>
     </div>
     <div class="maestro_task_body">
-      <?php print t('Content Type Task'); ?>
+      <?php print t('Content Type Task'); ?><br />
+      <div id="task_assignment<?php print $tdid; ?>"><?php print $ti->getAssignmentDisplay(); ?></div>
     </div>
 
   </div></div></div></div></div></div></div></div>

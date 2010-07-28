@@ -2,7 +2,7 @@
 
 ?>
 
-  <div id="task<?php print $rec->id; ?>" class="<?php print $task_class; ?> maestro_task_container" onclick="draw_line_to(this);" style="position: absolute; left: <?php print $rec->offset_left; ?>px; top: <?php print $rec->offset_top; ?>px;">
+  <div id="task<?php print $rec->id; ?>" class="<?php print $task_class; ?> maestro_task_container" onclick="draw_line_to(this);" style="left: <?php print $rec->offset_left; ?>px; top: <?php print $rec->offset_top; ?>px;">
     <?php print $ti->display(); ?>
   </div>
 

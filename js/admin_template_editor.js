@@ -27,11 +27,13 @@ var assignment_type = 0;
 function initialize_drag_drop() {
   (function($) {
     $(".maestro_task_container").bind("dragstart", function(event, ui) {
-      $( ".maestro_task_container" ).draggable( "option", "zIndex", 500 );
+      //$(this.id).draggable( "option", "zIndex", 500 );
+      this.style.zIndex = 500;
     });
     $(".maestro_task_container").bind("dragstop", function(event, ui) {
       update_lines(this);
-      $( ".maestro_task_container" ).draggable( "option", "zIndex", 100 );
+      //$(".maestro_task_container").draggable( "option", "zIndex", 100 );
+      this.style.zIndex = 100;
       var task_class = this.className.split(' ')[0];
       var task_id = this.id.substring(4, this.id.length);
       enable_ajax_indicator();
@@ -340,9 +342,33 @@ function save_task_success(r) {
     if (el != null) {
       el.innerHTML = document.getElementById('maestro_task_name').value;
     }
+    el = document.getElementById('task_assignment' + r.task_id);
+    if (el != null) {
+      el.innerHTML = get_assignment_display();
+    }
     $.modal.close();
     disable_ajax_indicator();
   })(jQuery);
+}
+
+function get_assignment_display() {
+  var assigned = '';
+  var options = '';
+
+  if (document.getElementById('assigned_by_variable_opt1').checked) {
+    options = get_selected_options(document.getElementById('assign_by_uid'))
+  }
+  else {
+    options = get_selected_options(document.getElementById('assign_by_pv'));
+  }
+
+  if (options == '') {
+    options = '<i>' + Drupal.t('nobody') + '</i>';
+  }
+
+  assigned = Drupal.t('Assigned to:') + ' ' + options;
+
+  return assigned;
 }
 
 function draw_line_to(element) {
@@ -528,6 +554,28 @@ function move_options(sel_from, sel_to) {
       add_option(sel_to, text[i], values[i]);
     }
   }
+}
+
+function get_selected_options(sel) {
+  var text = '';
+  var count = 0;
+  var i;
+  var len;
+
+  if (sel != null) {
+    len = sel.length;
+
+    for (i = len - 1; i >= 0; i--) {
+      if (sel.options[i].selected) {
+        if (text != '') {
+          text += ', ';
+        }
+        text += sel.options[i].text;
+      }
+    }
+  }
+
+  return text;
 }
 
 function delete_option(sel, index) {

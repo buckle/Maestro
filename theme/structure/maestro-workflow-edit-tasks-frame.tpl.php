@@ -77,7 +77,7 @@
             <tbody id="optional_parm_form">
               <tr>
                 <td width="33%" style="vertical-align: top; white-space: nowrap;">
-                  <input type="text" name="op_var_names[]" value="">
+                  <input type="text" name="op_var_names[]" value="" style="width: 150px;">
                   <a href="#" onclick="remove_variable(this); return false;"><img src="<?php print $maestro_url; ?>/images/admin/remove.png" style="vertical-align: middle;"></a>
                 </td>
                 <td width="67%"><textarea name="op_var_values[]" rows="1" cols="32"></textarea></td>
@@ -95,7 +95,7 @@
 ?>
               <tr>
                 <td width="33%" style="vertical-align: top; white-space: nowrap;">
-                  <input type="text" name="op_var_names[]" value="<?php print $var_name; ?>">
+                  <input type="text" name="op_var_names[]" value="<?php print $var_name; ?>" style="width: 150px;">
                   <a href="#" onclick="remove_variable(this); return false;"><img src="<?php print $maestro_url; ?>/images/admin/remove.png" style="vertical-align: middle;"></a>
                 </td>
                 <td width="67%"><textarea name="op_var_values[]" rows="1" cols="32"><?php print $var_value; ?></textarea></td>

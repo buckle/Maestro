@@ -28,7 +28,7 @@ abstract class MaestroTaskInterface {
       $rec = current($res->execute()->fetchAll());
 
       $this->_taskname = $rec->taskname;
-      $this->_template_id = $rec->template_id;
+      $this->_template_id = intval(@($rec->template_id));
     }
     else {
       $this->_template_id = $template_id;
@@ -233,8 +233,12 @@ abstract class MaestroTaskInterface {
 
     $rec->assigned_by_variable = $assigned_by_variable;
     $rec->taskname = $_POST['taskname'];
-    $rec->regenerate = $_POST['regen'];
-    $rec->regen_all_live_tasks = $_POST['regenall'];
+    if (array_key_exists('regen', $_POST)) {
+      $rec->regenerate = $_POST['regen'];
+    }
+    if (array_key_exists('regenall', $_POST)) {
+      $rec->regen_all_live_tasks = $_POST['regenall'];
+    }
 
     drupal_write_record('maestro_template_data', $rec, array('id'));
 
@@ -391,6 +395,41 @@ abstract class MaestroTaskInterface {
     return $js;
   }
 
+  function getAssignmentDisplay() {
+    $display = t('Assigned to:') . ' ';
+
+    $query = db_select('maestro_template_assignment', 'a');
+    $query->fields('a', array('uid', 'process_variable'));
+    $query->fields('b', array('name'));
+    $query->fields('c', array('variable_name'));
+    $query->condition('a.template_data_id', $this->_task_id, '=');
+    $query->leftJoin('users', 'b', 'a.uid=b.uid');
+    $query->leftJoin('maestro_template_variables', 'c', 'a.process_variable=c.id');
+
+    $res = $query->execute();
+
+    $assigned_list = '';
+    foreach ($res as $rec) {
+      if ($assigned_list != '') {
+        $assigned_list .= ', ';
+      }
+
+      if ($rec->uid > 0) {
+        $assigned_list .= $rec->name;
+      }
+      else if ($rec->process_variable > 0) {
+        $assigned_list .= $rec->variable_name;
+      }
+    }
+
+    if ($assigned_list == '') {
+      $assigned_list = '<i>' . t('nobody') . '</i>';
+    }
+    $display .= $assigned_list;
+
+    return $display;
+  }
+
   function setCanvasHeight() {
     $rec = new stdClass();
     $rec->id = $this->_template_id;
@@ -414,6 +453,7 @@ class MaestroTaskInterfaceStart extends MaestroTaskInterface {
     parent::create();
     $update=db_update('maestro_template_data')
       ->fields(array( 'taskname' => t('Start'),
+                      'first_task' => 1,
                       'offset_left' => 34,
                       'offset_top' => 38
 
@@ -423,7 +463,7 @@ class MaestroTaskInterfaceStart extends MaestroTaskInterface {
   }
 
   function display() {
-    return theme('maestro_task_start', array('tdid' => $this->_task_id, 'taskname' => $this->_taskname));
+    return theme('maestro_task_start', array('tdid' => $this->_task_id, 'taskname' => $this->_taskname, 'ti' => $this));
   }
 
   function getEditFormContent() {
@@ -467,7 +507,7 @@ class MaestroTaskInterfaceEnd extends MaestroTaskInterface {
   }
 
   function display() {
-    return theme('maestro_task_end', array('tdid' => $this->_task_id, 'taskname' => $this->_taskname));
+    return theme('maestro_task_end', array('tdid' => $this->_task_id, 'taskname' => $this->_taskname, 'ti' => $this));
   }
 
   function getEditFormContent() {
@@ -495,7 +535,7 @@ class MaestroTaskInterfaceIf extends MaestroTaskInterface {
   }
 
   function display() {
-    return theme('maestro_task_if', array('tdid' => $this->_task_id, 'taskname' => $this->_taskname));
+    return theme('maestro_task_if', array('tdid' => $this->_task_id, 'taskname' => $this->_taskname, 'ti' => $this));
   }
 
   function getEditFormContent() {
@@ -591,7 +631,7 @@ class MaestroTaskInterfaceBatch extends MaestroTaskInterface {
   }
 
   function display() {
-    return theme('maestro_task_batch', array('tdid' => $this->_task_id, 'taskname' => $this->_taskname));
+    return theme('maestro_task_batch', array('tdid' => $this->_task_id, 'taskname' => $this->_taskname, 'ti' => $this));
   }
 
   function getEditFormContent() {
@@ -619,7 +659,7 @@ class MaestroTaskInterfaceBatchFunction extends MaestroTaskInterface {
   }
 
   function display() {
-    return theme('maestro_task_batch_function', array('tdid' => $this->_task_id, 'taskname' => $this->_taskname));
+    return theme('maestro_task_batch_function', array('tdid' => $this->_task_id, 'taskname' => $this->_taskname, 'ti' => $this));
   }
 
   function getEditFormContent() {
@@ -650,7 +690,7 @@ class MaestroTaskInterfaceInteractiveFunction extends MaestroTaskInterface {
   }
 
   function display() {
-    return theme('maestro_task_interactive_function', array('tdid' => $this->_task_id, 'taskname' => $this->_taskname));
+    return theme('maestro_task_interactive_function', array('tdid' => $this->_task_id, 'taskname' => $this->_taskname, 'ti' => $this));
   }
 
   function getEditFormContent() {
@@ -682,7 +722,7 @@ class MaestroTaskInterfaceSetProcessVariable extends MaestroTaskInterface {
   }
 
   function display() {
-    return theme('maestro_task_set_process_variable', array('tdid' => $this->_task_id, 'taskname' => $this->_taskname));
+    return theme('maestro_task_set_process_variable', array('tdid' => $this->_task_id, 'taskname' => $this->_taskname, 'ti' => $this));
   }
 
   function getEditFormContent() {
@@ -722,7 +762,7 @@ class MaestroTaskInterfaceAnd extends MaestroTaskInterface {
   }
 
   function display() {
-    return theme('maestro_task_and', array('tdid' => $this->_task_id, 'taskname' => $this->_taskname));
+    return theme('maestro_task_and', array('tdid' => $this->_task_id, 'taskname' => $this->_taskname, 'ti' => $this));
   }
 
   function getEditFormContent() {
@@ -739,7 +779,7 @@ class MaestroTaskInterfaceManualWeb extends MaestroTaskInterface {
   }
 
   function display() {
-    return theme('maestro_task_manual_web', array('tdid' => $this->_task_id, 'taskname' => $this->_taskname));
+    return theme('maestro_task_manual_web', array('tdid' => $this->_task_id, 'taskname' => $this->_taskname, 'ti' => $this));
   }
 
   function getEditFormContent() {
@@ -771,11 +811,7 @@ class MaestroTaskInterfaceContentType extends MaestroTaskInterface {
   }
 
   function display() {
-    $res = db_select('maestro_template_data', 'a');
-    $res->fields('a', array('taskname'));
-    $res->condition('id', $this->_task_id, '=');
-    $rec = current($res->execute()->fetchAll());
-    return theme('maestro_task_content_type', array('tdid' => $this->_task_id, 'taskname' => $rec->taskname));
+    return theme('maestro_task_content_type', array('tdid' => $this->_task_id, 'taskname' => $this->_taskname, 'ti' => $this));
   }
 
   function getEditFormContent() {

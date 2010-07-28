@@ -259,7 +259,7 @@ function maestro_theme() {
 function maestro_action_info() {
   return array(
     'launch_workflow_action' => array(
-      'type' => 'system',
+      'type' => 'workflow',
       'label' => t('Launch a Maestro Workflow'),
       'configurable' => TRUE,
       'triggers' => array ('any'),
@@ -268,23 +268,21 @@ function maestro_action_info() {
 }
 
 function launch_workflow_action(&$object, $context = array()) {
-  global $base_url;
+  global $user;
 
   $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
   $template = intval($context['workflow']);
 
+  $newprocess = 0;
   if ($template > 0) {
     $newprocess = $maestro->engine()->newProcess($template);
   }
-  else {
-    $newprocess = 0;
-  }
 
   if ($newprocess > 0) {
-    watchdog('maestro', "Maestro Launch Workflow Action has been invoked. New process of template $template has been started.");
+    watchdog('maestro', "Maestro Launch Workflow Action has been invoked by user {$user->uid}. New process of template id #$template has been started.");
   }
   else {
-    watchdog('maestro', "Maestro Launch Workflow Action has been invoked. Failed to launch new process of $template.");
+    watchdog('maestro', "Maestro Launch Workflow Action has been invoked by user {$user->uid}. Failed to launch new process of template id #$template.");
   }
 }
 

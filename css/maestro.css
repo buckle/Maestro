@@ -44,9 +44,10 @@
 }
 
 .maestro_task_container {
-  z-index: 100;
+  position: absolute;
   background: #FFFFFF;
   cursor: move;
+  z-index: 100;
 }
 
 .maestro_task {
