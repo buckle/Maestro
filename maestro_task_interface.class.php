@@ -656,6 +656,8 @@ class MaestroTaskInterfaceBatchFunction extends MaestroTaskInterface {
     $this->_is_interactive = 0;
 
     parent::__construct($task_id, $template_id);
+
+    $this->_task_edit_tabs = array('optional' => 1);
   }
 
   function display() {
@@ -827,5 +829,25 @@ class MaestroTaskInterfaceContentType extends MaestroTaskInterface {
     $rec->task_data = serialize(array('content_type' => $_POST['content_type']));
     drupal_write_record('maestro_template_data', $rec, array('id'));
     return parent::save();
+  }
+}
+
+
+class MaestroTaskInterfaceFireTrigger extends MaestroTaskInterface {
+  function __construct($task_id=0, $template_id=0) {
+    $this->_task_type = 'FireTrigger';
+    $this->_is_interactive = 0;
+
+    parent::__construct($task_id, $template_id);
+
+    $this->_task_edit_tabs = array('optional' => 1);
+  }
+
+  function display() {
+    return theme('maestro_task_fire_trigger', array('tdid' => $this->_task_id, 'taskname' => $this->_taskname, 'ti' => $this));
+  }
+
+  function getEditFormContent() {
+    return '';
   }
 }

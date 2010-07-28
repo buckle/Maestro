@@ -262,6 +262,14 @@ function maestro_theme() {
       'template' => 'theme/structure/tasks/maestro-task-content-type-edit',
       'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL, 'content_types' => NULL)
     ),
+    'maestro_task_fire_trigger' => array(
+      'template' => 'theme/structure/tasks/maestro-task-fire-trigger',
+      'variables' => array('tdid' => NULL)
+    ),
+    'maestro_task_fire_trigger_edit' => array(
+      'template' => 'theme/structure/tasks/maestro-task-fire-trigger-edit',
+      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL)
+    ),
   );
 }
 
@@ -322,6 +330,32 @@ function launch_workflow_action_form($context) {
 }
 
 /* end of custom action logic */
+
+
+/* maestro custom trigger logic */
+
+function maestro_trigger_info() {
+  return array(
+    'maestro' => array(
+      'fire_trigger_task_trigger' => array(
+        'label' => t('When the Fire Trigger task is executed'),
+      ),
+    ),
+  );
+}
+
+function maestro_fire_trigger_task_trigger($options = array()) {
+  $aids = trigger_get_assigned_actions('fire_trigger_task_trigger');
+
+  $context = array(
+    'group' => 'maestro',
+    'hook' => 'fire_trigger_task_trigger'
+  );
+
+  actions_do(array_keys($aids), (object) $options, $context);
+}
+
+/* end of custom trigger logic */
 
 
 /**
@@ -583,6 +617,10 @@ function maestro_maestro_context_menu() {
     ),
     array('display_name' => 'Content Type Task',
       'class_name' => 'MaestroTaskInterfaceContentType',
+      'file_location' => ''
+    ),
+    array('display_name' => 'Fire Trigger Task',
+      'class_name' => 'MaestroTaskInterfaceFireTrigger',
       'file_location' => ''
     ),
   );

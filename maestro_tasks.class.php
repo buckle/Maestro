@@ -567,3 +567,21 @@ class MaestroTaskTypeContentType extends MaestroTask {
     return array('serialized_data' => $serializedData);
   }
 }
+
+class MaestroTaskTypeFireTrigger extends MaestroTask {
+
+  function execute() {
+    $msg = 'Execute Task Type: "FireTrigger" - properties: ' . print_r($this->_properties, true);
+    watchdog('maestro', $msg);
+
+    maestro_fire_trigger_task_trigger();
+    $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
+    $this->executionStatus = TRUE;
+    watchdog('maestro', 'wtf');
+
+    return $this;
+  }
+
+  function prepareTask() {}
+
+}
