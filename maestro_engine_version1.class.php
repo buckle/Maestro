@@ -404,7 +404,7 @@
         $nextTaskResult = $query->execute();
 
         $nextTaskRows = $query->countQuery()->execute()->fetchField();
-        watchdog('maestro',"nextStep: Number of next task records: $nextTaskRows");
+        //watchdog('maestro',"nextStep: Number of next task records: $nextTaskRows");
         if ($nextTaskRows == 0 ) {
             // There are no rows for this specific queueId and nothing for this processId, there's no next task
             $this->archiveTask($this->_queueId);
@@ -836,7 +836,7 @@
                     // Don't show the re-generated attribute if in this instance of the process we proceed further and are executing new tasks
                     $regenquery = db_select('maestro_queue', 'a');
                     $regenquery->addExpression('COUNT(id)','rec_count');
-                    $regenquery->condition('a.process_id', $userTaskRecord->process_id,'=');
+                    $regenquery->condition('a.process_id', $userTaskRecord->parent_process_id,'=');
                     $regenquery->condition(db_and()->condition('a.template_data_id', $userTaskRecord->template_data_id,'='));
                     if ($regenquery->execute()->fetchField() > 0 ) {
                       $taskObject->regen = TRUE;

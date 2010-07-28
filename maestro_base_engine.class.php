@@ -64,7 +64,10 @@
       $prehtmlfragment = '<tr class="maestro_taskconsole_interactivetaskcontent" id="maestro_actionrec' . $taskid . '" style="display:none;"><td colspan="5">';
       $posthtmlfragment = '</td></tr>';
       $retval = $task->showInteractiveTask();
-      if ($retval === FALSE OR empty($retval)) {
+      if ($retval === FALSE) {
+      	return '';
+      }
+      else if (empty($retval)) {
         return $prehtmlfragment . t('empty interactive task - nothing to display for interactive function.') . $posthtmlfragment;
       }
       else {

@@ -143,6 +143,17 @@ function maestro_help($path, $arg) {
   return $output;
 }
 
+/**
+ * Implements hook_admin_paths().
+ */
+function maestro_admin_paths() {
+  $paths = array(
+    'node/add/*/maestro/*' => TRUE,
+    'node/*/edit/maestro/edit/*' => TRUE,
+  );
+  return $paths;
+}
+
 function maestro_theme() {
   return array(
     'maestro_taskconsole' => array(
@@ -367,6 +378,8 @@ function template_preprocess_maestro_taskconsole(&$variables) {
   $objtasks = $maestro->engine()->getQueue();
   $variables['taskcount'] = $maestro->engine()->getUserTaskCount();
   $variables['formatted_tasks'] = array();
+
+  drupal_add_js($maestro_path . '/js/taskconsole.js');
 
   if (is_array($objtasks) AND count($objtasks) > 0) {
     foreach ($objtasks as $task) {
@@ -630,16 +643,7 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
       break;
   }
 }
-/**
- * Implements hook_admin_paths().
- */
-function maestro_admin_paths() {
-  $paths = array(
-    'node/add/*/maestro' => TRUE,
-    'node/*/edit/maestro/*' => TRUE,
-  );
-  return $paths;
-}
+
 
 function maestro_form_alter(&$form, $form_state, $form_id) {
 

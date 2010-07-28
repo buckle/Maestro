@@ -11,8 +11,6 @@
   var ajax_url = '<?php print $ajax_server_url; ?>';
 </script>
 
-<script type="text/javascript" src="<?php print $module_base_url; ?>/js/taskconsole.js"></script>
-
 <table width="100%">
 <tr>
   <th width="5%"><?php print t(''); ?></th>
