@@ -6,10 +6,11 @@
 //@TODO: Need to convert these to the proper public/protected variables.
 
     var $_version                 = '';       // Current engine version
-    var $_processId               = null;     // Current Process the workflow engine is working on
-    var $_templateId              = null;     // Current workflow template id being processed
-    var $_queueId                 = null;     // Current Queue record id being processed. This is either null, a single item or a semi colon delimited list
-    var $_userId                  = null;     // Current User Id
+    var $_processId               = NULL;     // Current Process the workflow engine is working on
+    var $_templateId              = NULL;     // Current workflow template id being processed
+    var $_queueId                 = NULL;     // Current Queue record id being processed. This is either null, a single item or a semi colon delimited list
+    var $_userId                  = NULL;     // Current User Id
+    var $_trackingId              = NULL;     // Workflow grouping Tracking Id to enable project or detail workflow tracking and link related workflows
     var $_taskType                = '';
     var $_debug                   = false;    // Set the current debug level to false.
     var $_userTaskCount           = 0;        // Number of tasks the user has in the queue
@@ -20,11 +21,28 @@
     var $_lastTestStatus          = 0;        // Used in nextStep when the task that last executed will branch to different tasks - like an IF task
     var $task = null;
 
+    // Simply sets the debug parameter.
+    function setDebug($debug) {
+        if ($debug) {
+            watchdog('maestro',"Set debug mode on");
+        }
+        $this->_debug = $debug;
+    }
 
     public function setProcessId($id) {
       if (intval($id) > 0) {
         $this->_processId = $id;
       }
+    }
+
+    function setTrackingId($id) {
+      if (intval($id) > 0) {
+        $this->_trackingId = $id;
+      }
+    }
+
+    function getTrackingId() {
+      return $this->_trackingId;
     }
 
     public function getUserTaskCount() {
@@ -52,14 +70,6 @@
       else {
         return $prehtmlfragment . $retval . $posthtmlfragment;
       }
-    }
-
-    // Simply sets the debug parameter.
-    function setDebug($debug) {
-        if ($debug) {
-            watchdog('maestro',"Set debug mode on");
-        }
-        $this->_debug = $debug;
     }
 
 

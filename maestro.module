@@ -670,6 +670,9 @@ function maestro_form_alter(&$form, $form_state, $form_id) {
           '#type'   => 'hidden',
         );
       }
+      // Overwrite the default node submission handler with our own.
+      $form['submit']['#submit'] = 'maestro_content_form_submit';
+      //$form_state['redirect'] = '/maestro/taskconsole/';
     }
   }
 
@@ -725,6 +728,13 @@ function maestro_node_update($node) {
     }
   }
 
+}
+
+
+function maestro_content_form_submit($form, &$form_state) {
+  debugbreak();
+  global $base_url;
+  $form_state['redirect'] = '/maestro/taskconsole/';
 }
 
 
