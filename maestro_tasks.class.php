@@ -574,10 +574,17 @@ class MaestroTaskTypeFireTrigger extends MaestroTask {
     $msg = 'Execute Task Type: "FireTrigger" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro', $msg);
 
-    maestro_fire_trigger_task_trigger();
+    $aids = trigger_get_assigned_actions('fire_trigger_task' . $this->_properties->template_data_id);
+
+    $context = array(
+      'group' => 'maestro',
+      'hook' => 'fire_trigger_task' . $this->_properties->template_data_id
+    );
+
+    actions_do(array_keys($aids), (object) $this->_properties, $context);
+
     $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
     $this->executionStatus = TRUE;
-    watchdog('maestro', 'wtf');
 
     return $this;
   }

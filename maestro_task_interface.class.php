@@ -848,6 +848,6 @@ class MaestroTaskInterfaceFireTrigger extends MaestroTaskInterface {
   }
 
   function getEditFormContent() {
-    return '';
+    return t("Don't forget to set the actions for when this trigger is fired!") . '<br>' . l(t('Click here for the actions page'), 'admin/structure/trigger/maestro');
   }
 }

@@ -32,6 +32,12 @@ function maestro_menu() {
     'access callback' => TRUE,
   );
 
+  $items['maestro/launch'] = array(
+    'page callback' => 'maestro_launch_workflow',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
   $items['admin/structure/maestro'] = array(
     'title' => 'Maestro Workflows',
     'description' => 'Define and administer workflows.',
@@ -278,7 +284,7 @@ function maestro_theme() {
 function maestro_action_info() {
   return array(
     'launch_workflow_action' => array(
-      'type' => 'workflow',
+      'type' => 'maestro',
       'label' => t('Launch a Maestro Workflow'),
       'configurable' => TRUE,
       'triggers' => array ('any'),
@@ -287,8 +293,6 @@ function maestro_action_info() {
 }
 
 function launch_workflow_action(&$object, $context = array()) {
-  global $user;
-
   $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
   $template = intval($context['workflow']);
 
@@ -335,24 +339,22 @@ function launch_workflow_action_form($context) {
 /* maestro custom trigger logic */
 
 function maestro_trigger_info() {
-  return array(
-    'maestro' => array(
-      'fire_trigger_task_trigger' => array(
-        'label' => t('When the Fire Trigger task is executed'),
-      ),
-    ),
-  );
-}
+  //dynamically get triggers based on the fire trigger tasks
+  $query = db_select('maestro_template_data', 'a');
+  $query->fields('a', array('id', 'taskname', 'template_id'));
+  $query->fields('b', array('template_name'));
+  $query->leftJoin('maestro_template', 'b', 'a.template_id=b.id');
+  $query->condition('a.task_class_name', 'MaestroTaskTypeFireTrigger', '=');
+  $res = $query->execute();
 
-function maestro_fire_trigger_task_trigger($options = array()) {
-  $aids = trigger_get_assigned_actions('fire_trigger_task_trigger');
+  $triggers = array();
+  foreach ($res as $rec) {
+    $triggers['fire_trigger_task' . $rec->id] = array(
+      'label' => t('When the') . ' ' . t($rec->taskname) . " ({$rec->id}) " . t('task from the') . ' ' . t($rec->template_name) . " ({$rec->template_id}) " . t('workflow is executed')
+    );
+  };
 
-  $context = array(
-    'group' => 'maestro',
-    'hook' => 'fire_trigger_task_trigger'
-  );
-
-  actions_do(array_keys($aids), (object) $options, $context);
+  return array('maestro' => $triggers);
 }
 
 /* end of custom trigger logic */
@@ -399,6 +401,27 @@ function maestro_enginetest() {
   } else {
     drupal_set_message("New Process Code FAIL! - Template: $template not defined");
   }
+  drupal_goto($base_url);
+}
+
+function maestro_launch_workflow($template = 0) {
+  global $base_url;
+
+  $template = intval ($template);
+  if ($template > 0) {
+    $maestro = Maestro::createMaestroObject(1);
+    $newprocess = $maestro->engine()->newProcess($template);
+
+    if ($newprocess > 0) {
+      drupal_set_message("New Process Code Success! - Process ID: $newprocess");
+    } else {
+      drupal_set_message("New Process Code FAIL! - Template: $template not defined");
+    }
+  }
+  else {
+    drupal_set_message("New Process Code FAIL! - No Template ID Given");
+  }
+
   drupal_goto($base_url);
 }
 
