@@ -480,16 +480,18 @@ function grow_canvas() {
 
 function shrink_canvas() {
   (function($) {
-    $('#maestro_workflow_container').height($('#maestro_workflow_container').height() - 100);
-    enable_ajax_indicator();
-    $.ajax({
-      type: 'POST',
-      url: ajax_url + 'MaestroTaskInterfaceStart/0/' + template_id + '/setCanvasHeight/',
-      cache: false,
-      data: { height: $('#maestro_workflow_container').height() },
-      success: disable_ajax_indicator,
-      error: editor_ajax_error
-    });
+    if ($('#maestro_workflow_container').height() > 400) {
+      $('#maestro_workflow_container').height($('#maestro_workflow_container').height() - 100);
+      enable_ajax_indicator();
+      $.ajax({
+        type: 'POST',
+        url: ajax_url + 'MaestroTaskInterfaceStart/0/' + template_id + '/setCanvasHeight/',
+        cache: false,
+        data: { height: $('#maestro_workflow_container').height() },
+        success: disable_ajax_indicator,
+        error: editor_ajax_error
+      });
+    }
   })(jQuery);
 }
 

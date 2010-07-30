@@ -848,6 +848,49 @@ class MaestroTaskInterfaceFireTrigger extends MaestroTaskInterface {
   }
 
   function getEditFormContent() {
-    return t("Don't forget to set the actions for when this trigger is fired!") . '<br>' . l(t('Click here for the actions page'), 'admin/structure/trigger/maestro');
+    $this->_fetchTaskInformation();
+    $query = db_select('trigger_assignments', 'a');
+    $query->fields('a', array('hook'));
+    $query->fields('b', array('aid', 'label'));
+    $query->leftJoin('actions', 'b', 'a.aid=b.aid');
+    $query->condition('a.hook', "fire_trigger_task{$this->_task_id}", '=');
+    $aa_res = $query->execute();
+
+    $options = array();
+    $functions = array();
+    $hook = 'fire_trigger_task' . $this->_task_id;
+    // Restrict the options list to actions that declare support for this hook.
+    foreach (actions_list() as $func => $metadata) {
+      if (isset($metadata['triggers']) && array_intersect(array($hook, 'any'), $metadata['triggers'])) {
+        $functions[] = $func;
+      }
+    }
+    foreach (actions_get_all_actions() as $aid => $action) {
+      if (in_array($action['callback'], $functions)) {
+        $options[$action['type']][$aid] = $action['label'];
+      }
+    }
+
+    return theme('maestro_task_fire_trigger_edit', array('tdid' => $this->_task_id, 'td_rec' => $this->_task_data, 'ta_rec' => $this->_task_assignment_data, 'aa_res' => $aa_res, 'options' => $options));
+  }
+
+  function save() {
+    $actions = $_POST['actions'];
+    $hook = 'fire_trigger_task' . $this->_task_id;
+
+    $res = db_delete('trigger_assignments')
+      ->condition('hook', $hook)
+      ->execute();
+
+    $weight = 1;
+    foreach ($actions as $aid) {
+      $rec = new stdClass();
+      $rec->hook = $hook;
+      $rec->aid = $aid;
+      $rec->weight = $weight++;
+      drupal_write_record('trigger_assignments', $rec);
+    }
+
+    return parent::save();
   }
 }

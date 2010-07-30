@@ -54,6 +54,14 @@ function maestro_menu() {
     'access arguments' => array('maestro taskconsole')
     );
 
+    $items['maestro/outstanding'] = array(
+    'title' => 'Outstanding Tasks',
+    'page callback' => 'maestro_outstanding_tasks',
+    'type' => MENU_NORMAL_ITEM,
+    'access arguments' => array('view outstanding tasks'),
+    'file' => 'maestro.moderator.inc'
+    );
+
     $items['admin/structure/maestro/ajax'] = array(
     'page callback' => 'maestro_handle_editor_ajax_request',
     'type' => MENU_CALLBACK,
@@ -131,10 +139,16 @@ function maestro_permission() {
   return array(
     'maestro taskconsole'  => array(
       'title' => t('Access Maestro Task Console')
-  ),
+    ),
     'maestro admin' => array(
       'title' => t('Administer Maestro workflows')
-  )
+    ),
+    'maestro view outstanding tasks' => array(
+      'title' => t('View Outstanding Tasks')
+    ),
+    'maestro edit outstanding tasks' => array(
+      'title' => t('Edit Outstanding Tasks')
+    )
   );
 }
 
@@ -165,6 +179,10 @@ function maestro_theme() {
     'maestro_taskconsole' => array(
       'template' => 'theme/maestro-taskconsole',
       'variables' => array('tasks' => NULL),
+    ),
+    'maestro_outstanding_tasks' => array(
+      'template' => 'theme/maestro-outstanding-tasks',
+      'variables' => array('maestro' => NULL, 'queue' => NULL),
     ),
     'maestro_workflow_list' => array(
       'template' => 'theme/structure/maestro-workflow-list',
@@ -274,7 +292,7 @@ function maestro_theme() {
     ),
     'maestro_task_fire_trigger_edit' => array(
       'template' => 'theme/structure/tasks/maestro-task-fire-trigger-edit',
-      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL)
+      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL, 'aa_res' => NULL, 'options' => NULL)
     ),
   );
 }

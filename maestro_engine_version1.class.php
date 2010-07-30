@@ -6,6 +6,7 @@
 
       var $_version = '1.x';
       var $_properties;
+      var $_mode;
 
       function __construct($options) {
         global $user;
@@ -787,7 +788,9 @@
          /* Instance where the user id is known.  need to see if there is a processID given.
           * This means that the mode in which we're working is user based.. we only care about a user in this case
           */
-          $this->_mode = 'user';
+          if ($this->_mode != 'admin') {
+            $this->_mode = 'user';
+          }
           if ($this->_debug ) {
               watchdog('maestro',"Entering getQueue - user mode");
           }
@@ -798,8 +801,15 @@
           $query->join('maestro_process', 'd', 'a.process_id = d.id');
           $query->fields('a',array('id','template_data_id','process_id','is_interactive','handler','task_data','created_date','started_date'));
           $query->fields('b',array('task_class_name','template_id','taskname','is_dynamic_taskname','dynamic_taskname_variable_id'));
+          if ($this->_mode == 'admin') {
+            $query->fields('c',array('uid'));
+            $query->fields('e',array('name'));
+            $query->join('users', 'e', 'c.uid = e.uid');
+          }
           $query->addField('d','pid','parent_process_id');
-          $query->condition('c.uid',$this->_userId,'=');
+          if ($this->_mode != 'admin') {
+            $query->condition('c.uid',$this->_userId,'=');
+          }
           $query->condition(db_or()->condition('a.archived',0)->condition('a.archived',NULL));
           $userTaskResult = $query->execute();
           $numTaskRows = $query->countQuery()->execute()->fetchField();
@@ -855,6 +865,10 @@
                 $taskObject->url = $userTaskRecord->handler;
                 $taskObject->dates = $queueRecDates;
                 $taskObject->flags = $queueRecFlags;
+                if ($this->_mode == 'admin') {
+                  $taskObject->uid = $userTaskRecord->uid;
+                  $taskObject->username = ($userTaskRecord->name != '') ? $userTaskRecord->name : '[' . t('nobody assigned') . ']';
+                }
 
                 // Handle dynamic task name based on a variable's value
                 $taskname = '';
@@ -896,6 +910,7 @@
         return $this->_userTaskObject;
     }
 
-
+    function setMode($mode) { $this->_mode = $mode; }
+    function getMode() { return $this->_mode; }
 
   }

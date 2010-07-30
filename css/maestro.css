@@ -67,6 +67,9 @@
 .maestro_task_edit_panel table {
   border: 0px;
 }
+.maestro_task_edit_panel .sticky-table {
+  border: 1px solid #BEBFB9;
+}
 
 .maestro_task_edit_panel input,
 .maestro_task_edit_panel select,
