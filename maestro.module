@@ -751,16 +751,20 @@ function maestro_form_alter(&$form, $form_state, $form_id) {
           '#type'   => 'hidden',
         );
       }
-      // Overwrite the default node submission handler with our own.
-      $form['submit']['#submit'] = 'maestro_content_form_submit';
-      //$form_state['redirect'] = '/maestro/taskconsole/';
+      /* Overwrite the default node submission handler with our own.
+       * Had a real issue getting this to work as the available docs indicate
+       * $form['#submit'][] = 'maestro_content_form_submit';
+       * should work but the default node submit handler 'node_form_submit()' would always be used.
+       * Posted to rfay's blog: http://randyfay.com/node/66
+       * On IRC, DamZ recommended this syntax which works
+       */
+        $form['actions']['submit']['#submit'][] = 'maestro_content_form_submit';
     }
   }
-
 }
 
 function maestro_node_insert($node) {
-  if ($node->maestro_taskid > 0) {
+  if (isset($node->maestro_taskid) AND $node->maestro_taskid > 0) {
     $process_id = db_query("SELECT process_id FROM {maestro_queue} WHERE id = :tid",
        array(':tid' => $node->maestro_taskid))->fetchField();
 
@@ -786,7 +790,7 @@ function maestro_node_insert($node) {
  * Check if content_type is being updated via a maestro task
  */
 function maestro_node_update($node) {
-  if ($node->maestro_taskid > 0) {
+  if (isset($node->maestro_taskid) AND $node->maestro_taskid > 0) {
 
     // Check and see if the project_content record has the correct process id
     // Needs to be updated if this is a regenerated process
@@ -813,9 +817,7 @@ function maestro_node_update($node) {
 
 
 function maestro_content_form_submit($form, &$form_state) {
-  debugbreak();
-  global $base_url;
-  $form_state['redirect'] = '/maestro/taskconsole/';
+  $form_state['redirect'] = 'maestro/taskconsole';
 }
 
 
