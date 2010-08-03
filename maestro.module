@@ -182,7 +182,7 @@ function maestro_theme() {
     ),
     'maestro_outstanding_tasks' => array(
       'template' => 'theme/maestro-outstanding-tasks',
-      'variables' => array('maestro' => NULL, 'queue' => NULL),
+      'variables' => array('maestro_url' => NULL, 'maestro' => NULL, 'queue' => NULL),
     ),
     'maestro_workflow_list' => array(
       'template' => 'theme/structure/maestro-workflow-list',
@@ -311,6 +311,7 @@ function maestro_action_info() {
 }
 
 function launch_workflow_action(&$object, $context = array()) {
+  global $user;
   $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
   $template = intval($context['workflow']);
 

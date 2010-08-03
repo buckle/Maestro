@@ -618,12 +618,18 @@ function unselect_all_options(sel) {
 function add_variable() {
   (function($) {
     $('#optional_parm_vars').append(document.getElementById('optional_parm_form').innerHTML);
+    $('#optional_parm_vars').find('tr').each(function(i, el) {
+      el.className = ((i % 2) == 1) ? 'even':'odd';
+    });
   })(jQuery);
 }
 
 function remove_variable(el) {
   (function ($) {
     $(el).closest('tr').remove();
+    $('#optional_parm_vars').find('tr').each(function(i, el) {
+      el.className = ((i % 2) == 1) ? 'even':'odd';
+    });
   })(jQuery);
 }
 

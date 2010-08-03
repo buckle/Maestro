@@ -78,32 +78,44 @@
               <tr>
                 <td width="33%" style="vertical-align: top; white-space: nowrap;">
                   <input type="text" name="op_var_names[]" value="" style="width: 150px;">
-                  <a href="#" onclick="remove_variable(this); return false;"><img src="<?php print $maestro_url; ?>/images/admin/remove.png" style="vertical-align: middle;"></a>
+                  <a href="#" onclick="remove_variable(this); return false;"><img class="valigncenter" src="<?php print $maestro_url; ?>/images/admin/remove.png" style="vertical-align: middle;"></a>
                 </td>
                 <td width="67%"><textarea name="op_var_values[]" rows="1" cols="32"></textarea></td>
-              <tr>
+              </tr>
             </tbody>
           </table>
-          <table id="optional_parm_vars">
-            <tr>
-              <td colspan="2">
-                <a href="#" onclick="add_variable(); return false;"><?php print t('Add Variable'); ?></a>
-              </td>
-            </tr>
+
+          <fieldset class="form-wrapper">
+            <legend><span class="fieldset-legend"><a href="#" onclick="add_variable(); return false;"><?php print t('Add Variable'); ?></a></span></legend>
+
+            <div class="fieldset-wrapper">
+            <table class="sticky-enabled sticky-table">
+              <thead class="tableheader-processed">
+                <tr>
+                  <th><?php print t('Variable Name'); ?></th>
+                  <th><?php print t('Variable Value'); ?></th>
+                </tr>
+              </thead>
+              <tbody id="optional_parm_vars">
 <?php
-            foreach ($optional_parms as $var_name => $var_value) {
+                $i = 0;
+                foreach ($optional_parms as $var_name => $var_value) {
+                  $classname = ((++$i % 2) == 0) ? 'even':'odd';
 ?>
-              <tr>
-                <td width="33%" style="vertical-align: top; white-space: nowrap;">
-                  <input type="text" name="op_var_names[]" value="<?php print $var_name; ?>" style="width: 150px;">
-                  <a href="#" onclick="remove_variable(this); return false;"><img src="<?php print $maestro_url; ?>/images/admin/remove.png" style="vertical-align: middle;"></a>
-                </td>
-                <td width="67%"><textarea name="op_var_values[]" rows="1" cols="32"><?php print $var_value; ?></textarea></td>
-              </tr>
+                  <tr class="<?php print $classname; ?>">
+                    <td width="33%" style="vertical-align: top; white-space: nowrap;">
+                      <input type="text" name="op_var_names[]" value="<?php print $var_name; ?>" style="width: 150px;">
+                      <a href="#" onclick="remove_variable(this); return false;"><img src="<?php print $maestro_url; ?>/images/admin/remove.png" style="vertical-align: middle;"></a>
+                    </td>
+                    <td width="67%"><textarea name="op_var_values[]" rows="1" cols="32"><?php print $var_value; ?></textarea></td>
+                  </tr>
 <?php
-            }
+                }
 ?>
-          </table>
+                </tbody>
+              </table>
+            </div>
+          </fieldset>
         </div>
 <?php
   }
@@ -196,9 +208,7 @@
 <?php
   }
 ?>
-        <br />
         <div class="maestro_task_edit_save_div"><input class="form-submit" type="submit" value="<?php print t('Save'); ?>"></div>
-
 
       </form>
     </div></div></div></div></div></div></div></div>

@@ -90,10 +90,7 @@
             drupal_write_record('maestro_process',$process_record);
             $new_processid = $process_record->id;
 
-            if ($process_record->id > 0) {
-              $this->_processId = $process_record->id;
-            }
-            else {
+            if ($process_record->id == 0) {
               watchdog('maestro', "New Process Code FAIL! - for template: $template");
               return FALSE;
             }
@@ -106,7 +103,7 @@
             }
 
             $queue_record = new stdClass();
-            $queue_record->process_id = $this->_processId;
+            $queue_record->process_id = $process_record->id;
             $queue_record->template_data_id = $templaterec->template_data_id;
             $queue_record->task_class_name = $templaterec->task_class_name;
             $queue_record->is_interactive = $templaterec->is_interactive;
@@ -118,16 +115,13 @@
             $queue_record->created_date = time();
             $queue_record->next_reminder_date = $next_reminder_date;
             drupal_write_record('maestro_queue',$queue_record);
-            if ($queue_record->id > 0) {
-              $this->_queueId = $queue_record->id;
-            }
-            else {
+            if ($queue_record->id == 0) {
               watchdog('maestro', "New Process Code FAIL! - Unexpected problem creating initial queue record for template: $template");
               return FALSE;
             }
 
             // Check if notification has been defined for new task assignment
-            $this->sendTaskAssignmentNotifications();
+            $this->sendTaskAssignmentNotifications($queue_record->id);
 
             // Determine if the offset is set.. if so, update the original parent process record with a status of 2
             if (!empty($startoffset) AND !empty($pid)) {
@@ -158,11 +152,11 @@
                     foreach ($queue_reporting_result as $queue_reporting_record) {
                       $record = new stdClass();
                       $record->id = $queue_reporting_record->from_queue_id;
-                      $record->process_id = $this->_processId;
+                      $record->process_id = $process_record->id;
                       drupal_write_record('maestro_queue',$record);
                     }
                     db_update('maestro_queue')
-                      ->fields(array('process_id' => $this->_processId))
+                      ->fields(array('process_id' => $process_record->id))
                       ->condition('id', $active_queue_record->id)
                       ->condition(db_or()->condition('archived',0)->condition('archived',NULL))
                       ->execute();
@@ -170,7 +164,7 @@
                 }
                 // Select the process variables for the parent and create new ones for the new process $this->_processId
                 $pvquery = db_select('maestro_process_variables','a');
-                $pvquery->addExpression($this->_processId,'process_id');
+                $pvquery->addExpression($process_record->id,'process_id');
                 $pvquery->fields('a',array('variable_value','template_variable_id'));
                 $pvquery->condition('a.process_id',$pid);
                 db_insert('maestro_process_variables')
@@ -182,7 +176,7 @@
             } else {
                 // Situation where this is the root process, inserts the default template variables into the process
                 $pvquery = db_select('maestro_template_variables','a');
-                $pvquery->addExpression($this->_processId,'process_id');
+                $pvquery->addExpression($process_record->id,'process_id');
                 $pvquery->fields('a',array('variable_value','id'));
                 $pvquery->condition('a.template_id',$template,'=');
                 db_insert('maestro_process_variables')
@@ -191,16 +185,16 @@
                   ->execute();
             }
             if ($this->_debug ) {
-                watchdog('maestro',"New queue id (1) : {$this->_queueId} - Template Taskid: {$templaterec->template_data_id}");
+                watchdog('maestro',"New queue id (1) : {$queue_record->id} - Template Taskid: {$templaterec->template_data_id}");
             }
 
             // Set the initiator variable here if not already set - via a regenerated process creation
-            if ($this->getProcessVariable('INITIATOR') == 0) {
-                $this->setProcessVariable('INITIATOR',$user->uid);
+            if ($this->getProcessVariable('INITIATOR', $process_record->id) == 0) {
+                $this->setProcessVariable('INITIATOR', $user->uid, $process_record->id);
             }
-            $newTaskAssignedUsers = $this->getAssignedUID();
+            $newTaskAssignedUsers = $this->getAssignedUID($queue_record->id);
             if (is_array($newTaskAssignedUsers) AND count($newTaskAssignedUsers) > 0) {
-                $this->assignTask($this->_queueId,$newTaskAssignedUsers);
+                $this->assignTask($queue_record->id, $newTaskAssignedUsers);
             }
 
             if($useExistingGroupingId === FALSE) {
@@ -208,9 +202,9 @@
                 if($templaterec->use_project == 1 && empty($pid)) {
                     // Condition where there is no parent (totally new process)
                     $project_record = new stdClass();
-                    $project_record->process_id = $this->_processId;
+                    $project_record->process_id = $process_record->id;
                     $project_record->originator_uid = $user->uid;
-                    $project_record->task_id = $this->_queueId;
+                    $project_record->task_id = $queue_record->id;
                     $project_record->status = 0;
                     $project_record->description = $templaterec->template_name;
                     drupal_write_record('maestro_projects',$project_record);
@@ -223,15 +217,15 @@
                     // Condition where there IS a parent AND we want a tracking table association
                     // One different step here - to update the wf process association for the original Parent process to include the new process
                     db_update('maestro_projects')
-                      ->fields(array('process_id' => $this->_processId))
+                      ->fields(array('process_id' => $process_record->id))
                       ->condition('process_id', $pid, '=')
                       ->execute();
                     if ($this->_debug ) {
-                      watchdog('maestro',"updated existing project record - set process_id to {$this->_processId}");
+                      watchdog('maestro',"updated existing project record - set process_id to {$process_record->id}");
                     }
                       $trackingId = db_select('maestro_projects','a')
                       ->fields('a',array('id'))
-                      ->condition('process_id', $this->_processId, '=')
+                      ->condition('process_id', $process_record->id, '=')
                       ->execute()->fetchField();
                     $this->setTrackingId($trackingId);
                 }
@@ -250,7 +244,7 @@
                       if($existing_project_result->related_processes != ''){
                           $existing_project_result->related_processes .= ",";
                       }
-                      $existing_project_result->related_processes .= $this->_processId;
+                      $existing_project_result->related_processes .= $process_record->id;
                       if($existing_project_result->id != 0) {
                         db_update('maestro_projects')
                           ->fields(array('related_processes' => $existing_project_result->related_processes))
@@ -258,7 +252,7 @@
                           ->execute();
                            $trackingId = db_select('maestro_projects','a')
                             ->fields('a',array('id'))
-                            ->condition('process_id', $this->_processId, '=')
+                            ->condition('process_id', $process_record->id, '=')
                             ->execute()->fetchField();
                             $this->setTrackingId($trackingId);
                       }
@@ -266,17 +260,17 @@
                 }
             }
             if($templaterec->use_project == 1 and $this->getTrackingId() == NULL) {
-              watchdog('maestro', "New Process Code failed to set tracking ID for Process: {$this->_processId}");
+              watchdog('maestro', "New Process Code failed to set tracking ID for Process: {$process_record->id}");
             } elseif ($this->getTrackingId() > 0) {
                 db_update('maestro_process')
                   ->fields(array('tracking_id' => $this->_trackingId))
-                  ->condition('id', $this->_processId)
+                  ->condition('id', $process_record->id)
                   ->execute();
             }
             if ($this->_debug) {
-              watchdog('maestro', "New Process Code completed Process: {$this->_processId}, Tracking Id: {$this->_trackingId}");
+              watchdog('maestro', "New Process Code completed Process: {$process_record->id}, Tracking Id: {$this->_trackingId}");
             }
-            return $this->_processId;
+            return $process_record->id;
 
         }
         else {
@@ -361,7 +355,7 @@
           }
           else if ($task->completionStatus > 0) {
             // Execution successful with a valid return status which will now be used to complete the task.
-            $this->completeTask($this->_queueId,$task->completionStatus);
+            $this->completeTask($task->_properties->id, $task->completionStatus);
             // @TODO:  any post complete task hooks?
             $this->_lastTestStatus = $task->getLastTestStatus();
             $this->nextStep();
@@ -636,13 +630,16 @@
 
 
 
-    function getAssignedUID() {
+    function getAssignedUID($queue_id=0) {
+      if ($queue_id == 0) {
+        $queue_id = $this->_queueId;
+      }
       $assigned = array();
       $query = db_select('maestro_queue', 'a');
       $query->join('maestro_template_data', 'b', 'a.template_data_id = b.id');
       $query->fields('a',array('template_data_id','is_interactive'));
       $query->fields('b',array('assigned_by_variable'));
-      $query->condition('a.id', $this->_queueId,'=');
+      $query->condition('a.id', $queue_id,'=');
       $queueRec = $query->execute()->fetchObject();
       if ($queueRec->is_interactive) { // Only need to create assignment records for interactive tasks
         if($queueRec->assigned_by_variable == 1 || $queueRec->assigned_by_variable == true) {
@@ -682,11 +679,11 @@
 
     }
 
-    function sendTaskAssignmentNotifications () { }
+    function sendTaskAssignmentNotifications ($queue_id=0) { }
 
-    function sendTaskCompletionNotifications () { }
+    function sendTaskCompletionNotifications ($queue_id=0) { }
 
-    function completeTask($qid,$status = 1) {
+    function completeTask($qid, $status = 1) {
       $pid = db_query("SELECT process_id FROM {maestro_queue} WHERE id = :qid",
               array(':qid' => $qid))->fetchField();
 

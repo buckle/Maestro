@@ -8,6 +8,9 @@
 .aligncenter {
   text-align:center;
 }
+.valigncenter {
+  vertical-align: -30%;
+}
 
 #maestro_workflow_container {
 }

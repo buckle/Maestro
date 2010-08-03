@@ -80,36 +80,41 @@
     // Requires the processID to be set and then pass in a variable's name.
     // if both the process and the name exist, you get a value..
     // otherwise, you get NULL
-    function getProcessVariable($variable) {
-        $retval = NULL;
-        $thisvar = strtolower($variable);
-        if(empty($this->_processId)) {
-            if ($this->_debug ) {
-                watchdog('maestro',"get_ProcessVariable: The Process ID has not been set.");
-            }
+    function getProcessVariable($variable, $process_id=0) {
+      $retval = NULL;
+      $thisvar = strtolower($variable);
+
+      if ($process_id == 0 && !empty($this->_processId)) {
+        $process_id = $this->_processId;
+      }
+      else if ($process_id == 0) {
+        if ($this->_debug ) {
+          watchdog('maestro',"get_ProcessVariable: The Process ID has not been set.");
+          return $retval;
         }
-        else {
-          $query = db_select('maestro_process_variables', 'a');
-          $query->addField('a','variable_value');
-          $query->join('maestro_template_variables', 'b', 'a.template_variable_id = b.id');
-          $query->condition('a.process_id',$this->_processId,'=');
-          $query->condition('b.variable_name',$thisvar,'=');
-          $result = $query->execute();
-          $numrows = $query->countQuery()->execute()->fetchField();
-          if ($numrows > 0 ) {
-            $record = $result->fetchObject();
-            $retval = $record->variable_value;
-            if ($this->_debug ) {
-              watchdog('maestro',"get_ProcessVariable: $variable -> $retval");
-            }
-          }
-          else {
-            if ($this->_debug ) {
-              watchdog('maestro',"get_processVariable -> Process:{$this->_processId}, variable:$variable - DOES NOT EXIST");
-            }
-          }
+      }
+
+      $query = db_select('maestro_process_variables', 'a');
+      $query->addField('a','variable_value');
+      $query->join('maestro_template_variables', 'b', 'a.template_variable_id = b.id');
+      $query->condition('a.process_id',$process_id,'=');
+      $query->condition('b.variable_name',$thisvar,'=');
+      $result = $query->execute();
+      $numrows = $query->countQuery()->execute()->fetchField();
+      if ($numrows > 0 ) {
+        $record = $result->fetchObject();
+        $retval = $record->variable_value;
+        if ($this->_debug ) {
+          watchdog('maestro',"get_ProcessVariable: $variable -> $retval");
         }
-        return $retval;
+      }
+      else {
+        if ($this->_debug ) {
+          watchdog('maestro',"get_processVariable -> Process:{$this->_processId}, variable:$variable - DOES NOT EXIST");
+        }
+      }
+
+      return $retval;
     }
 
 
@@ -117,58 +122,63 @@
     // Requires the processID to be set and then pass in a variable's name and value
     // if both the process and the name exist, you get a value..
     // otherwise, you get NULL
-    function setProcessVariable($variableName, $variableValue=0) {
-        $retval = NULL;
-        $thisvar = strtolower($variableName);
-           if(empty($this->_processId)) {
-            if ($this->_debug ) {
-                watchdog('maestro',"get_ProcessVariable: The Process ID has not been set.");
-            }
+    function setProcessVariable($variableName, $variableValue=0, $process_id=0) {
+      $retval = NULL;
+      $thisvar = strtolower($variableName);
+
+      if ($process_id == 0 && !empty($this->_processId)) {
+        $process_id == $this->_processId;
+      }
+      else if ($process_id == 0) {
+        if ($this->_debug ) {
+          watchdog('maestro',"get_ProcessVariable: The Process ID has not been set.");
+          return $retval;
         }
-        else {
-          // setting the value
-          $query = db_select('maestro_process_variables', 'a');
-          $query->addField('a','id','process_variable_id');
-          $query->addField('a','template_variable_id','variable_id');
-          $query->join('maestro_template_variables', 'b', 'a.template_variable_id = b.id');
-          $query->condition('a.process_id',$this->_processId,'=');
-          $query->condition('b.variable_name',$thisvar,'=');
-          $result = $query->execute();
-          $numrows = $query->countQuery()->execute()->fetchField();
-          if ($numrows > 0 ) {
-            $processVariableRecord = $result->fetchObject();
-            $count = db_update('maestro_process_variables')
-              ->fields(array('variable_value' => $variableValue))
-              ->condition('id', $processVariableRecord->process_variable_id, '=')
-              ->condition('process_id',$this->_processId,'=')
-              ->execute();
-                if ($this->_debug ) {
-                    watchdog('maestro',"set_processVariable -> Process:{$this->_processId}, variable:$thisvar, value:$variableValue");
-                }
-                if ($count == 1) {
-                    $retval = $variableValue;
-                }
-                // Now see if that process variable controlled assignment
-                $query = db_select('maestro_queue', 'a');
-                $query->fields('a',array('id'));
-                $query->join('maestro_template_data', 'b', 'b.id = a.template_data_id');
-                $query->join('maestro_template_assignment', 'c', 'c.template_data_id = a.template_data_id');
-                $query->condition('a.process_id',$this->_processId,'=');
-                $query->condition('b.assigned_by_variable',1,'=');
-                $query->condition(db_or()->condition('a.archived',0)->condition('a.archived',NULL));
-                $query->condition('c.process_variable',$processVariableRecord->variable_id,'=');
-                $queueRecords = $query->execute();
-                foreach ($queueRecords as $queueRecord) {
-                    $this->assignTask($queueRecord->id,array($processVariableRecord->variable_id => $variableValue));
-                }
-            }
-            else {
-                if ($this->_debug ) {
-                    watchdog('maestro',"set_processVariable -> Process:{$this->_processId}, variable:$thisvar - DOES NOT EXIST");
-                }
-            }
+      }
+
+      // setting the value
+      $query = db_select('maestro_process_variables', 'a');
+      $query->addField('a','id','process_variable_id');
+      $query->addField('a','template_variable_id','variable_id');
+      $query->join('maestro_template_variables', 'b', 'a.template_variable_id = b.id');
+      $query->condition('a.process_id', $process_id, '=');
+      $query->condition('b.variable_name',$thisvar,'=');
+      $result = $query->execute();
+      $numrows = $query->countQuery()->execute()->fetchField();
+      if ($numrows > 0) {
+        $processVariableRecord = $result->fetchObject();
+        $count = db_update('maestro_process_variables')
+          ->fields(array('variable_value' => $variableValue))
+          ->condition('id', $processVariableRecord->process_variable_id, '=')
+          ->condition('process_id', $process_id, '=')
+          ->execute();
+        if ($this->_debug ) {
+            watchdog('maestro',"set_processVariable -> Process:{$process_id}, variable:$thisvar, value:$variableValue");
         }
-        return $retval;
+        if ($count == 1) {
+            $retval = $variableValue;
+        }
+        // Now see if that process variable controlled assignment
+        $query = db_select('maestro_queue', 'a');
+        $query->fields('a',array('id'));
+        $query->join('maestro_template_data', 'b', 'b.id = a.template_data_id');
+        $query->join('maestro_template_assignment', 'c', 'c.template_data_id = a.template_data_id');
+        $query->condition('a.process_id',$process_id,'=');
+        $query->condition('b.assigned_by_variable',1,'=');
+        $query->condition(db_or()->condition('a.archived',0)->condition('a.archived',NULL));
+        $query->condition('c.process_variable',$processVariableRecord->variable_id,'=');
+        $queueRecords = $query->execute();
+        foreach ($queueRecords as $queueRecord) {
+          $this->assignTask($queueRecord->id,array($processVariableRecord->variable_id => $variableValue));
+        }
+      }
+      else {
+        if ($this->_debug ) {
+          watchdog('maestro',"set_processVariable -> Process:{$process_id}, variable:$thisvar - DOES NOT EXIST");
+        }
+      }
+
+      return $retval;
     }
 
     abstract function getVersion();
