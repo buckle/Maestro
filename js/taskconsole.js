@@ -57,3 +57,28 @@ jQuery(function($) {
 });
 
 
+jQuery(function($) {
+  $('#taskConsoleLaunchNewProcess').click(function() {
+  	$("#newProcessStatusRowSuccess").hide();
+  	$("#newProcessStatusRowFailure").hide();
+    dataString = jQuery('#frmLaunchNewProcess').serialize();
+    dataString += "&op=newprocess";
+    jQuery.ajax( {
+      type : 'POST',
+      cache : false,
+      url : ajax_url + '/newprocess',
+      dataType : "json",
+      success : function(data) {
+        if (data.status == 1 && data.processid > 0) {
+	        $("#newProcessStatusRowSuccess").show();	          
+        } else {
+        	$("#newProcessStatusRowFailure").show();
+        }
+      },
+      error : function() { $("#newProcessStatusRowFailure").show(); },
+      data : dataString
+    });
+    return false;
+  })
+});
+

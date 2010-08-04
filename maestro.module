@@ -437,7 +437,8 @@ function maestro_launch_workflow($template = 0) {
     drupal_set_message("New Process Code FAIL! - No Template ID Given");
   }
 
-  drupal_goto($base_url);
+  //drupal_goto($base_url);
+  return $newprocess;
 }
 
 function template_preprocess_maestro_taskconsole(&$variables) {
@@ -505,6 +506,15 @@ function template_preprocess_maestro_taskconsole(&$variables) {
     $variables['details_icon'] = '<img src="' . $maestro_path . '/images/taskconsole/details.png' . '">';
 
   }
+
+
+
+  $res = db_query("SELECT id, template_name FROM {maestro_template}");
+  $options = array('' => t('Select Workflow'));
+  foreach ($res as $rec) {
+    $options[$rec->id] = t($rec->template_name);
+  }
+   $variables['process_dropdown']=$options;
 
 }
 
@@ -677,6 +687,13 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
           ->condition('id', $_POST['taskid'], '=')
           ->execute();
       }
+      break;
+
+    case 'newprocess':
+      $tid = intval($_POST['templateid']);
+      $pid = maestro_launch_workflow($tid);
+      $retdata = array ('status' => "1", 'processid' => $pid);
+      echo json_encode($retdata);
       break;
 
     case 'interactivetask_post':

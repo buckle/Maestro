@@ -12,6 +12,28 @@
 </script>
 
 <table width="100%">
+  <tr>
+    <td style="text-align: right">
+      <form method="get" action="<?php print url("maestro/launch"); ?>" id="frmLaunchNewProcess">
+      <?php print t('Start New Process:'); ?>
+      <select name="templateid">
+      <?php foreach($process_dropdown as $optid => $optval){ ?>
+        <option value="<?php print $optid; ?>"><?php print $optval; ?></option>
+      <?php } ?>
+      </select>
+      <input type="button" value="Launch" id="taskConsoleLaunchNewProcess"></input>
+      <div id="newProcessStatusRowSuccess" style="display:none;color: green;">
+        <?php print t('Started Process successfully.'); ?>
+      </div>
+      <div id="newProcessStatusRowFailure" style="display:none;color: green;">
+        <?php print t('Error Starting Process.'); ?>
+      </div>
+      </form>
+    </td>
+  </tr>
+</table>
+
+<table width="100%">
 <tr>
   <th width="5%"><?php print t(''); ?></th>
   <th width="30%"><?php print t('Flow Name'); ?></th>
