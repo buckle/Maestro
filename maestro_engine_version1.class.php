@@ -306,7 +306,7 @@
       $query->addField('c','task_class_name','step_type');
       $query->addField('c','handler');
       $query->addField('d','template_name');
-      $query->condition(db_and()->condition('a.archived',0)->condition('b.complete',0));
+      $query->condition(db_and()->condition('a.archived',0)->condition('b.complete',0)->condition('a.run_once',0));
       $res = $query->execute();
       if ($this->_debug) {
         watchdog('maestro',"CleanQueue: Number of entries in the queue:" . count($res));
@@ -736,18 +736,18 @@
       if ($this->_userId == '' or $this->_userId == null ) {
           if ($assigned_uid == '' OR $assigned_uid == null) {
             db_update('maestro_queue')
-              ->fields(array('uid' => NULL, 'status' => $status))
+              ->fields(array('uid' => NULL, 'status' => $status, 'run_once' => 0))
               ->condition('id',$qid,'=')
               ->execute();
           } else {
             db_update('maestro_queue')
-              ->fields(array('uid' => $assigned_uid , 'status' => $status))
+              ->fields(array('uid' => $assigned_uid , 'status' => $status, 'run_once' => 0))
               ->condition('id',$qid,'=')
               ->execute();
           }
       } else {
           db_update('maestro_queue')
-            ->fields(array('uid' => $this->_userId , 'status' => $status))
+            ->fields(array('uid' => $this->_userId , 'status' => $status, 'run_once' => 0))
             ->condition('id',$qid,'=')
             ->execute();
       }

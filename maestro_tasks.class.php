@@ -377,6 +377,10 @@ class MaestroTaskTypeInteractivefunction extends MaestroTask {
      * The taskconsole will call the processInteractiveTask method for this task type.
      * It's up to the defined interactiveTask function to complete the task.
      */
+    db_update('maestro_queue')
+      ->fields(array('run_once' => 1))
+      ->condition('id', $this->_properties->id, '=')
+      ->execute();
     $msg = 'Execute Task Type: "MaestroTaskTypeInteractivefunction" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
     $this->completionStatus = FALSE;
