@@ -384,6 +384,8 @@ function maestro_taskconsole() {
   drupal_set_breadcrumb('');
 
   $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
+
+  //@TODO:  Please remove this cleanqueue for the final release version!
   $maestro->engine()->cleanQueue();
 
   return theme('maestro_taskconsole');
