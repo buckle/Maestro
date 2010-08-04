@@ -127,7 +127,7 @@
       $thisvar = strtolower($variableName);
 
       if ($process_id == 0 && !empty($this->_processId)) {
-        $process_id == $this->_processId;
+        $process_id = $this->_processId;
       }
       else if ($process_id == 0) {
         if ($this->_debug ) {
