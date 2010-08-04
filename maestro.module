@@ -20,12 +20,6 @@ function maestro_menu() {
     'type' => MENU_NORMAL_ITEM,
   );
 
-  $items['maestro/cleanqueue'] = array(
-    'title' => 'Maestro CleanQueue',
-    'page callback' => 'maestro_cleanqueue',
-    'access callback' => TRUE,
-  );
-
   $items['maestro/test'] = array(
     'title' => 'Maestro Test Workflow',
     'page callback' => 'maestro_enginetest',

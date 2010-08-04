@@ -158,8 +158,11 @@ class MaestroTaskTypeBatchFunction extends MaestroTask {
     $current_path = drupal_get_path('module','maestro') . "/batch/";
     include($current_path . "batch_functions.php" );
 
-    if (function_exists($this->_properties->handler)) {
-      $this->_properties->handler($this->_properties->id,$this->_properties->process_id);
+    $function = $this->_properties->handler;
+    if (function_exists($function)) {
+      $success = $function($this->_properties->id,$this->_properties->process_id);
+    } else {
+      watchdog('maestro',"MaestroTaskTypeBatchFunction - unable to find the function: {$this->_properties->handler}");
     }
     // Assumption made here that the $success variable is set by the batch task.
     if ($success) {
@@ -177,7 +180,7 @@ class MaestroTaskTypeBatchFunction extends MaestroTask {
     $serializedData = db_query("SELECT task_data FROM {maestro_template_data} WHERE id = :tid",
       array(':tid' => $this->_properties->taskid))->fetchField();
     $taskdata = @unserialize($serializedData);
-    return array('handler' => $taskdata['function'],'serialized_data' => $serializedData);
+    return array('handler' => $taskdata['handler'],'serialized_data' => $serializedData);
   }
 
 }

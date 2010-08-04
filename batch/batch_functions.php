@@ -26,3 +26,15 @@ function MaestroBatch_Sample($queueID, $processID){
 
   $success = TRUE;
 }
+
+
+function maestro_publishArticle($queue_id, $process_id) {
+  $nid = db_query("SELECT nid FROM {maestro_project_content} WHERE process_id = :pid AND content_type='article'",
+      array(':pid' => $process_id))->fetchField();
+  $node = node_load($nid);
+  node_publish_action($node);
+  node_save($node);
+  drupal_set_message('New article has been published');
+  return TRUE;
+
+}
