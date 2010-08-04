@@ -162,11 +162,20 @@ function maestro_editChangeRequest($op,&$task,$parms) {
 
 function maestro_reviewContentType($op,&$task,$parms) {
   global $base_url;
+ 
+  $id = db_select('maestro_projects','a')
+    ->fields('a',array('id'))
+    ->condition('process_id', $task->_properties->process_id, '=')
+    ->execute()->fetchField();
 
-  $nid = db_query("SELECT nid FROM {maestro_project_content} WHERE process_id = :pid AND content_type = :type",
-     array(':pid' => $task->_properties->process_id, ':type' => $parms['content_type']))->fetchField();
+  $nid = db_query("SELECT nid FROM {maestro_project_content} WHERE project_id = :pid AND content_type = :type",
+     array(':pid' => $id, ':type' => $parms['content_type']))->fetchField();
 
-  $node = node_load(120);
+  $node = node_load($nid);
+  if ($node === FALSE) {
+    $retval->retcode = FALSE;
+    return $retval;
+  }
   $retval = new stdClass();
   $retval->html = '';
   $retval->retcode = FALSE;

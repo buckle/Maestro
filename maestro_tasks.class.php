@@ -561,7 +561,7 @@ class MaestroTaskTypeContentType extends MaestroTask {
       // Determine the content nid
       $query = db_select('maestro_project_content', 'a');
       $query->addField('a','nid');
-      $query->condition('a.process_id', $this->_properties->parent_process_id,'=');
+      $query->condition('a.instance', 1,'=');
       $query->condition(db_and()->condition('a.content_type', $taskdata['content_type'],'='));
       $nid = $query->execute()->fetchField();
       $url = $base_url . "/node/$nid/edit/maestro/edit/{$this->_properties->queue_id}/completeonsubmit/";

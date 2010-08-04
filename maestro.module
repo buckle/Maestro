@@ -782,10 +782,13 @@ function maestro_node_insert($node) {
     $process_id = db_query("SELECT process_id FROM {maestro_queue} WHERE id = :tid",
        array(':tid' => $node->maestro_taskid))->fetchField();
 
+    $project_id = db_query("SELECT id FROM {maestro_projects} WHERE process_id = :pid",
+       array(':pid' => $process_id))->fetchField();
+
     db_insert('maestro_project_content')
     ->fields(array(
         'nid' => $node->nid,
-        'project_id' => 0,
+        'project_id' => $project_id,
         'qid' => $node->maestro_taskid,
         'process_id' => $process_id,
         'content_type' => $node->type,

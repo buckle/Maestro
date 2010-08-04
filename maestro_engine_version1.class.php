@@ -215,14 +215,28 @@
                 elseif($templaterec->use_project == 1 && !empty($pid)) {
                     // Condition where there IS a parent AND we want a tracking table association
                     // One different step here - to update the wf process association for the original Parent process to include the new process
-                    db_update('maestro_projects')
-                      ->fields(array('process_id' => $process_record->id))
+                    $res = db_select('maestro_projects','a')
+                      ->fields('a',array('id','related_processes'))
                       ->condition('process_id', $pid, '=')
+                      ->execute()->fetchObject();
+                      db_update('maestro_projects')
+                        ->fields(array('process_id' => $process_record->id))
+                        ->condition('id', $res->id, '=')
+                        ->execute();
+                    if (empty($res->related_processes)) {
+                      $res->related_processes .= $pid;
+                    }
+                    else {
+                      $res->related_processes .= ",{$process_record->id}";
+                    }
+                    db_update('maestro_projects')
+                      ->fields(array('related_processes' => $res->related_processes))
+                      ->condition('id', $res->id, '=')
                       ->execute();
                     if ($this->_debug ) {
-                      watchdog('maestro',"updated existing project record - set process_id to {$process_record->id}");
+                      watchdog('maestro',"updated existing project record process ({$process_record->id}), set related_processes set to: $related");
                     }
-                      $trackingId = db_select('maestro_projects','a')
+                    $trackingId = db_select('maestro_projects','a')
                       ->fields('a',array('id'))
                       ->condition('process_id', $process_record->id, '=')
                       ->execute()->fetchField();
@@ -303,7 +317,7 @@
       $query->fields('a',array('id','status','archived','template_data_id','task_class_name','engine_version','is_interactive'));
       $query->addField('b','id','process_id');
       $query->addField('c','task_class_name','step_type');
-      $query->addField('c','handler');
+      $query->addField('a','handler');
       $query->addField('d','template_name');
       $query->condition(db_and()->condition('a.archived',0)->condition('b.complete',0)->condition('a.run_once',0));
       $res = $query->execute();
