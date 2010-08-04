@@ -385,8 +385,12 @@ function maestro_taskconsole() {
 
   $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
 
-  //@TODO:  Please remove this cleanqueue for the final release version!
-  $maestro->engine()->cleanQueue();
+  //Only run the orchestrator if we've been told to do so on the config page.
+  //if this is our initial installation, set the default value to 1
+  //to allow the orchestrator to clean the queue properly
+  if(variable_get('maestro_run_orchestrator_in_task_console', 1)){
+    $maestro->engine()->cleanQueue();
+  }
 
   return theme('maestro_taskconsole');
 }

@@ -316,6 +316,13 @@ function maestro_admin_form() {
           It is highly recommended that batch scripts be placed in a directory outside of web root.'),
     '#required' => TRUE,
   );
+  $form['maestro_run_orchestrator_in_task_console'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Run the Orchestrator when the Task Console Renders'),
+    '#default_value' => variable_get('maestro_run_orchestrator_in_task_console', 0),
+    '#description' => t('Enabling this option will run the Orchestrator each time you visit or refresh the Task Console page.'),
+    '#required' => FALSE,
+  );
 
   return system_settings_form($form);
 }
