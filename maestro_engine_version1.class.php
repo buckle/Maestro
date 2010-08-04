@@ -6,7 +6,6 @@
 
       var $_version = '1.x';
       var $_properties;
-      var $_mode;
 
       function __construct($options) {
         global $user;
@@ -679,10 +678,6 @@
 
     }
 
-    function sendTaskAssignmentNotifications ($queue_id=0) { }
-
-    function sendTaskCompletionNotifications ($queue_id=0) { }
-
     function completeTask($qid, $status = 1) {
       $pid = db_query("SELECT process_id FROM {maestro_queue} WHERE id = :qid",
               array(':qid' => $qid))->fetchField();
@@ -906,8 +901,5 @@
         }
         return $this->_userTaskObject;
     }
-
-    function setMode($mode) { $this->_mode = $mode; }
-    function getMode() { return $this->_mode; }
 
   }

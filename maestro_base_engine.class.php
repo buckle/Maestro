@@ -12,14 +12,18 @@
     var $_userId                  = NULL;     // Current User Id
     var $_trackingId              = NULL;     // Workflow grouping Tracking Id to enable project or detail workflow tracking and link related workflows
     var $_taskType                = '';
-    var $_debug                   = false;    // Set the current debug level to false.
+    var $_debug                   = FALSE;    // Set the current debug level to false.
     var $_userTaskCount           = 0;        // Number of tasks the user has in the queue
     var $_userTaskObject          = NULL;     // Users Active Tasks in the queue
     var $_templateCount           = 0;        // Number of templates the user is able to kick off
     var $_processTaskCount        = 0;        // Number of tasks the current process has in the queue
     var $_status                  = 0;        // Set in cleanQueue to indicate status of last executing task before calling nextStep method
     var $_lastTestStatus          = 0;        // Used in nextStep when the task that last executed will branch to different tasks - like an IF task
-    var $task = null;
+    var $_mode;
+    var $task                     = NULL;
+
+    function setMode($mode) { $this->_mode = $mode; }
+    function getMode() { return $this->_mode; }
 
     // Simply sets the debug parameter.
     function setDebug($debug) {
@@ -179,6 +183,33 @@
       }
 
       return $retval;
+    }
+
+    function sendTaskAssignmentNotifications ($queue_id=0) { }
+
+    function sendTaskReminderNotifications ($queue_id=0, $user_id=0) { }
+
+    function sendTaskCompletionNotifications ($queue_id=0) { }
+
+    function reassignTask($qid, $current_uid, $reassign_uid) {
+      if ($qid > 0 && $reassign_uid > 0) {
+        db_update('maestro_production_assignments')
+          ->fields(array('uid' => $reassign_uid, 'assign_back_uid' => $current_uid))
+          ->condition('task_id', $qid, '=')
+          ->condition('uid', $current_uid, '=')
+          ->execute();
+      }
+    }
+
+    function deleteTask($qid) {
+      if ($qid > 0) {
+        db_delete('maestro_production_assignments')
+          ->condition('task_id', $qid, '=')
+          ->execute();
+        db_delete('maestro_queue')
+          ->condition('id', $qid, '=')
+          ->execute();
+      }
     }
 
     abstract function getVersion();

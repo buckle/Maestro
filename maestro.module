@@ -176,7 +176,7 @@ function maestro_theme() {
     ),
     'maestro_outstanding_tasks' => array(
       'template' => 'theme/maestro-outstanding-tasks',
-      'variables' => array('maestro_url' => NULL, 'maestro' => NULL, 'queue' => NULL),
+      'variables' => array('maestro_url' => NULL, 'maestro' => NULL, 'queue' => NULL, 'users' => NULL),
     ),
     'maestro_workflow_list' => array(
       'template' => 'theme/structure/maestro-workflow-list',

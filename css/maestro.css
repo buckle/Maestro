@@ -11,6 +11,10 @@
 .valigncenter {
   vertical-align: -30%;
 }
+.valigntop {
+  vertical-align: top;
+  margin: 3px 0px 0px 0px;
+}
 
 #maestro_workflow_container {
 }

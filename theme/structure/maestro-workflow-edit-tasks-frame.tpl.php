@@ -78,9 +78,11 @@
               <tr>
                 <td width="33%" style="vertical-align: top; white-space: nowrap;">
                   <input type="text" name="op_var_names[]" value="" style="width: 150px;">
-                  <a href="#" onclick="remove_variable(this); return false;"><img class="valigncenter" src="<?php print $maestro_url; ?>/images/admin/remove.png" style="vertical-align: middle;"></a>
                 </td>
-                <td width="67%"><textarea name="op_var_values[]" rows="1" cols="32"></textarea></td>
+                <td width="67%" style="vertical-align: top; white-space: nowrap;">
+                  <textarea name="op_var_values[]" rows="1" cols="32"></textarea>
+                  <a href="#" onclick="remove_variable(this); return false;"><img src="<?php print $maestro_url; ?>/images/admin/remove.png" class="valigntop"></a>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -105,9 +107,11 @@
                   <tr class="<?php print $classname; ?>">
                     <td width="33%" style="vertical-align: top; white-space: nowrap;">
                       <input type="text" name="op_var_names[]" value="<?php print $var_name; ?>" style="width: 150px;">
-                      <a href="#" onclick="remove_variable(this); return false;"><img src="<?php print $maestro_url; ?>/images/admin/remove.png" style="vertical-align: middle;"></a>
                     </td>
-                    <td width="67%"><textarea name="op_var_values[]" rows="1" cols="32"><?php print $var_value; ?></textarea></td>
+                    <td width="67%" style="vertical-align: top; white-space: nowrap;">
+                      <textarea name="op_var_values[]" rows="1" cols="32"><?php print $var_value; ?></textarea>
+                      <a href="#" onclick="remove_variable(this); return false;"><img src="<?php print $maestro_url; ?>/images/admin/remove.png" class="valigntop"></a>
+                    </td>
                   </tr>
 <?php
                 }
@@ -130,9 +134,14 @@
                 <label for="assigned_by_variable_opt2"><input type="radio" id="assigned_by_variable_opt2" name="assigned_by_variable" value="1" onchange="toggle_assignment(1);" <?php print ($vars->assigned_by_variable == 1) ? 'checked="checked"':''; ?>><?php print t('Assign User(s) by Process Variable'); ?></label>
               </td>
             </tr>
+            <tr>
+              <td style="text-align: center;"><?php print t('Available'); ?></td>
+              <td></td>
+              <td style="text-align: center;"><?php print t('Assigned'); ?></td>
+            </tr>
             <tr id="assign_by_uid_row">
-              <td>
-                <select size="4" multiple="multiple" style="width: 200px;" id="assign_by_uid_unselected">
+              <td style="width: 200px;">
+                <select size="4" multiple="multiple" style="width: 100%;" id="assign_by_uid_unselected">
 <?php
                   foreach ($uid_options as $value => $rec) {
                     if ($rec['selected'] == 0) {
@@ -144,13 +153,13 @@
 ?>
                 </select>
               </td>
-              <td>
+              <td style="text-align: center;">
                 <a href="#" onclick="move_to_left('uid'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/left-arrow.png"></a>
                 &nbsp;&nbsp;&nbsp;
                 <a href="#" onclick="move_to_right('uid'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/right-arrow.png"></a>
               </td>
-              <td>
-                <select size="4" multiple="multiple" style="width: 200px;" id="assign_by_uid" name="assign_by_uid[]">
+              <td style="width: 200px;">
+                <select size="4" multiple="multiple" style="width: 100%;" id="assign_by_uid" name="assign_by_uid[]">
 <?php
                   foreach ($uid_options as $value => $rec) {
                     if ($rec['selected'] == 1) {
@@ -164,8 +173,8 @@
               </td>
             </tr>
             <tr id="assign_by_pv_row">
-              <td>
-                <select size="4" multiple="multiple" style="width: 200px;" id="assign_by_pv_unselected">
+              <td style="width: 200px;">
+                <select size="4" multiple="multiple" style="width: 100%;" id="assign_by_pv_unselected">
 <?php
                   foreach ($pv_options as $value => $rec) {
                     if ($rec['selected'] == 0) {
@@ -177,13 +186,13 @@
 ?>
                 </select>
               </td>
-              <td>
+              <td style="text-align: center;">
                 <a href="#" onclick="move_to_left('pv'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/left-arrow.png"></a>
                 &nbsp;&nbsp;&nbsp;
                 <a href="#" onclick="move_to_right('pv'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/right-arrow.png"></a>
               </td>
-              <td>
-                <select size="4" multiple="multiple" style="width: 200px;" id="assign_by_pv" name="assign_by_pv[]">
+              <td style="width: 200px;">
+                <select size="4" multiple="multiple" style="width: 100%;" id="assign_by_pv" name="assign_by_pv[]">
 <?php
                   foreach ($pv_options as $value => $rec) {
                     if ($rec['selected'] == 1) {
