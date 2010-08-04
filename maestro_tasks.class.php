@@ -501,15 +501,12 @@ class MaestroTaskTypeManualWeb extends MaestroTask {
      */
     $msg = 'Execute Task Type: "Manual Web" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
-    if($this->_properties->status == 1) {
-      $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
-    }
-    else {
-      $this->completionStatus = FALSE;
-      $this->setMessage( 'Manual Web task -- status is 0.  Will not complete this task yet.');
-    }
-
+    $this->completionStatus = FALSE;
     $this->executionStatus = TRUE;
+    db_update('maestro_queue')  //setting the run_once flag as we don't have anything particular to do in this task
+      ->fields(array('run_once' => 1))
+      ->condition('id', $this->_properties->id, '=')
+      ->execute();
     return $this;
   }
 
