@@ -40,13 +40,6 @@
               </td>
             </tr>
             <tr>
-              <td colspan="3" style="padding-left:10px;" ><?php print t('Create Tracking Entries'); ?>:
-                <span id="editNeedPrj_<?php print $rec->id; ?>">
-                  <input type="checkbox" name="useProject" <?php print $use_project; ?> value="1">
-                </span>
-              </td>
-            </tr>
-            <tr>
               <td colspan="3" style="vertical-align:top;padding-left:10px;">
                 <div style="float:left;width:75%"><?php print t('Bind Flow to a Flow Application Group'); ?>: </div>
                 <div style="float:right;width:20%;white-space:nowrap;"> <?php print $template_app_groups; ?> </div>

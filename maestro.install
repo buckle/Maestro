@@ -8,7 +8,7 @@
 
 function maestro_install() {
 
-db_query("INSERT INTO {maestro_template} (`id`, `template_name`, `use_project`, `canvas_height`, `app_group`) VALUES (1, 'Test Workflow', 0, 500, 0)");
+db_query("INSERT INTO {maestro_template} (`id`, `template_name`, `canvas_height`, `app_group`) VALUES (1, 'Test Workflow', 500, 0)");
 db_query("INSERT INTO {maestro_template_assignment} (`id`, `template_data_id`, `uid`, `gid`, `process_variable`, `pre_notify_variable`, `post_notify_variable`, `reminder_notify_variable`) VALUES (1, 6, 0, 0, 1, 0, 0, 0), (2, 5, 0, 0, 1, 0, 0, 0)");
 db_query("INSERT INTO {maestro_template_data} (`id`, `template_id`, `task_class_name`, `is_interactive`, `task_data`, `first_task`, `taskname`, `assigned_by_variable`,`is_dynamic_taskname`, `dynamic_taskname_variable_id`, `reminder_interval`, `reminder_interval_variable`, `subsequent_reminder_interval`, `last_updated`, `pre_notify_subject`, `post_notify_subject`, `reminder_subject`, `pre_notify_message`, `post_notify_message`, `reminder_message`, `num_reminders`, `escalate_variable_id`, `offset_left`, `offset_top`, `surpress_first_notification`) VALUES
 (1, 1, 'MaestroTaskTypeStart', 0, NULL, 1, 'Start', 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL, '', '', '', 0, 0, 65, 100, 0),
@@ -873,12 +873,6 @@ function maestro_schema() {
         'length' => '100',
         'not null' => TRUE,
         'default' => '',
-      ),
-      'use_project' => array(
-        'description' => '',
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
       ),
       'canvas_height' => array(
         'description' => '',

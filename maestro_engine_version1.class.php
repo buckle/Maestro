@@ -46,7 +46,7 @@
             $query->fields('a',array('template_data_from'));
             $query->fields('b',array('regen_all_live_tasks','reminder_interval','task_class_name','is_interactive','task_data','handler'));
             $query->addField('b','id','taskid');
-            $query->fields('c',array('template_name','use_project'));
+            $query->fields('c',array('template_name'));
             $query->join('maestro_template_data', 'b', 'a.template_data_from = b.id');     // default is an INNER JOIN
             $query->join('maestro_template', 'c', 'b.template_id = c.id');
             $query->condition('b.first_task',1,'=');
@@ -59,7 +59,7 @@
             $startoffset = intval($startoffset);
             $query = db_select('maestro_template_data','a');
             $query->addField('a','id','taskid');
-            $query->fields('b',array('use_project','template_name'));
+            $query->fields('b',array('template_name'));
             $query->fields('a',array('regen_all_live_tasks','reminder_interval','task_class_name','is_interactive','task_data','handler'));
             $query->join('maestro_template', 'b', 'b.id = a.template_id');
             $query->condition('a.id',$startoffset);

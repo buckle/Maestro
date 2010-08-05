@@ -52,12 +52,10 @@ function maestro_handle_structure_ajax_request(){
   switch($op){
     case 'savetemplate':
       $name=check_plain($_POST['templateName']);
-      $use_project=intval(check_plain($_POST['useProject']));
       $app_group=intval(check_plain($_POST['appGroup']));
 
       $update=db_update('maestro_template')
       ->fields(array( 'template_name' => $name,
-                      'use_project' => $use_project,
                       'app_group' => $app_group
       ))
       ->condition('id', $id)

@@ -578,17 +578,13 @@ function template_preprocess_maestro_workflow_list_item(&$variables) {
   $output="";
 
   $variables['module_path']=$base_url . "/" . drupal_get_path('module', 'maestro');
-  $variables['use_project'] = "";
   if(  $variables['operation'] == 'edit' && $variables['tid'] ==  $variables['rec']->id ) {  //only show this when we're editing a specific template.
     $variables['show_item'] = '';
     $output=theme('maestro_workflow_edit_template_variables',  array('tid' => $variables['tid'], 'edit_var' => $variables['edit_var'] , 'cntr' => $variables['cntr']));
     $query = db_select('maestro_template', 'a');
-    $query->fields('a',array('template_name','use_project','app_group'));
+    $query->fields('a',array('template_name','app_group'));
     $query->condition('a.id',$variables['tid'],'=');
     $res=current($query->execute()->fetchAll());
-    if($res) {
-      if($res->use_project == 1)  $variables['use_project'] = ' checked="true" ';
-    }
     $variables['template_app_groups'] = maestro_createAppGroupDropDown('appGroup', $res->app_group);
   }
   else {
