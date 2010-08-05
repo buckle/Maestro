@@ -247,6 +247,22 @@
       }
     }
 
+    function getQueueHistory($process_id) {
+      $query = db_select('maestro_queue', 'a');
+      $query->fields('a', array('id'));
+      $query->fields('b', array('taskname'));
+      $query->leftJoin('maestro_template_data', 'b', 'a.template_data_id=b.id');
+      $query->condition('a.process_id', $process_id, '=');
+      $res = $query->execute();
+
+      $queue_history = array();
+      foreach ($res as $rec) {
+        $queue_history[$rec->id] = array('taskname' => $rec->taskname);
+      }
+
+      return $queue_history;
+    }
+
     abstract function getVersion();
 
     abstract function assignTask($queueId,$userObject);

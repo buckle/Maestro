@@ -56,6 +56,13 @@ function maestro_menu() {
     'file' => 'maestro.moderator.inc'
     );
 
+    $items['maestro/trace'] = array(
+    'page callback' => 'maestro_trace',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('edit outstanding tasks'),
+    'file' => 'maestro.moderator.inc'
+    );
+
     $items['admin/structure/maestro/ajax'] = array(
     'page callback' => 'maestro_handle_editor_ajax_request',
     'type' => MENU_CALLBACK,
@@ -177,6 +184,10 @@ function maestro_theme() {
     'maestro_outstanding_tasks' => array(
       'template' => 'theme/maestro-outstanding-tasks',
       'variables' => array('maestro_url' => NULL, 'maestro' => NULL, 'queue' => NULL, 'users' => NULL),
+    ),
+    'maestro_trace' => array(
+      'template' => 'theme/maestro-trace',
+      'variables' => array('maestro_url' => NULL, 'trace' => NULL, 'properties' => NULL, 'pv_res' => NULL),
     ),
     'maestro_workflow_list' => array(
       'template' => 'theme/structure/maestro-workflow-list',
