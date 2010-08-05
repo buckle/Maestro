@@ -706,7 +706,6 @@ function maestro_schema() {
     'primary key' => array('id'),
     'indexes' => array(
       'originator_uid' => array('originator_uid'),
-      'process_id' => array('process_id'),
       'project_num' => array('project_num'),
       'status' => array('status'),
     ),
@@ -1384,7 +1383,6 @@ function maestro_schema() {
     'primary key' => array('id'),
     'indexes' => array(
       'nid' => array('nid'),
-      'project_id' => array('project_id'),
     ),
   );
 
