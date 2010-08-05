@@ -1,0 +1,10 @@
+; $Id$
+name = Common Functions
+description = Common batch and interactive workflow functions provided as part of the core Maestro module
+package = Maestro
+version = 7.x-1.0-dev
+core = 7.x
+dependencies[] = maestro
+files[] = common.module
+
+

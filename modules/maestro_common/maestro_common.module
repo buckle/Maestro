@@ -1,0 +1,45 @@
+<?php
+// $Id:
+
+/**
+ * @file
+ * maestro__common.module
+ */
+
+
+function maestro_common_theme() {
+  return array(
+    'maestro_common_show_message' => array(
+      'template' => 'show_message',
+      'variables' => array('messsage' => NULL),
+    )
+  );
+}
+
+function maestro_showmessage($op,&$task,$parms) {
+  global $base_url;
+
+  $retval = new stdClass();
+  $retval->html = '';
+  $retval->retcode = FALSE;
+  $retval->engineop = '';
+
+  switch ($op) {
+    case 'display':
+      $retval->html = theme('maestro_common_show_message',array('message' => $parms['message']));
+      $retval->retcode = TRUE;
+      $retval->engineop = '';
+      break;
+    case 'complete':
+      $retval->retcode = TRUE;
+      $retval->engineop = 'completetask';
+      break;
+  }
+
+  return $retval;
+
+}
+
+
+
+?>
