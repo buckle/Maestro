@@ -1,9 +1,0 @@
-; $Id$
-name = My Maestro Functions
-description = Custom functions for our Maestro workflows
-package = Maestro
-version = 7.x-1.0-dev
-core = 7.x
-files[] = myfunctions.module
-
-
