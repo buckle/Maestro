@@ -661,18 +661,6 @@ function maestro_schema() {
         'type' => 'serial',
         'not null' => TRUE,
       ),
-      'process_id' => array(
-        'description' => '',
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'task_id' => array(
-        'description' => '',
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
-      ),
       'project_num' => array(
         'description' => '',
         'type' => 'varchar',
@@ -1347,25 +1335,15 @@ function maestro_schema() {
         'type' => 'int',
         'not null' => TRUE,
       ),
-      'project_id' => array(
+      'tracking_id' => array(
         'description' => '',
         'type' => 'int',
         'not null' => FALSE,
-      ),
-      'qid' => array(
-        'description' => 'Created by this queue record id',
-        'type' => 'int',
-        'not null' => TRUE,
       ),
       'task_id' => array(
         'description' => 'Created by this task id - template_data id',
         'type' => 'int',
         'not null' => FALSE,
-      ),
-      'process_id' => array(
-        'description' => 'Workflow Process that created this record',
-        'type' => 'int',
-        'not null' => TRUE,
       ),
       'instance'=> array(
         'description' => 'Instance of this content type for this project',

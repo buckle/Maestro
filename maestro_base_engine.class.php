@@ -39,14 +39,49 @@
       }
     }
 
+    /* If a valid tracking_id is passed in, set the class variable
+     * and update the process table's value for this process record.
+     * The tracking_id is so we can group related workflow instance information together,
+     * such as content_type node records, task history, comments and other data.
+     */
     function setTrackingId($id) {
       if (intval($id) > 0) {
         $this->_trackingId = $id;
+        if ($this->_processId > 0) {
+          db_update('maestro_process')
+            ->fields(array('tracking_id' => $id))
+            ->condition('id', $this->_processId, '=')
+            ->execute();
+        }
       }
     }
 
-    function getTrackingId() {
-      return $this->_trackingId;
+    /* Default will be to return the tracking_id that is set but if not set,
+     * then we may be asking for the tracking_id for another process ($pid)
+     * like a parent process - called this way in the newProcess code if we are
+     * regenerating the existing process and want to inherit the same tracking_id
+     * If no process_id is passed in, then test if $this->_processId is set and
+     * then look up in the process table for the tracking_id.
+     */
+    function getTrackingId($pid = 0) {
+      $retval = FALSE;
+      if ($this->_trackingId > 0) {
+        $retval = $this->_trackingId;
+      }
+      elseif ($pid == 0 AND $this->_processId > 0) {
+        $id = db_select('maestro_process')
+          ->fields('maestro_process', array('tracking_id'))
+          ->condition('process_id', $this->_processId, '=')
+          ->execute()->fetchField();
+        $retval = $id;
+      } elseif ($pid > 0) {
+        $id = db_select('maestro_process')
+          ->fields('maestro_process', array('tracking_id'))
+          ->condition('process_id', $this->_processId, '=')
+          ->execute()->fetchField();
+        $retval = $id;
+      }
+      return $retval;
     }
 
     public function getUserTaskCount() {
