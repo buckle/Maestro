@@ -1,9 +1,0 @@
-; $Id$
-name = Content Publish
-description = Custom Maestro functions for the Content Publish Workflow
-package = Maestro
-version = 7.x-1.0-dev
-core = 7.x
-files[] = content_publish.module
-
-
