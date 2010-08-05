@@ -206,9 +206,8 @@ class MaestroTaskTypeAnd extends MaestroTask {
     $query->addExpression('COUNT(a.id)','processCount');
     $query->condition(db_and()->condition("a.queue_id",$this->_properties->id,"=")->condition("b.process_id",$this->_properties->process_id,"="));
     $numIncomplete = $query->execute()->fetchObject();
-
     // sounds confusing, but if the processCount is greater than the completed ones, we're ok too
-    if ($numIncomplete->processCount == $numComplete->templateCount || $numIncomplete->processCount > $numComplete->templateCount ) {
+    if ($numIncomplete->processcount == $numComplete->templatecount || $numIncomplete->processcount > $numComplete->templatecount ) {
       // All of the incoming items done for this AND we can now carry out updating this queue item's information
       $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
     } else {
