@@ -238,7 +238,7 @@
                     }
                     db_update('maestro_projects')
                       ->fields(array('related_processes' => $related_processes))
-                      ->condition('id', $rec->id, '=')
+                      ->condition('id', $parent_tracking_id, '=')
                       ->execute();
                     if ($this->_debug ) {
                       watchdog('maestro',"updated existing project record process ({$new_processid}), set related_processes set to: $related");

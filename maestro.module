@@ -750,7 +750,7 @@ function maestro_form_alter(&$form, $form_state, $form_id) {
   /* Need a better way to register forms that can be under maestro control */
   $maestro_contentTypes = array ('article_node_form','change_request_node_form');
   if (in_array($form_id,$maestro_contentTypes)) {
-    $request = request_uri();
+    $request = urldecode(request_uri());
     $requestParms = explode('/',$request);
     if (isset($requestParms[5]) AND $requestParms[5] == 'maestro' AND isset($requestParms[6])) {
       if ($requestParms[6] == 'edit' AND intval($requestParms[7] > 0)) {
@@ -760,7 +760,7 @@ function maestro_form_alter(&$form, $form_state, $form_id) {
         );
         // The extra option is added to the URL via MaestroTaskTypeContentType->getTaskConsoleURL()
         // Clicking on a EDIT Form as a direct task - should complete the task on submit.
-        if ($requestParms[8] == 'completeonsubmit') {
+        if (isset($requestParms[8]) AND $requestParms[8] == 'completeonsubmit') {
           $form['maestro_completeonsubmit'] = array(
             '#value'  => 1,
             '#type'   => 'hidden',
