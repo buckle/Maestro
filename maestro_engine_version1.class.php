@@ -388,7 +388,6 @@
         if ($this->_debug ) {
             watchdog('maestro', "nextStep: QueueId: $this->_queueId, ProcessId: $this->_processId");
         }
-
         // using the queueid and the processid, we are able to create or generate the
         // next step or the regenerated next step in a new process
         $query = db_select('maestro_queue', 'a');
@@ -479,9 +478,7 @@
                         $next_record->from_queue_id = $this->_queueId;
                         drupal_write_record('maestro_queue_from',$next_record);
 
-                        // Test that we have a new queue record and then set $this->_queueId for use by class methods
                         if ($queue_record->id > 0) {
-                          $this->_queueId = $queue_record->id;
                           if ($this->_debug ) {
                               $logmsg  = "New queue id (3) : {$this->_queueId} - Template Taskid: {$nextTaskRec->taskid} - ";
                               $logmsg .= "Assigned to " . $this->getTaskOwner($nextTaskRec->taskid,$this->_processId);
@@ -492,13 +489,13 @@
                           watchdog('maestro', "nextStep Method FAIL! - Unexpected problem creating queue record");
                         }
 
-                        $newTaskAssignedUsers = $this->getAssignedUID();
+                        $newTaskAssignedUsers = $this->getAssignedUID($queue_record->id);
                         if (is_array($newTaskAssignedUsers) AND count($newTaskAssignedUsers) > 0) {
-                            $this->assignTask($this->_queueId,$newTaskAssignedUsers);
+                            $this->assignTask($queue_record->id,$newTaskAssignedUsers);
                         }
 
                         // Check if notification has been defined for new task assignment
-                        $this->sendTaskAssignmentNotifications();
+                        $this->sendTaskAssignmentNotifications($queue_record->id);
 
                     }
                     else {
@@ -526,10 +523,9 @@
                             $this->archiveTask($this->_queueId);
                             $toQueueID = $nextTaskQueueRec->id;
                             $next_record = new stdClass();
-                            $next_record->queue_id = $regenRec->id;
+                            $next_record->queue_id = $nextTaskQueueRec->id;
                             $next_record->from_queue_id = $this->_queueId;
                             drupal_write_record('maestro_queue_from',$next_record);
-
 
                             $query = db_select('maestro_queue', 'a');
                             $query->addExpression('COUNT(id)','rec_count');
