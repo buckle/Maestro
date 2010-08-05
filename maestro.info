@@ -1,7 +1,7 @@
 ; $Id$
 name = Maestro
 description = Maestro workflow management system which lets you define processes and route tasks to different site users.
-package = Workflow
+package = Maestro
 version = 7.x-1.0-dev
 core = 7.x
 files[] = maestro.module
