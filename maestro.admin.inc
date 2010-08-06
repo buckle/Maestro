@@ -256,6 +256,18 @@ function maestro_handle_structure_ajax_request(){
         $taskDataArray[$rec->id]= $newrecord->id;
       }
 
+      $variable_xref_array = Array();
+      $variable_xref_array[0] = 0;
+      $res=db_query("SELECT * FROM {maestro_template_variables} WHERE template_id = :tid", array('tid' => $id));
+      foreach($res as $rec) {
+        $newrecord = new stdClass();
+        $newrecord->template_id = $newTID;
+        $newrecord->variable_name = $rec->variable_name;
+        $newrecord->variable_value = $rec->variable_value;
+        drupal_write_record('maestro_template_variables', $newrecord);
+        $variable_xref_array[$rec->id] = $newrecord->id;
+      }
+
       //at this point, we have a list that points the old ID record to the new one.
       //now for each template data next step, we determine which record to go to/from
       $res=db_query("SELECT * FROM {maestro_template_data} WHERE template_id = :tid", array('tid' => $id));
@@ -274,7 +286,7 @@ function maestro_handle_structure_ajax_request(){
           db_query($sql, array( 'a1' => $taskDataArray[$ares->template_data_id],
                                 'b1' => $ares->uid,
                                 'c1' => $ares->gid,
-                                'd1' => $ares->process_variable,
+                                'd1' => $variable_xref_array[$ares->process_variable],
                                 'e1' => $ares->pre_notify_variable,
                                 'f1' => $ares->post_notify_variable,
                                 'g1' => $ares->reminder_notify_variable
@@ -283,14 +295,7 @@ function maestro_handle_structure_ajax_request(){
 
       }
 
-      $res=db_query("SELECT * FROM {maestro_template_variables} WHERE template_id = :tid", array('tid' => $id));
-      foreach($res as $rec) {
-        $newrecord = new stdClass();
-        $newrecord->template_id = $newTID;
-        $newrecord->variable_name = $rec->variable_name;
-        $newrecord->variable_value = $rec->variable_value;
-        drupal_write_record('maestro_template_variables', $newrecord);
-      }
+
       $data = theme('maestro_workflow_list', array('tid' => 0, 'operation' => '' , 'edit_var' => 0));
       $arr=array('status' => "1", 'data' => $data);
       echo json_encode($arr);
