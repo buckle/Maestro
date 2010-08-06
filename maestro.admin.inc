@@ -200,11 +200,12 @@ function maestro_handle_structure_ajax_request(){
 
     case 'copytemplate':
       $query = db_select('maestro_template', 'a');
-      $query->fields('a',array('template_name'));
+      $query->fields('a',array('template_name', 'app_group'));
       $query->condition('a.id',$id,'=');
       $name=current($query->execute()->fetchAll());
       $record = new stdClass();
       $record ->template_name = $name->template_name . " - COPY";
+      $record ->app_group = $name->app_group;
       drupal_write_record('maestro_template', $record);
       $newTID=$record->id;
       $taskDataArray=array();
@@ -294,8 +295,6 @@ function maestro_handle_structure_ajax_request(){
         }
 
       }
-
-
       $data = theme('maestro_workflow_list', array('tid' => 0, 'operation' => '' , 'edit_var' => 0));
       $arr=array('status' => "1", 'data' => $data);
       echo json_encode($arr);
