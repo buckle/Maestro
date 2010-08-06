@@ -37,8 +37,9 @@
 <tr>
   <th width="5%"><?php print t(''); ?></th>
   <th width="30%"><?php print t('Flow Name'); ?></th>
-  <th width="40%"><?php print t('Task Name'); ?></th>
+  <th width="35%"><?php print t('Task Name'); ?></th>
   <th width="25%"><?php print t('Assigned'); ?></th>
+  <th width="5%">&nbsp;</th>
 </tr>
 
 <?php
@@ -63,12 +64,20 @@
         </a>
     </td>
     <td width="10%" nowrap><?php print $task->assigned_shortdate; ?></td>
-    <td width="5%" style="border-right:1px solid white;" nowrap><?php print $details_icon; print $task->hold; print $task->view; print $task->edit; print $task->delete; ?></td>
+    <td width="5%" style="border-right:1px solid white;" nowrap>
+    	<span class="maestro_taskconsole_viewdetail" taskid="<?php print $task->queue_id;?>" href="#"><img src="<?php print $module_base_url; ?>/images/taskconsole/details.png"></span>
+    	<?php
+    	print $task->hold;
+    	print $task->view;
+    	print $task->edit;
+    	print $task->delete;
+    	?>
+    </td>
 </tr>
 
-<tr id="maestro_taskconsole_detail_rec<?php print $rowid; ?>" style="display:none;">
+<tr  id="maestro_taskconsole_detail_rec<?php print $task->queue_id; ?>" style="display:none;">
     <td colspan="5" style="padding:10px;">
-        <div id="projectdetail_rec<?php print $rowid; ?>">&nbsp;</div>
+        <div id="projectdetail_rec<?php print $rowid; ?>"><?php print $task->project_detail; ?></div>
     </td>
 </tr>
 <!-- {inline action record} -->

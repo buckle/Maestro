@@ -711,33 +711,6 @@
         $assigned_uid = $this->_userId;
       }
 
-      // Update Project Task History record as completed
-      // RK - lets check if there's even an entry for this task first.  if there's no entry, create one
-      // This takes into account those flows that do NOT have taskhistory records (non-'project' flows);
-      $query = db_select('maestro_project_task_history', 'a');
-      $query->addExpression('COUNT(id)','rec_count');
-      $query->condition('a.task_id', $qid,'=');
-      if ($query->execute()->fetchField() > 0 ) {
-          db_update('maestro_project_task_history')
-            ->fields(array('status' => $status, 'date_completed' => time()))
-            ->condition('task_id',$qid,'=')
-            ->condition('status',0,'=')
-            ->execute();
-      } else {
-          $dateCreated = db_query("SELECT created_date FROM {maestro_queue} WHERE id = :qid",
-              array(':qid' => $qid))->fetchField();
-          $history_record = new stdClass();
-          $history_record->task_id = $qid;
-          $history_record->process_id = $pid;
-          $history_record->project_id = $trackingId;
-          $history_record->assigned_uid = $assigned_uid;
-          $history_record->date_assigned = $dateCreated;
-          $history_record->date_started = $dateCreated;
-          $history_record->date_completed = time();
-          $history_record->status = $status;
-          drupal_write_record('maestro_project_task_history',$history_record);
-      }
-
       if ($this->_userId == '' or $this->_userId == null ) {
           if ($assigned_uid == '' OR $assigned_uid == null) {
             db_update('maestro_queue')

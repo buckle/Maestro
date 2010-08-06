@@ -17,6 +17,16 @@ jQuery(function($) {
 });
 
 
+/* When the task name in the task console is clicked, open the interactive task (inline function)
+ * Trigger the AJAX update to update the task start_date
+ */
+jQuery(function($) {
+  $('.maestro_taskconsole_viewdetail').click(function() {
+    var taskid = jQuery(this).attr('taskid');
+    $('#maestro_taskconsole_detail_rec' + taskid).toggle();
+  })
+});
+
 /* Function handles the form submit buttons for the inline interactive tasks
  * All the form buttons should be of input type 'button' even the 'task complete'
  * Function will fire automatically when a form button is pressed and execute the

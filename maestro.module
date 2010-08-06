@@ -186,6 +186,10 @@ function maestro_theme() {
       'template' => 'theme/maestro-outstanding-tasks',
       'variables' => array('maestro_url' => NULL, 'maestro' => NULL, 'queue' => NULL, 'users' => NULL),
     ),
+    'maestro_taskconsole_details' => array(
+      'template' => 'theme/projectdetail/detail_container',
+      'variables' => array('tasks' => NULL),
+    ),
     'maestro_trace' => array(
       'template' => 'theme/maestro-trace',
       'variables' => array('maestro_url' => NULL, 'trace' => NULL, 'properties' => NULL, 'pv_res' => NULL),
@@ -419,6 +423,13 @@ function maestro_cleanqueue() {
 
 function maestro_enginetest() {
   global $base_url;
+
+  include('lib-test.php');
+  maestro_createtestworkflow();
+  drupal_set_message('New workflow template created');
+
+
+  /*
   $options = array('color1' => 'red');    // Example array for options - structure TBD.
   $maestro = Maestro::createMaestroObject(1,$options);    // Initiate the processing of all tasks of type 1.x
   $template = 1;
@@ -432,6 +443,7 @@ function maestro_enginetest() {
   } else {
     drupal_set_message("New Process Code FAIL! - Template: $template not defined");
   }
+  */
   drupal_goto($base_url);
 }
 
@@ -516,6 +528,8 @@ function template_preprocess_maestro_taskconsole(&$variables) {
       $formatted_task->description = 'yada yada';
       $formatted_task->comment_note = 'yada yada';
 
+      $formatted_task->project_detail = theme('maestro_taskconsole_details');
+
       $variables['formatted_tasks'][] = $formatted_task;
 
     }
@@ -535,6 +549,16 @@ function template_preprocess_maestro_taskconsole(&$variables) {
 }
 
 
+
+function template_preprocess_maestro_taskconsole_details(&$variables) {
+  global $base_url;
+
+  $variables['flow_tracking_number'] = 100;
+  $variables['flow_description'] = 'Workflow Description';
+  $variables['custom_workflow_summary'] = '';
+
+
+}
 
 function template_preprocess_maestro_workflow_edit(&$variables) {
   global $base_url;
@@ -894,3 +918,5 @@ function maestro_getNodeId($process_id,$content_type) {
     return FALSE;
   }
 }
+
+
