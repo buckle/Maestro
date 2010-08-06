@@ -213,7 +213,6 @@ function maestro_handle_structure_ajax_request(){
       foreach($res as $rec) {
         $newrecord = new stdClass();
         $newrecord->template_id = $newTID;
-        //$newrecord->logical_id = $rec->logical_id;
         $newrecord->task_class_name = $rec->task_class_name;
         $newrecord->is_interactive = $rec->is_interactive;
         $newrecord->task_data = $rec->task_data;
@@ -343,17 +342,19 @@ function maestro_edit_properties($tid, $var=0){
  * These functions need to exist in order to run unit tests against their functionality.
  */
 
-function maestro_createNewTemplate($name){
+function maestro_createNewTemplate($name, $skip_task_creation = FALSE){
   if(!user_access('maestro admin')) return false;
   if(trim($name) != '') {
     $record = new stdClass();
     $record ->template_name = $name;
     drupal_write_record('maestro_template', $record);
     $newTemplateRecId = $record->id;
-    $task=new MaestroTaskInterfaceStart(0, $newTemplateRecId);
-    $task->create();
-    $task=new MaestroTaskInterfaceEnd(0, $newTemplateRecId);
-    $task->create();
+    if(!$skip_task_creation) {
+      $task=new MaestroTaskInterfaceStart(0, $newTemplateRecId);
+      $task->create();
+      $task=new MaestroTaskInterfaceEnd(0, $newTemplateRecId);
+      $task->create();
+    }
     maestro_createTemplateVariable($newTemplateRecId, 'initiator', '');
     return $newTemplateRecId;
   }
@@ -404,3 +405,102 @@ function maestro_deleteAppGroup($id){
   $query->condition('id', $id, '=');
   $query->execute();
 }
+
+function maestro_export() {
+  //we're goign to generate PHP code out of this export routine.
+  $output_php = "";
+  $id=2;
+  //first step -- fetch the name of the original template
+  $output_php .= '$_POST[\'offset_top\'] = 0;' . "\n";
+  $output_php .= '$_POST[\'offset_left\'] = 0;' . "\n";
+  $output_php .= '$variable_xref_array = Array();' . "\n";
+  $output_php .= '$variable_xref_array[0] = 0;' . "\n";
+  $output_php .= '$task_xref_array = Array();' . "\n";
+  $output_php .= '$task_xref_array[0] = 0;' . "\n";
+  $query = db_select('maestro_template', 'a');
+  $query->fields('a',array('template_name'));
+  $query->condition('a.id',$id,'=');
+  $name=current($query->execute()->fetchAll());
+  $original_template_name = str_replace('"', '\"', $name->template_name);
+  $output_php .= '$templateID = maestro_createNewTemplate("IMPORT - ' . $original_template_name . '", TRUE);' . "\n"; //create new template
+
+  //lets get all of the template variables:
+  $template_variables_record_set=db_query("SELECT * FROM {maestro_template_variables} WHERE template_id = :tid", array('tid' => $id));
+  foreach($template_variables_record_set as $rec) {
+    $var_name = str_replace('"', '\"', $rec->variable_name);
+    $var_value = str_replace('"', '\"', $rec->variable_value);
+    $output_php .= '$variable_xref_array[' . $rec->id . '] = maestro_createTemplateVariable($templateID, "' . $var_name . '", "' . $var_value . '");' . "\n";
+  }
+
+  //lets get all of the template_data entries
+  $template_data_record_set=db_query("SELECT * FROM {maestro_template_data} WHERE template_id = :tid", array('tid' => $id));
+  foreach($template_data_record_set as $rec) {
+      $task_type = substr($rec->task_class_name, 15);
+      $task_class = 'MaestroTaskInterface' . $task_type;
+      $output_php .= '$ti = new ' . $task_class . '(0, $templateID);' . "\n";
+      $output_php .= '$ti->create();' . "\n";
+      $output_php .= '$task_xref_array[' . $rec->id . '] = $ti->get_task_id();' . "\n";
+      $output_php .= '$res = db_select(\'maestro_template_data\', \'a\');' . "\n";
+      $output_php .= '$res->fields(\'a\', array(\'id\', \'task_data\'));' . "\n";
+      $output_php .= '$res->condition(\'a.id\', $ti->get_task_id(), \'=\');' . "\n";
+      $output_php .= '$rec = current($res->execute()->fetchAll());' . "\n";
+      foreach($rec as $key => $data){
+        if($key!='id' && $key!='task_class_name' && $key!='template_id') {
+          if($key == 'task_data') {
+            $output_php .= '$fixed_data = $ti->modulateExportTaskData(\'' . $data . '\', $variable_xref_array);' . "\n";
+            $output_php .='$rec->task_data = $fixed_data;' . "\n";
+          }
+          elseif(is_numeric($data)) {
+            $output_php .='$rec->' . $key . ' = ' . $data . ';' . "\n";
+          }
+          else {
+            $output_php .='$rec->' . $key . ' = \'' . $data . '\';' . "\n";
+          }
+        }
+      }
+      $output_php .= 'drupal_write_record(\'maestro_template_data\', $rec, array(\'id\'));' . "\n";
+  }
+
+  //we now have to create the next step and assignmnents
+  $template_data_record_set=db_query("SELECT * FROM {maestro_template_data} WHERE template_id = :tid", array('tid' => $id));
+  foreach($template_data_record_set as $rec) {
+    $nextstepres = db_query("SELECT * FROM {maestro_template_data_next_step} WHERE template_data_from = :id", array('id' => $rec->id));
+    foreach($nextstepres as $nextstep) {
+      $output_php .='$sql  = "INSERT INTO {maestro_template_data_next_step} (template_data_from, template_data_to, template_data_to_false) VALUES (:a1, :b1, :c1)";' . "\n";
+      $output_php .='db_query($sql, array(\'a1\' => $task_xref_array[' . $nextstep->template_data_from . '], \'b1\' => $task_xref_array[' . $nextstep->template_data_to . '], \'c1\' => $task_xref_array[' . $nextstep->template_data_to_false . ']));' . "\n";
+    }
+
+    $assignmentres = db_query("SELECT * FROM {maestro_template_assignment} WHERE template_data_id = :id", array('id' => $rec->id));
+    foreach($assignmentres as $ares) {
+      $output_php .='$query = db_select(\'maestro_template_data\', \'a\');' . "\n";
+      $output_php .='$query->fields(\'a\',array(\'task_class_name\'));' . "\n";
+      $output_php .='$query->condition(\'a.id\',$task_xref_array[' . $ares->template_data_id . '],\'=\');' . "\n";
+      $output_php .='$name=current($query->execute()->fetchAll());'. "\n";
+      $output_php .='$task_type = substr($name->task_class_name, 15);' . "\n";
+      $output_php .='$task_class = \'MaestroTaskInterface\' . $task_type;' . "\n";
+      $output_php .='$ti = new $task_class(0,0);' . "\n";
+      $temp_user_info = user_load($ares->uid);
+      $output_php .='$modulated_user = $ti->modulateExportUser("' . $temp_user_info->name . '");' . "\n";
+
+
+      $output_php .='$sql  = "INSERT INTO {maestro_template_assignment} (template_data_id, uid, gid, process_variable, pre_notify_variable, post_notify_variable, reminder_notify_variable) VALUES (:a1, :b1, :c1, :d1, :e1, :f1, :g1)";' . "\n";
+      $output_php .='db_query($sql, array( \'a1\' => $task_xref_array[' . $ares->template_data_id . '],';
+
+
+      $output_php .='\'b1\' => $modulated_user,';
+      //$output_php .='\'b1\' => ' . $ares->uid . ',';
+
+      $output_php .='\'c1\' => ' . $ares->gid . ',';  //future proof
+      $output_php .='\'d1\' => $variable_xref_array[' . $ares->process_variable . '],';
+      $output_php .='\'e1\' => ' . $ares->pre_notify_variable . ',';
+      $output_php .='\'f1\' => ' . $ares->post_notify_variable . ',';
+      $output_php .='\'g1\' => ' . $ares->reminder_notify_variable;
+      $output_php .='));' . "\n";
+    }
+  }
+
+
+
+echo nl2br($output_php);
+}
+

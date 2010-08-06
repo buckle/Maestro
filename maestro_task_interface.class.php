@@ -42,6 +42,10 @@ abstract class MaestroTaskInterface {
     }
   }
 
+  function get_task_id(){
+    return $this->_task_id;
+  }
+
   protected function _fetchTaskInformation() {
     $res = db_select('maestro_template_data', 'a');
     $res->fields('a', array('task_data'));
@@ -437,6 +441,25 @@ abstract class MaestroTaskInterface {
     drupal_write_record('maestro_template', $rec, array('id'));
   }
 
+  /*
+   * Receive an incoming serialized data chunk.. return it to the callee serialized.
+   */
+  function modulateExportTaskData($data, $xref_array) {
+    return $data;
+  }
+
+  /*
+   * During the import routine, we take the exported username and try to find the UID.
+   */
+  function modulateExportUser($username) {
+    $query = db_select('users', 'a');
+    $query->fields('a',array('uid'));
+    $query->condition('a.name',$username,'=');
+    $uid=current($query->execute()->fetchAll());
+    return intval($uid->uid);
+  }
+
+
   abstract function display();
   abstract function getEditFormContent();
 }
@@ -532,6 +555,17 @@ class MaestroTaskInterfaceIf extends MaestroTaskInterface {
     $this->_is_interactive = 0;
 
     parent::__construct($task_id, $template_id);
+  }
+
+  function modulateExportTaskData($data, $xref_array) {
+    $fixed_data = @unserialize($data);
+    if($fixed_data !== FALSE) {
+      if($fixed_data['if_argument_variable'] != '') $fixed_data['if_argument_variable'] = $xref_array[$fixed_data['if_argument_variable']];
+      return serialize($fixed_data);
+    }
+    else {
+      return $data;
+    }
   }
 
   function display() {
@@ -725,6 +759,17 @@ class MaestroTaskInterfaceSetProcessVariable extends MaestroTaskInterface {
 
   function display() {
     return theme('maestro_task_set_process_variable', array('tdid' => $this->_task_id, 'taskname' => $this->_taskname, 'ti' => $this));
+  }
+
+  function modulateExportTaskData($data, $xref_array) {
+    $fixed_data = @unserialize($data);
+    if($fixed_data !== FALSE) {
+      $fixed_data['var_to_set'] = $xref_array[$fixed_data['var_to_set']];
+      return serialize($fixed_data);
+    }
+    else {
+      return $data;
+    }
   }
 
   function getEditFormContent() {
