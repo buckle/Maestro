@@ -560,9 +560,19 @@ class MaestroTaskTypeContentType extends MaestroTask {
       $query->condition('a.instance', 1,'=');
       $query->condition(db_and()->condition('a.content_type', $taskdata['content_type'],'='));
       $nid = $query->execute()->fetchField();
-      $url = $base_url . "/node/$nid/edit/maestro/edit/{$this->_properties->queue_id}/completeonsubmit/";
+      if (variable_get('clean_url')) {
+        $url = $base_url . "/node/$nid/edit/maestro/edit/{$this->_properties->queue_id}/completeonsubmit/";
+      }
+      else {
+        $url = $base_url . "/index.php?q=node/$nid/edit/maestro/edit/{$this->_properties->queue_id}/completeonsubmit/";
+      }
     } else {
-      $url = $base_url . "/node/add/{$content_type}/maestro/{$this->_properties->queue_id}/";
+    	if (variable_get('clean_url')) {
+      	$url = $base_url . "/node/add/{$content_type}/maestro/{$this->_properties->queue_id}/";
+      }
+      else {
+        $url = url($base_url . "/index.php?q=node/add/{$content_type}/maestro/{$this->_properties->queue_id}");
+      }
     }
     return $url;
   }
