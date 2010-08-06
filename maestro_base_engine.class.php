@@ -241,24 +241,30 @@
         db_delete('maestro_production_assignments')
           ->condition('task_id', $qid, '=')
           ->execute();
-        db_delete('maestro_queue')
+        db_update('maestro_queue')
+          ->fields(array('status' => MaestroTaskStatusCodes::STATUS_DELETED, 'archived' => 1))
           ->condition('id', $qid, '=')
           ->execute();
       }
     }
 
-    function getQueueHistory($process_id) {
+    function getQueueHistory($initiating_pid) {
       $query = db_select('maestro_queue', 'a');
-      $query->fields('a', array('id'));
-      $query->fields('b', array('taskname'));
-      $query->leftJoin('maestro_template_data', 'b', 'a.template_data_id=b.id');
-      $query->condition('a.process_id', $process_id, '=');
-      $res = $query->execute();
+      $query->fields('a', array('id', 'process_id', 'status'));
+      $query->fields('c', array('taskname'));
+      $query->leftJoin('maestro_process', 'b', 'a.process_id=b.id');
+      $query->leftJoin('maestro_template_data', 'c', 'a.template_data_id=c.id');
+      $query->condition('b.initiating_pid', $initiating_pid, '=');
+      $query->orderBy('a.id', 'ASC');
+      $queue_history = $query->execute();
 
-      $queue_history = array();
+      /*$queue_history = array();
       foreach ($res as $rec) {
-        $queue_history[$rec->id] = array('taskname' => $rec->taskname);
-      }
+        $qhclass = new stdClass();
+        $qhclass->taskname = $rec->taskname;
+        $qhclass->taskname = $rec->taskname;
+        $queue_history[$rec->id] = array('taskname' => );
+      }*/
 
       return $queue_history;
     }

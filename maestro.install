@@ -138,6 +138,11 @@ function maestro_schema() {
         'type' => 'int',
         'not null' => FALSE,
       ),
+      'initiating_pid' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
       'tracking_id' => array(
         'description' => '',
         'type' => 'int',

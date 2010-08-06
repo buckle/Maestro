@@ -8,39 +8,53 @@
 
 ?>
 
-  <fieldset class="form-wrapper">
-    <legend>
-      <span class="fieldset-legend">Task History for Process <?php print $properties->process_id; ?></span>
-    </legend>
-    <div class="fieldset-wrapper">
+  <div>
+    <?php print t('Regeneration Instance'); ?>:
 <?php
-      foreach ($trace as $qid => $rec) {
-        if ($qid == $properties->queue_id) {
+    foreach ($proc_res as $rec) {
+      $checked = ($rec->id == $properties->process_id) ? 'checked="checked"':'';
 ?>
-          <b><?php print $qid; ?>: <?php print $rec['taskname']; ?></b><br>
+      <label for="proc_radio<?php print $rec->id; ?>"><input id="proc_radio<?php print $rec->id; ?>" type="radio" name="regen_instance" <?php print $checked; ?> onclick="switch_process_focus(<?php print $rec->id; ?>);"><?php print $rec->id; ?></label>&nbsp;&nbsp;&nbsp;
 <?php
-        }
-        else {
+    }
 ?>
-          <?php print $qid; ?>: <?php print $rec['taskname']; ?><br>
-<?php
-        }
-      }
-?>
-    </div>
-  </fieldset>
+  </div>
 
-  <fieldset class="form-wrapper">
-    <legend>
-      <span class="fieldset-legend">Process Variables for Process <?php print $properties->process_id; ?></span>
-    </legend>
-    <div class="fieldset-wrapper">
+  <div style="width: 58%; float: left;">
+    <fieldset class="form-wrapper">
+      <legend>
+        <span class="fieldset-legend">Task History</span>
+      </legend>
+      <div class="fieldset-wrapper">
+        <table>
 <?php
-      foreach ($pv_res as $rec) {
+          foreach ($trace as $rec) {
+            $classname = ($rec->process_id == $properties->process_id) ? 'focused_process':'blurred_process';
 ?>
-        <?php print $rec->variable_name; ?> = <?php print $rec->variable_value; ?><br>
+              <tr class="process<?php print $rec->process_id; ?> <?php print $classname; ?>">
+                <td><?php print $rec->id; ?>: <?php print $rec->taskname; ?></td>
+                <td><?php print $rec->status; ?></td>
+              </tr>
 <?php
-      }
+          }
 ?>
-    </div>
-  </fieldset>
+        </table>
+      </div>
+    </fieldset>
+  </div>
+  <div style="width: 40%; float: right;">
+    <fieldset class="form-wrapper">
+      <legend>
+        <span class="fieldset-legend">Process Variables</span>
+      </legend>
+      <div class="fieldset-wrapper">
+<?php
+        foreach ($pv_res as $rec) {
+?>
+          <?php print $rec->variable_name; ?> = <?php print $rec->variable_value; ?><br>
+<?php
+        }
+?>
+      </div>
+    </fieldset>
+  </div>

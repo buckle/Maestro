@@ -132,8 +132,6 @@ function maestro_menu() {
     'type' => MENU_CALLBACK,
     );
 
-    
-
     return $items;
 }
 
@@ -173,6 +171,7 @@ function maestro_admin_paths() {
   $paths = array(
     'node/add/*/maestro/*' => TRUE,
     'node/*/edit/maestro/edit/*' => TRUE,
+    'maestro/trace/*/*/*' => TRUE
   );
   return $paths;
 }

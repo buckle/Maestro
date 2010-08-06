@@ -181,6 +181,14 @@ span.maestro_working {
 }
 
 
+.focused_process {
+  font-weight: bold;
+}
+.blurred_process {
+  font-weight: normal;
+}
+
+
 /* Older tooltip or on-hover css styles */
 a.info{
   position:relative; /*this is the key*/

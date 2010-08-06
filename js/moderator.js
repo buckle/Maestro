@@ -21,3 +21,12 @@ function show_reassign(link, uid) {
     }
   })(jQuery);
 }
+
+function switch_process_focus(pid) {
+  (function ($) {
+    var newclass = $('.focused_process').attr('class').replace('focused', 'blurred');
+    $('.focused_process').attr('class', newclass);
+    newclass = $('.process' + pid).attr('class').replace('blurred', 'focused');
+    $('.process' + pid).attr('class', newclass);
+  })(jQuery);
+}

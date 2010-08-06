@@ -1,11 +1,13 @@
 <?php
 
+//the engine's clean queue will not pick up any status' less than 0
 class MaestroTaskStatusCodes {
+  CONST STATUS_DELETED = -2;
+  CONST STATUS_ON_HOLD = -1;
   CONST STATUS_READY = 0;
   CONST STATUS_COMPLETE = 1;
-  CONST STATUS_ON_HOLD = 2;
-  CONST STATUS_ABORTED = 3;
-  CONST STATUS_IF_CONDITION_FALSE = 4;
+  CONST STATUS_ABORTED = 2;
+  CONST STATUS_IF_CONDITION_FALSE = 3;
 }
 
 abstract class MaestroTask {
@@ -543,6 +545,10 @@ class MaestroTaskTypeContentType extends MaestroTask {
       $this->setMessage( 'Conent Type task -- status is 0.  Will not complete this task yet.');
     }
     $this->executionStatus = TRUE;
+    db_update('maestro_queue')  //setting the run_once flag as we don't have anything particular to do in this task
+      ->fields(array('run_once' => 1))
+      ->condition('id', $this->_properties->id, '=')
+      ->execute();
     return $this;
   }
 

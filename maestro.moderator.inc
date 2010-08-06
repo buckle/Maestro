@@ -91,9 +91,18 @@ function maestro_trace($tracking_id=0, $process_id=0, $queue_id=0) {
   $query->condition('a.process_id', $process_id, '=');
   $pv_res = $query->execute();
 
-  $trace = $m->getQueueHistory($process_id);
+  $initiating_pid = $m->getParentProcessId($process_id);
 
-  return theme('maestro_trace', array('maestro_url' => $maestro_url, 'trace' => $trace, 'properties' => $properties, 'pv_res' => $pv_res));
+  $query = db_select('maestro_process', 'a');
+  $query->fields('a', array('id'));
+  $query->fields('b', array('template_name'));
+  $query->leftJoin('maestro_template', 'b', 'a.template_id=b.id');
+  $query->condition('a.tracking_id', $tracking_id, '=');
+  $proc_res = $query->execute();
+
+  $trace = $m->getQueueHistory($initiating_pid);
+
+  return theme('maestro_trace', array('maestro_url' => $maestro_url, 'trace' => $trace, 'properties' => $properties, 'pv_res' => $pv_res, 'proc_res' => $proc_res));
 }
 
 ?>

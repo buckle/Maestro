@@ -85,6 +85,7 @@
             $process_record->custom_flow_name = $custom_flowname;
             $process_record->complete = 0;
             $process_record->pid = $pid;
+            $process_record->initiating_pid = $this->getParentProcessId($pid);
             $process_record->initiator_uid = $user->uid;
             $process_record->initiated_date = time();
             drupal_write_record('maestro_process',$process_record);
@@ -93,6 +94,10 @@
             if ($process_record->id == 0) {
               watchdog('maestro', "New Process Code FAIL! - for template: $template");
               return FALSE;
+            }
+            if ($pid == 0) {
+              $process_record->initiating_pid = $new_processid;
+              drupal_write_record('maestro_process', $process_record, array('id'));
             }
             $this->setProcessId($new_processid);
 
@@ -905,6 +910,30 @@
             watchdog('maestro',"Exiting getQueue - user mode");
         }
         return $this->_userTaskObject;
+    }
+
+    //gets the highest level parent process id for a process, aka the 'initiating_pid'
+    function getParentProcessId($pid) {
+      $retpid = $pid;
+
+      while ($pid != 0) {
+        $query = db_select('maestro_process', 'a');
+        $query->fields('a', array('pid'));
+        $query->condition('a.id', $pid, '=');
+        $res = $query->execute();
+        $rec = current($res->fetchAll());
+        if ($rec != '') {
+          $pid = $rec->pid;
+          if ($pid != 0) {
+            $retpid = $pid;
+          }
+        }
+        else {
+          $pid = 0;
+        }
+      }
+
+      return $retpid;
     }
 
   }
