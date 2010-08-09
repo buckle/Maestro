@@ -1,6 +1,6 @@
 <?php
 
-//the engine's clean queue will not pick up any status' less than 0
+// The maestro Engine's clean queue will not pick up any status' less than 0
 class MaestroTaskStatusCodes {
   CONST STATUS_DELETED = -2;
   CONST STATUS_ON_HOLD = -1;
@@ -9,6 +9,16 @@ class MaestroTaskStatusCodes {
   CONST STATUS_ABORTED = 2;
   CONST STATUS_IF_CONDITION_FALSE = 3;
 }
+
+// Maestro Project or workflow instance entity status codes
+class MaestroProjectStatusCodes {
+  CONST STATUS_ON_HOLD = -1;
+  CONST STATUS_ACTIVE = 0;
+  CONST STATUS_COMPLETED = 1;
+  CONST STATUS_CANCELLED = 2;
+  CONST STATUS_REGENERATED = 3;
+}
+
 
 abstract class MaestroTask {
   public $_properties = NULL;

@@ -74,15 +74,15 @@
         if (!empty($templaterec->taskid)) {
             $pid = intval($pid);
             if ($pid > 0) {
-                $custom_flowname = db_query("SELECT custom_flow_name FROM {maestro_process} WHERE id=$pid")->fetchField();
+                $flowname = db_query("SELECT flow_name FROM {maestro_process} WHERE id=$pid")->fetchField();
             }
             else {
-              $custom_flowname = '';
+                $flowname = db_query("SELECT template_name FROM {maestro_template} WHERE id=$template")->fetchField();
             }
 
             $process_record = new stdClass();
             $process_record->template_id = $template;
-            $process_record->custom_flow_name = $custom_flowname;
+            $process_record->flow_name = $flowname;
             $process_record->complete = 0;
             $process_record->pid = $pid;
             $process_record->initiating_pid = $this->getParentProcessId($pid);
@@ -782,6 +782,7 @@
             $query->join('users', 'e', 'c.uid = e.uid');
           }
           $query->addField('d','pid','parent_process_id');
+          $query->fields('d',array('tracking_id','flow_name'));
           if ($this->_mode != 'admin') {
             $query->condition('c.uid',$this->_userId,'=');
           }
@@ -837,6 +838,8 @@
                 $taskObject->parent_process_id = $userTaskRecord->parent_process_id;
                 $taskObject->template_id = $userTaskRecord->template_id;
                 $taskObject->template_name = $templatename;
+                $taskObject->flow_name = $userTaskRecord->flow_name;
+                $taskObject->tracking_id = $userTaskRecord->tracking_id;
                 $taskObject->url = $userTaskRecord->handler;
                 $taskObject->dates = $queueRecDates;
                 $taskObject->flags = $queueRecFlags;

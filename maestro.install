@@ -116,7 +116,7 @@ function maestro_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'custom_flow_name' => array(
+      'flow_name' => array(
         'description' => '',
         'type' => 'varchar',
         'length' => '255',

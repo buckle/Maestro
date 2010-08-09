@@ -80,7 +80,7 @@ jQuery(function($) {
       dataType : "json",
       success : function(data) {
         if (data.status == 1 && data.processid > 0) {
-	        $("#newProcessStatusRowSuccess").show();	          
+	        $("#newProcessStatusRowSuccess").show();
         } else {
         	$("#newProcessStatusRowFailure").show();
         }
@@ -91,4 +91,47 @@ jQuery(function($) {
     return false;
   })
 });
+
+
+// toggleProjectSection('summary','Closed',1);
+function toggleProjectSection(section,state,rowid) {
+    var obj1 = document.getElementById(section + state + '_rec' + rowid);
+    if (obj1) {
+      if (state == 'Open') {
+        obj1.style.display = 'none';
+        var obj2 = document.getElementById(section + 'Closed_rec' + rowid);
+        obj2.style.display = '';
+      } else if (state = 'Closed') {
+        obj1.style.display = 'none';
+        var obj2 = document.getElementById(section + 'Open_rec' + rowid);
+        obj2.style.display = '';
+      }
+    }
+}
+
+function projectDetailToggleAll(state,rowid) {
+  jQuery(function($) {
+    $(".taskdetailOpenRec" + rowid).each(function() {
+      if (state == 'expand') {
+        $(this).show();
+      } else {
+        $(this).hide();
+      }
+    })
+    $(".taskdetailClosedRec" + rowid).each(function() {
+      if (state == 'expand') {
+        $(this).hide();
+      } else {
+        $(this).show();
+      }
+    })
+    if (state == 'expand') {
+      $("#expandProject" + rowid).hide();
+      $("#collapseProject" + rowid).show();
+    } else {
+      $("#expandProject" + rowid).show();
+      $("#collapseProject" + rowid).hide();
+    }
+  });
+}
 

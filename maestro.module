@@ -142,7 +142,7 @@ function maestro_permission() {
       'title' => t('Access Maestro Task Console')
     ),
     'maestro admin' => array(
-      'title' => t('Administer Maestro workflows')
+      'title' => t('Administer Maestro Workflows')
     ),
     'maestro view outstanding tasks' => array(
       'title' => t('View Outstanding Tasks')
@@ -179,8 +179,7 @@ function maestro_admin_paths() {
 function maestro_theme() {
   return array(
     'maestro_taskconsole' => array(
-      'template' => 'theme/maestro-taskconsole',
-      'variables' => array('tasks' => NULL),
+      'template' => 'theme/maestro-taskconsole'
     ),
     'maestro_outstanding_tasks' => array(
       'template' => 'theme/maestro-outstanding-tasks',
@@ -188,7 +187,7 @@ function maestro_theme() {
     ),
     'maestro_taskconsole_details' => array(
       'template' => 'theme/projectdetail/detail_container',
-      'variables' => array('tasks' => NULL),
+      'variables' => array('task' => NULL,'source' => NULL),
     ),
     'maestro_trace' => array(
       'template' => 'theme/maestro-trace',
@@ -483,6 +482,7 @@ function template_preprocess_maestro_taskconsole(&$variables) {
   drupal_add_js($maestro_path . '/js/taskconsole.js');
 
   if (is_array($objtasks) AND count($objtasks) > 0) {
+    $rowid = 1;
     foreach ($objtasks as $task) {
       $formatted_task = $task;
       $formatted_task->class_newtask = 'maestroNewTask';
@@ -528,10 +528,10 @@ function template_preprocess_maestro_taskconsole(&$variables) {
       $formatted_task->description = 'yada yada';
       $formatted_task->comment_note = 'yada yada';
 
-      $formatted_task->project_detail = theme('maestro_taskconsole_details');
-
+      $variables['rowid'] = $rowid;
+      $formatted_task->project_detail = theme('maestro_taskconsole_details',array('task' => $task, 'source' => 'mytasks', 'rowid' => $rowid ));
       $variables['formatted_tasks'][] = $formatted_task;
-
+      $rowid++;
     }
     $variables['details_icon'] = '<img src="' . $maestro_path . '/images/taskconsole/details.png' . '">';
 
@@ -553,9 +553,37 @@ function template_preprocess_maestro_taskconsole(&$variables) {
 function template_preprocess_maestro_taskconsole_details(&$variables) {
   global $base_url;
 
-  $variables['flow_tracking_number'] = 100;
-  $variables['flow_description'] = 'Workflow Description';
+  $task = $variables['task'];
+  $variables['module_base_url'] = $base_url . '/' . drupal_get_path('module', 'maestro');
+  $variables['hiderequestlink'] = '';
+  $variables['project_link'] = '';
+
+  $variables['flow_tracking_number'] =  $task->tracking_id;
+  $variables['flow_description'] = $task->flow_name;
   $variables['custom_workflow_summary'] = '';
+
+  $projectRec = db_select('maestro_projects','a')
+    ->fields('a',array('project_num','originator_uid','description','status','prev_status','related_processes'))
+    ->condition('id', $task->tracking_id, '=')
+    ->execute()->fetchObject();
+
+  switch($projectRec->status) {
+    case MaestroProjectStatusCodes::STATUS_ACTIVE:
+      $variables['project_status'] = t('Active');
+      break;
+
+  }
+
+  /* @TODO: Would like to make this extensible so that other project status options can in the future add their own
+   * Action form and AJAX handler
+   */
+  $variables['special_status_action'] = '';
+
+  if ($variables['source'] == 'allprojects' AND user_access('Administer Maestro Workflows')) {
+    $variables['delete_project_action'] = '<a href="#" onClick="ajaxUpdateDeleteProject('.$task->tracker_id.',' .$task->queue_id.');return false;">Delete Project</a>';
+  } else {
+    $variables['delete_project_action'] = '';
+  }
 
 
 }
