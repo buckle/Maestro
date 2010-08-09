@@ -142,6 +142,7 @@ function maestro_schema() {
         'description' => '',
         'type' => 'int',
         'not null' => FALSE,
+        'default' => 0,
       ),
       'tracking_id' => array(
         'description' => '',
