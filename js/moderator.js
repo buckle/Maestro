@@ -24,9 +24,26 @@ function show_reassign(link, uid) {
 
 function switch_process_focus(pid) {
   (function ($) {
-    var newclass = $('.focused_process').attr('class').replace('focused', 'blurred');
+    var newclass;
+
+    newclass = $('.focused_process').attr('class').replace('focused', 'blurred').replace('odd', 'even');
     $('.focused_process').attr('class', newclass);
-    newclass = $('.process' + pid).attr('class').replace('blurred', 'focused');
+    newclass = $('.process' + pid).attr('class').replace('blurred', 'focused').replace('even', 'odd');
     $('.process' + pid).attr('class', newclass);
+
+    $('.process_variables').hide();
+    $('#process_variables' + pid).show();
+  })(jQuery);
+}
+
+function set_archived(el, index) {
+  (function ($) {
+    $('#archived' + index).attr('value', (el.checked) ? 1:0);
+  })(jQuery);
+}
+
+function set_batch_op(el, index) {
+  (function ($) {
+    $('#batch_op' + index).attr('value', (el.checked) ? 1:0);
   })(jQuery);
 }

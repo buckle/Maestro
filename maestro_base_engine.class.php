@@ -250,23 +250,25 @@
 
     function getQueueHistory($initiating_pid) {
       $query = db_select('maestro_queue', 'a');
-      $query->fields('a', array('id', 'process_id', 'status'));
+      $query->fields('a', array('id', 'process_id', 'status', 'archived'));
       $query->fields('c', array('taskname'));
       $query->leftJoin('maestro_process', 'b', 'a.process_id=b.id');
       $query->leftJoin('maestro_template_data', 'c', 'a.template_data_id=c.id');
       $query->condition('b.initiating_pid', $initiating_pid, '=');
       $query->orderBy('a.id', 'ASC');
-      $queue_history = $query->execute();
 
-      /*$queue_history = array();
-      foreach ($res as $rec) {
-        $qhclass = new stdClass();
-        $qhclass->taskname = $rec->taskname;
-        $qhclass->taskname = $rec->taskname;
-        $queue_history[$rec->id] = array('taskname' => );
-      }*/
+      return $query->execute();
+    }
 
-      return $queue_history;
+    function getRelatedWorkflows($tracking_id) {
+      $query = db_select('maestro_process', 'a');
+      $query->fields('a', array('tracking_id', 'initiating_pid'));
+      $query->fields('b', array('template_name'));
+      $query->leftJoin('maestro_template', 'b', 'a.template_id=b.id');
+      $query->groupBy('a.initiating_pid');
+      $query->condition('a.tracking_id', $tracking_id, '=');
+
+      return $query->execute();
     }
 
     abstract function getVersion();

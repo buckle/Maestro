@@ -187,6 +187,9 @@ span.maestro_working {
 .blurred_process {
   font-weight: normal;
 }
+.process_variables {
+  border-bottom: 1px solid #D3E7F4;
+}
 
 
 /* Older tooltip or on-hover css styles */

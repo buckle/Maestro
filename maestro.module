@@ -198,7 +198,7 @@ function maestro_theme() {
     ),
     'maestro_trace' => array(
       'template' => 'theme/maestro-trace',
-      'variables' => array('maestro_url' => NULL, 'trace' => NULL, 'properties' => NULL, 'pv_res' => NULL),
+      'variables' => array('maestro_url' => NULL, 'trace' => NULL, 'properties' => NULL, 'pv_res' => NULL, 'wf_res' => NULL, 'statuses' => NULL),
     ),
     'maestro_workflow_list' => array(
       'template' => 'theme/structure/maestro-workflow-list',
@@ -955,3 +955,4 @@ function maestro_getNodeId($process_id,$content_type) {
     return FALSE;
   }
 }
+

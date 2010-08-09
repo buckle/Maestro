@@ -572,7 +572,8 @@
                 $query = db_select('maestro_user_away', 'a');
                 $query->fields('a',array('away_start','away_return','is_active'));
                 $query->condition('a.uid',$userId,'=');
-                $res1 = $query->execute()->fetchObject();
+                //$res1 = $query->execute()->fetchObject();
+                $res1 = NULL; //temporary until user away settings are added
                 if ($res1) {
                   // Check if user is away - away feature active and current time within the away window
                   if ($res1->is_active == 1 AND time() > $res1->away_start AND time() < $res1->away_return) {
