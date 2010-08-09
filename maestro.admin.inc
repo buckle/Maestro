@@ -342,7 +342,7 @@ function maestro_edit_properties($tid, $var=0){
  * These functions need to exist in order to run unit tests against their functionality.
  */
 
-function maestro_createNewTemplate($name, $skip_task_creation = FALSE){
+function maestro_createNewTemplate($name, $skip_task_creation = FALSE, $skip_variable_creation = FALSE){
   if(!user_access('maestro admin')) return false;
   if(trim($name) != '') {
     $record = new stdClass();
@@ -355,7 +355,9 @@ function maestro_createNewTemplate($name, $skip_task_creation = FALSE){
       $task=new MaestroTaskInterfaceEnd(0, $newTemplateRecId);
       $task->create();
     }
-    maestro_createTemplateVariable($newTemplateRecId, 'initiator', '');
+    if(!$skip_variable_creation) {
+      maestro_createTemplateVariable($newTemplateRecId, 'initiator', '');
+    }
     return $newTemplateRecId;
   }
   else {
@@ -422,7 +424,7 @@ function maestro_export() {
   $query->condition('a.id',$id,'=');
   $name=current($query->execute()->fetchAll());
   $original_template_name = str_replace('"', '\"', $name->template_name);
-  $output_php .= '$templateID = maestro_createNewTemplate("IMPORT - ' . $original_template_name . '", TRUE);' . "\n"; //create new template
+  $output_php .= '$templateID = maestro_createNewTemplate("IMPORT - ' . $original_template_name . '", TRUE, TRUE);' . "\n"; //create new template
 
   //lets get all of the template variables:
   $template_variables_record_set=db_query("SELECT * FROM {maestro_template_variables} WHERE template_id = :tid", array('tid' => $id));
