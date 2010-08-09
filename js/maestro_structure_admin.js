@@ -430,3 +430,89 @@ function maestro_structure_handleAjaxError(ajaxwaitobject, errormsg, request, st
 	if(ajaxwaitobject != '') jQuery(ajaxwaitobject).removeClass('maestro_working');
 }
 
+
+jQuery(function($) {
+  $('#importMaestroTemplate').click(function() {
+	maestro_hideErrorBar();
+	maestro_hideImportMessages();
+    dataString = "op=openimport";
+    jQuery.ajax( {
+      type : 'POST',
+      cache : false,
+      url : ajax_url + '/openimport',
+      dataType : "json",
+      data : dataString,
+      success : function(data) {
+        try{
+        	if (data.status == 1) {
+        		$("#importTemplate").toggle();	          
+        	} 
+        	else {
+        		var error = Drupal.t('There has been an error.  Either you do not have enough permissions to perform this action or you have not enabled the import in the configuration panel.');
+            	maestro_structure_handleAjaxError(null, error, null, 0, null);	
+        	}
+        }
+        catch(ex) {
+        	var error = Drupal.t('There has been an error.  Either you do not have enough permissions to perform this action or you have not enabled the import in the configuration panel.');
+        	maestro_structure_handleAjaxError(null, error, null, 0, null);	
+        }
+      },
+      error : function() {
+    	  var error = Drupal.t('There has been an error.  Either you do not have enough permissions to perform this action or you have not enabled the import in the configuration panel.');
+    	  jQuery('#maestro_error_message').html(error);
+    	  maestro_showErrorBar(); 
+    	  }
+    });
+    return false;
+  })
+});
+
+jQuery(function($) {
+	  $('#doMaestroTemplateImport').click(function() {
+		maestro_hideErrorBar();
+		maestro_hideImportMessages();
+		var frmID = "#maestroImportTemplateFrm";
+		dataString = jQuery(frmID).serialize();
+		dataString += "&op=doimport";
+	    jQuery.ajax( {
+	      type : 'POST',
+	      cache : false,
+	      url : ajax_url + '/doimport',
+	      dataType : "json",
+	      data : dataString,
+	      success : function(data) {
+	        try{
+	        	if (data.status == 1) {
+	        		maestro_hideImportMessages();
+	        		jQuery('#importSuccessMessage').removeClass('maestro_hide_item');
+	        		jQuery('#importSuccessMessage').addClass('maestro_show_item');     
+	        	} 
+	        	else {
+	        		maestro_hideImportMessages();
+	        		jQuery('#importFailureMessage').removeClass('maestro_hide_item');
+	        		jQuery('#importFailureMessage').addClass('maestro_show_item');     
+	        	}
+	        }
+	        catch(ex) {
+	        	maestro_hideImportMessages();
+        		jQuery('#importFailureMessage').removeClass('maestro_hide_item');
+        		jQuery('#importFailureMessage').addClass('maestro_show_item');   
+	        }
+	      },
+	      error : function() {
+	    	maestro_hideImportMessages();
+      		jQuery('#importFailureMessage').removeClass('maestro_hide_item');
+      		jQuery('#importFailureMessage').addClass('maestro_show_item');   
+	    	  }
+	    });
+	    return false;
+	  })
+	});
+
+
+function maestro_hideImportMessages() {
+	jQuery('#importFailureMessage').removeClass('maestro_show_item');
+	jQuery('#importFailureMessage').addClass('maestro_hide_item');     
+	jQuery('#importSuccessMessage').removeClass('maestro_show_item');
+	jQuery('#importSuccessMessage').addClass('maestro_hide_item');     
+}

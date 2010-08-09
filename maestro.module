@@ -132,6 +132,13 @@ function maestro_menu() {
     'type' => MENU_CALLBACK,
     );
 
+    $items['admin/structure/maestro/export'] = array(
+    'title' => 'Export a Maestro Template',
+    'page callback' => 'maestro_export_template',
+    'access arguments' => array('maestro admin'),
+    'type' => MENU_CALLBACK,
+    'file' => 'maestro.admin.inc'
+    );
     return $items;
 }
 
@@ -606,7 +613,6 @@ function template_preprocess_maestro_workflow_list(&$variables) {
   $res = db_query("SELECT id, template_name FROM {maestro_template}");
   $cntr=0;
   foreach ($res as $rec) {
-
     $output .= theme('maestro_workflow_list_item', array( 'rec' => $rec,
                                                           'cntr' => $cntr,
                                                           'operation' => $variables['operation'],
@@ -617,21 +623,20 @@ function template_preprocess_maestro_workflow_list(&$variables) {
   }
 
   $variables['workflow_list'] = $output;
-
   $variables['error_message'] = '';
   $variables['ajax_url']=url('admin/structure/maestro/structure_ajax');
-
   //app group listing:
   $variables['app_groups'] = maestro_createAppGroupDropDown('deleteAppGroup');
-
 }
 
 function template_preprocess_maestro_workflow_list_item(&$variables) {
   global $base_url;
   $output="";
-
+  $variables['show_export_item'] = 'none';
+  $variables['export_content'] = '';
+  $variables['template_app_groups'] = "";
   $variables['module_path']=$base_url . "/" . drupal_get_path('module', 'maestro');
-  if(  $variables['operation'] == 'edit' && $variables['tid'] ==  $variables['rec']->id ) {  //only show this when we're editing a specific template.
+  if ($variables['operation'] == 'edit' && $variables['tid'] ==  $variables['rec']->id ) {  //only show this when we're editing a specific template.
     $variables['show_item'] = '';
     $output=theme('maestro_workflow_edit_template_variables',  array('tid' => $variables['tid'], 'edit_var' => $variables['edit_var'] , 'cntr' => $variables['cntr']));
     $query = db_select('maestro_template', 'a');
@@ -640,9 +645,13 @@ function template_preprocess_maestro_workflow_list_item(&$variables) {
     $res=current($query->execute()->fetchAll());
     $variables['template_app_groups'] = maestro_createAppGroupDropDown('appGroup', $res->app_group);
   }
+  elseif ($variables['operation'] == 'export_template' && $variables['tid'] ==  $variables['rec']->id ) { //only show this when we're exporting a specific template
+    $variables['show_item'] = 'none';
+    $variables['export_content'] = maestro_export($variables['tid']);
+    $variables['show_export_item'] = '';
+  }
   else {
     $variables['show_item'] = 'none';
-    $variables['template_app_groups'] = "";
   }
   $variables['template_variables'] = $output;
 
@@ -946,5 +955,3 @@ function maestro_getNodeId($process_id,$content_type) {
     return FALSE;
   }
 }
-
-

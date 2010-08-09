@@ -49,6 +49,7 @@ array(
 function maestro_uninstall() {
   variable_del('maestro_batch_script_location');
   variable_del('maestro_run_orchestrator_in_task_console');
+  variable_del('maestro_enable_import_window');
 }
 
 function maestro_schema() {

@@ -18,6 +18,22 @@
       <?php print l('<img src="' . $module_path . '/images/admin/export.gif" border="0" title="' . t('Export Template') .'">', 'admin/structure/maestro/export/' . $rec->id, array('html' => TRUE)); ?>&nbsp;
       </td>
     </tr>
+    <tr id="tedit<?php print $cntr; ?>" style="vertical-align:top;display:<?php print $show_export_item; ?>;">
+      <td colspan="3">
+        <table>
+        <tr>
+          <td width="40%">
+            <?php print t('The following is the template creation code for template '); ?><?php print filter_xss($rec->template_name); ?>:<br>
+            <textarea id="templateoutout<?php print $rec->id; ?>" rows="15" cols="100" style="border: solid gray 1px;"><?php print $export_content; ?></textarea>
+          </td>
+          <td>
+          <?php print t('The output of your template has been generated.  Copy the contents of the output to the left.'); ?>
+          </td>
+        </tr>
+        </table>
+      </td>
+
+    </tr>
     <tr id="tedit<?php print $cntr; ?>" class="" style="vertical-align:top;display:<?php print $show_item; ?>;">
       <td width="5%" class="" style="padding-left:5px;"></td>
       <td width="95%" colspan="2" class="">
