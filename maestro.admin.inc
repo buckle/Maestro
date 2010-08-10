@@ -74,7 +74,8 @@ function maestro_handle_structure_ajax_request(){
           $status = 0;
         }
       }
-      $arr=array('status' => $status);
+      $data=theme('maestro_workflow_list', array('tid' => 0, 'operation' => '' , 'edit_var' => 0));
+      $arr=array('data' => $data, 'status' => $status);
       echo json_encode($arr);
       break;
 
