@@ -14,7 +14,7 @@
     <?php print t('Related Workflows'); ?>:
 <?php
     foreach ($wf_res as $rec) {
-      print l(t($rec->template_name), "maestro/trace/{$rec->tracking_id}/{$rec->initiating_pid}/0") . '&nbsp;&nbsp;';
+      print l($rec->template_name, "maestro/trace/{$rec->tracking_id}/{$rec->initiating_pid}/0") . '&nbsp;&nbsp;';
     }
 ?>
   </div>

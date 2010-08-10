@@ -57,7 +57,6 @@
 
   function if_task_enable_disable_agruments(val){
     (function ($) {
-      //alert(val);
       switch(val) {
       case 'status':
         $('#ifArgumentVariableRow').hide();
