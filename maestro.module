@@ -561,12 +561,20 @@ function template_preprocess_maestro_taskconsole(&$variables) {
 function template_preprocess_maestro_taskconsole_details(&$variables) {
   global $base_url;
 
+  if (user_access('Administer Maestro Workflows')) {
+    $variables['workflow_admin'] = TRUE;
+    $variables['show_otaskaction'] = '';
+  } else {
+    $variables['workflow_admin'] = FALSE;
+    $variables['show_otaskaction'] = 'none';
+  }
+
   $task = $variables['task'];
   $variables['module_base_url'] = $base_url . '/' . drupal_get_path('module', 'maestro');
   $variables['hiderequestlink'] = '';
   $variables['project_link'] = '';
 
-  $variables['flow_tracking_number'] =  $task->tracking_id;
+  $variables['tracking_id'] =  $task->tracking_id;
   $variables['flow_description'] = $task->flow_name;
   $variables['custom_workflow_summary'] = '';
 
@@ -634,6 +642,7 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
   foreach ($res as $rec) {
     $variables['reassign_user_options'][$rec->uid] = $rec->name;
   }
+
 
 
 
@@ -1038,3 +1047,4 @@ function maestro_getProjectTasksHistory($tracking_id) {
      }
      return $retval;
  }
+
