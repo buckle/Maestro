@@ -7,7 +7,7 @@
  */
 
 function maestro_install() {
-  //@TODO:  remove this option for release.
+  //@TODO:  set this option to 0 for release.
   variable_set('maestro_run_orchestrator_in_task_console', 1);
 
   include('maestro.admin.inc');

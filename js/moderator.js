@@ -47,3 +47,49 @@ function set_batch_op(el, index) {
     $('#batch_op' + index).attr('value', (el.checked) ? 1:0);
   })(jQuery);
 }
+
+function save_task_changes(frm) {
+  (function ($) {
+    enable_activity_indicator();
+    $.ajax({
+      type: 'POST',
+      url: ajax_url,
+      cache: false,
+      data: $("#maestro_task_history_form").serialize(),
+      dataType: 'json',
+      success: save_success,
+      error: moderator_ajax_error
+    });
+  })(jQuery);
+}
+
+function save_process_variables(frm) {
+  (function ($) {
+    enable_activity_indicator();
+    $.ajax({
+      type: 'POST',
+      url: ajax_url,
+      cache: false,
+      data: $("#maestro_process_variables_form").serialize(),
+      dataType: 'json',
+      success: save_success,
+      error: moderator_ajax_error
+    });
+  })(jQuery);
+}
+
+function save_success() {
+  location.reload();
+}
+
+function enable_activity_indicator() {
+  document.getElementById('maestro_ajax_indicator').style.display = '';
+}
+
+function disable_activity_indicator() {
+  document.getElementById('maestro_ajax_indicator').style.display = 'none';
+}
+
+function moderator_ajax_error() {
+  disable_activity_indicator();
+}

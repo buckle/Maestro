@@ -8,6 +8,8 @@
 
 ?>
 
+  <div id="maestro_ajax_indicator" class="maestro_ajax_indicator" style="display: none;"><img src="<?php print $maestro_url; ?>/images/admin/status-active.gif"></div>
+
   <div>
     <?php print t('Related Workflows'); ?>:
 <?php
@@ -28,9 +30,9 @@
     }
 ?>
   </div>
-
   <div style="width: 58%; float: left;">
-    <form method="post" action="<?php url('maestro/trace'); ?>">
+    <form id="maestro_task_history_form" method="post" action="" onsubmit="save_task_changes(this); return false;">
+      <input type="hidden" name="op" value="save_task_changes">
       <fieldset class="form-wrapper">
         <legend>
           <span class="fieldset-legend">Task History</span>
@@ -84,11 +86,11 @@
                 <td><img src="<?php print $maestro_url; ?>/images/taskconsole/arrow_ltr.png"></td>
                 <td><?php print t('Batch Operation'); ?></td>
                 <td>
-                  <select name="status[]">
+                  <select name="batch_op_status">
 <?php
                     foreach ($statuses as $value => $label) {
 ?>
-                      <option value="<?php print $value; ?>" <?php print ($value == $rec->status) ? 'selected="selected"':''; ?>><?php print $label; ?></option>
+                      <option value="<?php print $value; ?>"><?php print $label; ?></option>
 <?php
                     }
 ?>
@@ -107,7 +109,8 @@
   </div>
 
   <div style="width: 40%; float: right;">
-    <form method="post" action="<?php url('maestro/trace'); ?>">
+    <form id="maestro_process_variables_form" method="post" action="" onsubmit="save_process_variables(this); return false;">
+      <input type="hidden" name="op" value="save_process_variables">
       <fieldset class="form-wrapper">
         <legend>
           <span class="fieldset-legend"><?php print t('Process Variables (Current Regeneration Instance)'); ?></span>
@@ -121,39 +124,47 @@
               $prev_rec_pid = $rec->process_id;
               if ($i++ > 0) {
 ?>
-                  </tbody>
-                </table>
+              <tr>
+                <td colspan="2" style="text-align: center;"><input type="submit" value="<?php print t('Save Process Variables'); ?>"></td>
+              </tr>
+            </tbody>
+          </table>
 <?php
               }
 ?>
-              <table id="process_variables<?php print $rec->process_id; ?>" class="process_variables" style="display: <?php print ($rec->process_id == $properties->process_id) ? '':'none'; ?>;">
-                <thead>
-                  <tr>
-                    <th><?php print t('Variable Name'); ?></th>
-                    <th><?php print t('Value'); ?> </th>
-                  </tr>
-                </thead>
-                <tbody>
+          <table id="process_variables<?php print $rec->process_id; ?>" class="process_variables" style="display: <?php print ($rec->process_id == $properties->process_id) ? '':'none'; ?>;">
+            <thead>
+              <tr>
+                <th><?php print t('Variable Name'); ?></th>
+                <th><?php print t('Value'); ?> </th>
+              </tr>
+            </thead>
+            <tbody>
 <?php
             }
 ?>
-            <tr class="even">
-              <td>
-                <input type="hidden" name="process_variable_id[]" value="<?php print $rec->id; ?>">
-                <?php print $rec->variable_name; ?>
-              </td>
-              <td>
-                <input type="text" name="process_variable_value[]" value="<?php print $rec->variable_value; ?>">
-              </td>
-            </tr>
+              <tr class="even">
+                <td>
+                  <input type="hidden" name="process_variable_id[]" value="<?php print $rec->id; ?>">
+                  <?php print $rec->variable_name; ?>
+                </td>
+                <td>
+                  <input type="text" name="process_variable_value[]" value="<?php print $rec->variable_value; ?>">
+                </td>
+              </tr>
 <?php
           }
 ?>
-            <tr>
-              <td colspan="2" style="text-align: center;"><input type="submit" value="<?php print t('Save Process Variables'); ?>"></td>
-            </tr>
-          </tbody>
-        </table>
+              <tr>
+                <td colspan="2" style="text-align: center;"><input type="submit" value="<?php print t('Save Process Variables'); ?>"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </fieldset>
     </form>
   </div>
+
+  <script type="text/javascript">
+    var ajax_url = '<?php print "{$ajax_url}/trace/{$properties->tracking_id}/{$properties->initiating_pid}/{$properties->queue_id}"; ?>';
+  </script>

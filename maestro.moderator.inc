@@ -53,68 +53,111 @@ function maestro_outstanding_tasks($op='', $qid=0, $other=NULL) {
 function maestro_trace($tracking_id=0, $process_id=0, $queue_id=0) {
   global $base_url;
 
-  $maestro_path = '/' . drupal_get_path('module', 'maestro');
-  $maestro_url = $base_url . $maestro_path;
-
-  drupal_add_css($base_url . $maestro_path . '/css/maestro.css');
-  drupal_add_js($base_url . $maestro_path . '/js/moderator.js');
-
-  $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
-  $m = $maestro->engine();
-
-  if ($process_id == 0 && $queue_id > 0) {
-    $res = db_select('maestro_queue', 'a')
-      ->fields('a', array('process_id'))
-      ->condition('a.id', $queue_id, '=')
-      ->execute();
-    $process_id = current($res->fetchAll())->process_id;
+  $op = '';
+  if (is_array($_POST) && array_key_exists('op', $_POST)) {
+    $op = $_POST['op'];
   }
 
-  if ($process_id > 0) {
-    $res = db_select('maestro_process', 'a')
-      ->fields('a', array('tracking_id'))
-      ->condition('a.id', $process_id, '=')
-      ->execute();
-    $tracking_id = current($res->fetchAll())->tracking_id;
+  switch ($op) {
+  case 'save_task_changes':
+    maestro_save_task_changes();
+    break;
+
+  case 'save_process_variables':
+    maestro_save_process_variables();
+    break;
+
+  default:
+    $maestro_path = '/' . drupal_get_path('module', 'maestro');
+    $maestro_url = $base_url . $maestro_path;
+    $ajax_url = url('maestro');
+
+    drupal_add_css($base_url . $maestro_path . '/css/maestro.css');
+    drupal_add_js($base_url . $maestro_path . '/js/moderator.js');
+
+    $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
+    $m = $maestro->engine();
+
+    if ($process_id == 0 && $queue_id > 0) {
+      $res = db_select('maestro_queue', 'a')
+        ->fields('a', array('process_id'))
+        ->condition('a.id', $queue_id, '=')
+        ->execute();
+      $process_id = current($res->fetchAll())->process_id;
+    }
+
+    if ($process_id > 0) {
+      $res = db_select('maestro_process', 'a')
+        ->fields('a', array('tracking_id'))
+        ->condition('a.id', $process_id, '=')
+        ->execute();
+      $tracking_id = current($res->fetchAll())->tracking_id;
+    }
+
+    $initiating_pid = $m->getParentProcessId($process_id);
+
+    $properties = new stdClass();
+    $properties->queue_id = $queue_id;
+    $properties->process_id = $process_id;
+    $properties->tracking_id = $tracking_id;
+    $properties->initiating_pid = $initiating_pid;
+
+
+    $query = db_select('maestro_process', 'a');
+    $query->fields('b', array('variable_value', 'process_id', 'id'));
+    $query->fields('c', array('variable_name'));
+    $query->leftJoin('maestro_process_variables', 'b', 'a.id=b.process_id');
+    $query->leftJoin('maestro_template_variables', 'c', 'b.template_variable_id=c.id');
+    $query->condition('a.initiating_pid', $initiating_pid, '=');
+    $query->orderBy('a.id', 'ASC');
+    $query->orderBy('c.id', 'ASC');
+    $pv_res = $query->execute();
+
+    $query = db_select('maestro_process', 'a');
+    $query->fields('a', array('id'));
+    $query->fields('b', array('template_name'));
+    $query->leftJoin('maestro_template', 'b', 'a.template_id=b.id');
+    $query->condition('a.initiating_pid', $initiating_pid, '=');
+    $proc_res = $query->execute();
+
+    $refl = new ReflectionClass('MaestroTaskStatusCodes');
+    $task_status_code_array = $refl->getConstants();
+    $statuses = array();
+    foreach ($task_status_code_array as $var => $value) {
+      $statuses[$value] = ucwords(strtolower(str_replace('_', ' ', substr($var, 7))));
+    }
+
+    $wf_res = $m->getRelatedWorkflows($tracking_id);
+    $trace = $m->getQueueHistory($initiating_pid);
+
+    return theme('maestro_trace', array('maestro_url' => $maestro_url, 'ajax_url' => $ajax_url, 'trace' => $trace, 'properties' => $properties, 'pv_res' => $pv_res, 'proc_res' => $proc_res, 'wf_res' => $wf_res, 'statuses' => $statuses));
+    break;
+  }
+}
+
+function maestro_save_task_changes() {
+  foreach ($_POST['queue_id'] as $key => $qid) {
+    $query = db_update('maestro_queue');
+    $status = ($_POST['batch_op'][$key] == 1) ? $_POST['batch_op_status'] : $_POST['status'][$key];
+    $query->fields(array('status' => $status, 'archived' => $_POST['archived'][$key]));
+    $query->condition('id', $_POST['queue_id'][$key], '=');
+    $query->execute();
   }
 
-  $initiating_pid = $m->getParentProcessId($process_id);
+  print json_encode(array('success' => 1));
+  exit();
+}
 
-  $properties = new stdClass();
-  $properties->queue_id = $queue_id;
-  $properties->process_id = $process_id;
-  $properties->tracking_id = $tracking_id;
-  $properties->initiating_pid = $initiating_pid;
-
-
-  $query = db_select('maestro_process', 'a');
-  $query->fields('b', array('variable_value', 'process_id', 'id'));
-  $query->fields('c', array('variable_name'));
-  $query->leftJoin('maestro_process_variables', 'b', 'a.id=b.process_id');
-  $query->leftJoin('maestro_template_variables', 'c', 'b.template_variable_id=c.id');
-  $query->condition('a.initiating_pid', $initiating_pid, '=');
-  $query->orderBy('a.id', 'ASC');
-  $query->orderBy('c.id', 'ASC');
-  $pv_res = $query->execute();
-
-  $query = db_select('maestro_process', 'a');
-  $query->fields('a', array('id'));
-  $query->fields('b', array('template_name'));
-  $query->leftJoin('maestro_template', 'b', 'a.template_id=b.id');
-  $query->condition('a.initiating_pid', $initiating_pid, '=');
-  $proc_res = $query->execute();
-
-  $refl = new ReflectionClass('MaestroTaskStatusCodes');
-  $task_status_code_array = $refl->getConstants();
-  $statuses = array();
-  foreach ($task_status_code_array as $var => $value) {
-    $statuses[$value] = ucwords(strtolower(str_replace('_', ' ', substr($var, 7))));
+function maestro_save_process_variables() {
+  foreach ($_POST['process_variable_id'] as $key => $vid) {
+    $query = db_update('maestro_process_variables');
+    $query->fields(array('variable_value' => $_POST['process_variable_value'][$key]));
+    $query->condition('id', $vid, '=');
+    $query->execute();
   }
 
-  $wf_res = $m->getRelatedWorkflows($tracking_id);
-  $trace = $m->getQueueHistory($initiating_pid);
-
-  return theme('maestro_trace', array('maestro_url' => $maestro_url, 'trace' => $trace, 'properties' => $properties, 'pv_res' => $pv_res, 'proc_res' => $proc_res, 'wf_res' => $wf_res, 'statuses' => $statuses));
+  print json_encode(array('success' => 1));
+  exit();
 }
 
 ?>
