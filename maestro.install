@@ -7,6 +7,8 @@
  */
 
 function maestro_install() {
+  //@TODO:  remove this option for release.
+variable_set('maestro_run_orchestrator_in_task_console', 1);
 
 db_query("INSERT INTO {maestro_template} (`id`, `template_name`, `canvas_height`, `app_group`) VALUES (1, 'Test Workflow', 500, 0)");
 db_query("INSERT INTO {maestro_template_assignment} (`id`, `template_data_id`, `uid`, `gid`, `process_variable`, `pre_notify_variable`, `post_notify_variable`, `reminder_notify_variable`) VALUES (1, 6, 0, 0, 1, 0, 0, 0), (2, 5, 0, 0, 1, 0, 0, 0)");
