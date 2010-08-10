@@ -428,8 +428,6 @@ class MaestroTaskTypeInteractivefunction extends MaestroTask {
     $ret = new stdClass();
     $ret->retcode = FALSE;
     $ret->engineop = '';
-    /* Place our custom interactive functions in this file for now but we need a far more automatic method */
-    include_once './' . drupal_get_path('module', 'maestro') . '/custom_functions/myfunctions.php';
     $serializedData = db_query("SELECT task_data FROM {maestro_queue} WHERE id = :id",
     array(':id' => $taskid))->fetchField();
     $taskdata = @unserialize($serializedData);
