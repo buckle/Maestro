@@ -1029,7 +1029,7 @@ function maestro_getProjectTasksHistory($tracking_id) {
      foreach ($res as $record) {
        $assigned = strftime("%b %d/%Y %H:%M",$record->created_date);
        $started = strftime("%b %d/%Y %H:%M",$record->started_date);
-       $completed = strftime("%b %d/%Y %H:%M",$record->started_date);
+       $completed = strftime("%b %d/%Y %H:%M",$record->completed_date);
        $status = 'completed';
        $rows[] = array($record->taskname,$record->username,$assigned,$started,$completed,$status);
      }
