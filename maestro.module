@@ -186,7 +186,8 @@ function maestro_admin_paths() {
 function maestro_theme() {
   return array(
     'maestro_taskconsole' => array(
-      'template' => 'theme/maestro-taskconsole'
+      'template' => 'theme/maestro-taskconsole',
+      'render element' => 'stucture'
     ),
     'maestro_outstanding_tasks' => array(
       'template' => 'theme/maestro-outstanding-tasks',
