@@ -973,7 +973,7 @@ function maestro_getProjectTasksHistory($tracking_id) {
     $query->addField('users','name','username');
     $query->addField('queue','id','queue_id');
     $query->condition('process.tracking_id', $tracking_id, '=');
-    $query->condition(db_or()->condition('queue.completed_date',0,'>')->condition('queue.status',2,'='));
+    $query->condition(db_or()->condition('queue.completed_date',0,'>')->condition('queue.status',MaestroTaskStatusCodes::STATUS_ON_HOLD,'='));
     $res = $query->execute();
 
      $retval = '';
@@ -989,7 +989,7 @@ function maestro_getProjectTasksHistory($tracking_id) {
      foreach ($res as $record) {
        $assigned = strftime("%b %d/%Y %H:%M",$record->created_date);
        $started = strftime("%b %d/%Y %H:%M",$record->started_date);
-       $completed = strftime("%b %d/%Y %H:%M",$record->started_date);
+       $completed = strftime("%b %d/%Y %H:%M",$record->completed_date);
        $status = 'completed';
        $rows[] = array($record->taskname,$record->username,$assigned,$started,$completed,$status);
      }

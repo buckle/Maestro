@@ -101,6 +101,10 @@ class MaestroTaskTypeStart extends MaestroTask {
     $msg = 'Execute Task Type: "Start" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
+    db_update('maestro_queue')
+          ->fields(array('started_date' => time()))
+          ->condition('id', $this->_properties->id, '=')
+          ->execute();
     $this->executionStatus = TRUE;
     $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
     return $this;
@@ -117,6 +121,10 @@ class MaestroTaskTypeEnd extends MaestroTask {
     $msg = 'Execute Task Type: "End" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
+    db_update('maestro_queue')
+          ->fields(array('started_date' => time()))
+          ->condition('id', $this->_properties->id, '=')
+          ->execute();
     $this->executionStatus = TRUE;
     $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
     return $this;
@@ -146,8 +154,12 @@ class MaestroTaskTypeBatch extends MaestroTask {
       $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
     }
     else {
-      $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
+      $this->completionStatus = FALSE;
     }
+    db_update('maestro_queue')
+          ->fields(array('started_date' => time()))
+          ->condition('id', $this->_properties->id, '=')
+          ->execute();
     $this->executionStatus = TRUE;
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
     return $this;
@@ -172,6 +184,10 @@ class MaestroTaskTypeBatchFunction extends MaestroTask {
 
     $function = $this->_properties->handler;
     if (function_exists($function)) {
+      db_update('maestro_queue')
+          ->fields(array('started_date' => time()))
+          ->condition('id', $this->_properties->id, '=')
+          ->execute();
       $success = $function($this->_properties->id,$this->_properties->process_id);
     } else {
       watchdog('maestro',"MaestroTaskTypeBatchFunction - unable to find the function: {$this->_properties->handler}");
@@ -203,7 +219,10 @@ class MaestroTaskTypeAnd extends MaestroTask {
   function execute() {
     $msg = 'Execute Task Type: "AND" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
-
+    db_update('maestro_queue')
+          ->fields(array('started_date' => time()))
+          ->condition('id', $this->_properties->id, '=')
+          ->execute();
     $numComplete = 0;
     $numIncomplete = 0;
 
@@ -241,6 +260,10 @@ class MaestroTaskTypeIf extends MaestroTask {
   function execute() {
     $msg = 'Execute Task Type: "IF" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
+    db_update('maestro_queue')
+          ->fields(array('started_date' => time()))
+          ->condition('id', $this->_properties->id, '=')
+          ->execute();
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
 
     $serializedData = db_query("SELECT task_data FROM {maestro_queue} WHERE id = :tid",
@@ -448,7 +471,10 @@ class MaestroTaskTypeSetProcessVariable extends MaestroTask {
     $this->executionStatus = FALSE;
     $msg = 'Execute Task Type: "SetProcessVariable" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
-
+    db_update('maestro_queue')
+          ->fields(array('started_date' => time()))
+          ->condition('id', $this->_properties->id, '=')
+          ->execute();
     $query = db_select('maestro_template_data', 'a');
     $query->fields('a',array('task_data'));
     $query->condition('a.id', $this->_properties->template_data_id,'=');
@@ -510,7 +536,7 @@ class MaestroTaskTypeManualWeb extends MaestroTask {
     $this->completionStatus = FALSE;
     $this->executionStatus = TRUE;
     db_update('maestro_queue')  //setting the run_once flag as we don't have anything particular to do in this task
-      ->fields(array('run_once' => 1))
+      ->fields(array('run_once' => 1, 'started_date' => time() ))
       ->condition('id', $this->_properties->id, '=')
       ->execute();
     return $this;
@@ -554,7 +580,7 @@ class MaestroTaskTypeContentType extends MaestroTask {
     }
     $this->executionStatus = TRUE;
     db_update('maestro_queue')  //setting the run_once flag as we don't have anything particular to do in this task
-      ->fields(array('run_once' => 1))
+      ->fields(array('run_once' => 1,'started_date' => time() ))
       ->condition('id', $this->_properties->id, '=')
       ->execute();
     return $this;
@@ -604,7 +630,10 @@ class MaestroTaskTypeFireTrigger extends MaestroTask {
   function execute() {
     $msg = 'Execute Task Type: "FireTrigger" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro', $msg);
-
+    db_update('maestro_queue')  //setting the run_once flag as we don't have anything particular to do in this task
+      ->fields(array('started_date' => time() ))
+      ->condition('id', $this->_properties->id, '=')
+      ->execute();
     $aids = trigger_get_assigned_actions('fire_trigger_task' . $this->_properties->template_data_id);
 
     $context = array(
