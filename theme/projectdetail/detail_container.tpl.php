@@ -96,11 +96,12 @@
                           <td><?php
                             if ($workflow_admin) {
                               ?>
-                              <form style="margin:0px;">
+                              <form id="frmOutstandingTasksRow<?php print $rowid; ?>" style="margin:0px;" method="post" action="" onsubmit="maestro_ajaxUpdateTaskAssignment(<?php print $rowid ?>); return false;">
+                                  <input type="hidden" name="rowid" value="<?php print $rowid; ?>">
                                   <input type="hidden" name="variable_id" value="<?php print $otask->variable_id; ?>">
                                   <input type="hidden" name="taskuser" value="<?php print $otask->taskuser ?>">
                                   <input type="hidden" name="taskassign_mode" value="<?php print $otask->taskassign_mode; ?>">
-                                  <input type="hidden" name="id" value="<?php print $otask->task_id; ?>">
+                                  <input type="hidden" name="taskid" value="<?php print $otask->task_id; ?>">
                                   <select name="task_reassign_uid">
                                       <option value="0"><?php print t('Assign to user'); ?></option>
                                         <?php
@@ -111,7 +112,7 @@
                                            }
                                         ?>
                                   </select>
-                                  <input type="button" name="op" value="<?php print t('Re-Assign'); ?>" onClick="ajaxUpdateTaskAssignment(<?php print $rowid; ?>,<?php print $tracking_id; ?>,this.form.task_reassign_uid.value,<?php print $otask->task_id; ?>,<?php print $otask->variable_id; ?>);">
+                                  <input type="submit" value="<?php print t('Re-Assign'); ?>">
                               </form>
                             <?php
                             } else {

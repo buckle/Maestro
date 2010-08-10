@@ -27,6 +27,28 @@ jQuery(function($) {
   })
 });
 
+
+/* In the project details area, the workflow admin can change the assigned user for a task */
+function maestro_ajaxUpdateTaskAssignment(id) {
+  (function ($) {
+    //enable_activity_indicator();
+    $.ajax({
+      type: 'POST',
+      url : ajax_url + '/setassignment',
+      cache: false,
+      data: $("#frmOutstandingTasksRow" + id).serialize(),
+      dataType: 'json',
+      success:  function (data) {
+        if (data.status != 1) {
+          alert('An error occurred updating assignment');
+        }
+      },
+      error: function() { alert('there was a SERVER Error processing AJAX request'); }
+
+    });
+  })(jQuery);
+}
+
 /* Function handles the form submit buttons for the inline interactive tasks
  * All the form buttons should be of input type 'button' even the 'task complete'
  * Function will fire automatically when a form button is pressed and execute the

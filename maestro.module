@@ -822,6 +822,37 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
       echo json_encode($retdata);
       break;
 
+    case 'setassignment':
+      if (user_access('Administer Maestro Workflows')) {
+        $taskid = intval($_POST['taskid']);
+        $process_id = db_query("SELECT process_id FROM {maestro_queue} WHERE id = :tid",
+          array(':tid' => $taskid))->fetchField();
+        $assigned_uid = db_query("SELECT uid FROM {maestro_production_assignments} WHERE id = :tid",
+          array(':tid' => $taskid))->fetchField();
+        $maestro = Maestro::createMaestroObject(1);
+        $maestro->engine()->reassignTask($taskid,$_POST['task_reassign_uid'],$_POST['taskuser'],$_POST['variable_id']);
+
+        /*
+        nf_reassign_task($taskid,$taskuser,$assigneduid,$variableid);
+        $sql = "SELECT a.id, b.taskname FROM {$_TABLES['nf_queue']} a LEFT JOIN {$_TABLES['nf_templatedata']} b ON a.nf_templateDataID=b.id WHERE a.id=$taskid;";
+        $res = DB_query($sql);
+        $A = DB_fetchArray($res);
+        $comment = 'Task Owner change, was '.COM_getDisplayName($assigneduid).', now ';
+        $comment .= COM_getDisplayName($taskuser) . " for task: {$A['taskname']}";
+        $sql  = "INSERT INTO {$_TABLES['nf_projectcomments']} (project_id, task_id, uid, timestamp, comment) ";
+        $sql .= "VALUES ('$project_id',{$A['id']},'{$_USER['uid']}',UNIX_TIMESTAMP(),'$comment')";
+        DB_query($sql);
+        */
+
+
+
+        $retdata = array ('status' => TRUE);
+      } else {
+        $retdata = array ('status' => FALSE);
+      }
+      echo json_encode($retdata);
+      break;
+
     case 'interactivetask_post':
       $queue_id = intval($_POST['queueid']);
       $taskop = CHECK_PLAIN($_POST['op']);
