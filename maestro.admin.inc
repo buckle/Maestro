@@ -252,9 +252,6 @@ function maestro_handle_structure_ajax_request(){
       $taskDataArray=array();
       $res=db_query("SELECT * FROM {maestro_template_data} WHERE template_id = :tid", array('tid' => $id));
       foreach($res as $rec) {
-        //create a new interface class instance here to translate the data.
-
-
         $newrecord = new stdClass();
         $newrecord->template_id = $newTID;
         $newrecord->task_class_name = $rec->task_class_name;
@@ -263,13 +260,10 @@ function maestro_handle_structure_ajax_request(){
         //we need to transform this data here to use the new variables etc etc if required.
         $task_type = substr($rec->task_class_name, 15);
         $task_class = 'MaestroTaskInterface' . $task_type;
-
         $ti = new $task_class(0, 0);
         $fixed_data = $ti->modulateExportTaskData($rec->task_data, $variable_xref_array);
         $rec->task_data = $fixed_data;
-
         $newrecord->task_data = $rec->task_data;
-
 
         $newrecord->handler = $rec->handler;
         $newrecord->first_task = $rec->first_task;
