@@ -236,14 +236,41 @@ function maestro_handle_structure_ajax_request(){
       $record ->app_group = $name->app_group;
       drupal_write_record('maestro_template', $record);
       $newTID=$record->id;
+
+      $variable_xref_array = Array();
+      $variable_xref_array[0] = 0;
+      $res=db_query("SELECT * FROM {maestro_template_variables} WHERE template_id = :tid", array('tid' => $id));
+      foreach($res as $rec) {
+        $newrecord = new stdClass();
+        $newrecord->template_id = $newTID;
+        $newrecord->variable_name = $rec->variable_name;
+        $newrecord->variable_value = $rec->variable_value;
+        drupal_write_record('maestro_template_variables', $newrecord);
+        $variable_xref_array[$rec->id] = $newrecord->id;
+      }
+
       $taskDataArray=array();
       $res=db_query("SELECT * FROM {maestro_template_data} WHERE template_id = :tid", array('tid' => $id));
       foreach($res as $rec) {
+        //create a new interface class instance here to translate the data.
+
+
         $newrecord = new stdClass();
         $newrecord->template_id = $newTID;
         $newrecord->task_class_name = $rec->task_class_name;
         $newrecord->is_interactive = $rec->is_interactive;
+
+        //we need to transform this data here to use the new variables etc etc if required.
+        $task_type = substr($rec->task_class_name, 15);
+        $task_class = 'MaestroTaskInterface' . $task_type;
+
+        $ti = new $task_class(0, 0);
+        $fixed_data = $ti->modulateExportTaskData($rec->task_data, $variable_xref_array);
+        $rec->task_data = $fixed_data;
+
         $newrecord->task_data = $rec->task_data;
+
+
         $newrecord->handler = $rec->handler;
         $newrecord->first_task = $rec->first_task;
         $newrecord->taskname = $rec->taskname;
@@ -282,18 +309,6 @@ function maestro_handle_structure_ajax_request(){
         $newrecord->surpress_first_notification = $rec->surpress_first_notification;
         drupal_write_record('maestro_template_data', $newrecord);
         $taskDataArray[$rec->id]= $newrecord->id;
-      }
-
-      $variable_xref_array = Array();
-      $variable_xref_array[0] = 0;
-      $res=db_query("SELECT * FROM {maestro_template_variables} WHERE template_id = :tid", array('tid' => $id));
-      foreach($res as $rec) {
-        $newrecord = new stdClass();
-        $newrecord->template_id = $newTID;
-        $newrecord->variable_name = $rec->variable_name;
-        $newrecord->variable_value = $rec->variable_value;
-        drupal_write_record('maestro_template_variables', $newrecord);
-        $variable_xref_array[$rec->id] = $newrecord->id;
       }
 
       //at this point, we have a list that points the old ID record to the new one.
