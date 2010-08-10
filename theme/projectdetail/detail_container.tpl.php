@@ -29,7 +29,7 @@
                     <td width="160"><?php print t('Flow Name'); ?>:</td><td><?php print $flow_description ?></td>
                 </tr>
                 <tr class="taskconsolesummary">
-                    <td width="160"><?php print t('Flow Tracking ID'); ?></td><td><?php print $flow_tracking_number ?></td>
+                    <td width="160"><?php print t('Flow Tracking ID'); ?></td><td><?php print $tracking_id ?></td>
                 </tr>
                 <tr class="taskconsolesummary">
                     <td width="160"><?php print t('Status'); ?>:</td>
@@ -80,8 +80,52 @@
                 </span>
             </legend>
             <div id="outstanding_task_rec<?php print $rowid; ?>">
-              <?php print $outstanding_tasks; ?>
-           </div>
+                <table class="pluginSubTable" cellpadding="0" cellspacing="1" width="99%" border="0" style="margin:10px 5px 5px 5px;">
+                    <tr>
+                        <th><?php print t('Task Name'); ?></th>
+                        <th><?php print t('Owner'); ?></th>
+                        <th><?php print t('Assigned'); ?></th>
+                        <th style="display:<?php print $show_otaskaction ?>;"><?php print t('Action'); ?></th>
+                    </tr>
+                        <?php
+                        foreach ($outstanding_tasks as $otask) { ?>
+                        <tr>
+                          <td><?php print $otask->taskname ?></td>
+                          <td><?php print $otask->owner ?></td>
+                          <td><?php print $otask->assigned_date ?></td>
+                          <td><?php
+                            if ($workflow_admin) {
+                              ?>
+                              <form style="margin:0px;">
+                                  <input type="hidden" name="variable_id" value="<?php print $otask->variable_id; ?>">
+                                  <input type="hidden" name="taskuser" value="<?php print $otask->taskuser ?>">
+                                  <input type="hidden" name="taskassign_mode" value="<?php print $otask->taskassign_mode; ?>">
+                                  <input type="hidden" name="id" value="<?php print $otask->task_id; ?>">
+                                  <select name="task_reassign_uid">
+                                      <option value="0"><?php print t('Assign to user'); ?></option>
+                                        <?php
+                                          foreach ($reassign_user_options as $user_id => $user_name) {
+                                        ?>
+                                            <option value="<?php print $user_id; ?>"><?php print $user_name; ?></option>
+                                        <?php
+                                           }
+                                        ?>
+                                  </select>
+                                  <input type="button" name="op" value="<?php print t('Re-Assign'); ?>" onClick="ajaxUpdateTaskAssignment(<?php print $rowid; ?>,<?php print $tracking_id; ?>,this.form.task_reassign_uid.value,<?php print $otask->task_id; ?>,<?php print $otask->variable_id; ?>);">
+                              </form>
+                            <?php
+                            } else {
+                              print '&nbsp;';
+                            }
+                            ?>
+                         </td>
+
+                        </tr>
+                        <?php
+                        }
+                        ?>
+                </table>
+            </div>
         </fieldset>
         </div>
         <div class="taskdetail taskdetailClosedRec<?php print $rowid; ?>" id="outstandingTasksClosed_rec<?php print $rowid; ?>" style="padding:5px 19px;">

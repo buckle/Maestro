@@ -594,7 +594,47 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
   }
 
   $variables['task_history'] = maestro_getProjectTasksHistory($task->tracking_id);
-  $variables['outstanding_tasks'] = maestro_getOutstandingTasks($task->tracking_id);
+
+  /* Format Outstanding Tasks Object to be used in the template */
+  $arr_otasks = array();  // Array of outstanding tasks objects
+  $query = db_select('maestro_process','process');
+  $query->join('maestro_queue', 'queue', 'queue.process_id = process.id');
+  $query->join('maestro_template_data', 'template', 'queue.template_data_id = template.id');
+  $query->join('maestro_production_assignments', 'assignment', 'assignment.task_id = queue.id');
+  $query->join('users', 'user', 'user.uid = assignment.uid');
+  $query->fields('queue', array('process_id','created_date','started_date','completed_date','status'));
+  $query->fields('template', array('taskname','is_dynamic_taskname','dynamic_taskname_variable_id'));
+  $query->fields('assignment', array('uid','process_variable'));
+  $query->addField('queue','id','queue_id');
+  $query->addField('user','name','username');
+  $query->addField('process','tracking_id','tracking_id');
+  $query->condition('process.tracking_id', $task->tracking_id, '=');
+  $query->condition('queue.status',0,'=');
+  $res = $query->execute();
+  foreach ($res as $record) {
+     $otask = new stdClass();
+     $otask->assigned_date = strftime("%b %d/%Y %H:%M",$record->created_date);
+     $otask->task_id = $record->queue_id;
+     $otask->taskname = $record->taskname;
+     $otask->taskuser = $record->uid;
+     $otask->owner = $record->username;
+     $otask->variable_id = $record->process_variable;
+     if ($otask->variable_id > 0) {
+      $otask->taskassign_mode = 'variable';
+     } else {
+      $otask->taskassign_mode = 'user';
+     }
+     $variables['outstanding_tasks'][] = $otask;
+  }
+
+  $res = db_select('users','users')
+    ->fields('users', array('uid','name'))
+    ->condition('uid', 0, '>')
+    ->execute();
+  foreach ($res as $rec) {
+    $variables['reassign_user_options'][$rec->uid] = $rec->name;
+  }
+
 
 
 }
@@ -989,48 +1029,12 @@ function maestro_getProjectTasksHistory($tracking_id) {
      foreach ($res as $record) {
        $assigned = strftime("%b %d/%Y %H:%M",$record->created_date);
        $started = strftime("%b %d/%Y %H:%M",$record->started_date);
-       $completed = strftime("%b %d/%Y %H:%M",$record->completed_date);
+       $completed = strftime("%b %d/%Y %H:%M",$record->started_date);
        $status = 'completed';
        $rows[] = array($record->taskname,$record->username,$assigned,$started,$completed,$status);
      }
      if ( count($rows) ) {
-        $retval = theme('table', array('header' => $header, 'rows' => $rows));
-     }
-     return $retval;
- }
-
- /* Retrieve the outstanding tasks for a maestro project (all related workflow instances) */
-function maestro_getOutstandingTasks($tracking_id) {
-
-    $query = db_select('maestro_process','process');
-    $query->join('maestro_queue', 'queue', 'queue.process_id = process.id');
-    $query->join('maestro_template_data', 'template', 'queue.template_data_id = template.id');
-    $query->fields('queue', array('process_id','created_date','started_date','completed_date','status'));
-    $query->fields('template', array('taskname','is_dynamic_taskname','dynamic_taskname_variable_id'));
-    $query->addField('queue','id','queue_id');
-    $query->condition('process.tracking_id', $tracking_id, '=');
-    $query->condition('queue.status',0,'=');
-    $res = $query->execute();
-
-     $retval = '';
-     $header = array(
-       array('data' => t('Task Name'), 'field' => 'taskname'),
-       array('data' => t('Owner'), 'field' => 'owner'),
-       array('data' => t('Assigned'), 'field' => 'assigned'),
-       array('data' => t('Started'), 'field' => 'started'),
-       array('data' => t('Completed'), 'field' => 'completed'),
-       array('data' => t('Status'), 'field' => 'status'));
-     $rows = array();
-
-     foreach ($res as $record) {
-       $assigned = strftime("%b %d/%Y %H:%M",$record->created_date);
-       $started = strftime("%b %d/%Y %H:%M",$record->started_date);
-       $completed = strftime("%b %d/%Y %H:%M",$record->started_date);
-       $status = 'completed';
-       $rows[] = array($record->taskname,'',$assigned,$started,$completed,$status);
-     }
-     if ( count($rows) ) {
-        $retval = theme('table', array('header' => $header, 'rows' => $rows));
+        $retval = theme('table', array('header' => $header, 'rows' => $rows), array('sticky' => TRUE));
      }
      return $retval;
  }
