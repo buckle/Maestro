@@ -1,13 +1,14 @@
   <div class="taskconsoleActionRec" style="min-width:600px;">
-    <span style="padding:0px 0px 15px 10px;"><a id="expand{rowid}" href="#" onClick='expandall({rowid});'>Expand All</a></span>
-    <span style="padding:0px 0px 15px 20px;display:{hiderequestlink};">[&nbsp;<a href="{project_link}">Request Link</a>&nbsp;]</span>
-        <div id="newcomment_{rowid}" style="padding-top:10px;display:none;">
-            <form name="fprjcmt_{rowid}" id="fprjcmt_{rowid}" ACTION="{actionurl}" METHOD="post" style="margin:0px;">
-                <fieldset><legend><b>New Comment</b></legend>
+    <span id="expandProject<?php print $rowid; ?>" style="padding:0px 0px 15px 10px;"><a href="#" onClick='projectDetailToggleAll("expand",<?php print $rowid; ?>);return false;'><?php print t('Expand All'); ?></a></span>
+    <span id="collapseProject<?php print $rowid; ?>" style="padding:0px 0px 15px 10px;display:none;"><a href="#" onClick='projectDetailToggleAll("collapse",<?php print $rowid; ?>);return false;'><?php print t('Collapse All'); ?></a></span>
+    <span style="padding:0px 0px 15px 20px;display:<?php print $hiderequestlink ?>;">[&nbsp;<a href="<?php print $project_link ?>" onclick="alert('Not yet implemented');return false;"><?php print t('Request Link'); ?></a>&nbsp;]</span>
+        <div id="newcomment_{<?php print $rowid; ?>}" style="padding-top:10px;display:none;">
+            <form name="fprjcmt_{<?php print $rowid; ?>}" id="fprjcmt_{<?php print $rowid; ?>}" ACTION="{actionurl}" METHOD="post" style="margin:0px;">
+                <fieldset><legend><b><?php print t('New Comment'); ?></b></legend>
                 <div style="padding:5px;"><TEXTAREA id="newcomment{project_id}" name="comment" cols="100" rows="3"></TEXTAREA></div>
                 <div style="padding-left:50px;">
-                    <input type="button" value="Cancel" onClick="document.getElementById('newcomment_{rowid}').style.display='none';">&nbsp;
-                    <input type="button" value="Add Comment" onClick="ajaxProjectComment('addcomment',{rowid},{project_id},{taskuser});">
+                    <input type="button" value="<?php print t('Cancel'); ?>" onClick="document.getElementById('newcomment_{<?php print $rowid; ?>}').style.display='none';">&nbsp;
+                    <input type="button" value="<?php print t('Add Comment'); ?>" onClick="ajaxProjectComment('addcomment',{<?php print $rowid; ?>},{project_id},{taskuser});">
                     <input type="hidden" name="projectid" value="{project_id}">
                     <input type="hidden" name="taskuser" value="{taskuser}">
                 </div>
@@ -15,136 +16,117 @@
             </form>
         </div>
 
-        <div class="taskdetail" id="summaryOpen_rec{rowid}">
+        <div class="taskdetail taskdetailOpenRec<?php print $rowid; ?>" id="summaryOpen_rec<?php print $rowid; ?>">
         <fieldset>
             <legend>
                 <span>
-                    <img src="{layout_url}/images/collapse.png" border="0" onClick="togglerec('summaryOpen_',{rowid})">
-                        <b>Summary</b>
+                    <img src="<?php print $module_base_url; ?>/images/taskconsole/collapse.png" border="0" onClick="toggleProjectSection('summary','Open',<?php print $rowid; ?>)">
+                        <span onClick="toggleProjectSection('summary','Open',<?php print $rowid; ?>)"><b><?php print t('Summary'); ?></b></span>
                 </span>
             </legend>
             <table class="pluginSubTable" cellpadding="0" cellspacing="0" width="98%" border="0" style="margin:10px 5px 5px 5px;">
                 <tr class="taskconsolesummary">
-                    <td width="160">Flow Name:</td><td><?php print $flow_description ?></td>
-                </tr>
-
-                <tr class="taskconsolesummary">
-                    <td width="160">Flow Tracking ID</td><td><?php print $flow_tracking_number ?></td>
+                    <td width="160"><?php print t('Flow Name'); ?>:</td><td><?php print $flow_description ?></td>
                 </tr>
                 <tr class="taskconsolesummary">
-                    <td width="160">Status:</td>
-                    <td nowrap>{project_status}{special_status_action}
-                        <span style="padding-left:20px;">{delete_project_action}</span>
+                    <td width="160"><?php print t('Flow Tracking ID'); ?></td><td><?php print $flow_tracking_number ?></td>
+                </tr>
+                <tr class="taskconsolesummary">
+                    <td width="160"><?php print t('Status'); ?>:</td>
+                    <td nowrap><?php print $variables['project_status']; print $variables['special_status_action']; ?>
+                        <span style="padding-left:20px;"><?php print $variables['delete_project_action'] ?></span>
                     </td>
                 </tr>
                 <?php print $custom_workflow_summary ?>
             </table>
         </fieldset>
         </div>
-        <div class="taskdetail" id="summaryClosed_rec{rowid}" style="padding:5px 19px;display:none;">
+        <div class="taskdetail taskdetailClosedRec<?php print $rowid; ?>" id="summaryClosed_rec<?php print $rowid; ?>" style="padding:5px 19px;display:none;">
             <legend>
                 <span>
-                    <img src="{layout_url}/images/expand.png" border="0" onClick="togglerec('summaryClosed_',{rowid})">
-                        <b>Summary</b>
+                    <img src="<?php print $module_base_url; ?>/images/taskconsole/expand.png" border="0" onClick="toggleProjectSection('summary','Closed',<?php print $rowid; ?>)">
+                        <span onClick="toggleProjectSection('summary','Closed',<?php print $rowid; ?>)"><b><?php print t('Summary'); ?></b></span>
                 </span>
             </legend>
         </div>
 
-        <div class="taskdetail" id="projectformsOpen_rec{rowid}" style="display:none;">
+        <div class="taskdetail taskdetailOpenRec<?php print $rowid; ?>" id="projectContentOpen_rec<?php print $rowid; ?>" style="display:none;">
         <fieldset>
             <legend>
                 <span>
-                    <img src="{layout_url}/images/collapse.png" border="0" onClick="togglerec('projectformsOpen_',{rowid})">
-                        <b>Forms</b>
+                    <img src="<?php print $module_base_url; ?>/images/taskconsole/collapse.png" border="0" onClick="toggleProjectSection('projectContent','Open',<?php print $rowid; ?>)">
+                        <span onClick="toggleProjectSection('projectContent','Open',<?php print $rowid; ?>)"><b><?php print t('Content'); ?></b>
                 </span>
             </legend>&nbsp;
-            {form_records}
+            {content_records}
         </fieldset>
         </div>
 
-        <div class="taskdetail" id="projectformsClosed_rec{rowid}" style="padding:5px 19px;">
+        <div class="taskdetail taskdetailClosedRec<?php print $rowid; ?>" id="projectContentClosed_rec<?php print $rowid; ?>" style="padding:5px 19px;">
             <legend>
                 <span>
-                    <img src="{layout_url}/images/expand.png" border="0" onClick="togglerec('projectformsClosed_',{rowid})">
-                        <b>Forms</b>
+                    <img src="<?php print $module_base_url; ?>/images/taskconsole/expand.png" border="0" onClick="toggleProjectSection('projectforms','Closed',<?php print $rowid; ?>)">
+                        <span onClick="toggleProjectSection('projectContent','Closed',<?php print $rowid; ?>)"><b><?php print t('Content'); ?></b></span>
                 </span>
             </legend>
         </div>
 
-        <div class="taskdetail" id="outstandingTasksOpen_rec{rowid}" style="display:none;">
+        <div class="taskdetail taskdetailOpenRec<?php print $rowid; ?>" id="outstandingTasksOpen_rec<?php print $rowid; ?>" style="display:none;">
         <fieldset>
             <legend>
                 <span>
-                    <img src="{layout_url}/images/collapse.png" border="0" onClick="togglerec('outstandingTasksOpen_',{rowid})">
-                        <b>Outstanding Tasks</b>
+                    <img src="<?php print $module_base_url; ?>/images/taskconsole/collapse.png" border="0" onClick="toggleProjectSection('outstandingTasks','Open',<?php print $rowid; ?>)">
+                        <span onClick="toggleProjectSection('outstandingTasks','Open',<?php print $rowid; ?>)"><b><?php print t('Outstanding Tasks'); ?></b></span>
                 </span>
             </legend>
-            <div id="outstanding_task_rec{rowid}">
-                <table class="pluginSubTable" cellpadding="0" cellspacing="1" width="99%" border="0" style="margin:10px 5px 5px 5px;">
-                    <tr>
-                        <th>Task Name</th>
-                        <th>Owner</th>
-                        <th>Assigned</th>
-                        <th style="display:{show_otaskaction};">Action</th>
-                    </tr>
-                        {outstandingtask_records}
-                </table>
-            </div>
+            <div id="outstanding_task_rec<?php print $rowid; ?>">
+              <?php print $outstanding_tasks; ?>
+           </div>
         </fieldset>
         </div>
-        <div class="taskdetail" id="outstandingTasksClosed_rec{rowid}" style="padding:5px 19px;">
+        <div class="taskdetail taskdetailClosedRec<?php print $rowid; ?>" id="outstandingTasksClosed_rec<?php print $rowid; ?>" style="padding:5px 19px;">
             <legend>
                 <span>
-                    <img src="{layout_url}/images/expand.png" border="0" onClick="togglerec('outstandingTasksClosed_',{rowid})">
-                        <b>Outstanding Tasks</b>
+                    <img src="<?php print $module_base_url; ?>/images/taskconsole/expand.png" border="0" onClick="toggleProjectSection('outstandingTasks','Closed',<?php print $rowid; ?>)">
+                        <span onClick="toggleProjectSection('outstandingTasks','Closed',<?php print $rowid; ?>)"><b><?php print t('Outstanding Tasks'); ?></b></span>
                 </span>
             </legend>
         </div>
-        <div class="taskdetail" id="tasklogOpen_rec{rowid}" style="display:none;">
+        <div class="taskdetail taskdetailOpenRec<?php print $rowid; ?>" id="tasklogOpen_rec<?php print $rowid; ?>" style="display:none;">
         <fieldset>
             <legend>
                 <span>
-                    <img src="{layout_url}/images/collapse.png" border="0" onClick="togglerec('tasklogOpen_',{rowid})">
-                        <b>Task History</b>
+                    <img src="<?php print $module_base_url; ?>/images/taskconsole/collapse.png" border="0" onClick="toggleProjectSection('tasklog','Open',<?php print $rowid; ?>)">
+                        <span onClick="toggleProjectSection('tasklog','Open',<?php print $rowid; ?>)"><b><?php print t('Task History'); ?></b></span>
                 </span>
             </legend>
-            <table class="pluginSubTable" cellpadding="0" cellspacing="1" border="0" width="99%" style="margin:10px 5px 5px 5px;">
-                <tr>
-                    <th>Task Name</th>
-                    <th>Owner</th>
-                    <th>Assigned</th>
-                    <th>Started</th>
-                    <th>Completed</th>
-                    <th>Status</th>
-                </tr>
-                    {task_records}
-            </table>
+            <?php print $task_history; ?>
         </fieldset>
         </div>
-        <div class="taskdetail" id="tasklogClosed_rec{rowid}" style="padding:5px 19px;">
+        <div class="taskdetail taskdetailClosedRec<?php print $rowid; ?>" id="tasklogClosed_rec<?php print $rowid; ?>" style="padding:5px 19px;">
             <legend>
                 <span>
-                    <img src="{layout_url}/images/expand.png" border="0" onClick="togglerec('tasklogClosed_',{rowid})">
-                        <b>Task History</b>
+                    <img src="<?php print $module_base_url; ?>/images/taskconsole/expand.png" border="0" onClick="toggleProjectSection('tasklog','Closed',<?php print $rowid; ?>)">
+                        <span onClick="toggleProjectSection('tasklog','Closed',<?php print $rowid; ?>)"><b><?php print t('Task History'); ?></b></span>
                 </span>
             </legend>
         </div>
-        <div class="taskdetail" id="projectCommentsOpen_rec{rowid}" style="display:none;">
+        <div class="taskdetail taskdetailOpenRec<?php print $rowid; ?>" id="projectCommentsOpen_rec<?php print $rowid; ?>" style="display:none;">
         <fieldset>
             <legend>
                 <span>
-                    <img src="{layout_url}/images/collapse.png" border="0" onClick="togglerec('projectCommentsOpen_',{rowid})">
-                        <b>Comments</b>
+                    <img src="<?php print $module_base_url; ?>/images/taskconsole/collapse.png" border="0" onClick="toggleProjectSection('projectComments','Open',<?php print $rowid; ?>)">
+                        <span onClick="toggleProjectSection('projectComments','Open',<?php print $rowid; ?>)"><b><?php print t('Comments'); ?></b></span>
                 </span>
             </legend>
             {comment_records}
         </fieldset>
         </div>
-        <div class="taskdetail" id="projectCommentsClosed_rec{rowid}" style="padding:5px 19px;">
+        <div class="taskdetail taskdetailClosedRec<?php print $rowid; ?>" id="projectCommentsClosed_rec<?php print $rowid; ?>" style="padding:5px 19px;">
             <legend>
                 <span>
-                    <img src="{layout_url}/images/expand.png" border="0" onClick="togglerec('projectCommentsClosed_',{rowid})">
-                        <b>Comments</b>
+                    <img src="<?php print $module_base_url; ?>/images/taskconsole/expand.png" border="0" onClick="toggleProjectSection('projectComments','Closed',<?php print $rowid; ?>)">
+                        <span onClick="toggleProjectSection('projectComments','Closed',<?php print $rowid; ?>)"><b><?php print t('Comments'); ?></b> </span>
                 </span>
             </legend>
         </div>

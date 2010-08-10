@@ -592,6 +592,9 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
     $variables['delete_project_action'] = '';
   }
 
+  $variables['task_history'] = maestro_getProjectTasksHistory($task->tracking_id);
+  $variables['outstanding_tasks'] = maestro_getOutstandingTasks($task->tracking_id);
+
 
 }
 
@@ -956,3 +959,77 @@ function maestro_getNodeId($process_id,$content_type) {
   }
 }
 
+
+/* Retrieve the task history for a maestro project (all related workflow instances) */
+function maestro_getProjectTasksHistory($tracking_id) {
+
+    $query = db_select('maestro_process','process');
+    $query->join('maestro_queue', 'queue', 'queue.process_id = process.id');
+    $query->join('maestro_template_data', 'template', 'queue.template_data_id = template.id');
+    $query->join('users', 'users', 'users.uid = queue.uid');
+    $query->fields('queue', array('process_id','created_date','started_date','completed_date','status'));
+    $query->fields('template', array('taskname','is_dynamic_taskname','dynamic_taskname_variable_id'));
+    $query->addField('users','name','username');
+    $query->addField('queue','id','queue_id');
+    $query->condition('process.tracking_id', $tracking_id, '=');
+    $query->condition(db_or()->condition('queue.completed_date',0,'>')->condition('queue.status',2,'='));
+    $res = $query->execute();
+
+     $retval = '';
+     $header = array(
+       array('data' => t('Task Name'), 'field' => 'taskname'),
+       array('data' => t('Owner'), 'field' => 'owner'),
+       array('data' => t('Assigned'), 'field' => 'assigned'),
+       array('data' => t('Started'), 'field' => 'started'),
+       array('data' => t('Completed'), 'field' => 'completed'),
+       array('data' => t('Status'), 'field' => 'status'));
+     $rows = array();
+
+     foreach ($res as $record) {
+       $assigned = strftime("%b %d/%Y %H:%M",$record->created_date);
+       $started = strftime("%b %d/%Y %H:%M",$record->started_date);
+       $completed = strftime("%b %d/%Y %H:%M",$record->started_date);
+       $status = 'completed';
+       $rows[] = array($record->taskname,$record->username,$assigned,$started,$completed,$status);
+     }
+     if ( count($rows) ) {
+        $retval = theme('table', array('header' => $header, 'rows' => $rows));
+     }
+     return $retval;
+ }
+
+ /* Retrieve the outstanding tasks for a maestro project (all related workflow instances) */
+function maestro_getOutstandingTasks($tracking_id) {
+
+    $query = db_select('maestro_process','process');
+    $query->join('maestro_queue', 'queue', 'queue.process_id = process.id');
+    $query->join('maestro_template_data', 'template', 'queue.template_data_id = template.id');
+    $query->fields('queue', array('process_id','created_date','started_date','completed_date','status'));
+    $query->fields('template', array('taskname','is_dynamic_taskname','dynamic_taskname_variable_id'));
+    $query->addField('queue','id','queue_id');
+    $query->condition('process.tracking_id', $tracking_id, '=');
+    $query->condition('queue.status',0,'=');
+    $res = $query->execute();
+
+     $retval = '';
+     $header = array(
+       array('data' => t('Task Name'), 'field' => 'taskname'),
+       array('data' => t('Owner'), 'field' => 'owner'),
+       array('data' => t('Assigned'), 'field' => 'assigned'),
+       array('data' => t('Started'), 'field' => 'started'),
+       array('data' => t('Completed'), 'field' => 'completed'),
+       array('data' => t('Status'), 'field' => 'status'));
+     $rows = array();
+
+     foreach ($res as $record) {
+       $assigned = strftime("%b %d/%Y %H:%M",$record->created_date);
+       $started = strftime("%b %d/%Y %H:%M",$record->started_date);
+       $completed = strftime("%b %d/%Y %H:%M",$record->started_date);
+       $status = 'completed';
+       $rows[] = array($record->taskname,'',$assigned,$started,$completed,$status);
+     }
+     if ( count($rows) ) {
+        $retval = theme('table', array('header' => $header, 'rows' => $rows));
+     }
+     return $retval;
+ }
