@@ -67,9 +67,9 @@ function maestro_handle_structure_ajax_request(){
       if(variable_get('maestro_enable_import_window',0) == 1) {
         $templatecode=($_POST['templatecode']);
         //Lets see if someone has tried to do something "evil".
-        if(strpos(strtolower($templatecode),'delete') === FALSE ||
-           strpos(strtolower($templatecode),'drop') === FALSE ||
-           strpos(strtolower($templatecode),'truncate') === FALSE ) {
+        if(strpos(strtolower($templatecode),'delete') !== FALSE ||
+           strpos(strtolower($templatecode),'drop') !== FALSE ||
+           strpos(strtolower($templatecode),'truncate') !== FALSE ) {
             $status = -1;
             }
         else {
