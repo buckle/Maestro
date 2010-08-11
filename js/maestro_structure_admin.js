@@ -487,7 +487,12 @@ jQuery(function($) {
 	        		jQuery('#importSuccessMessage').removeClass('maestro_hide_item');
 	        		jQuery('#importSuccessMessage').addClass('maestro_show_item');  
 					jQuery('#maestro_template_admin').html(data.data);
-	        	} 
+	        	}
+	        	else if(data.status == -1) {
+	        		maestro_hideImportMessages();
+	        		jQuery('#importProblemMessage').removeClass('maestro_hide_item');
+	        		jQuery('#importProblemMessage').addClass('maestro_show_item');     
+	        	}
 	        	else {
 	        		maestro_hideImportMessages();
 	        		jQuery('#importFailureMessage').removeClass('maestro_hide_item');
@@ -515,5 +520,9 @@ function maestro_hideImportMessages() {
 	jQuery('#importFailureMessage').removeClass('maestro_show_item');
 	jQuery('#importFailureMessage').addClass('maestro_hide_item');     
 	jQuery('#importSuccessMessage').removeClass('maestro_show_item');
-	jQuery('#importSuccessMessage').addClass('maestro_hide_item');     
+	jQuery('#importSuccessMessage').addClass('maestro_hide_item');    
+	jQuery('#importProblemMessage').removeClass('maestro_show_item');
+	jQuery('#importProblemMessage').addClass('maestro_hide_item');    
+	
+	
 }

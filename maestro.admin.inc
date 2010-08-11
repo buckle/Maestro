@@ -66,13 +66,22 @@ function maestro_handle_structure_ajax_request(){
       $status = 0;
       if(variable_get('maestro_enable_import_window',0) == 1) {
         $templatecode=($_POST['templatecode']);
-        try{
-          $ret=eval($templatecode);
-          $status = 1;
+        //Lets see if someone has tried to do something "evil".
+        if(strpos(strtolower($templatecode),'delete') === FALSE ||
+           strpos(strtolower($templatecode),'drop') === FALSE ||
+           strpos(strtolower($templatecode),'truncate') === FALSE ) {
+            $status = -1;
+            }
+        else {
+          try {
+            $ret=eval($templatecode);
+            $status = 1;
+          }
+          catch (Exception $ex) {
+            $status = 0;
+          }
         }
-        catch (Exception $ex) {
-          $status = 0;
-        }
+
       }
       $data=theme('maestro_workflow_list', array('tid' => 0, 'operation' => '' , 'edit_var' => 0));
       $arr=array('data' => $data, 'status' => $status);

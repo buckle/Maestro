@@ -26,6 +26,10 @@ var ajax_url = '<?php print filter_xss($ajax_url); ?>';
           <?php print t('Only import workflows from a trusted and reliable source.  You\'ve been warned!'); ?><br>
         </div>
         <?php print t('Please paste your import code below:'); ?><br>
+        <div id="importProblemMessage" class="maestro_hide_item" style="color: red; font-size: 1.5em;">
+          <?php print t('Import code has illegal instructions.  Import has been aborted.'); ?>
+          <br></br>
+        </div>
         <div id="importSuccessMessage" class="maestro_hide_item" style="color: green;">
           <?php print t('Import completed successfully.'); ?>
           <?php print t('Click '); ?>
