@@ -745,31 +745,27 @@
           watchdog('maestro',"Complete_task - updating queue item: $qid, project (tracking id): $trackingId");
       }
 
-      if ($this->_userId == '' or $this->_userId == null ) {
-        $assigned_uid = db_query("SELECT uid FROM {maestro_production_assignments} WHERE task_id = :qid",
-                        array(':qid' => $qid))->fetchField();
-      } else {
-        $assigned_uid = $this->_userId;
+      //check if this task is interactive.  If interactive, assigned_uid is the user assigned.  else, its a 0 as its engine run.
+      $is_interactive = db_query("SELECT is_interactive FROM {maestro_queue} WHERE id = :qid",
+              array(':qid' => $qid))->fetchField();
+              watchdog('maestro','maestro testing of assignment stuff.  qid: ' . $qid . ' and is_interactive is set to ' . $is_interactive);
+      if($is_interactive == 1) {
+        if ($this->_userId == '' or $this->_userId == null ) {
+          $assigned_uid = db_query("SELECT uid FROM {maestro_production_assignments} WHERE task_id = :qid",
+                          array(':qid' => $qid))->fetchField();
+        } else {
+          $assigned_uid = $this->_userId;
+        }
+      }
+      else {
+        $assigned_uid = 0;
       }
 
-      if ($this->_userId == '' or $this->_userId == null ) {
-          if ($assigned_uid == '' OR $assigned_uid == null) {
-            db_update('maestro_queue')
-              ->fields(array('uid' => NULL, 'status' => $status, 'run_once' => 0))
-              ->condition('id',$qid,'=')
-              ->execute();
-          } else {
-            db_update('maestro_queue')
-              ->fields(array('uid' => $assigned_uid , 'status' => $status, 'run_once' => 0))
-              ->condition('id',$qid,'=')
-              ->execute();
-          }
-      } else {
-          db_update('maestro_queue')
-            ->fields(array('uid' => $this->_userId , 'status' => $status, 'run_once' => 0))
-            ->condition('id',$qid,'=')
-            ->execute();
-      }
+      db_update('maestro_queue')
+        ->fields(array('uid' => $assigned_uid , 'status' => $status, 'run_once' => 0))
+        ->condition('id',$qid,'=')
+        ->execute();
+
       // Self Prune Production Assignment table - delete the now completed task assignment record
       db_delete('maestro_production_assignments')
         ->condition('task_id',$qid,'=')
