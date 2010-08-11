@@ -18,16 +18,29 @@
       <?php print l('<img src="' . $module_path . '/images/admin/export.gif" border="0" title="' . t('Export Template') .'">', 'admin/structure/maestro/export/' . $rec->id, array('html' => TRUE)); ?>&nbsp;
       </td>
     </tr>
-    <tr id="tedit<?php print $cntr; ?>" style="vertical-align:top;display:<?php print $show_export_item; ?>;">
+    <tr id="texport<?php print $cntr; ?>" style="vertical-align:top;display:<?php print $show_export_item; ?>;">
       <td colspan="3">
         <table>
         <tr>
           <td width="40%">
             <?php print t('The following is the template creation code for template '); ?><?php print filter_xss($rec->template_name); ?>:<br>
-            <textarea id="templateoutout<?php print $rec->id; ?>" rows="15" cols="100" style="border: solid gray 1px;"><?php print $export_content; ?></textarea>
+            <textarea id="templateout<?php print $rec->id; ?>" rows="15" cols="100" style="border: solid gray 1px;"><?php print $export_content; ?></textarea>
           </td>
           <td>
-          <?php print t('The output of your template has been generated.  Copy the contents of the output to the left.'); ?>
+          <table style="border: none; width: 100%;">
+          <tr>
+            <td style="text-align: right;">
+              <?php print l('<input class="form-submit" type="button" value="' . t('Close') . '">', 'admin/structure/maestro', array('html' => TRUE)); ?>
+            </td>
+          </tr>
+          <tr>
+            <td>
+            <?php print t('The output of your template has been generated.  Copy the contents of the output to the left.'); ?>
+            </td>
+          </tr>
+          </table>
+
+
           </td>
         </tr>
         </table>
