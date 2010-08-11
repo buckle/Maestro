@@ -748,7 +748,6 @@
       //check if this task is interactive.  If interactive, assigned_uid is the user assigned.  else, its a 0 as its engine run.
       $is_interactive = db_query("SELECT is_interactive FROM {maestro_queue} WHERE id = :qid",
               array(':qid' => $qid))->fetchField();
-              watchdog('maestro','maestro testing of assignment stuff.  qid: ' . $qid . ' and is_interactive is set to ' . $is_interactive);
       if($is_interactive == 1) {
         if ($this->_userId == '' or $this->_userId == null ) {
           $assigned_uid = db_query("SELECT uid FROM {maestro_production_assignments} WHERE task_id = :qid",
