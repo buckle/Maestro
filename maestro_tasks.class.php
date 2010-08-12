@@ -310,24 +310,27 @@ class MaestroTaskTypeAnd extends MaestroTask {
 
     $query = db_select('maestro_queue', 'a');
     $query->join('maestro_template_data_next_step', 'b', 'a.template_data_id = b.template_data_to OR a.template_data_id=b.template_data_to_false');
-    $query->addExpression('COUNT(a.id)','templateCount');
+    $query->addExpression('COUNT(a.id)','templatecount');
     $query->condition("a.id",$this->_properties->id,"=");
     $numComplete = $query->execute()->fetchObject();
 
     $query = db_select('maestro_queue_from', 'a');
     $query->join('maestro_queue', 'b', 'a.from_queue_id = b.id');
-    $query->addExpression('COUNT(a.id)','processCount');
+    $query->addExpression('COUNT(a.id)','processcount');
     $query->condition(db_and()->condition("a.queue_id",$this->_properties->id,"=")->condition("b.process_id",$this->_properties->process_id,"="));
     $numIncomplete = $query->execute()->fetchObject();
+
     // sounds confusing, but if the processCount is greater than the completed ones, we're ok too
+    $this->executionStatus = TRUE;
     if ($numIncomplete->processcount == $numComplete->templatecount || $numIncomplete->processcount > $numComplete->templatecount ) {
       // All of the incoming items done for this AND we can now carry out updating this queue item's information
       $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
     } else {
       // Not all the incomings for the AND are done - can not complete task yet
       $this->completionStatus = FALSE;
+      $this->executionStatus = FALSE;
     }
-    $this->executionStatus = TRUE;
+
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
     return $this;
   }
