@@ -58,7 +58,12 @@
                         <span onClick="toggleProjectSection('projectContent','Open',<?php print $rowid; ?>)"><b><?php print t('Content'); ?></b>
                 </span>
             </legend>&nbsp;
-            {content_records}
+            <?php
+              foreach ($content_records as $nid => $title) {  ?>
+                <div><a href="<?php print "{$base_url}/node/{$nid}/edit/maestro/edit/"; ?>"><?php print $title; ?></a> </div>
+            <?php
+              }
+            ?>
         </fieldset>
         </div>
 
@@ -88,8 +93,9 @@
                         <th style="display:<?php print $show_otaskaction ?>;"><?php print t('Action'); ?></th>
                     </tr>
                         <?php
+                        $class = 'odd';
                         foreach ($outstanding_tasks as $otask) { ?>
-                        <tr>
+                          <tr class="<?php print $class; ?>">
                           <td><?php print $otask->taskname ?></td>
                           <td><?php print $otask->owner ?></td>
                           <td><?php print $otask->assigned_date ?></td>
@@ -123,6 +129,7 @@
 
                         </tr>
                         <?php
+                        $class = ($class == 'odd') ? 'even' : 'odd';
                         }
                         ?>
                 </table>
@@ -164,7 +171,20 @@
                         <span onClick="toggleProjectSection('projectComments','Open',<?php print $rowid; ?>)"><b><?php print t('Comments'); ?></b></span>
                 </span>
             </legend>
-            {comment_records}
+            <?php
+              foreach ($comment_records as $comment) {  ?>
+              <!--
+                <div class="comment">
+                     <img src="<?php print $module_base_url; ?>/images/taskconsole/comment.gif" alt="" align="middle" border="0" height="16" width="16">&nbsp;Comment by: {comment_username} on {comment_date}&nbsp;{comment_del_link}&nbsp;{comment_add_link}<br>
+                    <div style="padding-bottom:5px;">{comment_taskname}</div>
+                -->
+                    <div class="boxed elementUpdated"><p><?php print $comment; ?></p></div>
+                <!--
+                  </div>
+                -->
+                <?php
+              }
+              ?>
         </fieldset>
         </div>
         <div class="taskdetail taskdetailClosedRec<?php print $rowid; ?>" id="projectCommentsClosed_rec<?php print $rowid; ?>" style="padding:5px 19px;">
