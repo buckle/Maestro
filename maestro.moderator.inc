@@ -18,6 +18,8 @@ function maestro_outstanding_tasks($op='', $qid=0, $other=NULL) {
   $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
   $m = $maestro->engine();
 
+  $show_system_tasks = intval(@($_POST['show_system_tasks']));
+
   switch ($op) {
   case 'reassign':
     $m->reassignTask($qid, $_POST['current_uid'], $_POST['reassign_uid']);
@@ -36,14 +38,14 @@ function maestro_outstanding_tasks($op='', $qid=0, $other=NULL) {
 
   default:
     $maestro->engine()->setMode('admin');
-    $q = $m->getQueue();
+    $q = $m->getQueue(TRUE);
 
     $query = db_select('users', 'a');
     $query->fields('a', array('uid', 'name'));
     $query->condition('a.uid', 0, '>');
     $user_res = $query->execute();
 
-    return theme('maestro_outstanding_tasks', array('maestro_url' => $maestro_url, 'maestro' => $m, 'queue' => $q, 'users' => $user_res));
+    return theme('maestro_outstanding_tasks', array('maestro_url' => $maestro_url, 'show_system_tasks' => $show_system_tasks, 'maestro' => $m, 'queue' => $q, 'users' => $user_res));
     break;
   }
 

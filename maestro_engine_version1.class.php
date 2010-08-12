@@ -794,7 +794,7 @@
          ->execute();
     }
 
-    function getQueue() {
+    function getQueue($show_system_tasks=FALSE) {
         if (!empty($this->_userId) AND $this->_userId > 0) {
          /* Instance where the user id is known.  need to see if there is a processID given.
           * This means that the mode in which we're working is user based.. we only care about a user in this case
@@ -823,6 +823,7 @@
             $query->condition('c.uid',$this->_userId,'=');
           }
           $query->condition(db_or()->condition('a.archived',0)->condition('a.archived',NULL));
+          $query->condition(db_and()->condition('a.status', 0, '>='));
           $userTaskResult = $query->execute();
           $numTaskRows = $query->countQuery()->execute()->fetchField();
           if ($numTaskRows == 0) {
