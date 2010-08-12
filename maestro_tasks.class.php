@@ -9,33 +9,18 @@ class MaestroTaskStatusCodes {
   CONST STATUS_ABORTED = 2;
   CONST STATUS_IF_CONDITION_FALSE = 3;
 
-  //example: MaestroTaskStatusCodes::getStatusLabel(MaestroTaskStatusCodes::STATUS_ABORTED)
-  public function getStatusLabel($var) {
-    $label = FALSE;
-    if(is_numeric($var)) {  // get the label by ID
-      switch($var) {
-        case -2:
-          $label = t('Deleted');
-          break;
-        case -1:
-          $label = t('On Hold');
-          break;
-        case 0:
-          $label = t('Ready');
-          break;
-        case 1:
-          $label = t('Complete');
-          break;
-        case 2:
-          $label = t('Aborted');
-          break;
-        case 3:
-          $label = t('If Condition False');
-          break;
-      }
-    }
-    return $label;
+  static public function getStatusLabel($var=NULL) {
+    $labels = array();
+    $labels[self::STATUS_DELETED] = t('Deleted');
+    $labels[self::STATUS_ON_HOLD] = t('On Hold');
+    $labels[self::STATUS_READY] = t('Ready');
+    $labels[self::STATUS_COMPLETE] = t('Complete');
+    $labels[self::STATUS_ABORTED] = t('Aborted');
+    $labels[self::STATUS_IF_CONDITION_FALSE] = t('If Condition False');
+
+    return ($var === NULL) ? $labels:$labels[$var];
   }
+
 }
 
 // Maestro Project or workflow instance entity status codes
@@ -46,29 +31,15 @@ class MaestroProjectStatusCodes {
   CONST STATUS_CANCELLED = 2;
   CONST STATUS_REGENERATED = 3;
 
-//example: MaestroProjectStatusCodes::getStatusLabel(MaestroProjectStatusCodes::STATUS_ON_HOLD)
-  public function getStatusLabel($var) {
-    $label = FALSE;
-    if(is_numeric($var)) {  // get the label by ID
-      switch($var) {
-        case -1:
-          $label = t('On Hold');
-          break;
-        case 0:
-          $label = t('Active');
-          break;
-        case 1:
-          $label = t('Completed');
-          break;
-        case 2:
-          $label = t('Cancelled');
-          break;
-        case 3:
-          $label = t('Regenerated');
-          break;
-      }
-    }
-    return $label;
+  static public function getStatusLabel($var=NULL) {
+    $labels = array();
+    $labels[self::STATUS_ON_HOLD] = t('On Hold');
+    $labels[self::STATUS_ACTIVE] = t('Active');
+    $labels[self::STATUS_COMPLETED] = t('Completed');
+    $labels[self::STATUS_CANCELLED] = t('Cancelled');
+    $labels[self::STATUS_REGENERATED] = t('Regenerated');
+
+    return ($var === NULL) ? $labels:$labels[$var];
   }
 }
 
@@ -79,26 +50,14 @@ class MaestroProcessStatusCodes {
   CONST STATUS_COMPLETED = 1;
   CONST STATUS_REGENERATED = 2;
 
-//example: MaestroProcessStatusCodes::getStatusLabel(MaestroProcessStatusCodes::STATUS_ON_HOLD)
-  public function getStatusLabel($var) {
-    $label = FALSE;
-    if(is_numeric($var)) {  // get the label by ID
-      switch($var) {
-        case -1:
-          $label = t('On Hold');
-          break;
-        case 0:
-          $label = t('Active');
-          break;
-        case 1:
-          $label = t('Completed');
-          break;
-        case 2:
-          $label = t('Regenerated');
-          break;
-      }
-    }
-    return $label;
+  static public function getStatusLabel($var=NULL) {
+    $labels = array();
+    $labels[self::STATUS_ON_HOLD] = t('On Hold');
+    $labels[self::STATUS_ACTIVE] = t('Active');
+    $labels[self::STATUS_COMPLETED] = t('Completed');
+    $labels[self::STATUS_REGENERATED] = t('Regenerated');
+
+    return ($var === NULL) ? $labels:$labels[$var];
   }
 }
 

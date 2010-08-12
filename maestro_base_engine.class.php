@@ -252,12 +252,38 @@
       $query = db_select('maestro_queue', 'a');
       $query->fields('a', array('id', 'process_id', 'status', 'archived'));
       $query->fields('c', array('taskname'));
+      $query->fields('d', array('name'));
       $query->leftJoin('maestro_process', 'b', 'a.process_id=b.id');
       $query->leftJoin('maestro_template_data', 'c', 'a.template_data_id=c.id');
+      $query->leftJoin('users', 'd', 'a.uid=d.uid');
       $query->condition('b.initiating_pid', $initiating_pid, '=');
       $query->orderBy('a.id', 'ASC');
+      $res = $query->execute();
 
-      return $query->execute();
+      $queue_history = array();
+      foreach ($res as $rec) {
+        if ($rec->archived != 1) {
+          $q2 = db_select('maestro_production_assignments', 'a');
+          $q2->fields('b', array('name'));
+          $q2->leftJoin('users', 'b', 'a.uid=b.uid');
+          $q2->condition('a.task_id', $rec->id, '=');
+          $res2 = $q2->execute();
+          $rec->username = '';
+          foreach ($res2 as $userRec) {
+            if ($rec->username != '') {
+              $rec->username .= ', ';
+            }
+            $rec->username .= $userRec->name;
+          }
+        }
+        else {
+          $rec->username = $rec->name;
+        }
+
+        $queue_history[] = $rec;
+      }
+
+      return $queue_history;
     }
 
     function getRelatedWorkflows($tracking_id) {
@@ -275,7 +301,7 @@
 
     abstract function assignTask($queueId,$userObject);
 
-    abstract function getAssignedUID();
+    abstract function getAssignedUID($queue_id=0);
 
     abstract function completeTask($queueId,$status = 1);
 

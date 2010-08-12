@@ -18,7 +18,7 @@ function maestro_outstanding_tasks($op='', $qid=0, $other=NULL) {
   $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
   $m = $maestro->engine();
 
-  $show_system_tasks = intval(@($_POST['show_system_tasks']));
+  $show_system_tasks = (intval(@($_POST['show_system_tasks'])) == 1) ? TRUE:FALSE;
 
   switch ($op) {
   case 'reassign':
@@ -38,7 +38,7 @@ function maestro_outstanding_tasks($op='', $qid=0, $other=NULL) {
 
   default:
     $maestro->engine()->setMode('admin');
-    $q = $m->getQueue(TRUE);
+    $q = $m->getQueue($show_system_tasks);
 
     $query = db_select('users', 'a');
     $query->fields('a', array('uid', 'name'));
@@ -122,12 +122,7 @@ function maestro_trace($tracking_id=0, $process_id=0, $queue_id=0) {
     $query->condition('a.initiating_pid', $initiating_pid, '=');
     $proc_res = $query->execute();
 
-    $refl = new ReflectionClass('MaestroTaskStatusCodes');
-    $task_status_code_array = $refl->getConstants();
-    $statuses = array();
-    foreach ($task_status_code_array as $var => $value) {
-      $statuses[$value] = ucwords(strtolower(str_replace('_', ' ', substr($var, 7))));
-    }
+    $statuses = MaestroTaskStatusCodes::getStatusLabel();
 
     $wf_res = $m->getRelatedWorkflows($tracking_id);
     $trace = $m->getQueueHistory($initiating_pid);
@@ -138,12 +133,30 @@ function maestro_trace($tracking_id=0, $process_id=0, $queue_id=0) {
 }
 
 function maestro_save_task_changes() {
+  $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
+  $m = $maestro->engine();
+
   foreach ($_POST['queue_id'] as $key => $qid) {
-    $query = db_update('maestro_queue');
+    $query = db_select('maestro_queue', 'a');
+    $query->fields('a', array('id', 'status', 'archived'));
+    $query->condition('a.id', $qid, '=');
+    $rec = current($query->execute()->fetchAll());
+
+    $prev_status = $rec->status;
     $status = ($_POST['batch_op'][$key] == 1) ? $_POST['batch_op_status'] : $_POST['status'][$key];
-    $query->fields(array('status' => $status, 'archived' => $_POST['archived'][$key]));
-    $query->condition('id', $_POST['queue_id'][$key], '=');
-    $query->execute();
+
+    $rec->status = $status;
+    $rec->archived = $_POST['archived'][$key];
+    drupal_write_record('maestro_queue', $rec, array('id'));
+
+    if ($status == MaestroTaskStatusCodes::STATUS_DELETED) {
+      $m->deleteTask($qid);
+    }
+    else { //need to readd the procution assignment records
+      if ($prev_status == MaestroTaskStatusCodes::STATUS_DELETED) {
+        $m->reviveTask($qid);
+      }
+    }
   }
 
   print json_encode(array('success' => 1));

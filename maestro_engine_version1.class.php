@@ -949,4 +949,25 @@
       return $retpid;
     }
 
+    //readd production assignment records for a deleted task
+    function reviveTask($qid) {
+      if ($qid > 0) {
+        $query = db_select('maestro_queue', 'a');
+        $query->fields('b', array('assigned_by_variable'));
+        $query->leftJoin('maestro_template_data', 'b', 'a.template_data_id=b.id');
+        $query->condition('a.id', $qid, '=');
+        $assigned_by_variable = current($query->execute()->fetchAll())->assigned_by_variable;
+
+        $assigned = $this->getAssignedUID($qid);
+        foreach ($assigned as $pv_id => $assigned_uid) {
+          $rec = new stdClass();
+          $rec->task_id = $qid;
+          $rec->uid = $assigned_uid;
+          $rec->process_variable = ($assigned_by_variable == 1) ? $pv_id:0;
+          $rec->assign_back_uid = 0;
+          $rec->last_updated = time();
+          drupal_write_record('maestro_production_assignments', $rec);
+        }
+      }
+    }
   }

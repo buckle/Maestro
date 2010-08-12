@@ -30,7 +30,7 @@
     }
 ?>
   </div>
-  <div style="width: 58%; float: left;">
+  <div style="width: 67%; float: left;">
     <form id="maestro_task_history_form" method="post" action="" onsubmit="save_task_changes(this); return false;">
       <input type="hidden" name="op" value="save_task_changes">
       <fieldset class="form-wrapper">
@@ -43,8 +43,9 @@
               <tr>
                 <th></th>
                 <th><?php print t('Task Name'); ?></th>
+                <th><span title="<?php print t('Owner / Completor'); ?>"><?php print t('Owner'); ?></span></th>
                 <th><?php print t('Status'); ?></th>
-                <th><?php print t('Archived'); ?></th>
+                <th><span title="<?php print t('Archived'); ?>"><?php print t('Ar...'); ?></span></th>
               </tr>
             </thead>
             <tbody>
@@ -61,6 +62,9 @@
                   <td>
                     <input type="hidden" name="queue_id[]" value="<?php print $rec->id; ?>">
                     <?php print $rec->id; ?>: <?php print $rec->taskname; ?>
+                  </td>
+                  <td>
+                    <?php print $rec->username; ?>
                   </td>
                   <td>
                     <select name="status[]">
@@ -84,7 +88,6 @@
 ?>
               <tr class="even">
                 <td><img src="<?php print $maestro_url; ?>/images/taskconsole/arrow_ltr.png"></td>
-                <td><?php print t('Batch Operation'); ?></td>
                 <td>
                   <select name="batch_op_status">
 <?php
@@ -97,9 +100,11 @@
                   </select>
                 </td>
                 <td></td>
+                <td></td>
+                <td></td>
               </tr>
               <tr>
-                <td colspan="4" style="text-align: center;"><input type="submit" value="Save All Task Changes"></td>
+                <td colspan="5" style="text-align: center;"><input type="submit" value="Save All Task Changes"></td>
               </tr>
             </tbody>
           </table>
@@ -108,12 +113,12 @@
     </form>
   </div>
 
-  <div style="width: 40%; float: right;">
+  <div style="width: 31%; float: right;">
     <form id="maestro_process_variables_form" method="post" action="" onsubmit="save_process_variables(this); return false;">
       <input type="hidden" name="op" value="save_process_variables">
       <fieldset class="form-wrapper">
         <legend>
-          <span class="fieldset-legend"><?php print t('Process Variables (Current Regeneration Instance)'); ?></span>
+          <span class="fieldset-legend"><?php print t('Process Variables'); ?></span>
         </legend>
         <div class="fieldset-wrapper">
 <?php
@@ -149,7 +154,7 @@
                   <?php print $rec->variable_name; ?>
                 </td>
                 <td>
-                  <input type="text" name="process_variable_value[]" value="<?php print $rec->variable_value; ?>">
+                  <input type="text" name="process_variable_value[]" value="<?php print $rec->variable_value; ?>" size="6">
                 </td>
               </tr>
 <?php
