@@ -191,7 +191,7 @@ function maestro_theme() {
     ),
     'maestro_outstanding_tasks' => array(
       'template' => 'theme/maestro-outstanding-tasks',
-      'variables' => array('maestro_url' => NULL, 'show_system_tasks' => $show_system_tasks, 'maestro' => NULL, 'queue' => NULL, 'users' => NULL),
+      'variables' => array('maestro_url' => NULL, 'show_system_tasks' => NULL, 'maestro' => NULL, 'queue' => NULL, 'users' => NULL),
     ),
     'maestro_taskconsole_details' => array(
       'template' => 'theme/projectdetail/detail_container',
