@@ -561,87 +561,111 @@ function template_preprocess_maestro_taskconsole(&$variables) {
 function template_preprocess_maestro_taskconsole_details(&$variables) {
   global $base_url;
 
-  if (user_access('Administer Maestro Workflows')) {
-    $variables['workflow_admin'] = TRUE;
-    $variables['show_otaskaction'] = '';
-  } else {
-    $variables['workflow_admin'] = FALSE;
-    $variables['show_otaskaction'] = 'none';
-  }
+	$task = $variables['task'];
+	$variables['base_url'] = $base_url;
+	$variables['module_base_url'] = $base_url . '/' . drupal_get_path('module', 'maestro');
+	$variables['hiderequestlink'] = '';
+	$variables['project_link'] = '';
 
-  $task = $variables['task'];
-  $variables['module_base_url'] = $base_url . '/' . drupal_get_path('module', 'maestro');
-  $variables['hiderequestlink'] = '';
-  $variables['project_link'] = '';
+	$variables['tracking_id'] =  $task->tracking_id;
+	$variables['flow_description'] = $task->flow_name;
+	$variables['custom_workflow_summary'] = '';
 
-  $variables['tracking_id'] =  $task->tracking_id;
-  $variables['flow_description'] = $task->flow_name;
-  $variables['custom_workflow_summary'] = '';
+	if (user_access('maestro admin')) {
+		$variables['workflow_admin'] = TRUE;
+		$variables['show_otaskaction'] = '';
+	} else {
+		$variables['workflow_admin'] = FALSE;
+		$variables['show_otaskaction'] = 'none';
+	}
 
-  $projectRec = db_select('maestro_projects','a')
-    ->fields('a',array('project_num','originator_uid','description','status','prev_status','related_processes'))
-    ->condition('id', $task->tracking_id, '=')
-    ->execute()->fetchObject();
+	$projectRec = db_select('maestro_projects','a')
+	->fields('a',array('project_num','originator_uid','description','status','prev_status','related_processes'))
+	->condition('id', $task->tracking_id, '=')
+	->execute()->fetchObject();
 
-  switch($projectRec->status) {
-    case MaestroProjectStatusCodes::STATUS_ACTIVE:
-      $variables['project_status'] = t('Active');
-      break;
+	switch($projectRec->status) {
+		case MaestroProjectStatusCodes::STATUS_ACTIVE:
+			$variables['project_status'] = t('Active');
+			break;
 
-  }
+	}
 
-  /* @TODO: Would like to make this extensible so that other project status options can in the future add their own
-   * Action form and AJAX handler
-   */
-  $variables['special_status_action'] = '';
+	/* @TODO: Would like to make this extensible so that other project status options can in the future add their own
+	 * Action form and AJAX handler
+	 */
+	$variables['special_status_action'] = '';
 
-  if ($variables['source'] == 'allprojects' AND user_access('Administer Maestro Workflows')) {
-    $variables['delete_project_action'] = '<a href="#" onClick="ajaxUpdateDeleteProject('.$task->tracker_id.',' .$task->queue_id.');return false;">Delete Project</a>';
-  } else {
-    $variables['delete_project_action'] = '';
-  }
+	if ($variables['source'] == 'allprojects' AND user_access('Administer Maestro Workflows')) {
+		$variables['delete_project_action'] = '<a href="#" onClick="ajaxUpdateDeleteProject('.$task->tracker_id.',' .$task->queue_id.');return false;">Delete Project</a>';
+	} else {
+		$variables['delete_project_action'] = '';
+	}
 
-  $variables['task_history'] = maestro_getProjectTasksHistory($task->tracking_id);
+	$variables['task_history'] = maestro_getProjectTasksHistory($task->tracking_id);
 
-  /* Format Outstanding Tasks Object to be used in the template */
-  $arr_otasks = array();  // Array of outstanding tasks objects
-  $query = db_select('maestro_process','process');
-  $query->join('maestro_queue', 'queue', 'queue.process_id = process.id');
-  $query->join('maestro_template_data', 'template', 'queue.template_data_id = template.id');
-  $query->join('maestro_production_assignments', 'assignment', 'assignment.task_id = queue.id');
-  $query->join('users', 'user', 'user.uid = assignment.uid');
-  $query->fields('queue', array('process_id','created_date','started_date','completed_date','status'));
-  $query->fields('template', array('taskname','is_dynamic_taskname','dynamic_taskname_variable_id'));
-  $query->fields('assignment', array('uid','process_variable'));
-  $query->addField('queue','id','queue_id');
-  $query->addField('user','name','username');
-  $query->addField('process','tracking_id','tracking_id');
-  $query->condition('process.tracking_id', $task->tracking_id, '=');
-  $query->condition('queue.status',0,'=');
-  $res = $query->execute();
-  foreach ($res as $record) {
-     $otask = new stdClass();
-     $otask->assigned_date = strftime("%b %d/%Y %H:%M",$record->created_date);
-     $otask->task_id = $record->queue_id;
-     $otask->taskname = $record->taskname;
-     $otask->taskuser = $record->uid;
-     $otask->owner = $record->username;
-     $otask->variable_id = $record->process_variable;
-     if ($otask->variable_id > 0) {
-      $otask->taskassign_mode = 'variable';
-     } else {
-      $otask->taskassign_mode = 'user';
-     }
-     $variables['outstanding_tasks'][] = $otask;
-  }
+	/* Format any content records */
+	$query = db_select('maestro_project_content','content');
+	$query->addField('content','nid','nid');
+	$query->condition('content.tracking_id',$task->tracking_id,'=');
+	$res = $query->execute();
+	foreach ($res as $record) {
+		$node = node_load($record->nid);
+		$variables['content_records'][$record->nid] = $node->title;
+	}
 
-  $res = db_select('users','users')
-    ->fields('users', array('uid','name'))
-    ->condition('uid', 0, '>')
-    ->execute();
-  foreach ($res as $rec) {
-    $variables['reassign_user_options'][$rec->uid] = $rec->name;
-  }
+	/* Format Outstanding Tasks Object to be used in the template */
+	$arr_otasks = array();  // Array of outstanding tasks objects
+	$query = db_select('maestro_process','process');
+	$query->join('maestro_queue', 'queue', 'queue.process_id = process.id');
+	$query->join('maestro_template_data', 'template', 'queue.template_data_id = template.id');
+	$query->join('maestro_production_assignments', 'assignment', 'assignment.task_id = queue.id');
+	$query->join('users', 'user', 'user.uid = assignment.uid');
+	$query->fields('queue', array('process_id','created_date','started_date','completed_date','status'));
+	$query->fields('template', array('taskname','is_dynamic_taskname','dynamic_taskname_variable_id'));
+	$query->fields('assignment', array('uid','process_variable'));
+	$query->addField('queue','id','queue_id');
+	$query->addField('user','name','username');
+	$query->addField('process','tracking_id','tracking_id');
+	$query->condition('process.tracking_id', $task->tracking_id, '=');
+	$query->condition('queue.status',0,'=');
+	$res = $query->execute();
+	foreach ($res as $record) {
+		$otask = new stdClass();
+		$otask->assigned_date = strftime("%b %d/%Y %H:%M",$record->created_date);
+		$otask->task_id = $record->queue_id;
+		$otask->taskname = $record->taskname;
+		$otask->taskuser = $record->uid;
+		$otask->owner = $record->username;
+		$otask->variable_id = $record->process_variable;
+		if ($otask->variable_id > 0) {
+			$otask->taskassign_mode = 'variable';
+		} else {
+			$otask->taskassign_mode = 'user';
+		}
+		$variables['outstanding_tasks'][] = $otask;
+	}
+
+	$res = db_select('users','users')
+	->fields('users', array('uid','name'))
+	->condition('uid', 0, '>')
+	->execute();
+	foreach ($res as $rec) {
+		$variables['reassign_user_options'][$rec->uid] = $rec->name;
+	}
+
+	/* Format any project comments records */
+	$variables['comment_records'] = array();
+	$query = db_select('maestro_project_comments','a');
+	$query->addField('a','comment');
+	$query->condition('a.tracking_id',$task->tracking_id,'=');
+	$res = $query->execute();
+	foreach ($res as $record) {
+		$variables['comment_records'][] = $record->comment;
+	}
+
+	$variables['content_records'] = array();
+
 
 
 
@@ -822,36 +846,43 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
       echo json_encode($retdata);
       break;
 
-    case 'setassignment':
-      if (user_access('Administer Maestro Workflows')) {
-        $taskid = intval($_POST['taskid']);
-        $process_id = db_query("SELECT process_id FROM {maestro_queue} WHERE id = :tid",
-          array(':tid' => $taskid))->fetchField();
-        $assigned_uid = db_query("SELECT uid FROM {maestro_production_assignments} WHERE id = :tid",
-          array(':tid' => $taskid))->fetchField();
-        $maestro = Maestro::createMaestroObject(1);
-        $maestro->engine()->reassignTask($taskid,$_POST['task_reassign_uid'],$_POST['taskuser'],$_POST['variable_id']);
+		case 'setassignment':
+			if (user_access('maestro admin')) {
+				$taskid = intval($_POST['taskid']);
+				$process_id = db_query("SELECT process_id FROM {maestro_queue} WHERE id = :tid",
+				array(':tid' => $taskid))->fetchField();
+				$task_data_id = db_query("SELECT template_data_id FROM {maestro_queue} WHERE id = :tid",
+				array(':tid' => $taskid))->fetchField();
+				$tracking_id = db_query("SELECT tracking_id FROM {maestro_process} WHERE id = :pid",
+				array(':pid' => $process_id))->fetchField();
+				$assigned_uid = db_query("SELECT uid FROM {maestro_production_assignments} WHERE task_id = :tid",
+				array(':tid' => $taskid))->fetchField();
+				$maestro = Maestro::createMaestroObject(1);
+				$maestro->engine()->reassignTask($taskid,$_POST['task_reassign_uid'],$_POST['taskuser'],$_POST['variable_id']);
 
-        /*
-        nf_reassign_task($taskid,$taskuser,$assigneduid,$variableid);
-        $sql = "SELECT a.id, b.taskname FROM {$_TABLES['nf_queue']} a LEFT JOIN {$_TABLES['nf_templatedata']} b ON a.nf_templateDataID=b.id WHERE a.id=$taskid;";
-        $res = DB_query($sql);
-        $A = DB_fetchArray($res);
-        $comment = 'Task Owner change, was '.COM_getDisplayName($assigneduid).', now ';
-        $comment .= COM_getDisplayName($taskuser) . " for task: {$A['taskname']}";
-        $sql  = "INSERT INTO {$_TABLES['nf_projectcomments']} (project_id, task_id, uid, timestamp, comment) ";
-        $sql .= "VALUES ('$project_id',{$A['id']},'{$_USER['uid']}',UNIX_TIMESTAMP(),'$comment')";
-        DB_query($sql);
-        */
-
-
-
-        $retdata = array ('status' => TRUE);
-      } else {
-        $retdata = array ('status' => FALSE);
-      }
-      echo json_encode($retdata);
-      break;
+				$taskname = db_query("SELECT taskname FROM {maestro_template_data} WHERE id = :tid",
+				array(':tid' => $task_data_id))->fetchField();
+				$assigned_name = db_query("SELECT name FROM {users} WHERE uid = :uid",
+				array(':uid' => $assigned_uid))->fetchField();
+				$reassigned_name = db_query("SELECT name FROM {users} WHERE uid = :uid",
+				array(':uid' => $_POST['task_reassign_uid']))->fetchField();
+				$comment = "Task Owner change, was {$assigned_name}, now {$reassigned_name} for task: {$taskname}";
+				db_insert('maestro_project_comments')
+				->fields(array('tracking_id','uid','task_id','timestamp','comment'))
+				->values(array(
+            'tracking_id' => $tracking_id,
+            'uid' => $assigned_uid,
+            'task_id' => $taskid,
+            'timestamp' => time(),
+            'comment'  => $comment
+				))
+				->execute();
+				$retdata = array ('status' => TRUE);
+			} else {
+				$retdata = array ('status' => FALSE);
+			}
+			echo json_encode($retdata);
+			break;
 
     case 'interactivetask_post':
       $queue_id = intval($_POST['queueid']);
@@ -939,30 +970,14 @@ function maestro_form_alter(&$form, $form_state, $form_id) {
 }
 
 function maestro_node_insert($node) {
-  if (isset($node->maestro_taskid) AND $node->maestro_taskid > 0) {
-    $rec = db_select('maestro_queue')
-      ->fields('maestro_queue', array('process_id','template_data_id'))
-      ->condition('id', $node->maestro_taskid, '=')
-      ->execute()->fetchObject();
+	if (isset($node->maestro_taskid) AND $node->maestro_taskid > 0) {
+		$task_classname = db_query("SELECT task_class_name FROM {maestro_queue} WHERE id = :tid",
+		array(':tid' => $node->maestro_taskid))->fetchField();
 
-    $tracking_id = db_select('maestro_process')
-    ->fields('maestro_process', array('tracking_id'))
-    ->condition('id', $rec->process_id, '=')
-    ->execute()->fetchField();
+		$task = new $task_classname();
+		$task->processContent($node->maestro_taskid,'insert',$node);
 
-    db_insert('maestro_project_content')
-      ->fields(array(
-        'nid' => $node->nid,
-        'tracking_id' => $tracking_id,
-        'task_id' => $rec->template_data_id,
-        'content_type' => $node->type,
-        ))
-      ->execute();
-    // Initiate the mestro workflow engine and complete the task
-    $maestro = Maestro::createMaestroObject(1);
-    $queue_id = intval($node->maestro_taskid);
-    $maestro->engine()->completeTask($node->maestro_taskid);
-  }
+	}
 }
 
  /**
@@ -971,34 +986,20 @@ function maestro_node_insert($node) {
  * Check if content_type is being updated via a maestro task
  */
 function maestro_node_update($node) {
-  if (isset($node->maestro_taskid) AND $node->maestro_taskid > 0) {
+	if (isset($node->maestro_taskid) AND $node->maestro_taskid > 0) {
 
-    // Check and see if the project_content record has the correct process id
-    // Needs to be updated if this is a regenerated process
+		// Extra form field set by maestro_form_alter if taskconsole task is a contentType task - Edit operation
+		// Inline tasks that prompt user to review/edit a node (contentType) may also redirect user to Edit but
+		// It's up to the interactiveFunction's code to complete that task.
+		// Usually after someone clicks on 'accept' or 'reject' in the custom interactiveFunctions inline action form.
+		if (isset($node->maestro_completeonsubmit) AND $node->maestro_completeonsubmit == 1) {
 
-    /* @TODO: (Blaine) Not sure I need to track process_id in this table - removing it from the schema for now
-     * but will keep this code in case it needs to be added back
-     */
-    /*
-    $process_id = db_query("SELECT process_id FROM {maestro_queue} WHERE id = :tid",
-       array(':tid' => $node->maestro_taskid))->fetchField();
-    db_update('maestro_project_content')
-    ->fields(array('process_id' => $process_id))
-    ->condition('nid', $node->nid, '=')
-    ->execute();
-    */
-
-    // Extra form field set by maestro_form_alter if taskconsole task is a contentType task - Edit operation
-    // Inline tasks that prompt user to review/edit a node (contentType) may also redirect user to Edit but
-    // It's up to the interactiveFunction's code to complete that task.
-    // Usually after someone clicks on 'accept' or 'reject' in the custom interactiveFunctions inline action form.
-    if (isset($node->maestro_completeonsubmit) AND $node->maestro_completeonsubmit == 1) {
-      // Initiate the maestro workflow engine and complete the task
-      $maestro = Maestro::createMaestroObject(1);
-      $queue_id = intval($node->maestro_taskid);
-      $maestro->engine()->completeTask($node->maestro_taskid);
-    }
-  }
+			// Initiate the maestro workflow engine and complete the task
+			$maestro = Maestro::createMaestroObject(1);
+			$queue_id = intval($node->maestro_taskid);
+			$maestro->engine()->completeTask($node->maestro_taskid);
+		}
+	}
 
 }
 
@@ -1044,38 +1045,42 @@ function maestro_getNodeId($process_id,$content_type) {
 /* Retrieve the task history for a maestro project (all related workflow instances) */
 function maestro_getProjectTasksHistory($tracking_id) {
 
-    $query = db_select('maestro_process','process');
-    $query->join('maestro_queue', 'queue', 'queue.process_id = process.id');
-    $query->join('maestro_template_data', 'template', 'queue.template_data_id = template.id');
-    $query->join('users', 'users', 'users.uid = queue.uid');
-    $query->fields('queue', array('process_id','created_date','started_date','completed_date','status'));
-    $query->fields('template', array('taskname','is_dynamic_taskname','dynamic_taskname_variable_id'));
-    $query->addField('users','name','username');
-    $query->addField('queue','id','queue_id');
-    $query->condition('process.tracking_id', $tracking_id, '=');
-    $query->condition(db_or()->condition('queue.completed_date',0,'>')->condition('queue.status',MaestroTaskStatusCodes::STATUS_ON_HOLD,'='));
-    $res = $query->execute();
+	$query = db_select('maestro_process','process');
+	$query->join('maestro_queue', 'queue', 'queue.process_id = process.id');
+	$query->join('maestro_template_data', 'template', 'queue.template_data_id = template.id');
+	$query->join('users', 'users', 'users.uid = queue.uid');
+	$query->fields('queue', array('process_id','created_date','started_date','completed_date','status'));
+	$query->fields('template', array('taskname','is_dynamic_taskname','dynamic_taskname_variable_id'));
+	$query->addField('users','name','username');
+	$query->addField('users','uid');
+	$query->addField('queue','id','queue_id');
+	$query->addField('process','pid','parent_process_id');
+	$query->condition('process.tracking_id', $tracking_id, '=');
+	$query->condition(db_or()->condition('queue.completed_date',0,'>')->condition('queue.status',MaestroTaskStatusCodes::STATUS_ON_HOLD,'='));
+	$res = $query->execute();
 
-     $retval = '';
-     $header = array(
-       array('data' => t('Task Name'), 'field' => 'taskname'),
-       array('data' => t('Owner'), 'field' => 'owner'),
-       array('data' => t('Assigned'), 'field' => 'assigned'),
-       array('data' => t('Started'), 'field' => 'started'),
-       array('data' => t('Completed'), 'field' => 'completed'),
-       array('data' => t('Status'), 'field' => 'status'));
-     $rows = array();
+	$retval = '';
+	$header = array(
+	array('data' => t('Task Name'), 'field' => 'taskname'),
+	array('data' => t('Owner'), 'field' => 'owner'),
+	array('data' => t('Assigned'), 'field' => 'assigned'),
+	array('data' => t('Started'), 'field' => 'started'),
+	array('data' => t('Completed'), 'field' => 'completed'),
+	array('data' => t('Status'), 'field' => 'status'));
+	$rows = array();
 
-     foreach ($res as $record) {
-       $assigned = strftime("%b %d/%Y %H:%M",$record->created_date);
-       $started = strftime("%b %d/%Y %H:%M",$record->started_date);
-       $completed = strftime("%b %d/%Y %H:%M",$record->completed_date);
-       $status = 'completed';
-       $rows[] = array($record->taskname,$record->username,$assigned,$started,$completed,$status);
-     }
-     if ( count($rows) ) {
-        $retval = theme('table', array('header' => $header, 'rows' => $rows), array('sticky' => TRUE));
-     }
-     return $retval;
- }
+	foreach ($res as $record) {
+		$assigned = strftime("%b %d/%Y %H:%M",$record->created_date);
+		$started = strftime("%b %d/%Y %H:%M",$record->started_date);
+		$completed = strftime("%b %d/%Y %H:%M",$record->completed_date);
+		$status = 'completed';
+		if ($record->uid == 0) $record->username = t('Maestro');
+		if ($record->parent_process_id > 0) $record->taskname = '<span style="color:red;padding-right:3px;">[R]</span>' . $record->taskname;
+		$rows[] = array($record->taskname,$record->username,$assigned,$started,$completed,$status);
+	}
+	if ( count($rows) ) {
+		$retval = theme('table', array('header' => $header, 'rows' => $rows), array('sticky' => TRUE));
+	}
+	return $retval;
+}
 

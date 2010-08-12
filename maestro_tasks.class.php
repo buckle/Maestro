@@ -109,7 +109,7 @@ abstract class MaestroTask {
   public $executionStatus = NULL;   // Did task's execute method execute of was there an error
   public $completionStatus = NULL;  // Did the task's execution method complete and if so set to one of the defined status code CONST values
 
-  function __construct($properties) {
+	function __construct($properties = NULL) {
     $this->_properties = $properties;
   }
 
@@ -695,6 +695,39 @@ class MaestroTaskTypeContentType extends MaestroTask {
     $taskdata = @unserialize($serializedData);
     return array('serialized_data' => $serializedData);
   }
+
+	// Method called by maestro_node_insert
+	function processContent($taskid,$op,$object) {
+		watchdog('maestro',"processContent function");
+		$node = $object;  // For this task type, the object passed in, is the node object.
+		$rec = db_select('maestro_queue')
+		->fields('maestro_queue', array('process_id','template_data_id'))
+		->condition('id', $node->maestro_taskid, '=')
+		->execute()->fetchObject();
+
+		$tracking_id = db_select('maestro_process')
+		->fields('maestro_process', array('tracking_id'))
+		->condition('id', $rec->process_id, '=')
+		->execute()->fetchField();
+
+		if ($op == 'insert') {
+			db_insert('maestro_project_content')
+			->fields(array(
+        'nid' => $node->nid,
+        'tracking_id' => $tracking_id,
+        'task_id' => $rec->template_data_id,
+        'content_type' => $node->type,
+			))
+			->execute();
+
+			// Initiate the mestro workflow engine and complete the task
+			// Complete task is an engine method
+			$maestro = Maestro::createMaestroObject(1);
+			$maestro->engine()->completeTask($taskid);
+		}
+
+	}
+
 }
 
 class MaestroTaskTypeFireTrigger extends MaestroTask {
