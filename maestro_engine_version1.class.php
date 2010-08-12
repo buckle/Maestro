@@ -138,7 +138,7 @@
             // Determine if the offset is set.. if so, update the original parent process record with a status of 2
             if (!empty($startoffset) AND !empty($pid)) {
                 db_update('maestro_process')
-                  ->fields(array('complete' => 2, 'completed_date' => time()))
+                  ->fields(array('complete' => MaestroProcessStatusCodes::STATUS_REGENERATED, 'completed_date' => time()))
                   ->condition('id',$pid,'=')
                   ->execute();
 
@@ -216,7 +216,7 @@
                     $project_record = new stdClass();
                     $project_record->originator_uid = $user->uid;
                     $project_record->task_id = $queue_record->id;
-                    $project_record->status = 0;
+                    $project_record->status = MaestroProcessStatusCodes::STATUS_ACTIVE;
                     $project_record->description = $templaterec->template_name;
                     drupal_write_record('maestro_projects',$project_record);
                     $this->setTrackingId($project_record->id);
@@ -416,7 +416,7 @@
             // There are no rows for this specific queueId and nothing for this processId, there's no next task
             $this->archiveTask($this->_queueId);
             db_update('maestro_process')
-              ->fields(array('complete' => 1, 'completed_date' => time()))
+              ->fields(array('complete' => MaestroProcessStatusCodes::STATUS_COMPLETED, 'completed_date' => time()))
               ->condition('id', $this->_processId, '=')
               ->execute();
 
@@ -430,7 +430,7 @@
                     // Process is done - archive queue item
                     $this->archiveTask($this->_queueId);
                     db_update('maestro_process')
-                      ->fields(array('complete' => 1, 'completed_date' => time()))
+                      ->fields(array('complete' => MaestroProcessStatusCodes::STATUS_COMPLETED, 'completed_date' => time()))
                       ->condition('id', $this->_processId, '=')
                       ->execute();
                 }
@@ -533,7 +533,7 @@
                             $query->condition('a.template_data_id', $nextTaskRec->taskid,'=');
                             if ($query->execute()->fetchField() == 0 ) {
                               db_update('maestro_process')
-                                ->fields(array('complete' => 1, 'completed_date' => time()))
+                                ->fields(array('complete' => MaestroProcessStatusCodes::STATUS_COMPLETED, 'completed_date' => time()))
                                 ->condition('id', $this->_processId, '=')
                                 ->execute();
                             }

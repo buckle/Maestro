@@ -19,6 +19,13 @@ class MaestroProjectStatusCodes {
   CONST STATUS_REGENERATED = 3;
 }
 
+// Maestro Process entity status codes
+class MaestroProcessStatusCodes {
+  CONST STATUS_ON_HOLD = -1;
+  CONST STATUS_ACTIVE = 0;
+  CONST STATUS_COMPLETED = 1;
+  CONST STATUS_REGENERATED = 2;
+}
 
 abstract class MaestroTask {
   public $_properties = NULL;

@@ -486,7 +486,8 @@ jQuery(function($) {
 	        		maestro_hideImportMessages();
 	        		jQuery('#importSuccessMessage').removeClass('maestro_hide_item');
 	        		jQuery('#importSuccessMessage').addClass('maestro_show_item');  
-					jQuery('#maestro_template_admin').html(data.data);
+					//jQuery('#maestro_template_admin').html(data.data);
+	        		document.location=document.location;
 	        	}
 	        	else if(data.status == -1) {
 	        		maestro_hideImportMessages();
