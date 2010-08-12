@@ -394,7 +394,7 @@ function maestro_copyTemplate(tid) {
 		success : function(data){
 			if (data.status == "1") {
 				maestro_hideErrorBar();
-				jQuery('#maestro_template_admin').html(data.data);
+				document.location = document.location;
 			} else {
 				maestro_showErrorBar();
 				var error = Drupal.t('There has been an error copying your template.  Please try your save again.');
@@ -486,7 +486,6 @@ jQuery(function($) {
 	        		maestro_hideImportMessages();
 	        		jQuery('#importSuccessMessage').removeClass('maestro_hide_item');
 	        		jQuery('#importSuccessMessage').addClass('maestro_show_item');  
-					//jQuery('#maestro_template_admin').html(data.data);
 	        		document.location=document.location;
 	        	}
 	        	else if(data.status == -1) {
