@@ -399,12 +399,15 @@ function maestro_admin_form() {
     }
   }
 
-  if(variable_get('maestro_enabled_notifiers') == NULL) {
+  if(variable_get('maestro_enabled_notifiers') == NULL || (is_array(variable_get('maestro_enabled_notifiers')) && count(variable_get('maestro_enabled_notifiers')) == 0 )  ) {
     //this means that all of them should be selected by default
     $x = array();
     foreach($observers as $key => $val) {
-      if($key != 0) $x[$key] = $key;
+      if($key != '0') {
+       $x[$key] = $key;
+      }
     }
+
     variable_set('maestro_enabled_notifiers',$x);
   }
 
