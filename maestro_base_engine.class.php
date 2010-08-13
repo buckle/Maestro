@@ -220,7 +220,12 @@
       return $retval;
     }
 
-    function sendTaskAssignmentNotifications ($queue_id=0) { }
+    function sendTaskAssignmentNotifications ($queue_id=0) {
+      include('maestro_notification.class.php');
+      //@TODO:  change out the 1 in the line below to have an array of UIDs to send this to.
+      $notification = new MaestroNotification(1,'Assigned Task Message Body',t('You have a task assigned.'),$queue_id, MaestroNotificationTypes::ASSIGNMENT);
+      $notification->notify();
+    }
 
     function sendTaskReminderNotifications ($queue_id=0, $user_id=0) { }
 

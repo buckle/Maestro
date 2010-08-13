@@ -386,7 +386,37 @@ function maestro_admin_form() {
     '#required' => FALSE,
   );
 
+  include('maestro_notification.class.php');
+  $observers = array();
+  $observers[0] = t("No Notifier");
+  foreach (module_implements('maestro_notification_observer') as $module) {
+    $function = $module . '_maestro_notification_observer';
+    if ($declaredObserver = $function()) {
+      foreach($declaredObserver as $observer) {
+        $obj = new $observer();
+        $observers[$observer] = $obj->displayName;
+      }
+    }
+  }
 
+  if(variable_get('maestro_enabled_notifiers') == NULL) {
+    //this means that all of them should be selected by default
+    $x = array();
+    foreach($observers as $key => $val) {
+      if($key != 0) $x[$key] = $key;
+    }
+    variable_set('maestro_enabled_notifiers',$x);
+  }
+
+  $form['maestro_enabled_notifiers'] = array(
+    '#type' => 'select',
+    '#title' => t('Select Which Notifiers to Enable'),
+    '#default_value' => variable_get('maestro_enabled_notifiers', NULL),
+    '#options' =>  $observers,
+    '#description' => t('The notifiers highlighted will be used to send Maestro notifications.'),
+    '#rows'        => 10,
+    '#multiple'    => TRUE,
+  );
 
   return system_settings_form($form);
 }
@@ -539,14 +569,11 @@ function maestro_export($id) {
         $output_php .='$ti = new $task_class(0,0);' . "\n";
         $temp_user_info = user_load($ares->uid);
         $output_php .='$modulated_user = $ti->modulateExportUser("' . $temp_user_info->name . '");' . "\n";
-        $output_php .='$sql  = "INSERT INTO {maestro_template_assignment} (template_data_id, uid, gid, process_variable, pre_notify_variable, post_notify_variable, reminder_notify_variable) VALUES (:a1, :b1, :c1, :d1, :e1, :f1, :g1)";' . "\n";
+        $output_php .='$sql  = "INSERT INTO {maestro_template_assignment} (template_data_id, uid, gid, process_variable) VALUES (:a1, :b1, :c1, :d1)";' . "\n";
         $output_php .='db_query($sql, array( \'a1\' => $task_xref_array[' . $ares->template_data_id . '],';
         $output_php .='\'b1\' => $modulated_user,';
         $output_php .='\'c1\' => ' . $ares->gid . ',';  //future proof
         $output_php .='\'d1\' => $variable_xref_array[' . $ares->process_variable . '],';
-        $output_php .='\'e1\' => ' . $ares->pre_notify_variable . ',';
-        $output_php .='\'f1\' => ' . $ares->post_notify_variable . ',';
-        $output_php .='\'g1\' => ' . $ares->reminder_notify_variable;
         $output_php .='));' . "\n";
       }
     }

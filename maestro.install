@@ -10,6 +10,7 @@ function maestro_install() {
   //@TODO:  set this option to 0 for release.
   variable_set('maestro_run_orchestrator_in_task_console', 1);
   variable_set('maestro_enable_notifications', 1);
+  variable_set('maestro_enabled_notifiers', NULL);
 }
 
 
@@ -17,6 +18,7 @@ function maestro_uninstall() {
   variable_del('maestro_batch_script_location');
   variable_del('maestro_run_orchestrator_in_task_console');
   variable_del('maestro_enable_import_window');
+  variable_del('maestro_enabled_notifiers');
 }
 
 function maestro_schema() {

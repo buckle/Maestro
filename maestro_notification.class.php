@@ -16,8 +16,14 @@
  * I've included our email observer in this file as well as a Skeletal Twitter observer pattern.
 */
 
-interface MaestroNotificationObserver {
-  public function notify(MaestroNotification &$obj);
+abstract class MaestroNotificationObserver {
+  public $displayName;
+
+  function __construct() {
+    $this->displayName = "";
+  }
+
+  abstract function notify(MaestroNotification &$obj);
 }
 
 class MaestroNotificationTypes {
@@ -88,7 +94,6 @@ class MaestroNotification {
     else {
       $this->_observers = ($observers->data);
     }
-
   }
 
   function getEmailFromUserIDs() {
@@ -97,7 +102,6 @@ class MaestroNotification {
       //in here, get the users' email addresses
     }
   }
-
 
   function getQueueId() {
     return $this->_queueID;
@@ -150,10 +154,24 @@ class MaestroNotification {
    */
   public function notify() {
     if(variable_get('maestro_enable_notifications',1) == 1) {
-      if(is_array($this->_observers) && count($this->_observers) > 0 ) {
-        foreach($this->_observers as $obj) {
-          $notifyObject = new $obj();
-          $notifyObject->notify($this);
+      //we are now going to check if the maestro_enabled_notifiers is set.  If its not set, we will just set all observers to be enabled
+      $enabled_notifiers = variable_get('maestro_enabled_notifiers');
+      if($enabled_notifiers == NULL) {
+        if(is_array($this->_observers) && count($this->_observers) > 0 ) {
+          foreach($this->_observers as $obj) {
+            if(class_exists($obj)) {
+             $notifyObject = new $obj();
+              $notifyObject->notify($this);
+            }
+          }
+        }
+      }
+      else {
+        foreach($enabled_notifiers as $obj) {
+          if(class_exists($obj)) {
+            $notifyObject = new $obj();
+            $notifyObject->notify($this);
+          }
         }
       }
     }
@@ -166,7 +184,11 @@ class MaestroNotification {
  * The only method we MUST implement is the notify where we accept the passed in object by reference to save memory.
  */
 
-class MaestroEmailNotification implements MaestroNotificationObserver {
+class MaestroEmailNotification extends MaestroNotificationObserver {
+
+  public function __construct() {
+    $this->displayName = "Maestro Email Notifier";
+  }
 
   public function notify(MaestroNotification &$obj) {
     //now, we're offloading the notification to this class to do whatever it needs to do.
@@ -183,11 +205,9 @@ class MaestroEmailNotification implements MaestroNotificationObserver {
 
   public function getUserEmailAddressFromUID($userID) {
     $user = user_load($userID);
-    return $user->email;
+    return $user->mail;
   }
 }
-
-
 
 
 /*
@@ -199,7 +219,11 @@ class MaestroEmailNotification implements MaestroNotificationObserver {
  * and do not edit the main maestro.module file.
  */
 
-class SAMPLEMaestroTwitterNotification implements MaestroNotificationObserver {
+class SAMPLEMaestroTwitterNotification extends MaestroNotificationObserver {
+
+  public function __construct() {
+    $this->displayName = "Sample Twitter Notifier";
+  }
 
   public function notify(MaestroNotification &$obj) {
     if(is_array($obj->getUserIDs())) {
@@ -209,6 +233,5 @@ class SAMPLEMaestroTwitterNotification implements MaestroNotificationObserver {
       }
     }
   }
-
-
 }
+
