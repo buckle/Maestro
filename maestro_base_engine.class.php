@@ -220,16 +220,113 @@
       return $retval;
     }
 
-    function sendTaskAssignmentNotifications ($queue_id=0) {
+    function sendTaskAssignmentNotifications ($qid=0) {
       include('maestro_notification.class.php');
-      //@TODO:  change out the 1 in the line below to have an array of UIDs to send this to.
-      $notification = new MaestroNotification(1,'Assigned Task Message Body',t('You have a task assigned.'),$queue_id, MaestroNotificationTypes::ASSIGNMENT);
+
+      if ($qid == 0) {
+        $qid = $this->_queueId;
+      }
+
+      $query = db_select('maestro_queue', 'a');
+      $query->fields('a', array('process_id'));
+      $query->fields('b', array('id', 'notify_type'));
+      $query->leftJoin('maestro_template_data', 'b', 'a.template_data_id=b.id');
+      $query->condition('a.id', $qid, '=');
+      $qRec = current($query->execute()->fetchAll());
+
+      $query = db_select('maestro_template_notification', 'a');
+      if ($qRec->notify_type == 0) {
+        $query->addField('a', 'pre_notify_id', 'uid');
+      }
+      else if ($qRec->notify_type == 1) {  //storing the user ids
+        $query->addField('b', 'variable_value', 'uid');
+        $query->leftJoin('maestro_process_variables', 'b', 'a.pre_notify_id=b.template_variable_id');
+        $query->condition('b.process_id', $qRec->process_id, '=');
+      }
+      $query->condition('a.template_data_id', $qRec->id, '=');
+      $query->condition('a.pre_notify_id', 0, '>');
+      $res = $query->execute();
+
+      $notify_uids = array();
+      foreach ($res as $rec) {
+        $notify_uids[$rec->uid] = $rec->uid;
+      }
+
+      $notification = new MaestroNotification($notify_uids, t('Assigned Task Message Body'), t('You have a task assigned'), $qid, MaestroNotificationTypes::ASSIGNMENT);
       $notification->notify();
     }
 
-    function sendTaskReminderNotifications ($queue_id=0, $user_id=0) { }
+    function sendTaskReminderNotifications ($qid=0, $user_id=0) {
+      include('maestro_notification.class.php');
 
-    function sendTaskCompletionNotifications ($queue_id=0) { }
+      if ($qid == 0) {
+        $qid = $this->_queueId;
+      }
+
+      $query = db_select('maestro_queue', 'a');
+      $query->fields('a', array('process_id'));
+      $query->fields('b', array('id', 'notify_type'));
+      $query->leftJoin('maestro_template_data', 'b', 'a.template_data_id=b.id');
+      $query->condition('a.id', $qid, '=');
+      $qRec = current($query->execute()->fetchAll());
+
+      $query = db_select('maestro_template_notification', 'a');
+      if ($qRec->notify_type == 0) {
+        $query->addField('a', 'reminder_notify_id', 'uid');
+      }
+      else if ($qRec->notify_type == 1) {  //storing the user ids
+        $query->addField('b', 'variable_value', 'uid');
+        $query->leftJoin('maestro_process_variables', 'b', 'a.reminder_notify_id=b.template_variable_id');
+        $query->condition('b.process_id', $qRec->process_id, '=');
+      }
+      $query->condition('a.template_data_id', $qRec->id, '=');
+      $query->condition('a.reminder_notify_id', 0, '>');
+      $res = $query->execute();
+
+      $notify_uids = array();
+      foreach ($res as $rec) {
+        $notify_uids[$rec->uid] = $rec->uid;
+      }
+
+      $notification = new MaestroNotification($notify_uids, t('Completed Task Message Body'), t('Task as been Completed'), $qid, MaestroNotificationTypes::ASSIGNMENT);
+      $notification->notify();
+    }
+
+    function sendTaskCompletionNotifications ($qid=0) {
+      include('maestro_notification.class.php');
+
+      if ($qid == 0) {
+        $qid = $this->_queueId;
+      }
+
+      $query = db_select('maestro_queue', 'a');
+      $query->fields('a', array('process_id'));
+      $query->fields('b', array('id', 'notify_type'));
+      $query->leftJoin('maestro_template_data', 'b', 'a.template_data_id=b.id');
+      $query->condition('a.id', $qid, '=');
+      $qRec = current($query->execute()->fetchAll());
+
+      $query = db_select('maestro_template_notification', 'a');
+      if ($qRec->notify_type == 0) {
+        $query->addField('a', 'post_notify_id', 'uid');
+      }
+      else if ($qRec->notify_type == 1) {  //storing the user ids
+        $query->addField('b', 'variable_value', 'uid');
+        $query->leftJoin('maestro_process_variables', 'b', 'a.post_notify_id=b.template_variable_id');
+        $query->condition('b.process_id', $qRec->process_id, '=');
+      }
+      $query->condition('a.template_data_id', $qRec->id, '=');
+      $query->condition('a.post_notify_id', 0, '>');
+      $res = $query->execute();
+
+      $notify_uids = array();
+      foreach ($res as $rec) {
+        $notify_uids[$rec->uid] = $rec->uid;
+      }
+
+      $notification = new MaestroNotification($notify_uids, t('Reminder Notification Message Body'), t('Task Reminder'), $qid, MaestroNotificationTypes::ASSIGNMENT);
+      $notification->notify();
+    }
 
     function reassignTask($qid, $current_uid, $reassign_uid) {
       if ($qid > 0 && $reassign_uid > 0) {

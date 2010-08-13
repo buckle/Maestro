@@ -40,6 +40,8 @@
 
     function newProcess($template, $startoffset = null, $pid = null , $useExistingGroupingId = FALSE) {
         global $user;
+        $queue_id_for_notifications = 0;
+
         // Retrieve the first step of the process and kick it off
         if ($startoffset == null ) {
             $query = db_select('maestro_template_data_next_step', 'a');
@@ -131,9 +133,7 @@
               watchdog('maestro', "New Process Code FAIL! - Unexpected problem creating initial queue record for template: $template");
               return FALSE;
             }
-
-            // Check if notification has been defined for new task assignment
-            $this->sendTaskAssignmentNotifications($queue_record->id);
+            $queue_id_for_notifications = $queue_record->id;
 
             // Determine if the offset is set.. if so, update the original parent process record with a status of 2
             if (!empty($startoffset) AND !empty($pid)) {
@@ -283,6 +283,10 @@
             if ($this->_debug) {
               watchdog('maestro', "New Process Code completed Process: {$new_processid}, Tracking Id: {$this->_trackingId}");
             }
+
+            // Check if notification has been defined for new task assignment
+            $this->sendTaskAssignmentNotifications($queue_id_for_notifications);
+
             return $new_processid;
 
         }
