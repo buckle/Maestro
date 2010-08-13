@@ -21,7 +21,7 @@ function maestro_menu() {
   );
 
   $items['maestro/test'] = array(
-    'title' => 'Maestro Test Workflow',
+    'title' => 'Maestro Test Notifications',
     'page callback' => 'maestro_enginetest',
     'access callback' => TRUE,
   );
@@ -432,26 +432,8 @@ function maestro_enginetest() {
   global $base_url;
 
   include('lib-test.php');
-  maestro_createtestworkflow();
-  drupal_set_message('New workflow template created');
+  test_observers();
 
-
-  /*
-  $options = array('color1' => 'red');    // Example array for options - structure TBD.
-  $maestro = Maestro::createMaestroObject(1,$options);    // Initiate the processing of all tasks of type 1.x
-  $template = 1;
-  $newprocess = $maestro->engine()->newProcess($template);
-
-  $maestro->engine()->setDebug(TRUE);
-  $var = $maestro->engine()->getProcessVariable('var1');
-
-  if ($newprocess > 0) {
-    drupal_set_message("New Process Code Success! - Process ID: $newprocess");
-  } else {
-    drupal_set_message("New Process Code FAIL! - Template: $template not defined");
-  }
-  */
-  drupal_goto($base_url);
 }
 
 function maestro_launch_workflow($template = 0) {
@@ -1084,3 +1066,34 @@ function maestro_getProjectTasksHistory($tracking_id) {
 	return $retval;
 }
 
+/*
+ * Implementation of hook_maestro_notification_observer found in the notifications class for Maestro
+ */
+
+function _maestro_notification_observer() {
+  return array('MaestroEmailNotification'); //MaestroEmailNotification is the name of the class used for email notifications
+}
+
+/*
+ * Implementation of hook_mail
+ */
+function maestro_mail($key, &$message, $params) {
+  $options = array(
+    'langcode' => $message['language']->language,
+  );
+
+  //@TODO:
+  //We need to distinguish between these keys and set the subject and body appropriately.
+  //For now, I will treat each type the same until we round this out.
+
+  switch ($key) {  //pick off the keys here to preprocess the emails
+    case 'maestro_general_email_notification':
+    case 'maestro_assignment_email_notification':
+    case 'maestro_reminder_email_notification':
+    case 'maestro_completion_email_notification':
+      $message['subject'] = check_plain($params['subject']);
+      $message['body'][] = t('Maestro email notification for you!');
+      $message['body'][] = check_plain($params['message']);
+      break;
+  }
+}
