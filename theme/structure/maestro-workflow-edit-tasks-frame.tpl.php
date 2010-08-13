@@ -48,7 +48,7 @@
   <div style="margin: 0px 10px 0px 0px; float: right;">&nbsp;</div>
 
   <div class="active"><div class="maestro_task_edit_tab_close" style="float: right;"><div class="t"><div class=""><div class="r"><div class="l"><div class="bl-cl"><div class="br-cl"><div class="tl-cl"><div class="tr-cl">
-  <a href="#" onclick="(function($) { $.modal.close(); })(jQuery); return false;"><img src="<?php print $maestro_url; ?>/images/admin/close.png"></a>
+  <a href="#" onclick="(function($) { $.modal.close(); disable_ajax_indicator(); })(jQuery); return false;"><img src="<?php print $maestro_url; ?>/images/admin/close.png"></a>
   </div></div></div></div></div></div></div></div></div></div>
 
   <div style="clear: both;"></div>
@@ -130,8 +130,8 @@
           <table>
             <tr>
               <td colspan="3" style="text-align: center;">
-                <label for="assigned_by_variable_opt1"><input type="radio" id="assigned_by_variable_opt1" name="assigned_by_variable" value="0" onchange="toggle_assignment(0);" <?php print ($vars->assigned_by_variable == 0) ? 'checked="checked"':''; ?>><?php print t('Assign User(s) by Hardcoding'); ?></label>&nbsp;&nbsp;&nbsp;
-                <label for="assigned_by_variable_opt2"><input type="radio" id="assigned_by_variable_opt2" name="assigned_by_variable" value="1" onchange="toggle_assignment(1);" <?php print ($vars->assigned_by_variable == 1) ? 'checked="checked"':''; ?>><?php print t('Assign User(s) by Process Variable'); ?></label>
+                <label for="assigned_by_variable_opt1"><input type="radio" id="assigned_by_variable_opt1" name="assigned_by_variable" value="0" onchange="toggle_list_type(0, 'assign');" <?php print ($vars->assigned_by_variable == 0) ? 'checked="checked"':''; ?>><?php print t('Assign User(s) by Hardcoding'); ?></label>&nbsp;&nbsp;&nbsp;
+                <label for="assigned_by_variable_opt2"><input type="radio" id="assigned_by_variable_opt2" name="assigned_by_variable" value="1" onchange="toggle_list_type(1, 'assign');" <?php print ($vars->assigned_by_variable == 1) ? 'checked="checked"':''; ?>><?php print t('Assign User(s) by Process Variable'); ?></label>
               </td>
             </tr>
             <tr>
@@ -139,7 +139,9 @@
               <td></td>
               <td style="text-align: center;"><?php print t('Assigned'); ?></td>
             </tr>
-            <tr id="assign_by_uid_row">
+
+
+            <tr class="assign_by_uid_row" style="display: <?php print ($vars->assigned_by_variable == 0) ? '':'none'; ?>;">
               <td style="width: 200px;">
                 <select size="4" multiple="multiple" style="width: 100%;" id="assign_by_uid_unselected">
 <?php
@@ -154,9 +156,9 @@
                 </select>
               </td>
               <td style="text-align: center;">
-                <a href="#" onclick="move_to_left('uid'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/left-arrow.png"></a>
+                <a href="#" onclick="move_to_left('uid', 'assign'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/left-arrow.png"></a>
                 &nbsp;&nbsp;&nbsp;
-                <a href="#" onclick="move_to_right('uid'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/right-arrow.png"></a>
+                <a href="#" onclick="move_to_right('uid', 'assign'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/right-arrow.png"></a>
               </td>
               <td style="width: 200px;">
                 <select size="4" multiple="multiple" style="width: 100%;" id="assign_by_uid" name="assign_by_uid[]">
@@ -172,7 +174,9 @@
                 </select>
               </td>
             </tr>
-            <tr id="assign_by_pv_row">
+
+
+            <tr class="assign_by_pv_row" style="display: <?php print ($vars->assigned_by_variable == 1) ? '':'none'; ?>;">
               <td style="width: 200px;">
                 <select size="4" multiple="multiple" style="width: 100%;" id="assign_by_pv_unselected">
 <?php
@@ -187,9 +191,9 @@
                 </select>
               </td>
               <td style="text-align: center;">
-                <a href="#" onclick="move_to_left('pv'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/left-arrow.png"></a>
+                <a href="#" onclick="move_to_left('pv', 'assign'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/left-arrow.png"></a>
                 &nbsp;&nbsp;&nbsp;
-                <a href="#" onclick="move_to_right('pv'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/right-arrow.png"></a>
+                <a href="#" onclick="move_to_right('pv', 'assign'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/right-arrow.png"></a>
               </td>
               <td style="width: 200px;">
                 <select size="4" multiple="multiple" style="width: 100%;" id="assign_by_pv" name="assign_by_pv[]">
@@ -213,6 +217,227 @@
   if (array_key_exists('notification', $task_edit_tabs) && $task_edit_tabs['notification'] == 1) {
 ?>
         <div id="task_edit_notification" style="display: none;">
+          <table>
+            <tr>
+              <td colspan="3" style="text-align: center;">
+                <label for="notify_by_variable_opt1"><input type="radio" id="notify_by_variable_opt1" name="notify_by_variable" value="0" onchange="toggle_list_type(0, 'notify');" <?php print ($vars->notify_type == 0) ? 'checked="checked"':''; ?>><?php print t('Notify User(s) by Hardcoding'); ?></label>&nbsp;&nbsp;&nbsp;
+                <label for="notify_by_variable_opt2"><input type="radio" id="notify_by_variable_opt2" name="notify_by_variable" value="1" onchange="toggle_list_type(1, 'notify');" <?php print ($vars->notify_type == 1) ? 'checked="checked"':''; ?>><?php print t('Notify User(s) by Process Variable'); ?></label>
+              </td>
+            </tr>
+
+
+            <tr><td colspan="3"><?php print t('On Assignment'); ?></td></tr>
+            <tr class="notify_by_uid_row" style="display: <?php print ($vars->notify_type == 0) ? '':'none'; ?>;">
+              <td style="width: 200px;">
+                <select size="4" multiple="multiple" style="width: 100%;" id="notify_assign_by_uid_unselected">
+<?php
+                  foreach ($uid_options as $value => $rec) {
+                    if ($rec['selected_notify_assign'] == 0) {
+?>
+                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
+<?php
+                    }
+                  }
+?>
+                </select>
+              </td>
+              <td style="text-align: center;">
+                <a href="#" onclick="move_to_left('uid', 'notify_assign'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/left-arrow.png"></a>
+                &nbsp;&nbsp;&nbsp;
+                <a href="#" onclick="move_to_right('uid', 'notify_assign'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/right-arrow.png"></a>
+              </td>
+              <td style="width: 200px;">
+                <select size="4" multiple="multiple" style="width: 100%;" id="notify_assign_by_uid" name="notify_assign_by_uid[]">
+<?php
+                  foreach ($uid_options as $value => $rec) {
+                    if ($rec['selected_notify_assign'] == 1) {
+?>
+                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
+<?php
+                    }
+                  }
+?>
+                </select>
+              </td>
+            </tr>
+
+
+            <tr class="notify_by_pv_row" style="display: <?php print ($vars->notify_type == 1) ? '':'none'; ?>;">
+              <td style="width: 200px;">
+                <select size="4" multiple="multiple" style="width: 100%;" id="notify_assign_by_pv_unselected">
+<?php
+                  foreach ($pv_options as $value => $rec) {
+                    if ($rec['selected_notify_assign'] == 0) {
+?>
+                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
+<?php
+                    }
+                  }
+?>
+                </select>
+              </td>
+              <td style="text-align: center;">
+                <a href="#" onclick="move_to_left('pv', 'notify_assign'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/left-arrow.png"></a>
+                &nbsp;&nbsp;&nbsp;
+                <a href="#" onclick="move_to_right('pv', 'notify_assign'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/right-arrow.png"></a>
+              </td>
+              <td style="width: 200px;">
+                <select size="4" multiple="multiple" style="width: 100%;" id="notify_assign_by_pv" name="notify_assign_by_pv[]">
+<?php
+                  foreach ($pv_options as $value => $rec) {
+                    if ($rec['selected_notify_assign'] == 1) {
+?>
+                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
+<?php
+                    }
+                  }
+?>
+                </select>
+              </td>
+            </tr>
+
+
+            <tr><td colspan="3"><?php print t('On Completion'); ?></td></tr>
+            <tr class="notify_by_uid_row" style="display: <?php print ($vars->notify_type == 0) ? '':'none'; ?>;">
+              <td style="width: 200px;">
+                <select size="4" multiple="multiple" style="width: 100%;" id="notify_complete_by_uid_unselected">
+<?php
+                  foreach ($uid_options as $value => $rec) {
+                    if ($rec['selected_notify_complete'] == 0) {
+?>
+                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
+<?php
+                    }
+                  }
+?>
+                </select>
+              </td>
+              <td style="text-align: center;">
+                <a href="#" onclick="move_to_left('uid', 'notify_complete'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/left-arrow.png"></a>
+                &nbsp;&nbsp;&nbsp;
+                <a href="#" onclick="move_to_right('uid', 'notify_complete'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/right-arrow.png"></a>
+              </td>
+              <td style="width: 200px;">
+                <select size="4" multiple="multiple" style="width: 100%;" id="notify_complete_by_uid" name="notify_complete_by_uid[]">
+<?php
+                  foreach ($uid_options as $value => $rec) {
+                    if ($rec['selected_notify_complete'] == 1) {
+?>
+                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
+<?php
+                    }
+                  }
+?>
+                </select>
+              </td>
+            </tr>
+
+
+            <tr class="notify_by_pv_row" style="display: <?php print ($vars->notify_type == 1) ? '':'none'; ?>;">
+              <td style="width: 200px;">
+                <select size="4" multiple="multiple" style="width: 100%;" id="notify_complete_by_pv_unselected">
+<?php
+                  foreach ($pv_options as $value => $rec) {
+                    if ($rec['selected_notify_complete'] == 0) {
+?>
+                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
+<?php
+                    }
+                  }
+?>
+                </select>
+              </td>
+              <td style="text-align: center;">
+                <a href="#" onclick="move_to_left('pv', 'notify_complete'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/left-arrow.png"></a>
+                &nbsp;&nbsp;&nbsp;
+                <a href="#" onclick="move_to_right('pv', 'notify_complete'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/right-arrow.png"></a>
+              </td>
+              <td style="width: 200px;">
+                <select size="4" multiple="multiple" style="width: 100%;" id="notify_complete_by_pv" name="notify_complete_by_pv[]">
+<?php
+                  foreach ($pv_options as $value => $rec) {
+                    if ($rec['selected_notify_complete'] == 1) {
+?>
+                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
+<?php
+                    }
+                  }
+?>
+                </select>
+              </td>
+            </tr>
+
+
+            <tr><td colspan="3"><?php print t('Reminders'); ?></td></tr>
+            <tr class="notify_by_uid_row" style="display: <?php print ($vars->notify_type == 0) ? '':'none'; ?>;">
+              <td style="width: 200px;">
+                <select size="4" multiple="multiple" style="width: 100%;" id="notify_remind_by_uid_unselected">
+<?php
+                  foreach ($uid_options as $value => $rec) {
+                    if ($rec['selected_notify_remind'] == 0) {
+?>
+                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
+<?php
+                    }
+                  }
+?>
+                </select>
+              </td>
+              <td style="text-align: center;">
+                <a href="#" onclick="move_to_left('uid', 'notify_remind'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/left-arrow.png"></a>
+                &nbsp;&nbsp;&nbsp;
+                <a href="#" onclick="move_to_right('uid', 'notify_remind'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/right-arrow.png"></a>
+              </td>
+              <td style="width: 200px;">
+                <select size="4" multiple="multiple" style="width: 100%;" id="notify_remind_by_uid" name="notify_remind_by_uid[]">
+<?php
+                  foreach ($uid_options as $value => $rec) {
+                    if ($rec['selected_notify_remind'] == 1) {
+?>
+                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
+<?php
+                    }
+                  }
+?>
+                </select>
+              </td>
+            </tr>
+
+
+            <tr class="notify_by_pv_row" style="display: <?php print ($vars->notify_type == 1) ? '':'none'; ?>;">
+              <td style="width: 200px;">
+                <select size="4" multiple="multiple" style="width: 100%;" id="notify_remind_by_pv_unselected">
+<?php
+                  foreach ($pv_options as $value => $rec) {
+                    if ($rec['selected_notify_remind'] == 0) {
+?>
+                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
+<?php
+                    }
+                  }
+?>
+                </select>
+              </td>
+              <td style="text-align: center;">
+                <a href="#" onclick="move_to_left('pv', 'notify_remind'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/left-arrow.png"></a>
+                &nbsp;&nbsp;&nbsp;
+                <a href="#" onclick="move_to_right('pv', 'notify_remind'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/right-arrow.png"></a>
+              </td>
+              <td style="width: 200px;">
+                <select size="4" multiple="multiple" style="width: 100%;" id="notify_remind_by_pv" name="notify_remind_by_pv[]">
+<?php
+                  foreach ($pv_options as $value => $rec) {
+                    if ($rec['selected_notify_remind'] == 1) {
+?>
+                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
+<?php
+                    }
+                  }
+?>
+                </select>
+              </td>
+            </tr>
+          </table>
         </div>
 <?php
   }

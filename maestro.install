@@ -543,19 +543,42 @@ function maestro_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'pre_notify_variable' => array(
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'process_variable' => array('process_variable'),
+      'template_data_id' => array('template_data_id'),
+    ),
+  );
+
+  //maestro_template_notification
+  $schema['maestro_template_notification'] = array(
+    'description' => '',
+    'fields' => array(
+      'id' => array(
+        'description' => '',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'template_data_id' => array(
         'description' => '',
         'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
       ),
-      'post_notify_variable' => array(
+      'pre_notify_id' => array(
         'description' => '',
         'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
       ),
-      'reminder_notify_variable' => array(
+      'post_notify_id' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'reminder_notify_id' => array(
         'description' => '',
         'type' => 'int',
         'not null' => TRUE,
@@ -564,10 +587,9 @@ function maestro_schema() {
     ),
     'primary key' => array('id'),
     'indexes' => array(
-      'post_notify_variable' => array('post_notify_variable'),
-      'pre_notify_variable' => array('pre_notify_variable'),
-      'process_variable' => array('process_variable'),
-      'reminder_notify_variable' => array('reminder_notify_variable'),
+      'pre_notify_id' => array('pre_notify_id'),
+      'post_notify_id' => array('post_notify_id'),
+      'reminder_notify_id' => array('reminder_notify_id'),
       'template_data_id' => array('template_data_id'),
     ),
   );
@@ -625,6 +647,13 @@ function maestro_schema() {
         'not null' => FALSE,
       ),
       'assigned_by_variable' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'notify_type' => array(
         'description' => '',
         'type' => 'int',
         'size' => 'tiny',
