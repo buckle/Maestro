@@ -47,7 +47,7 @@ class MaestroNotification {
    * Constructor
    *
    * @param $users
-   *   An array of integers or single integer specifying the Drupal users to notify.
+   *   Mandatory - An array of integers or single integer specifying the Drupal users to notify.
    *
    * @param $message
    *   String: The actual message to send in the email.
@@ -61,7 +61,7 @@ class MaestroNotification {
    * @param $type
    *   String: The actual notification type using the MaestroNotificationTypes Constants
    */
-  function __construct($users, $message, $subject, $queueID, $type = MaestroNotificationTypes::GENERAL) {
+  function __construct($users, $message = '', $subject = '', $queueID = 0, $type = MaestroNotificationTypes::GENERAL) {
     $this->_subject = $subject;
     $this->_notificationType = $type;
     $observers = array();
