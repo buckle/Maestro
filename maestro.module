@@ -1070,7 +1070,7 @@ function maestro_getProjectTasksHistory($tracking_id) {
  * Implementation of hook_maestro_notification_observer found in the notifications class for Maestro
  */
 
-function _maestro_notification_observer() {
+function maestro_maestro_notification_observer() {
   return array('MaestroEmailNotification'); //MaestroEmailNotification is the name of the class used for email notifications
 }
 
