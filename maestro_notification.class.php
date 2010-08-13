@@ -143,11 +143,18 @@ class MaestroNotification {
     $this->_observers[] = $observer;
   }
 
+  /*
+   * notify method
+   * Responsible for pushing out the notifications to the subscribed notification mechanisms
+   * Notify will be disabled when the configuration option is disabled.
+   */
   public function notify() {
-    if(is_array($this->_observers) && count($this->_observers) > 0 ) {
-      foreach($this->_observers as $obj) {
-        $notifyObject = new $obj();
-        $notifyObject->notify($this);
+    if(variable_get('maestro_enable_notifications',1) == 1) {
+      if(is_array($this->_observers) && count($this->_observers) > 0 ) {
+        foreach($this->_observers as $obj) {
+          $notifyObject = new $obj();
+          $notifyObject->notify($this);
+        }
       }
     }
   }
