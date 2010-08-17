@@ -10,7 +10,9 @@ function maestro_test_flows_install() {
   //we need to include the maestro.admin.inc file
   include(drupal_get_path('module','maestro') . '/maestro.admin.inc');
 
-  /* Basic Test Workflow Example */
+  $dt = date("m-d-Y", time());
+  $app_group_id = maestro_createAppGroup("Sample Workflow AppGroup created " . $dt);
+	/* Basic Test Workflow Example */
   $_POST['offset_top'] = 0;
   $_POST['offset_left'] = 0;
   $variable_xref_array = Array();
@@ -18,6 +20,7 @@ function maestro_test_flows_install() {
   $task_xref_array = Array();
   $task_xref_array[0] = 0;
   $templateID = maestro_createNewTemplate("Test - Basic Workflow Example", TRUE, TRUE);
+  maestro_joinAppGroup($templateID, $app_group_id);
   $variable_xref_array[2] = maestro_createTemplateVariable($templateID, "initiator", "");
   $variable_xref_array[3] = maestro_createTemplateVariable($templateID, "var1", "0");
   $ti = new MaestroTaskInterfaceStart(0, $templateID);
@@ -278,6 +281,7 @@ function maestro_test_flows_install() {
   $task_xref_array = Array();
   $task_xref_array[0] = 0;
   $templateID = maestro_createNewTemplate("Test Simple Parallel AND", TRUE, TRUE);
+  maestro_joinAppGroup($templateID, $app_group_id);
   $variable_xref_array[4] = maestro_createTemplateVariable($templateID, "initiator", "");
   $ti = new MaestroTaskInterfaceStart(0, $templateID);
   $ti->create();
@@ -549,6 +553,7 @@ function maestro_test_flows_install() {
   $task_xref_array = Array();
   $task_xref_array[0] = 0;
   $templateID = maestro_createNewTemplate("Test Parallel and Sequential Branches", TRUE, TRUE);
+  maestro_joinAppGroup($templateID, $app_group_id);
   $variable_xref_array[5] = maestro_createTemplateVariable($templateID, "initiator", "");
   $ti = new MaestroTaskInterfaceStart(0, $templateID);
   $ti->create();
@@ -954,7 +959,8 @@ function maestro_test_flows_install() {
   $task_xref_array = Array();
   $task_xref_array[0] = 0;
   $templateID = maestro_createNewTemplate("Test Content Type Task", TRUE, TRUE);
-  $variable_xref_array[5] = maestro_createTemplateVariable($templateID, "initiator", "");
+  maestro_joinAppGroup($templateID, $app_group_id);
+  variable_xref_array[5] = maestro_createTemplateVariable($templateID, "initiator", "");
   $variable_xref_array[6] = maestro_createTemplateVariable($templateID, "content_type", "article");
   $ti = new MaestroTaskInterfaceStart(0, $templateID);
   $ti->create();

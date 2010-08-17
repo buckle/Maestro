@@ -500,6 +500,15 @@ function maestro_deleteAppGroup($id){
   $query->execute();
 }
 
+function maestro_joinAppGroup($template_id, $appgroup_id) {
+  if(!user_access('maestro admin')) return false;
+  $update = db_update('maestro_template')
+      ->fields(array( 'app_group' => $appgroup_id
+      ))
+      ->condition('id', $template_id)
+      ->execute();
+}
+
 function maestro_export($id) {
   $output_php = "";
   $id=intval($id);

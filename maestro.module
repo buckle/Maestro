@@ -754,7 +754,7 @@ function template_preprocess_maestro_workflow_edit_template_variables_list(&$var
 
 function maestro_createAppGroupDropDown($name, $selected = 0){
   $res = db_query("SELECT id, app_group FROM {maestro_app_groups}");
-  $output = "<select class='form-select' id='{$name}' name='{$name}' size='4' style='width:150px;'>";
+  $output = "<select class='form-select' id='{$name}' name='{$name}' size='4' >";
   $output .= "<option value='0'>" . t('N/A') . "</option>";
   foreach ($res as $rec) {
     $sel = "";
@@ -1087,10 +1087,11 @@ function maestro_mail($key, &$message, $params) {
   //For now, I will treat each type the same until we round this out.
 
   switch ($key) {  //pick off the keys here to preprocess the emails
-    case 'maestro_general_email_notification':
-    case 'maestro_assignment_email_notification':
-    case 'maestro_reminder_email_notification':
-    case 'maestro_completion_email_notification':
+    case 'maestro_general_notification':
+    case 'maestro_assignment_notification':
+    case 'maestro_reminder_notification':
+    case 'maestro_completion_notification':
+    case 'maestro_escalation_notification':
       $message['subject'] = check_plain($params['subject']);
       $message['body'][] = t('Maestro email notification for you!');
       $message['body'][] = check_plain($params['message']);

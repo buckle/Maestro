@@ -71,7 +71,7 @@
             <tr>
               <td colspan="3" style="vertical-align:top;padding-left:10px;">
                 <div style="float:left;width:75%"><?php print t('Bind Flow to a Flow Application Group'); ?>: </div>
-                <div style="float:right;width:20%;white-space:nowrap;"> <?php print $template_app_groups; ?> </div>
+                <div style="float:right;white-space:nowrap;"> <?php print $template_app_groups; ?> </div>
               </td>
             </tr>
           </table>
