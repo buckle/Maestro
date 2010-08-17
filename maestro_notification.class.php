@@ -20,7 +20,7 @@ abstract class MaestroNotificationObserver {
   public $displayName;
 
   function __construct() {
-    $this->displayName = "";
+    $this->displayName = "";  //You must give the observer a friendly display name so that the admin console can display it
   }
 
   abstract function notify(MaestroNotification &$obj);
@@ -62,20 +62,15 @@ class MaestroNotification {
    * @param $type
    *   String: The actual notification type using the MaestroNotificationTypes Constants
    */
-  function __construct($users, $message = '', $subject = '', $queueID = 0, $type = MaestroNotificationTypes::GENERAL) {
+  function __construct($message = '', $subject = '', $queueID = 0, $type = MaestroNotificationTypes::GENERAL) {
     $this->_subject = $subject;
     $this->_notificationType = $type;
     $observers = array();
     $this->_message = $message;
     $this->_queueID = $queueID;
-    if(is_array($users)) {
-      $this->_userIDArray = $users;
-    }
-    else {
-      if(is_numeric($users)) {
-        $this->_userIDArray[0] = $users;
-      }
-    }
+    xdebug_break();
+    $this->getNotificationUserIDs();
+
     //Now, lets determine if we've got our observers cached.  If not, lets rebuild that observer list
     //This is how we subscribe to becoming a notification provider for Maestro.
     $observers = cache_get('maestro_notification_observers');
@@ -97,10 +92,85 @@ class MaestroNotification {
     }
   }
 
-  function getEmailFromUserIDs() {
-    if(is_array($this->_userIDArray) && count($this->_userIDArray) > 0) {
-      //@TODO: Should we be doing this in the constructor or even at all for the end user?
-      //in here, get the users' email addresses
+  function getNotificationUserIDs() {
+    if(intval($this->_queueID) > 0 && $this->_notificationType != '') {
+      $query = db_select('maestro_queue', 'a');
+      $query->fields('a', array('process_id'));
+      $query->fields('b', array('id', 'notify_type'));
+      $query->leftJoin('maestro_template_data', 'b', 'a.template_data_id=b.id');
+      $query->condition('a.id', $this->_queueID, '=');
+      $qRec = current($query->execute()->fetchAll());
+
+      $query = db_select('maestro_template_notification', 'a');
+      switch($this->_notificationType) {
+        case MaestroNotificationTypes::ASSIGNMENT:
+          if ($qRec->notify_type == 0) {
+            $query->addField('a', 'pre_notify_id', 'uid');
+            $query->leftJoin('users', 'c', 'a.pre_notify_id = c.uid');
+          }
+          else if ($qRec->notify_type == 1) {  //storing the user ids
+            $query->addField('b', 'variable_value', 'uid');
+            $query->leftJoin('maestro_process_variables', 'b', 'a.pre_notify_id=b.template_variable_id');
+            $query->condition('b.process_id', $qRec->process_id, '=');
+            $query->leftJoin('users', 'c', 'b.variable_value = c.uid');
+          }
+          $query->condition('a.pre_notify_id', 0, '>');
+          break;
+
+        case MaestroNotificationTypes::REMINDER:
+          if ($qRec->notify_type == 0) {
+            $query->addField('a', 'reminder_notify_id', 'uid');
+            $query->leftJoin('users', 'c', 'a.reminder_notify_id = c.uid');
+          }
+          else if ($qRec->notify_type == 1) {  //storing the user ids
+            $query->addField('b', 'variable_value', 'uid');
+            $query->leftJoin('maestro_process_variables', 'b', 'a.reminder_notify_id=b.template_variable_id');
+            $query->condition('b.process_id', $qRec->process_id, '=');
+            $query->leftJoin('users', 'c', 'b.variable_value = c.uid');
+          }
+          $query->condition('a.reminder_notify_id', 0, '>');
+        break;
+
+        case MaestroNotificationTypes::COMPLETION:
+          if ($qRec->notify_type == 0) {
+            $query->addField('a', 'post_notify_id', 'uid');
+            $query->leftJoin('users', 'c', 'a.post_notify_id = c.uid');
+          }
+          else if ($qRec->notify_type == 1) {  //storing the user ids
+            $query->addField('b', 'variable_value', 'uid');
+            $query->leftJoin('maestro_process_variables', 'b', 'a.post_notify_id=b.template_variable_id');
+            $query->condition('b.process_id', $qRec->process_id, '=');
+            $query->leftJoin('users', 'c', 'b.variable_value = c.uid');
+          }
+          $query->condition('a.post_notify_id', 0, '>');
+        break;
+
+        case MaestroNotificationTypes::GENERAL:
+          if ($qRec->notify_type == 0) {
+            $query->addField('a', 'pre_notify_id', 'uid');
+            $query->leftJoin('users', 'c', 'a.pre_notify_id = c.uid');
+          }
+          else if ($qRec->notify_type == 1) {  //storing the user ids
+            $query->addField('b', 'variable_value', 'uid');
+            $query->leftJoin('maestro_process_variables', 'b', 'a.pre_notify_id=b.template_variable_id');
+            $query->condition('b.process_id', $qRec->process_id, '=');
+            $query->leftJoin('users', 'c', 'b.variable_value = c.uid');
+          }
+          $query->condition('a.pre_notify_id', 0, '>');
+          break;
+      }
+      $query->condition('a.template_data_id', $qRec->id, '=');
+      $query->fields('c', array('mail'));
+      $res = $query->execute();
+      $this->_userIDArray = array();
+      $this->_userEmailArray = array();
+      foreach ($res as $rec) {
+        $this->_userIDArray[$rec->uid] = $rec->uid;
+        $this->_userEmailArray[$rec->uid] = $rec->mail;
+      }
+    }
+    else {
+      return FALSE;
     }
   }
 
@@ -140,8 +210,11 @@ class MaestroNotification {
     return $this->_userIDArray;
   }
 
-  function getUserEmailAddresses(){
-    return $this->_userEmailArray;
+  function getUserEmailAddresses($userid = 0){
+    $userid = intval($userid);
+    if($userid == 0) return $this->_userEmailArray;
+
+    return $this->_userEmailArray[$userid];
   }
 
   public function attach(MaestroNotificationObserver $observer) {
@@ -197,16 +270,28 @@ class MaestroEmailNotification extends MaestroNotificationObserver {
     $send = TRUE;
     if(is_array($obj->getUserIDs())) {
       foreach($obj->getUserIDs() as $userID) {
-        $to = $this->getUserEmailAddressFromUID($userID);
+        $to =  $obj->getUserEmailAddresses($userID);
         $params = array('message' => $obj->getMessage(), 'subject' => $obj->getSubject(), 'queueID' => $obj->getQueueId());
         $result = drupal_mail('maestro', $obj->getNotificationType(), $to, language_default(), $params, $from, $send);
       }
     }
   }
 
-  public function getUserEmailAddressFromUID($userID) {
-    $user = user_load($userID);
-    return $user->mail;
+}
+
+
+class MaestroWatchDogNotification extends MaestroNotificationObserver {
+
+  public function __construct() {
+    $this->displayName = "Watchdog Notifier";
+  }
+
+  public function notify(MaestroNotification &$obj) {
+    if(is_array($obj->getUserIDs())) {
+      foreach($obj->getUserIDs() as $userID) {
+        watchdog('Maestro', "Notification issued for UserID: ". $userID . " email address: " . $obj->getUserEmailAddresses($userID));
+      }
+    }
   }
 }
 
