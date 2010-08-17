@@ -352,7 +352,7 @@
 
     function getQueueHistory($initiating_pid) {
       $query = db_select('maestro_queue', 'a');
-      $query->fields('a', array('id', 'process_id', 'status', 'archived'));
+      $query->fields('a', array('id', 'process_id', 'status', 'archived', 'created_date', 'started_date', 'completed_date'));
       $query->fields('c', array('taskname'));
       $query->fields('d', array('name'));
       $query->leftJoin('maestro_process', 'b', 'a.process_id=b.id');

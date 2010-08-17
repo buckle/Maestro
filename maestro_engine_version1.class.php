@@ -807,7 +807,7 @@
             $this->_mode = 'user';
           }
           if ($this->_debug ) {
-              watchdog('maestro',"Entering getQueue - user mode");
+            watchdog('maestro',"Entering getQueue - {$this->mode} mode");
           }
           $this->_userTaskCount = 0;
           $query = db_select('maestro_queue', 'a');

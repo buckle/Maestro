@@ -61,7 +61,15 @@
                   </td>
                   <td>
                     <input type="hidden" name="queue_id[]" value="<?php print $rec->id; ?>">
-                    <?php print $rec->id; ?>: <?php print $rec->taskname; ?>
+                    <a href="#" class="info" style="text-decoration: none;" onclick="return false;">
+                      <?php print $rec->id; ?>: <?php print $rec->taskname; ?>
+                      <span style="display: none; margin: 0px 0px 0px 75px;">
+                        <?php print t('Owner'); ?>: <?php print ($rec->username) == '' ? t('N/A') : $rec->username; ?><br />
+                        <?php print t('Created'); ?>: <?php print ($rec->created_date != 0) ? date('Y-m-d H:i:s', $rec->created_date) : t('N/A'); ?><br />
+                        <?php print t('Started'); ?>: <?php print ($rec->started_date != 0) ? date('Y-m-d H:i:s', $rec->started_date) : t('N/A'); ?><br />
+                        <?php print t('Completed'); ?>: <?php print ($rec->completed_date != 0) ? date('Y-m-d H:i:s', $rec->completed_date) : t('N/A'); ?><br />
+                      </span>
+                    </a>
                   </td>
                   <td>
                     <?php print $rec->username; ?>
