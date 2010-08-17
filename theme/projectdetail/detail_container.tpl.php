@@ -59,9 +59,8 @@
                 </span>
             </legend>&nbsp;
             <?php
-              foreach ($content_records as $nid => $title) {  ?>
-                <div><a href="<?php print "{$base_url}/node/{$nid}/edit/maestro/edit/"; ?>"><?php print $title; ?></a> </div>
-            <?php
+              foreach ($content_records as $content) {
+                print $content;
               }
             ?>
         </fieldset>

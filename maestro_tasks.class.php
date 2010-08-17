@@ -97,6 +97,16 @@ abstract class MaestroTask {
     return "#";
   }
 
+  /* Method called by maestro_node_insert to handle tracking of the node record
+   * The contentType task implements this method for example to handle tracking
+   * of the node that is created when task is executed
+   */
+  function processContent() {
+  }
+
+  /* Method called by taskconsole when task is expanded to show project details
+   * Allows tasks to return any tracked content such as links to nodes for view/edit
+   */
   function showContentDetail() {
     return '';
   }
