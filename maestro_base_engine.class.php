@@ -234,7 +234,7 @@
       if ($qid == 0) {
         $qid = $this->_queueId;
       }
-      $notification = new MaestroNotification(t('Completed Task Message Body'), t('Task as been Completed'), $qid, MaestroNotificationTypes::ASSIGNMENT);
+      $notification = new MaestroNotification(t('Completed Task Message Body'), t('Task as been Completed'), $qid, MaestroNotificationTypes::REMINDER);
       $notification->notify();
     }
 
@@ -243,7 +243,7 @@
       if ($qid == 0) {
           $qid = $this->_queueId;
       }
-      $notification = new MaestroNotification(t('Reminder Notification Message Body'), t('Task Reminder'), $qid, MaestroNotificationTypes::ASSIGNMENT);
+      $notification = new MaestroNotification(t('Reminder Notification Message Body'), t('Task Reminder'), $qid, MaestroNotificationTypes::COMPLETION);
       $notification->notify();
     }
 
