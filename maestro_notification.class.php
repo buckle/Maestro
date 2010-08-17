@@ -205,6 +205,16 @@ class MaestroNotification {
     $this->_message = $message;
   }
 
+  function setUserIDs($userIDs) {
+    if(is_array($userIDs) && count($userIDs) > 0) {
+      $this->_userIDArray = $userIDs;
+    }
+    else {
+      $this->_userIDArray = array();
+      $this->_userIDArray[] = $userIDs;
+    }
+  }
+
   function getUserIDs(){
     return $this->_userIDArray;
   }

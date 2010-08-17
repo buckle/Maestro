@@ -235,6 +235,9 @@
         $qid = $this->_queueId;
       }
       $notification = new MaestroNotification(t('Completed Task Message Body'), t('Task as been Completed'), $qid, MaestroNotificationTypes::REMINDER);
+      if($user_id != 0) {
+        $notification->setUserIDs($user_id);
+      }
       $notification->notify();
     }
 
