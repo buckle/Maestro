@@ -19,7 +19,7 @@
       <tr>
         <th><?php print t('Task Name'); ?></th>
         <th><?php print t('Assigned To'); ?></th>
-        <th><?php print t('Operation'); ?></th>
+        <th style="text-align:right"><?php print t('Operation'); ?></th>
       </tr>
     </thead>
 
@@ -34,7 +34,7 @@
       <tr id="ot_row<?php print $i; ?>" class="<?php print $classname; ?>">
         <td style="vertical-align: top;"><?php print $task->taskname; ?></td>
         <td style="vertical-align: top;"><?php print $task->username; ?></td>
-        <td style="vertical-align: top; width: 200px;">
+        <td style="text-align:right;vertical-align: top; width: 200px;">
           <?php print l("<img class=\"valigncenter\" src=\"{$maestro_url}/images/taskconsole/reassign.png\">", "maestro/outstanding/reassign/{$task->queue_id}", array('html' => TRUE, 'attributes' => array('title' => t('Reassign this Task'), 'onclick' => "show_reassign(this, '{$task->uid}'); return false;") )); ?>
           <?php print l("<img class=\"valigncenter\" src=\"{$maestro_url}/images/taskconsole/email.png\">", "maestro/outstanding/email/{$task->queue_id}/{$task->uid}", array('html' => TRUE, 'attributes' => array('title' => t('Send a Reminder to Task Owner')) )); ?>
           <?php print l("<img class=\"valigncenter\" src=\"{$maestro_url}/images/taskconsole/trace.png\">", "maestro/trace/0/{$task->process_id}/{$task->queue_id}", array('html' => TRUE, 'attributes' => array('title' => t('Trace this Process')) )); ?>
