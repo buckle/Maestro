@@ -1069,7 +1069,7 @@ function maestro_getProjectTasksHistory($tracking_id) {
  */
 
 function maestro_maestro_notification_observer() {
-  return array('MaestroEmailNotification', 'SAMPLEMaestroTwitterNotification', 'MaestroWatchDogNotification'); //MaestroEmailNotification is the name of the class used for email notifications
+  return array('MaestroEmailNotification','SAMPLEMaestroTwitterNotification', 'MaestroWatchDogNotification'); //MaestroEmailNotification is the name of the class used for email notifications
 }
 
 /*
