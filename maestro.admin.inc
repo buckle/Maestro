@@ -238,12 +238,13 @@ function maestro_handle_structure_ajax_request(){
 
     case 'copytemplate':
       $query = db_select('maestro_template', 'a');
-      $query->fields('a',array('template_name', 'app_group'));
+      $query->fields('a',array('template_name', 'app_group','canvas_height'));
       $query->condition('a.id',$id,'=');
       $name=current($query->execute()->fetchAll());
       $record = new stdClass();
       $record ->template_name = $name->template_name . " - COPY";
       $record ->app_group = $name->app_group;
+      $record ->canvas_height = $name->canvas_height;
       drupal_write_record('maestro_template', $record);
       $newTID=$record->id;
 
@@ -328,15 +329,12 @@ function maestro_handle_structure_ajax_request(){
 
         $assignmentres = db_query("SELECT * FROM {maestro_template_assignment} WHERE template_data_id = :id", array('id' => $rec->id));
         foreach($assignmentres as $ares) {
-          $sql  = "INSERT INTO {maestro_template_assignment} (template_data_id, uid, gid, process_variable, pre_notify_variable, post_notify_variable, reminder_notify_variable) ";
-          $sql .= "VALUES (:a1, :b1, :c1, :d1, :e1, :f1, :g1)";
+          $sql  = "INSERT INTO {maestro_template_assignment} (template_data_id, uid, gid, process_variable) ";
+          $sql .= "VALUES (:a1, :b1, :c1, :d1)";
           db_query($sql, array( 'a1' => $taskDataArray[$ares->template_data_id],
                                 'b1' => $ares->uid,
                                 'c1' => $ares->gid,
-                                'd1' => $variable_xref_array[$ares->process_variable],
-                                'e1' => $ares->pre_notify_variable,
-                                'f1' => $ares->post_notify_variable,
-                                'g1' => $ares->reminder_notify_variable
+                                'd1' => $variable_xref_array[$ares->process_variable]
                                 ));
         }
 
@@ -435,11 +433,12 @@ function maestro_edit_properties($tid, $var=0){
  * These functions need to exist in order to run unit tests against their functionality.
  */
 
-function maestro_createNewTemplate($name, $skip_task_creation = FALSE, $skip_variable_creation = FALSE){
+function maestro_createNewTemplate($name, $skip_task_creation = FALSE, $skip_variable_creation = FALSE, $canvas_height=500){
   if(!user_access('maestro admin')) return false;
   if(trim($name) != '') {
     $record = new stdClass();
-    $record ->template_name = $name;
+    $record->template_name = $name;
+    $record->canvas_height = $canvas_height;
     drupal_write_record('maestro_template', $record);
     $newTemplateRecId = $record->id;
     if(!$skip_task_creation) {
@@ -513,11 +512,12 @@ function maestro_export($id) {
     $output_php .= '$task_xref_array = Array();' . "\n";
     $output_php .= '$task_xref_array[0] = 0;' . "\n";
     $query = db_select('maestro_template', 'a');
-    $query->fields('a',array('template_name'));
+    $query->fields('a',array('template_name', 'canvas_height'));
     $query->condition('a.id',$id,'=');
     $name=current($query->execute()->fetchAll());
     $original_template_name = str_replace('"', '\"', $name->template_name);
-    $output_php .= '$templateID = maestro_createNewTemplate("IMPORT - ' . $original_template_name . '", TRUE, TRUE);' . "\n"; //create new template
+    $canvas_height = $name->canvas_height;
+    $output_php .= '$templateID = maestro_createNewTemplate("IMPORT - ' . $original_template_name . '", TRUE, TRUE, ' . $canvas_height . ');' . "\n"; //create new template
     //lets get all of the template variables:
     $template_variables_record_set=db_query("SELECT * FROM {maestro_template_variables} WHERE template_id = :tid", array('tid' => $id));
     foreach($template_variables_record_set as $rec) {
