@@ -68,7 +68,6 @@ class MaestroNotification {
     $observers = array();
     $this->_message = $message;
     $this->_queueID = $queueID;
-    xdebug_break();
     $this->getNotificationUserIDs();
 
     //Now, lets determine if we've got our observers cached.  If not, lets rebuild that observer list
