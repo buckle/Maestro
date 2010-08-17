@@ -19,7 +19,13 @@ function maestro_content_publish_theme() {
 
 function template_preprocess_maestro_content_publish_review(&$variables) {
   global $base_url;
-  $variables['edit_content_link'] = $base_url.'/node/'.$variables['nid'].'/edit/maestro/edit/'. $variables['queue_id'];
+
+  $node = node_load($variables['nid']);
+  if ($node !== FALSE) {
+    $variables['edit_content_link'] = l($node->title, "node/{$variables['nid']}/edit/maestro/edit/{$variables['queue_id']}");
+  } else {
+    $variables['edit_content_link'] = '';
+  }
   $variables['radio1opt'] = '';
   $variables['radio2opt'] = '';
   if ($variables['data']['reviewstatus'] == 'accept') {
