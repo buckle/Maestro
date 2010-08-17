@@ -68,25 +68,25 @@ abstract class MaestroTask {
   public $executionStatus = NULL;   // Did task's execute method execute of was there an error
   public $completionStatus = NULL;  // Did the task's execution method complete and if so set to one of the defined status code CONST values
 
-	function __construct($properties = NULL) {
+  function __construct($properties = NULL) {
     $this->_properties = $properties;
   }
 
 
   /* execute: Nothing much for an interactiveTask to do in the execute method.
-   * For Interactive tasks, we will want to return an executionStatus of FALSE as this task
-   * is really executed from the task console by the user.
-   * The defined function for this task will execute and present the task to the user in the task console.
-   * The taskconsole will call the processInteractiveTask method for this task type.
-   * It's up to the defined interactiveTask function to complete the task.
-   */
+  * For Interactive tasks, we will want to return an executionStatus of FALSE as this task
+  * is really executed from the task console by the user.
+  * The defined function for this task will execute and present the task to the user in the task console.
+  * The taskconsole will call the processInteractiveTask method for this task type.
+  * It's up to the defined interactiveTask function to complete the task.
+  */
   abstract function execute ();
 
 
   /* prepareTask: Opportunity to set task specific data that will be used to create the queue record
-     Specifically, the task handler and task_data fields - which is a serialized array of task specific options/data
-     @retval:  associative array (handler => varchar, task_data => serialized array)
-   */
+  Specifically, the task handler and task_data fields - which is a serialized array of task specific options/data
+  @retval:  associative array (handler => varchar, task_data => serialized array)
+  */
   abstract function prepareTask ();
 
   function showInteractiveTask() {
@@ -95,6 +95,10 @@ abstract class MaestroTask {
 
   function getTaskConsoleURL(){
     return "#";
+  }
+
+  function showContentDetail() {
+    return '';
   }
 
   function setMessage($msg) {
@@ -116,35 +120,35 @@ abstract class MaestroTask {
   function saveTempData($data) {
     if ($this->_properties->queue_id > 0) {
       db_update('maestro_queue')
-        ->fields(array('temp_data' => serialize($data)))
-        ->condition('id', $this->_properties->queue_id, '=')
-        ->execute();
+      ->fields(array('temp_data' => serialize($data)))
+      ->condition('id', $this->_properties->queue_id, '=')
+      ->execute();
     }
   }
 
   function getTempData() {
     if ($this->_properties->queue_id > 0) {
-        $data = db_query("SELECT temp_data FROM {maestro_queue} WHERE id = :tid",
-          array(':tid' => $this->_properties->queue_id))->fetchField();
-        $retval = unserialize($data);
-        return $retval;
+      $data = db_query("SELECT temp_data FROM {maestro_queue} WHERE id = :tid",
+      array(':tid' => $this->_properties->queue_id))->fetchField();
+      $retval = unserialize($data);
+      return $retval;
     }
   }
 
   function setRunOnceFlag($task_id) {
     $task_id = intval($task_id);
     db_update('maestro_queue')
-      ->fields(array('run_once' => 1))
-      ->condition('id', $task_id, '=')
-      ->execute();
+    ->fields(array('run_once' => 1))
+    ->condition('id', $task_id, '=')
+    ->execute();
   }
 
   function setTaskStartedDate($task_id) {
     $task_id = intval($task_id);
     db_update('maestro_queue')
-      ->fields(array('started_date' => time()))
-      ->condition('id', $task_id, '=')
-      ->execute();
+    ->fields(array('started_date' => time()))
+    ->condition('id', $task_id, '=')
+    ->execute();
   }
 }
 
@@ -214,7 +218,7 @@ class MaestroTaskTypeBatch extends MaestroTask {
 
   function prepareTask() {
     $serializedData = db_query("SELECT task_data FROM {maestro_template_data} WHERE id = :tid",
-      array(':tid' => $this->_properties->taskid))->fetchField();
+    array(':tid' => $this->_properties->taskid))->fetchField();
     $taskdata = @unserialize($serializedData);
     return array('handler' => $taskdata['handler'],'serialized_data' => $serializedData);
   }
@@ -250,7 +254,7 @@ class MaestroTaskTypeBatchFunction extends MaestroTask {
 
   function prepareTask() {
     $serializedData = db_query("SELECT task_data FROM {maestro_template_data} WHERE id = :tid",
-      array(':tid' => $this->_properties->taskid))->fetchField();
+    array(':tid' => $this->_properties->taskid))->fetchField();
     $taskdata = @unserialize($serializedData);
     return array('handler' => $taskdata['handler'],'serialized_data' => $serializedData);
   }
@@ -308,7 +312,7 @@ class MaestroTaskTypeIf extends MaestroTask {
     $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
 
     $serializedData = db_query("SELECT task_data FROM {maestro_queue} WHERE id = :tid",
-      array(':tid' => $this->_properties->id))->fetchField();
+    array(':tid' => $this->_properties->id))->fetchField();
     $taskdata = @unserialize($serializedData);
 
     $templateVariableID = $taskdata['if_argument_variable'];
@@ -364,9 +368,9 @@ class MaestroTaskTypeIf extends MaestroTask {
     else {    // variableID it is - we're using a variable for testing the IF condition
 
       /* need to perform a variable to value operation based on the selected operation!
-       * $templateVariableID ,$operator ,$ifValue, $processID
-       * need to select the process variable using the ID from the current process
-       */
+      * $templateVariableID ,$operator ,$ifValue, $processID
+      * need to select the process variable using the ID from the current process
+      */
       $query = db_select('maestro_process_variables', 'a');
       $query->fields('a',array('variable_value'));
       $query->condition(db_and()->condition("a.process_id",$this->_properties->process_id)->condition('a.template_variable_id',$templateVariableID));
@@ -421,13 +425,13 @@ class MaestroTaskTypeIf extends MaestroTask {
       $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
     }
     else if ($useTrueBranch === FALSE) { // point to the false branch
-      // This task completed successfully but we want to signal to the engine the condition it was testing
-      // for should branching to the alternate workflow path in the engines->nextStep method
-      $this->_lastTestStatus = MaestroTaskStatusCodes::STATUS_IF_CONDITION_FALSE;
-      $this->executionStatus = TRUE;
-      $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
-    } else {   // We have an unexpected situation - so flag a task error
-      $this->executionStatus = FALSE;
+        // This task completed successfully but we want to signal to the engine the condition it was testing
+        // for should branching to the alternate workflow path in the engines->nextStep method
+        $this->_lastTestStatus = MaestroTaskStatusCodes::STATUS_IF_CONDITION_FALSE;
+        $this->executionStatus = TRUE;
+        $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
+      } else {   // We have an unexpected situation - so flag a task error
+        $this->executionStatus = FALSE;
     }
 
     return $this;
@@ -447,11 +451,11 @@ class MaestroTaskTypeInteractivefunction extends MaestroTask {
 
   function execute() {
     /* Nothing much for an interactiveTask to do in the execute method.
-     * We want to return an executionStatus of FALSE as this task is really executed from the task console by the user.
-     * The defined function for this task will execute and present the task to the user in the task console.
-     * The taskconsole will call the processInteractiveTask method for this task type.
-     * It's up to the defined interactiveTask function to complete the task.
-     */
+    * We want to return an executionStatus of FALSE as this task is really executed from the task console by the user.
+    * The defined function for this task will execute and present the task to the user in the task console.
+    * The taskconsole will call the processInteractiveTask method for this task type.
+    * It's up to the defined interactiveTask function to complete the task.
+    */
     $this->setRunOnceFlag($this->_properties->id);
     $msg = 'Execute Task Type: "MaestroTaskTypeInteractivefunction" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
@@ -462,7 +466,7 @@ class MaestroTaskTypeInteractivefunction extends MaestroTask {
 
   function prepareTask() {
     $serializedData = db_query("SELECT task_data FROM {maestro_template_data} WHERE id = :tid",
-      array(':tid' => $this->_properties->taskid))->fetchField();
+    array(':tid' => $this->_properties->taskid))->fetchField();
     $taskdata = @unserialize($serializedData);
     return array('handler' => $taskdata['handler'],'serialized_data' => $serializedData);
   }
@@ -526,19 +530,19 @@ class MaestroTaskTypeSetProcessVariable extends MaestroTask {
           ->execute();
         }
         else if ($taskDefinitionRec->task_data['inc_value'] != 0) {  // Set by increment
+            $query = db_select('maestro_process_variables', 'a');
+            $query->addField('a','variable_value');
+            $query->condition('a.process_id', $this->_properties->process_id,'=');
+            $query->condition('a.template_variable_id', $taskDefinitionRec->task_data['var_to_set'],'=');
+            $curvalue = intval($query->execute()->fetchField());
+            $setvalue = $curvalue + intval($taskDefinitionRec->task_data['inc_value']);
+            db_update('maestro_process_variables')
+            ->fields(array('variable_value' => $setvalue))
+            ->condition('process_id', $this->_properties->process_id, '=')
+            ->condition('template_variable_id',$taskDefinitionRec->task_data['var_to_set'],'=')
+            ->execute();
+          }
           $query = db_select('maestro_process_variables', 'a');
-          $query->addField('a','variable_value');
-          $query->condition('a.process_id', $this->_properties->process_id,'=');
-          $query->condition('a.template_variable_id', $taskDefinitionRec->task_data['var_to_set'],'=');
-          $curvalue = intval($query->execute()->fetchField());
-          $setvalue = $curvalue + intval($taskDefinitionRec->task_data['inc_value']);
-          db_update('maestro_process_variables')
-          ->fields(array('variable_value' => $setvalue))
-          ->condition('process_id', $this->_properties->process_id, '=')
-          ->condition('template_variable_id',$taskDefinitionRec->task_data['var_to_set'],'=')
-          ->execute();
-        }
-        $query = db_select('maestro_process_variables', 'a');
         $query->addField('a','variable_value');
         $query->condition('a.process_id', $this->_properties->process_id,'=');
         $query->condition(db_and()->condition('a.template_variable_id', $taskDefinitionRec->task_data['var_to_set'],'='));
@@ -561,11 +565,11 @@ class MaestroTaskTypeManualWeb extends MaestroTask {
 
   function execute() {
     /* Nothing much for us to do for this interactiveTask in the execute method.
-     * We want to return an executionStatus of FALSE as this task is really executed from the task console by the user.
-     * The user will be redirected to create the defined piece of content.
-     * We have a hook_node_insert method that will trigger a completeTask to tell the masesto engine
-     * this task is now complete and it can be archived and crank the engine forward for this w/f instance (process).
-     */
+    * We want to return an executionStatus of FALSE as this task is really executed from the task console by the user.
+    * The user will be redirected to create the defined piece of content.
+    * We have a hook_node_insert method that will trigger a completeTask to tell the masesto engine
+    * this task is now complete and it can be archived and crank the engine forward for this w/f instance (process).
+    */
     $msg = 'Execute Task Type: "Manual Web" - properties: ' . print_r($this->_properties, true);
     watchdog('maestro',$msg);
     $this->completionStatus = FALSE;
@@ -589,7 +593,7 @@ class MaestroTaskTypeManualWeb extends MaestroTask {
 
   function prepareTask() {
     $serializedData = db_query("SELECT task_data FROM {maestro_template_data} WHERE id = :tid",
-      array(':tid' => $this->_properties->taskid))->fetchField();
+    array(':tid' => $this->_properties->taskid))->fetchField();
     $taskdata = @unserialize($serializedData);
     return array('handler' => $taskdata['handler'],'serialized_data' => $serializedData);
   }
@@ -621,8 +625,8 @@ class MaestroTaskTypeContentType extends MaestroTask {
     global $base_url;
     $taskdata = unserialize($this->_properties->task_data);
     /* Drupal wants to see all underscores in content type names as hyphens for URL's
-     * so we need to test for that and update that for any URL link
-     */
+    * so we need to test for that and update that for any URL link
+    */
     $content_type = str_replace('_','-',$taskdata['content_type']);
     if ($this->_properties->regen) {
       // Determine the content nid
@@ -638,8 +642,8 @@ class MaestroTaskTypeContentType extends MaestroTask {
         $url = $base_url . "/index.php?q=node/$nid/edit/maestro/edit/{$this->_properties->queue_id}/completeonsubmit/";
       }
     } else {
-    	if (variable_get('clean_url')) {
-      	$url = $base_url . "/node/add/{$content_type}/maestro/{$this->_properties->queue_id}/";
+      if (variable_get('clean_url')) {
+        $url = $base_url . "/node/add/{$content_type}/maestro/{$this->_properties->queue_id}/";
       }
       else {
         $url = url($base_url . "/index.php?q=node/add/{$content_type}/maestro/{$this->_properties->queue_id}");
@@ -650,42 +654,58 @@ class MaestroTaskTypeContentType extends MaestroTask {
 
   function prepareTask() {
     $serializedData = db_query("SELECT task_data FROM {maestro_template_data} WHERE id = :tid",
-      array(':tid' => $this->_properties->taskid))->fetchField();
+    array(':tid' => $this->_properties->taskid))->fetchField();
     $taskdata = @unserialize($serializedData);
     return array('serialized_data' => $serializedData);
   }
 
-	// Method called by maestro_node_insert
-	function processContent($taskid,$op,$object) {
-		watchdog('maestro',"processContent function");
-		$node = $object;  // For this task type, the object passed in, is the node object.
-		$rec = db_select('maestro_queue')
-		->fields('maestro_queue', array('process_id','template_data_id'))
-		->condition('id', $node->maestro_taskid, '=')
-		->execute()->fetchObject();
+  // Method called by maestro_node_insert to handle tracking of the node record */
+  function processContent($taskid,$op,$object) {
+    watchdog('maestro',"processContent function");
+    $node = $object;  // For this task type, the object passed in, is the node object.
+    $rec = db_select('maestro_queue')
+    ->fields('maestro_queue', array('process_id','template_data_id'))
+    ->condition('id', $node->maestro_taskid, '=')
+    ->execute()->fetchObject();
 
-		$tracking_id = db_select('maestro_process')
-		->fields('maestro_process', array('tracking_id'))
-		->condition('id', $rec->process_id, '=')
-		->execute()->fetchField();
+    $tracking_id = db_select('maestro_process')
+    ->fields('maestro_process', array('tracking_id'))
+    ->condition('id', $rec->process_id, '=')
+    ->execute()->fetchField();
 
-		if ($op == 'insert') {
-			db_insert('maestro_project_content')
-			->fields(array(
-        'nid' => $node->nid,
-        'tracking_id' => $tracking_id,
-        'task_id' => $rec->template_data_id,
-        'content_type' => $node->type,
-			))
-			->execute();
+    if ($op == 'insert') {
+      db_insert('maestro_project_content')
+      ->fields(array(
+      'nid' => $node->nid,
+      'tracking_id' => $tracking_id,
+      'task_id' => $rec->template_data_id,
+      'content_type' => $node->type,
+      ))
+      ->execute();
 
-			// Initiate the mestro workflow engine and complete the task
-			// Complete task is an engine method
-			$maestro = Maestro::createMaestroObject(1);
-			$maestro->engine()->completeTask($taskid);
-		}
+      // Initiate the mestro workflow engine and complete the task
+      // Complete task is an engine method
+      $maestro = Maestro::createMaestroObject(1);
+      $maestro->engine()->completeTask($taskid);
+    }
+  }
 
-	}
+  // Method to return HTML formatted content to include in the project detail area
+  function showContentDetail($tracking_id) {
+
+    $retval = '';
+    /* Format any content records */
+    $query = db_select('maestro_project_content','content');
+    $query->addField('content','nid','nid');
+    $query->condition('content.tracking_id',$tracking_id,'=');
+    $res = $query->execute();
+    foreach ($res as $record) {
+      $node = node_load($record->nid);
+      $variables['content_records'][$record->nid] = $node->title;
+      $retval .= '<div>' . l($node->title, "node/{$record->nid}/maestro") . '</div>';
+    }
+    return $retval;
+  }
 
 }
 
@@ -698,8 +718,8 @@ class MaestroTaskTypeFireTrigger extends MaestroTask {
     $aids = trigger_get_assigned_actions('fire_trigger_task' . $this->_properties->template_data_id);
 
     $context = array(
-      'group' => 'maestro',
-      'hook' => 'fire_trigger_task' . $this->_properties->template_data_id
+    'group' => 'maestro',
+    'hook' => 'fire_trigger_task' . $this->_properties->template_data_id
     );
 
     actions_do(array_keys($aids), (object) $this->_properties, $context);

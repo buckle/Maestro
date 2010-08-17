@@ -176,6 +176,7 @@ function maestro_help($path, $arg) {
  */
 function maestro_admin_paths() {
   $paths = array(
+    'node/*/maestro' => TRUE,
     'node/add/*/maestro/*' => TRUE,
     'node/*/edit/maestro/edit/*' => TRUE,
     'maestro/trace/*/*/*' => TRUE
@@ -566,15 +567,12 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
 	->condition('id', $task->tracking_id, '=')
 	->execute()->fetchObject();
 
-	switch($projectRec->status) {
-		case MaestroProjectStatusCodes::STATUS_ACTIVE:
-			$variables['project_status'] = t('Active');
-			break;
-
-	}
+  $variables['project_status'] = MaestroProjectStatusCodes::getStatusLabel($projectRec->status);
 
 	/* @TODO: Would like to make this extensible so that other project status options can in the future add their own
-	 * Action form and AJAX handler
+	 * Action form and AJAX handler to perform custom actions on the overall project workflow instance.
+   *
+   * Initially we need to have a 'delete project' action
 	 */
 	$variables['special_status_action'] = '';
 
@@ -585,16 +583,6 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
 	}
 
 	$variables['task_history'] = maestro_getProjectTasksHistory($task->tracking_id);
-
-	/* Format any content records */
-	$query = db_select('maestro_project_content','content');
-	$query->addField('content','nid','nid');
-	$query->condition('content.tracking_id',$task->tracking_id,'=');
-	$res = $query->execute();
-	foreach ($res as $record) {
-		$node = node_load($record->nid);
-		$variables['content_records'][$record->nid] = $node->title;
-	}
 
 	/* Format Outstanding Tasks Object to be used in the template */
 	$arr_otasks = array();  // Array of outstanding tasks objects
@@ -646,11 +634,21 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
 		$variables['comment_records'][] = $record->comment;
 	}
 
+  /* For each task - check and see if they have any formatted content to display */
 	$variables['content_records'] = array();
-
-
-
-
+  $query = db_select('maestro_process','process');
+  $query->join('maestro_queue', 'queue', 'queue.process_id = process.id');
+  $query->fields('queue', array('process_id','task_class_name'));
+  $query->addField('queue','id','queue_id');
+  $query->condition('process.tracking_id', $task->tracking_id, '=');
+  $res = $query->execute();
+  foreach ($res as $taskrec) {
+    $current_task = new $taskrec->task_class_name();
+    $taskContent = $current_task->showContentDetail($task->tracking_id);
+    if (!empty($taskContent)) {
+      $variables['content_records'][] = $taskContent;
+    }
+  }
 
 }
 
