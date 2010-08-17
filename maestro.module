@@ -9,6 +9,7 @@
 include_once './' . drupal_get_path('module', 'maestro') . '/maestro.class.php';
 include_once './' . drupal_get_path('module', 'maestro') . '/maestro_tasks.class.php';
 
+
 function maestro_menu() {
   $items = array();
 
@@ -638,15 +639,20 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
 	$variables['content_records'] = array();
   $query = db_select('maestro_process','process');
   $query->join('maestro_queue', 'queue', 'queue.process_id = process.id');
-  $query->fields('queue', array('process_id','task_class_name'));
+  $query->fields('queue', array('process_id','template_data_id','task_class_name'));
   $query->addField('queue','id','queue_id');
   $query->condition('process.tracking_id', $task->tracking_id, '=');
   $res = $query->execute();
+  $uniqueTasks = array();
   foreach ($res as $taskrec) {
-    $current_task = new $taskrec->task_class_name();
-    $taskContent = $current_task->showContentDetail($task->tracking_id);
-    if (!empty($taskContent)) {
-      $variables['content_records'][] = $taskContent;
+    // Only need to call this task method once for each template task step - added in case of regen instances
+    if(!in_array($taskrec->template_data_id,$uniqueTasks)) {
+      $uniqueTasks[] = $taskrec->template_data_id;
+      $current_task = new $taskrec->task_class_name();
+      $taskContent = $current_task->showContentDetail($task->tracking_id);
+      if (!empty($taskContent)) {
+        $variables['content_records'][] = $taskContent;
+      }
     }
   }
 
@@ -911,9 +917,28 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
 
 function maestro_form_alter(&$form, $form_state, $form_id) {
 
-  /* Need a better way to register forms that can be under maestro control */
-  $maestro_contentTypes = array ('article_node_form','change_request_node_form');
-  if (in_array($form_id,$maestro_contentTypes)) {
+  /* Determine if the cached list of content types being used by configured maestro workflow templates is setup. */
+  $maestro_content_types = cache_get('maestro_content_types');
+  if($maestro_content_types === FALSE) {  // if not set - scan templates for unique content types
+    $types = array();
+    $query = db_select('maestro_template_data','template_data');
+    $query->addField('template_data','task_data','task_data');
+    $query->condition('task_class_name', 'MaestroTaskTypeContentType', '=');
+    $res = $query->execute();
+    foreach ($res as $rec) {
+      $data = unserialize($rec->task_data);
+      if (!empty($data['content_type']) AND !in_array($data['content_type'],$types)) {
+        $types[] = $data['content_type'] . '_node_form';
+      }
+    }
+    cache_set('maestro_content_types', $types);
+    $maestro_content_types = $types;
+  }
+  else {
+    $maestro_content_types = ($maestro_content_types->data);
+  }
+
+  if (in_array($form_id,$maestro_content_types)) {
     $request = urldecode(request_uri());
     $requestParms = explode('/',$request);
     if (isset($requestParms[5]) AND $requestParms[5] == 'maestro' AND isset($requestParms[6])) {
