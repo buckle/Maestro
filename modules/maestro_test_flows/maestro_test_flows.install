@@ -960,7 +960,7 @@ function maestro_test_flows_install() {
   $task_xref_array[0] = 0;
   $templateID = maestro_createNewTemplate("Test Content Type Task", TRUE, TRUE);
   maestro_joinAppGroup($templateID, $app_group_id);
-  variable_xref_array[5] = maestro_createTemplateVariable($templateID, "initiator", "");
+  $variable_xref_array[5] = maestro_createTemplateVariable($templateID, "initiator", "");
   $variable_xref_array[6] = maestro_createTemplateVariable($templateID, "content_type", "article");
   $ti = new MaestroTaskInterfaceStart(0, $templateID);
   $ti->create();
