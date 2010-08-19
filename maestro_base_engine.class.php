@@ -197,18 +197,18 @@
         if ($count == 1) {
             $retval = $variableValue;
         }
+
         // Now see if that process variable controlled assignment
         $query = db_select('maestro_queue', 'a');
-        $query->fields('a',array('id'));
-        $query->join('maestro_template_data', 'b', 'b.id = a.template_data_id');
-        $query->join('maestro_template_assignment', 'c', 'c.template_data_id = a.template_data_id');
-        $query->condition('a.process_id',$process_id,'=');
-        $query->condition('b.assigned_by_variable',1,'=');
-        $query->condition(db_or()->condition('a.archived',0)->condition('a.archived',NULL));
-        $query->condition('c.process_variable',$processVariableRecord->variable_id,'=');
+        $query->leftJoin('maestro_template_assignment', 'b', 'a.template_data_id=b.template_data_id');
+        $query->fields('a', array('id'));
+        $query->condition('b.assign_by_variable', MaestroAssignmentBy::VARIABLE, '=');
+        $query->condition('b.assign_id', $processVariableRecord->template_variable_id, '=');
+        $res = $query->execute()->fetchAll();
+
         $queueRecords = $query->execute();
         foreach ($queueRecords as $queueRecord) {
-          $this->assignTask($queueRecord->id,array($processVariableRecord->variable_id => $variableValue));
+          $this->assignTask($queueRecord->id, array($processVariableRecord->variable_id => $variableValue));
         }
       }
       else {
@@ -225,8 +225,8 @@
       if ($qid == 0) {
         $qid = $this->_queueId;
       }
-      $notification = new MaestroNotification(t('Assigned Task Message Body'), t('You have a task assigned'), $qid, MaestroNotificationTypes::ASSIGNMENT);
-      $notification->notify();
+      //$notification = new MaestroNotification(t('Assigned Task Message Body'), t('You have a task assigned'), $qid, MaestroNotificationTypes::ASSIGNMENT);
+      //$notification->notify();
     }
 
     function sendTaskReminderNotifications ($qid=0, $user_id=0) {
@@ -234,11 +234,11 @@
       if ($qid == 0) {
         $qid = $this->_queueId;
       }
-      $notification = new MaestroNotification(t('Completed Task Message Body'), t('Task as been Completed'), $qid, MaestroNotificationTypes::REMINDER);
+      //$notification = new MaestroNotification(t('Completed Task Message Body'), t('Task as been Completed'), $qid, MaestroNotificationTypes::REMINDER);
       if($user_id != 0) {
-        $notification->setUserIDs($user_id);
+        //$notification->setUserIDs($user_id);
       }
-      $notification->notify();
+      //$notification->notify();
     }
 
     function sendTaskCompletionNotifications ($qid=0) {
@@ -246,8 +246,8 @@
       if ($qid == 0) {
           $qid = $this->_queueId;
       }
-      $notification = new MaestroNotification(t('Reminder Notification Message Body'), t('Task Reminder'), $qid, MaestroNotificationTypes::COMPLETION);
-      $notification->notify();
+      //$notification = new MaestroNotification(t('Reminder Notification Message Body'), t('Task Reminder'), $qid, MaestroNotificationTypes::COMPLETION);
+      //$notification->notify();
     }
 
     function reassignTask($qid, $current_uid, $reassign_uid) {

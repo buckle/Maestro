@@ -61,6 +61,35 @@ class MaestroProcessStatusCodes {
   }
 }
 
+class MaestroAssignmentTypes {
+  CONST USER = 1;
+  CONST ROLE = 2;
+  CONST GROUP = 3;
+
+  static public function getStatusLabel($var=NULL) {
+    $labels = array();
+    $labels[self::USER] = array('name' => 'USER', 'label' => t('User'));
+    $labels[self::ROLE] = array('name' => 'ROLE', 'label' => t('Role'));
+    $labels[self::GROUP] = array('name' => 'GROUP', 'label' => t('Organic Group'));
+
+    return ($var === NULL) ? $labels:$labels[$var];
+  }
+}
+
+//options for the assignment and notification, it can be either variable or static
+class MaestroAssignmentBy {
+  CONST FIXED = 1;
+  CONST VARIABLE = 2;
+
+  static public function getStatusLabel($var=NULL) {
+    $labels = array();
+    $labels[self::FIXED] = array('name' => 'FIXED', 'label' => t('Fixed'));
+    $labels[self::VARIABLE] = array('name' => 'VARIABLE', 'label' => t('Variable'));
+
+    return ($var === NULL) ? $labels:$labels[$var];
+  }
+}
+
 abstract class MaestroTask {
   public $_properties = NULL;
   protected $_message = NULL;

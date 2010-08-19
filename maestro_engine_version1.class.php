@@ -687,49 +687,53 @@
       if ($queue_id == 0) {
         $queue_id = $this->_queueId;
       }
+
       $assigned = array();
-      $query = db_select('maestro_queue', 'a');
-      $query->join('maestro_template_data', 'b', 'a.template_data_id = b.id');
-      $query->fields('a',array('template_data_id','is_interactive'));
-      $query->fields('b',array('assigned_by_variable'));
-      $query->condition('a.id', $queue_id,'=');
-      $queueRec = $query->execute()->fetchObject();
-      if ($queueRec->is_interactive) { // Only need to create assignment records for interactive tasks
-        if($queueRec->assigned_by_variable == 1 || $queueRec->assigned_by_variable == true) {
-          $query = db_select('maestro_template_assignment', 'a');
-          $query->join('maestro_process_variables', 'b', 'b.template_variable_id = a.process_variable');
-          $query->fields('a',array('template_data_id','process_variable'));
-          $query->fields('b',array('variable_value'));
-          $query->condition('a.template_data_id', $queueRec->template_data_id,'=');
-          $query->condition('b.process_id', $this->_processId,'=');
-          $processRecResult = $query->execute();
-          foreach ($processRecResult as $processRec) {
-            $assigned[$processRec->process_variable] = $processRec->variable_value;
-          }
+      $query = db_select('maestro_template_assignment', 'a');
+      $query->leftJoin('maestro_queue', 'b', 'a.template_data_id=b.template_data_id');
+      $query->fields('a', array('assign_type', 'assign_by_variable', 'assign_id'));
+      $query->fields('b', array('process_id'));
+      $query->condition('b.id', $queue_id, '=');
+      $res = $query->execute()->fetchAll();
+
+      $assigned[MaestroAssignmentTypes::USER][MaestroAssignmentBy::FIXED] = array();
+      $assigned[MaestroAssignmentTypes::USER][MaestroAssignmentBy::VARIABLE] = array();
+
+      foreach ($res as $rec) {
+        if ($rec->assign_by_variable == MaestroAssignmentBy::FIXED) {
+          $assigned[$rec->assign_type][$rec->assign_by_variable][] = $rec->assign_id;
         }
         else {
-          $result = db_query("SELECT uid FROM {maestro_template_assignment} WHERE template_data_id = :template_data_id AND uid is not NULL",
-          array('template_data_id' => $queueRec->template_data_id));
-          /* Create an array of assignment records - but if there are multple assignments for this task by user then
-          * we need to create multiple array records but can not have multiple array records with a key of 0
-          * In this case, use a negative key value. Any non positive value is therefore not a variableID and
-          * can be assumed to be an assignment by user record
-          */
-          $cntr = 0;
-          foreach ($result as $rec) {
-            $assigned[-$cntr] = $rec->uid;  // Possible negative value for key if multiple assignments
-            $cntr++;
-          }
-        }
-
-        if (count($assigned) == 0) {
-          // Valid interactive task that should have an assignment record
-          $assigned[0] = 0;
+          $pvQuery = db_select('maestro_process_variables', 'a');
+          $pvQuery->fields('a', array('variable_value'));
+          $pvQuery->condition('a.template_variable_id', $rec->assign_id, '=');
+          $pvQuery->condition('a.process_id', $rec->process_id, '=');
+          $pvRec = current($pvQuery->execute()->fetchAll());
+          $assign_id = $pvRec->variable_value;
+          $assigned[$rec->assign_type][$rec->assign_by_variable][$rec->assign_id] = $assign_id;
         }
       }
 
-      return $assigned;
+      if (count($assigned) == 0) {
+        //check to see if this is a valid queue_id, if so add a blank assignment record
+        $query = db_select('maestro_queue', 'a');
+        $query->fields('a', array('id'));
+        $query->condition('a.id', $queue_id, '=');
+        $rec = current($query->execute()->fetchAll());
+        if ($rec != FALSE) {
+          $assigned[MaestroAssignmentTypes::USER][MaestroAssignmentBy::FIXED][0] = 0;
+        }
+      }
 
+      //TODO: hack for now to support current assignment. in beta we will need to return the $assigned array as it is right now, without the following logic
+      if (count($assigned[MaestroAssignmentTypes::USER][MaestroAssignmentBy::FIXED]) < count($assigned[MaestroAssignmentTypes::USER][MaestroAssignmentBy::VARIABLE])) {
+        return $assigned[MaestroAssignmentTypes::USER][MaestroAssignmentBy::VARIABLE];
+      }
+      else {
+        return $assigned[MaestroAssignmentTypes::USER][MaestroAssignmentBy::FIXED];
+      }
+
+      return $assigned;
     }
 
 

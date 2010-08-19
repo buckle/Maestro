@@ -6,12 +6,15 @@
  * maestro_task_interface.class.php
  */
 
+include_once './' . drupal_get_path('module', 'maestro') . '/maestro_notification.class.php';
+
 abstract class MaestroTaskInterface {
   protected $_task_id;
   protected $_template_id;
   protected $_task_type;
   protected $_is_interactive;
   protected $_task_data;  //used when fetching task information
+  //TODO: double check the task_assignment_data var is no longer used and remove its references
   protected $_task_assignment_data;  //used when fetching task process information
   protected $_task_edit_tabs;
   protected $_taskname;
@@ -53,7 +56,7 @@ abstract class MaestroTaskInterface {
     $td_rec = current($res->execute()->fetchAll());
     $td_rec->task_data = unserialize($td_rec->task_data);
 
-    $res2 = db_select('maestro_template_assignment', 'a');
+    /*$res2 = db_select('maestro_template_assignment', 'a');
     $res2->fields('a', array('uid', 'process_variable'));
     $res2->condition('a.template_data_id', $this->_task_id, '=');
     $ta_rec = current($res2->execute()->fetchAll());
@@ -62,9 +65,9 @@ abstract class MaestroTaskInterface {
       $ta_rec = new stdClass();
       $ta_rec->uid = 0;
       $ta_rec->process_variable = 0;
-    }
+    }*/
     $this->_task_data = $td_rec;
-    $this->_task_assignment_data = $ta_rec;
+    //$this->_task_assignment_data = $ta_rec;
   }
 
   //create task will insert the shell record of the task, and then the child class will handle the edit.
@@ -141,70 +144,71 @@ abstract class MaestroTaskInterface {
     $maestro_url = $base_url . '/' . drupal_get_path('module', 'maestro');
 
     $res = db_select('maestro_template_data', 'a');
-    $res->fields('a', array('task_class_name', 'taskname', 'assigned_by_variable', 'notify_type', 'regenerate', 'regen_all_live_tasks'));
+    $res->fields('a', array('task_class_name', 'taskname', 'regenerate', 'regen_all_live_tasks', 'pre_notify_subject', 'pre_notify_message', 'post_notify_subject', 'post_notify_message', 'reminder_subject', 'reminder_message', 'escalation_subject', 'escalation_message', 'reminder_interval', 'escalation_interval'));
     $res->condition('a.id', $this->_task_id, '=');
     $vars = current($res->execute()->fetchAll());
 
     $task_type = substr($vars->task_class_name, 15);
     $task_class = 'MaestroTaskInterface' . $task_type;
 
-    $selected_uids = array();
     $uid_options = array();
-    $selected_pvs = array();
     $pv_options = array();
-
-    $selected_assign_uids = array();
-    $selected_assign_pvs = array();
-    if (array_key_exists('assignment', $this->_task_edit_tabs) && $this->_task_edit_tabs['assignment'] == 1) {
-      $res = db_query("SELECT uid FROM {maestro_template_assignment} WHERE template_data_id=:tdid AND uid!=0", array(':tdid' => $this->_task_id));
-      foreach ($res as $rec) {
-        $selected_assign_uids[] = $rec->uid;
-      }
-
-      $res = db_query("SELECT process_variable FROM {maestro_template_assignment} WHERE template_data_id=:tdid AND process_variable!=0", array(':tdid' => $this->_task_id));
-      foreach ($res as $rec) {
-        $selected_assign_pvs[] = $rec->process_variable;
-      }
-    }
-
-    $selected_notify_assign = array();
-    $selected_notify_complete = array();
-    $selected_notify_remind = array();
-    if (array_key_exists('notification', $this->_task_edit_tabs) && $this->_task_edit_tabs['assignment'] == 1) {
-      $res = db_query("SELECT pre_notify_id FROM {maestro_template_notification} WHERE template_data_id=:tdid AND pre_notify_id!=0", array(':tdid' => $this->_task_id));
-      foreach ($res as $rec) {
-        $selected_notify_assign[] = $rec->pre_notify_id;
-      }
-      $res = db_query("SELECT post_notify_id FROM {maestro_template_notification} WHERE template_data_id=:tdid AND post_notify_id!=0", array(':tdid' => $this->_task_id));
-      foreach ($res as $rec) {
-        $selected_notify_complete[] = $rec->post_notify_id;
-      }
-      $res = db_query("SELECT reminder_notify_id FROM {maestro_template_notification} WHERE template_data_id=:tdid AND reminder_notify_id!=0", array(':tdid' => $this->_task_id));
-      foreach ($res as $rec) {
-        $selected_notify_remind[] = $rec->reminder_notify_id;
-      }
-    }
+    $role_options = array();
+    $og_options = array();
 
     if ((array_key_exists('assignment', $this->_task_edit_tabs) && $this->_task_edit_tabs['assignment'] == 1) ||
         (array_key_exists('notification', $this->_task_edit_tabs) && $this->_task_edit_tabs['notification'] == 1)) {
-      $res = db_query("SELECT uid, name FROM {users} WHERE uid > 0");
+      $res = db_query("SELECT uid AS id, name FROM {users} WHERE uid > 0");
       foreach ($res as $rec) {
-        $uid_options[$rec->uid] = array('label' => $rec->name, 'selected' => (in_array($rec->uid, $selected_assign_uids) ? 1:0));
-        if ($vars->notify_type == 0) {
-          $uid_options[$rec->uid]['selected_notify_assign'] = (in_array($rec->uid, $selected_notify_assign) ? 1:0);
-          $uid_options[$rec->uid]['selected_notify_complete'] = (in_array($rec->uid, $selected_notify_complete) ? 1:0);
-          $uid_options[$rec->uid]['selected_notify_remind'] = (in_array($rec->uid, $selected_notify_remind) ? 1:0);
-        }
+        $uid_options[$rec->id] = $rec->name;
       }
 
-      $res = db_query("SELECT id, variable_name FROM {maestro_template_variables} WHERE template_id=:tid", array(':tid' => $this->_template_id));
+      $res = db_query("SELECT id, variable_name AS name FROM {maestro_template_variables} WHERE template_id=:tid", array(':tid' => $this->_template_id));
       foreach ($res as $rec) {
-        $pv_options[$rec->id] = array('label' => $rec->variable_name, 'selected' => (in_array($rec->id, $selected_assign_pvs) ? 1:0));
-        if ($vars->notify_type == 1) {
-          $pv_options[$rec->id]['selected_notify_assign'] = (in_array($rec->id, $selected_notify_assign) ? 1:0);
-          $pv_options[$rec->id]['selected_notify_complete'] = (in_array($rec->id, $selected_notify_complete) ? 1:0);
-          $pv_options[$rec->id]['selected_notify_remind'] = (in_array($rec->id, $selected_notify_remind) ? 1:0);
+        $pv_options[$rec->id] = $rec->name;
+      }
+
+      $res = db_query("SELECT rid AS id, name FROM {role}");
+      foreach ($res as $rec) {
+        $role_options[$rec->id] = $rec->name;
+      }
+
+      //TODO: add $og_option builder logic here
+    }
+
+    //initialize the selected array
+    $types = MaestroAssignmentTypes::getStatusLabel();
+    $bys = MaestroAssignmentBy::getStatusLabel();
+    $whens = MaestroNotificationTypes::getStatusLabel();
+
+    $selected_options = array();
+    for ($i = 1; $i <= 2; $i++) {        //1: assignment / 2: notification
+      $selected_options[$i] = array();
+
+      foreach($types as $j => $opt) {
+        $selected_options[$i][$j] = array();
+
+        foreach($bys as $k => $opt) {
+          $selected_options[$i][$j][$k] = array();
+
+            foreach($whens as $l => $opt) {
+            $selected_options[$i][$j][$k][$l] = array();
+          }
         }
+      }
+    }
+
+    if (array_key_exists('assignment', $this->_task_edit_tabs) && $this->_task_edit_tabs['assignment'] == 1) {
+      $res = db_query("SELECT assign_type, assign_by_variable, assign_id FROM {maestro_template_assignment} WHERE template_data_id=:tdid", array(':tdid' => $this->_task_id));
+      foreach ($res as $rec) {
+        $selected_options[1][$rec->assign_type][$rec->assign_by_variable][1][] = $rec->assign_id;
+      }
+    }
+
+    if (array_key_exists('notification', $this->_task_edit_tabs) && $this->_task_edit_tabs['assignment'] == 1) {
+      $res = db_query("SELECT notify_type, notify_by_variable, notify_when, notify_id FROM {maestro_template_notification} WHERE template_data_id=:tdid", array(':tdid' => $this->_task_id));
+      foreach ($res as $rec) {
+        $selected_options[2][$rec->notify_type][$rec->notify_by_variable][$rec->notify_when][] = $rec->notify_id;
       }
     }
 
@@ -223,74 +227,56 @@ abstract class MaestroTaskInterface {
       }
     }
 
-    return array('html' => theme('maestro_workflow_edit_tasks_frame', array('tdid' => $this->_task_id, 'tid' => $this->_template_id, 'form_content' => $this->getEditFormContent(), 'maestro_url' => $maestro_url, 'pv_options' => $pv_options, 'uid_options' => $uid_options, 'task_class' => $task_class, 'vars' => $vars, 'task_edit_tabs' => $this->_task_edit_tabs, 'optional_parms' => $optional_parms)), 'assigned_by_variable' => $vars->assigned_by_variable);
+    return array('html' => theme('maestro_workflow_edit_tasks_frame', array('tdid' => $this->_task_id, 'tid' => $this->_template_id, 'form_content' => $this->getEditFormContent(), 'maestro_url' => $maestro_url, 'pv_options' => $pv_options, 'uid_options' => $uid_options, 'role_options' => $role_options, 'og_options' => $og_options, 'selected_options' => $selected_options, 'task_class' => $task_class, 'vars' => $vars, 'task_edit_tabs' => $this->_task_edit_tabs, 'optional_parms' => $optional_parms, 'types' => MaestroAssignmentTypes::getStatusLabel(), 'bys' => MaestroAssignmentBy::getStatusLabel(), 'whens' => MaestroNotificationTypes::getStatusLabel())));
   }
 
   function save() {
-    $assigned_by_variable = 0;
-    $notify_type = 0;
-
     $res = db_select('maestro_template_data', 'a');
     $res->fields('a', array('id', 'task_data'));
     $res->condition('a.id', $this->_task_id, '=');
     $rec = current($res->execute()->fetchAll());
 
+    $types = MaestroAssignmentTypes::getStatusLabel();
+    $bys = MaestroAssignmentBy::getStatusLabel();
+    $whens = MaestroNotificationTypes::getStatusLabel();
+
+    db_query("DELETE FROM {maestro_template_assignment} WHERE template_data_id=:tdid", array(':tdid' => $this->_task_id));
     if (array_key_exists('assignment', $this->_task_edit_tabs) && $this->_task_edit_tabs['assignment'] == 1) {
-      $assigned_by_variable = $_POST['assigned_by_variable'];
-
-      db_query("DELETE FROM {maestro_template_assignment} WHERE template_data_id=:tdid AND uid!=0", array(':tdid' => $this->_task_id));
-      if (array_key_exists('assign_by_uid', $_POST)) {
-        foreach ($_POST['assign_by_uid'] as $id) {
-          db_query("INSERT INTO {maestro_template_assignment} (template_data_id, uid) VALUES (:tdid, :id)", array(':tdid' => $this->_task_id, ':id' => $id));
-        }
-      }
-
-      db_query("DELETE FROM {maestro_template_assignment} WHERE template_data_id=:tdid AND process_variable!=0", array(':tdid' => $this->_task_id));
-      if (array_key_exists('assign_by_pv', $_POST)) {
-        foreach ($_POST['assign_by_pv'] as $id) {
-          db_query("INSERT INTO {maestro_template_assignment} (template_data_id, process_variable) VALUES (:tdid, :id)", array(':tdid' => $this->_task_id, ':id' => $id));
+      foreach ($types as $type => $opt) {
+        foreach ($bys as $by_var => $opt) {
+          if (array_key_exists("assign_ids_{$type}_{$by_var}_1", $_POST)) {
+            foreach ($_POST["assign_ids_{$type}_{$by_var}_1"] as $id) {
+              db_query("INSERT INTO {maestro_template_assignment} (template_data_id, assign_type, assign_by_variable, assign_id) VALUES (:tdid, :type, :by_var, :id)", array(':tdid' => $this->_task_id, ':type' => $type, ':by_var' => $by_var, ':id' => $id));
+            }
+          }
         }
       }
     }
 
+    db_query("DELETE FROM {maestro_template_notification} WHERE template_data_id=:tdid", array(':tdid' => $this->_task_id));
     if (array_key_exists('notification', $this->_task_edit_tabs) && $this->_task_edit_tabs['notification'] == 1) {
-      $notify_type = $_POST['notify_by_variable'];
-
-      db_query("DELETE FROM {maestro_template_notification} WHERE template_data_id=:tdid", array(':tdid' => $this->_task_id));
-
-      if (array_key_exists('notify_assign_by_uid', $_POST)) {
-        foreach ($_POST['notify_assign_by_uid'] as $id) {
-          db_query("INSERT INTO {maestro_template_notification} (template_data_id, pre_notify_id) VALUES (:tdid, :id)", array(':tdid' => $this->_task_id, ':id' => $id));
-        }
-      }
-      if (array_key_exists('notify_assign_by_pv', $_POST)) {
-        foreach ($_POST['notify_assign_by_pv'] as $id) {
-          db_query("INSERT INTO {maestro_template_notification} (template_data_id, pre_notify_id) VALUES (:tdid, :id)", array(':tdid' => $this->_task_id, ':id' => $id));
+      foreach ($types as $type => $opt) {
+        foreach ($bys as $by_var => $opt) {
+          foreach ($whens as $when => $opt) {
+            if (array_key_exists("notify_ids_{$type}_{$by_var}_{$when}", $_POST)) {
+              foreach ($_POST["notify_ids_{$type}_{$by_var}_{$when}"] as $id) {
+                db_query("INSERT INTO {maestro_template_notification} (template_data_id, notify_type, notify_by_variable, notify_when, notify_id) VALUES (:tdid, :type, :by_var, :when, :id)", array(':tdid' => $this->_task_id, ':type' => $type, ':by_var' => $by_var, 'when' => $when, ':id' => $id));
+              }
+            }
+          }
         }
       }
 
-      if (array_key_exists('notify_complete_by_uid', $_POST)) {
-        foreach ($_POST['notify_assign_by_uid'] as $id) {
-          db_query("INSERT INTO {maestro_template_notification} (template_data_id, post_notify_id) VALUES (:tdid, :id)", array(':tdid' => $this->_task_id, ':id' => $id));
-        }
-      }
-      if (array_key_exists('notify_complete_by_pv', $_POST)) {
-        foreach ($_POST['notify_assign_by_pv'] as $id) {
-          db_query("INSERT INTO {maestro_template_notification} (template_data_id, post_notify_id) VALUES (:tdid, :id)", array(':tdid' => $this->_task_id, ':id' => $id));
-        }
-      }
-
-      if (array_key_exists('notify_remind_by_uid', $_POST)) {
-        foreach ($_POST['notify_assign_by_uid'] as $id) {
-          db_query("INSERT INTO {maestro_template_notification} (template_data_id, reminder_notify_id) VALUES (:tdid, :id)", array(':tdid' => $this->_task_id, ':id' => $id));
-        }
-      }
-      if (array_key_exists('notify_remind_by_pv', $_POST)) {
-        foreach ($_POST['notify_assign_by_pv'] as $id) {
-          db_query("INSERT INTO {maestro_template_notification} (template_data_id, reminder_notify_id) VALUES (:tdid, :id)", array(':tdid' => $this->_task_id, ':id' => $id));
-        }
-      }
-
+      $rec->pre_notify_subject = $_POST['pre_notify_subject'];
+      $rec->pre_notify_message = $_POST['pre_notify_message'];
+      $rec->post_notify_subject = $_POST['post_notify_subject'];
+      $rec->post_notify_message = $_POST['post_notify_message'];
+      $rec->reminder_subject = $_POST['reminder_subject'];
+      $rec->reminder_message = $_POST['reminder_message'];
+      $rec->escalation_subject = $_POST['escalation_subject'];
+      $rec->escalation_message = $_POST['escalation_message'];
+      $rec->reminder_interval = $_POST['reminder_interval'];
+      $rec->escalation_interval = $_POST['escalation_interval'];
     }
 
     if (array_key_exists('optional', $this->_task_edit_tabs) && $this->_task_edit_tabs['optional'] == 1) {
@@ -309,8 +295,6 @@ abstract class MaestroTaskInterface {
       $rec->task_data = serialize($rec->task_data);
     }
 
-    $rec->assigned_by_variable = $assigned_by_variable;
-    $rec->notify_type = $notify_type;
     $rec->taskname = $_POST['taskname'];
     if (array_key_exists('regen', $_POST)) {
       $rec->regenerate = $_POST['regen'];
@@ -478,12 +462,8 @@ abstract class MaestroTaskInterface {
     $display = t('Assigned to:') . ' ';
 
     $query = db_select('maestro_template_assignment', 'a');
-    $query->fields('a', array('uid', 'process_variable'));
-    $query->fields('b', array('name'));
-    $query->fields('c', array('variable_name'));
+    $query->fields('a', array('assign_id', 'assign_type', 'assign_by_variable'));
     $query->condition('a.template_data_id', $this->_task_id, '=');
-    $query->leftJoin('users', 'b', 'a.uid=b.uid');
-    $query->leftJoin('maestro_template_variables', 'c', 'a.process_variable=c.id');
 
     $res = $query->execute();
 
@@ -493,12 +473,7 @@ abstract class MaestroTaskInterface {
         $assigned_list .= ', ';
       }
 
-      if ($rec->uid > 0) {
-        $assigned_list .= $rec->name;
-      }
-      else if ($rec->process_variable > 0) {
-        $assigned_list .= $rec->variable_name;
-      }
+      $assigned_list .= $rec->assign_id;
     }
 
     if ($assigned_list == '') {

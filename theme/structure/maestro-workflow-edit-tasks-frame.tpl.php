@@ -129,11 +129,32 @@
         <div id="task_edit_assignment" style="display: none;">
           <table>
             <tr>
-              <td colspan="3" style="text-align: center;">
-                <label for="assigned_by_variable_opt1"><input type="radio" id="assigned_by_variable_opt1" name="assigned_by_variable" value="0" onchange="toggle_list_type(0, 'assign');" <?php print ($vars->assigned_by_variable == 0) ? 'checked="checked"':''; ?>><?php print t('Assign User(s) by Hardcoding'); ?></label>&nbsp;&nbsp;&nbsp;
-                <label for="assigned_by_variable_opt2"><input type="radio" id="assigned_by_variable_opt2" name="assigned_by_variable" value="1" onchange="toggle_list_type(1, 'assign');" <?php print ($vars->assigned_by_variable == 1) ? 'checked="checked"':''; ?>><?php print t('Assign User(s) by Process Variable'); ?></label>
+              <td colspan="3">
+                <?php print t('Assignment Type:'); ?>&nbsp;
+                <select name="assign_type" id="assign_type" onchange="toggle_list_type('assign');">
+<?php
+                  foreach ($types as $opt) {
+?>
+                    <option value="<?php print strtolower($opt['name']); ?>"><?php print $opt['label']; ?></option>
+<?php
+                    break;  //remove when once we add the role / group options
+                  }
+?>
+                  <optgroup style="color: #AAAAAA;" value="role" label="<?php print t('Role'); ?>"></optgroup>
+                  <optgroup style="color: #AAAAAA;" value="organic_group" label="<?php print t('Organic Group'); ?>"></optgroup>
+                </select>&nbsp;
+                <select name="assign_by_variable" id="assign_by_variable" onchange="toggle_list_type('assign');">
+<?php
+                  foreach ($bys as $opt) {
+?>
+                    <option value="<?php print strtolower($opt['name']); ?>"><?php print $opt['label']; ?></option>
+<?php
+                  }
+?>
+                </select>&nbsp;
               </td>
             </tr>
+
             <tr>
               <td style="text-align: center;"><?php print t('Available'); ?></td>
               <td></td>
@@ -141,74 +162,15 @@
             </tr>
 
 
-            <tr class="assign_by_uid_row" style="display: <?php print ($vars->assigned_by_variable == 0) ? '':'none'; ?>;">
-              <td style="width: 200px;">
-                <select size="4" multiple="multiple" style="width: 100%;" id="assign_by_uid_unselected">
-<?php
-                  foreach ($uid_options as $value => $rec) {
-                    if ($rec['selected'] == 0) {
-?>
-                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
-<?php
-                    }
-                  }
-?>
-                </select>
-              </td>
-              <td style="text-align: center;">
-                <a href="#" onclick="move_to_left('uid', 'assign'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/left-arrow.png"></a>
-                &nbsp;&nbsp;&nbsp;
-                <a href="#" onclick="move_to_right('uid', 'assign'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/right-arrow.png"></a>
-              </td>
-              <td style="width: 200px;">
-                <select size="4" multiple="multiple" style="width: 100%;" id="assign_by_uid" name="assign_by_uid[]">
-<?php
-                  foreach ($uid_options as $value => $rec) {
-                    if ($rec['selected'] == 1) {
-?>
-                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
-<?php
-                    }
-                  }
-?>
-                </select>
-              </td>
-            </tr>
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => '', 'row_class' => 'assign_row', 'type' => 'user', 'by_variable' => 'fixed', 'when' => '', 'options' => $uid_options, 'selected_options' => $selected_options[1][MaestroAssignmentTypes::USER][MaestroAssignmentBy::FIXED][1], 'name' => 'assign_ids_' . MaestroAssignmentTypes::USER . '_' . MaestroAssignmentBy::FIXED . '_1[]')); ?>
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'assign_row', 'type' => 'user', 'by_variable' => 'variable', 'when' => '', 'options' => $pv_options, 'selected_options' => $selected_options[1][MaestroAssignmentTypes::USER][MaestroAssignmentBy::VARIABLE][1], 'name' => 'assign_ids_' . MaestroAssignmentTypes::USER . '_' . MaestroAssignmentBy::VARIABLE . '_1[]')); ?>
 
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'assign_row', 'type' => 'role', 'by_variable' => 'fixed', 'when' => '', 'options' => $role_options, 'selected_options' => $selected_options[1][MaestroAssignmentTypes::ROLE][MaestroAssignmentBy::FIXED][1], 'name' => 'assign_ids_' . MaestroAssignmentTypes::ROLE . '_' . MaestroAssignmentBy::FIXED . '_1[]')); ?>
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'assign_row', 'type' => 'role', 'by_variable' => 'variable', 'when' => '', 'options' => $pv_options, 'selected_options' => $selected_options[1][MaestroAssignmentTypes::ROLE][MaestroAssignmentBy::VARIABLE][1], 'name' => 'assign_ids_' . MaestroAssignmentTypes::ROLE . '_' . MaestroAssignmentBy::VARIABLE . '_1[]')); ?>
 
-            <tr class="assign_by_pv_row" style="display: <?php print ($vars->assigned_by_variable == 1) ? '':'none'; ?>;">
-              <td style="width: 200px;">
-                <select size="4" multiple="multiple" style="width: 100%;" id="assign_by_pv_unselected">
-<?php
-                  foreach ($pv_options as $value => $rec) {
-                    if ($rec['selected'] == 0) {
-?>
-                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
-<?php
-                    }
-                  }
-?>
-                </select>
-              </td>
-              <td style="text-align: center;">
-                <a href="#" onclick="move_to_left('pv', 'assign'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/left-arrow.png"></a>
-                &nbsp;&nbsp;&nbsp;
-                <a href="#" onclick="move_to_right('pv', 'assign'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/right-arrow.png"></a>
-              </td>
-              <td style="width: 200px;">
-                <select size="4" multiple="multiple" style="width: 100%;" id="assign_by_pv" name="assign_by_pv[]">
-<?php
-                  foreach ($pv_options as $value => $rec) {
-                    if ($rec['selected'] == 1) {
-?>
-                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
-<?php
-                    }
-                  }
-?>
-                </select>
-              </td>
-            </tr>
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'assign_row', 'type' => 'group', 'by_variable' => 'fixed', 'when' => '', 'options' => $og_options, 'selected_options' => $selected_options[1][MaestroAssignmentTypes::GROUP][MaestroAssignmentBy::FIXED][1], 'name' => 'assign_ids_' . MaestroAssignmentTypes::GROUP . '_' . MaestroAssignmentBy::FIXED . '_1[]')); ?>
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'assign_row', 'type' => 'group', 'by_variable' => 'variable', 'when' => '', 'options' => $pv_options, 'selected_options' => $selected_options[1][MaestroAssignmentTypes::GROUP][MaestroAssignmentBy::VARIABLE][1], 'name' => 'assign_ids_' . MaestroAssignmentTypes::GROUP . '_' . MaestroAssignmentBy::VARIABLE . '_1[]')); ?>
+
           </table>
         </div>
 <?php
@@ -219,222 +181,151 @@
         <div id="task_edit_notification" style="display: none;">
           <table>
             <tr>
+              <td colspan="3">
+                <?php print t('Notification Type:'); ?>&nbsp;
+                <select name="notify_type" id="notify_type" onchange="toggle_list_type('notify');">
+<?php
+                  foreach ($types as $opt) {
+?>
+                    <option value="<?php print strtolower($opt['name']); ?>"><?php print $opt['label']; ?></option>
+<?php
+                    break;  //remove when once we add the role / group options
+                  }
+?>
+                  <optgroup style="color: #AAAAAA;" value="role" label="<?php print t('Role'); ?>"></optgroup>
+                  <optgroup style="color: #AAAAAA;" value="organic_group" label="<?php print t('Organic Group'); ?>"></optgroup>
+                </select>&nbsp;
+                <select name="notify_by_variable" id="notify_by_variable" onchange="toggle_list_type('notify');">
+<?php
+                  foreach ($bys as $opt) {
+?>
+                    <option value="<?php print strtolower($opt['name']); ?>"><?php print $opt['label']; ?></option>
+<?php
+                  }
+?>
+                </select>&nbsp;
+                <select name="notify_when" id="notify_when" onchange="toggle_list_type('notify');">
+<?php
+                  foreach ($whens as $opt) {
+?>
+                    <option value="<?php print strtolower($opt['name']); ?>"><?php print $opt['label']; ?></option>
+<?php
+                  }
+?>
+                </select>&nbsp;
+              </td>
+            </tr>
+
+
+            <!-- By User -->
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => '', 'row_class' => 'notify_row', 'type' => 'user', 'by_variable' => 'fixed', 'when' => 'assignment', 'options' => $uid_options, 'selected_options' => $selected_options[2][MaestroAssignmentTypes::USER][MaestroAssignmentBy::FIXED][MaestroNotificationTypes::ASSIGNMENT], 'name' => 'notify_ids_' . MaestroAssignmentTypes::USER . '_' . MaestroAssignmentBy::FIXED . '_' . MaestroNotificationTypes::ASSIGNMENT . '[]')); ?>
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'notify_row', 'type' => 'user', 'by_variable' => 'variable', 'when' => 'assignment', 'options' => $pv_options, 'selected_options' => $selected_options[2][MaestroAssignmentTypes::USER][MaestroAssignmentBy::VARIABLE][MaestroNotificationTypes::ASSIGNMENT], 'name' => 'notify_ids_' . MaestroAssignmentTypes::USER . '_' . MaestroAssignmentBy::VARIABLE . '_' . MaestroNotificationTypes::ASSIGNMENT . '[]')); ?>
+
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'notify_row', 'type' => 'user', 'by_variable' => 'fixed', 'when' => 'completion', 'options' => $uid_options, 'selected_options' => $selected_options[2][MaestroAssignmentTypes::USER][MaestroAssignmentBy::FIXED][MaestroNotificationTypes::COMPLETION], 'name' => 'notify_ids_' . MaestroAssignmentTypes::USER . '_' . MaestroAssignmentBy::FIXED . '_' . MaestroNotificationTypes::COMPLETION . '[]')); ?>
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'notify_row', 'type' => 'user', 'by_variable' => 'variable', 'when' => 'completion', 'options' => $pv_options, 'selected_options' => $selected_options[2][MaestroAssignmentTypes::USER][MaestroAssignmentBy::VARIABLE][MaestroNotificationTypes::COMPLETION], 'name' => 'notify_ids_' . MaestroAssignmentTypes::USER . '_' . MaestroAssignmentBy::VARIABLE . '_' . MaestroNotificationTypes::COMPLETION . '[]')); ?>
+
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'notify_row', 'type' => 'user', 'by_variable' => 'fixed', 'when' => 'reminder', 'options' => $uid_options, 'selected_options' => $selected_options[2][MaestroAssignmentTypes::USER][MaestroAssignmentBy::FIXED][MaestroNotificationTypes::REMINDER], 'name' => 'notify_ids_' . MaestroAssignmentTypes::USER . '_' . MaestroAssignmentBy::FIXED . '_' . MaestroNotificationTypes::REMINDER . '[]')); ?>
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'notify_row', 'type' => 'user', 'by_variable' => 'variable', 'when' => 'reminder', 'options' => $pv_options, 'selected_options' => $selected_options[2][MaestroAssignmentTypes::USER][MaestroAssignmentBy::VARIABLE][MaestroNotificationTypes::REMINDER], 'name' => 'notify_ids_' . MaestroAssignmentTypes::USER . '_' . MaestroAssignmentBy::VARIABLE . '_' . MaestroNotificationTypes::REMINDER . '[]')); ?>
+
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'notify_row', 'type' => 'user', 'by_variable' => 'fixed', 'when' => 'escalation', 'options' => $uid_options, 'selected_options' => $selected_options[2][MaestroAssignmentTypes::USER][MaestroAssignmentBy::FIXED][MaestroNotificationTypes::ESCALATION], 'name' => 'notify_ids_' . MaestroAssignmentTypes::USER . '_' . MaestroAssignmentBy::FIXED . '_' . MaestroNotificationTypes::ESCALATION . '[]')); ?>
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'notify_row', 'type' => 'user', 'by_variable' => 'variable', 'when' => 'escalation', 'options' => $pv_options, 'selected_options' => $selected_options[2][MaestroAssignmentTypes::USER][MaestroAssignmentBy::VARIABLE][MaestroNotificationTypes::ESCALATION], 'name' => 'notify_ids_' . MaestroAssignmentTypes::USER . '_' . MaestroAssignmentBy::VARIABLE . '_' . MaestroNotificationTypes::ESCALATION . '[]')); ?>
+
+            <!-- By Role -->
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'notify_row', 'type' => 'role', 'by_variable' => 'fixed', 'when' => 'assignment', 'options' => $role_options, 'selected_options' => $selected_options[2][MaestroAssignmentTypes::ROLE][MaestroAssignmentBy::FIXED][MaestroNotificationTypes::ASSIGNMENT], 'name' => 'notify_ids_' . MaestroAssignmentTypes::ROLE . '_' . MaestroAssignmentBy::FIXED . '_' . MaestroNotificationTypes::ASSIGNMENT . '[]')); ?>
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'notify_row', 'type' => 'role', 'by_variable' => 'variable', 'when' => 'assignment', 'options' => $pv_options, 'selected_options' => $selected_options[2][MaestroAssignmentTypes::ROLE][MaestroAssignmentBy::VARIABLE][MaestroNotificationTypes::ASSIGNMENT], 'name' => 'notify_ids_' . MaestroAssignmentTypes::ROLE . '_' . MaestroAssignmentBy::VARIABLE . '_' . MaestroNotificationTypes::ASSIGNMENT . '[]')); ?>
+
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'notify_row', 'type' => 'role', 'by_variable' => 'fixed', 'when' => 'completion', 'options' => $role_options, 'selected_options' => $selected_options[2][MaestroAssignmentTypes::ROLE][MaestroAssignmentBy::FIXED][MaestroNotificationTypes::COMPLETION], 'name' => 'notify_ids_' . MaestroAssignmentTypes::ROLE . '_' . MaestroAssignmentBy::FIXED . '_' . MaestroNotificationTypes::COMPLETION . '[]')); ?>
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'notify_row', 'type' => 'role', 'by_variable' => 'variable', 'when' => 'completion', 'options' => $pv_options, 'selected_options' => $selected_options[2][MaestroAssignmentTypes::ROLE][MaestroAssignmentBy::VARIABLE][MaestroNotificationTypes::COMPLETION], 'name' => 'notify_ids_' . MaestroAssignmentTypes::ROLE . '_' . MaestroAssignmentBy::VARIABLE . '_' . MaestroNotificationTypes::COMPLETION . '[]')); ?>
+
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'notify_row', 'type' => 'role', 'by_variable' => 'fixed', 'when' => 'reminder', 'options' => $role_options, 'selected_options' => $selected_options[2][MaestroAssignmentTypes::ROLE][MaestroAssignmentBy::FIXED][MaestroNotificationTypes::REMINDER], 'name' => 'notify_ids_' . MaestroAssignmentTypes::ROLE . '_' . MaestroAssignmentBy::FIXED . '_' . MaestroNotificationTypes::REMINDER . '[]')); ?>
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'notify_row', 'type' => 'role', 'by_variable' => 'variable', 'when' => 'reminder', 'options' => $pv_options, 'selected_options' => $selected_options[2][MaestroAssignmentTypes::ROLE][MaestroAssignmentBy::VARIABLE][MaestroNotificationTypes::REMINDER], 'name' => 'notify_ids_' . MaestroAssignmentTypes::ROLE . '_' . MaestroAssignmentBy::VARIABLE . '_' . MaestroNotificationTypes::REMINDER . '[]')); ?>
+
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'notify_row', 'type' => 'role', 'by_variable' => 'fixed', 'when' => 'escalation', 'options' => $role_options, 'selected_options' => $selected_options[2][MaestroAssignmentTypes::ROLE][MaestroAssignmentBy::FIXED][MaestroNotificationTypes::ESCALATION], 'name' => 'notify_ids_' . MaestroAssignmentTypes::ROLE . '_' . MaestroAssignmentBy::FIXED . '_' . MaestroNotificationTypes::ESCALATION . '[]')); ?>
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'notify_row', 'type' => 'role', 'by_variable' => 'variable', 'when' => 'escalation', 'options' => $pv_options, 'selected_options' => $selected_options[2][MaestroAssignmentTypes::ROLE][MaestroAssignmentBy::VARIABLE][MaestroNotificationTypes::ESCALATION], 'name' => 'notify_ids_' . MaestroAssignmentTypes::ROLE . '_' . MaestroAssignmentBy::VARIABLE . '_' . MaestroNotificationTypes::ESCALATION . '[]')); ?>
+
+            <!-- By OG -->
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'notify_row', 'type' => 'group', 'by_variable' => 'fixed', 'when' => 'assignment', 'options' => $og_options, 'selected_options' => $selected_options[2][MaestroAssignmentTypes::GROUP][MaestroAssignmentBy::FIXED][MaestroNotificationTypes::ASSIGNMENT], 'name' => 'notify_ids_' . MaestroAssignmentTypes::GROUP . '_' . MaestroAssignmentBy::FIXED . '_' . MaestroNotificationTypes::ASSIGNMENT . '[]')); ?>
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'notify_row', 'type' => 'group', 'by_variable' => 'variable', 'when' => 'assignment', 'options' => $pv_options, 'selected_options' => $selected_options[2][MaestroAssignmentTypes::GROUP][MaestroAssignmentBy::VARIABLE][MaestroNotificationTypes::ASSIGNMENT], 'name' => 'notify_ids_' . MaestroAssignmentTypes::GROUP . '_' . MaestroAssignmentBy::VARIABLE . '_' . MaestroNotificationTypes::ASSIGNMENT . '[]')); ?>
+
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'notify_row', 'type' => 'group', 'by_variable' => 'fixed', 'when' => 'completion', 'options' => $og_options, 'selected_options' => $selected_options[2][MaestroAssignmentTypes::GROUP][MaestroAssignmentBy::FIXED][MaestroNotificationTypes::COMPLETION], 'name' => 'notify_ids_' . MaestroAssignmentTypes::GROUP . '_' . MaestroAssignmentBy::FIXED . '_' . MaestroNotificationTypes::COMPLETION . '[]')); ?>
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'notify_row', 'type' => 'group', 'by_variable' => 'variable', 'when' => 'completion', 'options' => $pv_options, 'selected_options' => $selected_options[2][MaestroAssignmentTypes::GROUP][MaestroAssignmentBy::VARIABLE][MaestroNotificationTypes::COMPLETION], 'name' => 'notify_ids_' . MaestroAssignmentTypes::GROUP . '_' . MaestroAssignmentBy::VARIABLE . '_' . MaestroNotificationTypes::COMPLETION . '[]')); ?>
+
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'notify_row', 'type' => 'group', 'by_variable' => 'fixed', 'when' => 'reminder', 'options' => $og_options, 'selected_options' => $selected_options[2][MaestroAssignmentTypes::GROUP][MaestroAssignmentBy::FIXED][MaestroNotificationTypes::REMINDER], 'name' => 'notify_ids_' . MaestroAssignmentTypes::GROUP . '_' . MaestroAssignmentBy::FIXED . '_' . MaestroNotificationTypes::REMINDER . '[]')); ?>
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'notify_row', 'type' => 'group', 'by_variable' => 'variable', 'when' => 'reminder', 'options' => $pv_options, 'selected_options' => $selected_options[2][MaestroAssignmentTypes::GROUP][MaestroAssignmentBy::VARIABLE][MaestroNotificationTypes::REMINDER], 'name' => 'notify_ids_' . MaestroAssignmentTypes::GROUP . '_' . MaestroAssignmentBy::VARIABLE . '_' . MaestroNotificationTypes::REMINDER . '[]')); ?>
+
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'notify_row', 'type' => 'group', 'by_variable' => 'fixed', 'when' => 'escalation', 'options' => $og_options, 'selected_options' => $selected_options[2][MaestroAssignmentTypes::GROUP][MaestroAssignmentBy::FIXED][MaestroNotificationTypes::ESCALATION], 'name' => 'notify_ids_' . MaestroAssignmentTypes::GROUP . '_' . MaestroAssignmentBy::FIXED . '_' . MaestroNotificationTypes::ESCALATION . '[]')); ?>
+            <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'notify_row', 'type' => 'group', 'by_variable' => 'variable', 'when' => 'escalation', 'options' => $pv_options, 'selected_options' => $selected_options[2][MaestroAssignmentTypes::GROUP][MaestroAssignmentBy::VARIABLE][MaestroNotificationTypes::ESCALATION], 'name' => 'notify_ids_' . MaestroAssignmentTypes::GROUP . '_' . MaestroAssignmentBy::VARIABLE . '_' . MaestroNotificationTypes::ESCALATION . '[]')); ?>
+
+            <tr>
               <td colspan="3" style="text-align: center;">
-                <label for="notify_by_variable_opt1"><input type="radio" id="notify_by_variable_opt1" name="notify_by_variable" value="0" onchange="toggle_list_type(0, 'notify');" <?php print ($vars->notify_type == 0) ? 'checked="checked"':''; ?>><?php print t('Notify User(s) by Hardcoding'); ?></label>&nbsp;&nbsp;&nbsp;
-                <label for="notify_by_variable_opt2"><input type="radio" id="notify_by_variable_opt2" name="notify_by_variable" value="1" onchange="toggle_list_type(1, 'notify');" <?php print ($vars->notify_type == 1) ? 'checked="checked"':''; ?>><?php print t('Notify User(s) by Process Variable'); ?></label>
+                <i><?php print t('(leave subject and/or message blank for default)'); ?></i>
+              </td>
+            </tr>
+            <tr class="notify_row user role group fixed variable assignment">
+              <td colspan="3">
+                <table width="100%">
+                  <tr>
+                    <td><?php print t('Subject:'); ?></td>
+                    <td style="width: 90%;"><input type="text" name="pre_notify_subject" value="<?php print $vars->pre_notify_subject; ?>"></td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align: top;"><?php print t('Message:'); ?></td>
+                    <td style="width: 90%;"><textarea style="width: 100%;" rows="4" name="pre_notify_message"><?php print $vars->pre_notify_message; ?></textarea></td>
+                  </tr>
+                </table>
               </td>
             </tr>
 
-
-            <tr><td colspan="3"><?php print t('On Assignment'); ?></td></tr>
-            <tr class="notify_by_uid_row" style="display: <?php print ($vars->notify_type == 0) ? '':'none'; ?>;">
-              <td style="width: 200px;">
-                <select size="4" multiple="multiple" style="width: 100%;" id="notify_assign_by_uid_unselected">
-<?php
-                  foreach ($uid_options as $value => $rec) {
-                    if ($rec['selected_notify_assign'] == 0) {
-?>
-                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
-<?php
-                    }
-                  }
-?>
-                </select>
-              </td>
-              <td style="text-align: center;">
-                <a href="#" onclick="move_to_left('uid', 'notify_assign'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/left-arrow.png"></a>
-                &nbsp;&nbsp;&nbsp;
-                <a href="#" onclick="move_to_right('uid', 'notify_assign'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/right-arrow.png"></a>
-              </td>
-              <td style="width: 200px;">
-                <select size="4" multiple="multiple" style="width: 100%;" id="notify_assign_by_uid" name="notify_assign_by_uid[]">
-<?php
-                  foreach ($uid_options as $value => $rec) {
-                    if ($rec['selected_notify_assign'] == 1) {
-?>
-                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
-<?php
-                    }
-                  }
-?>
-                </select>
+            <tr class="notify_row user role group fixed variable completion" style="display: none;">
+              <td colspan="3">
+                <table width="100%">
+                  <tr>
+                    <td><?php print t('Subject:'); ?></td>
+                    <td style="width: 90%;"><input type="text" name="post_notify_subject" value="<?php print $vars->post_notify_subject; ?>"></td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align: top;"><?php print t('Message:'); ?></td>
+                    <td style="width: 90%;"><textarea style="width: 100%;" rows="4" name="post_notify_message"><?php print $vars->post_notify_message; ?></textarea></td>
+                  </tr>
+                </table>
               </td>
             </tr>
 
-
-            <tr class="notify_by_pv_row" style="display: <?php print ($vars->notify_type == 1) ? '':'none'; ?>;">
-              <td style="width: 200px;">
-                <select size="4" multiple="multiple" style="width: 100%;" id="notify_assign_by_pv_unselected">
-<?php
-                  foreach ($pv_options as $value => $rec) {
-                    if ($rec['selected_notify_assign'] == 0) {
-?>
-                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
-<?php
-                    }
-                  }
-?>
-                </select>
-              </td>
-              <td style="text-align: center;">
-                <a href="#" onclick="move_to_left('pv', 'notify_assign'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/left-arrow.png"></a>
-                &nbsp;&nbsp;&nbsp;
-                <a href="#" onclick="move_to_right('pv', 'notify_assign'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/right-arrow.png"></a>
-              </td>
-              <td style="width: 200px;">
-                <select size="4" multiple="multiple" style="width: 100%;" id="notify_assign_by_pv" name="notify_assign_by_pv[]">
-<?php
-                  foreach ($pv_options as $value => $rec) {
-                    if ($rec['selected_notify_assign'] == 1) {
-?>
-                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
-<?php
-                    }
-                  }
-?>
-                </select>
+            <tr class="notify_row user role group fixed variable reminder" style="display: none;">
+              <td colspan="3">
+                <table width="100%">
+                  <tr>
+                    <td nowrap><?php print t('Subject:'); ?></td>
+                    <td style="width: 90%;"><input type="text" name="reminder_subject" value="<?php print $vars->reminder_subject; ?>"></td>
+                  </tr>
+                  <tr>
+                    <td nowrap style="vertical-align: top;"><?php print t('Message:'); ?></td>
+                    <td style="width: 90%;"><textarea style="width: 100%;" rows="4" name="reminder_message"><?php print $vars->reminder_message; ?></textarea></td>
+                  </tr>
+                  <tr>
+                    <td nowrap><?php print t('Reminder Interval (days):'); ?></td>
+                    <td><input type="text" style="width: 30px;" name="reminder_interval" value="<?php print $vars->reminder_interval; ?>"></td>
+                  </tr>
+                </table>
               </td>
             </tr>
 
-
-            <tr><td colspan="3"><?php print t('On Completion'); ?></td></tr>
-            <tr class="notify_by_uid_row" style="display: <?php print ($vars->notify_type == 0) ? '':'none'; ?>;">
-              <td style="width: 200px;">
-                <select size="4" multiple="multiple" style="width: 100%;" id="notify_complete_by_uid_unselected">
-<?php
-                  foreach ($uid_options as $value => $rec) {
-                    if ($rec['selected_notify_complete'] == 0) {
-?>
-                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
-<?php
-                    }
-                  }
-?>
-                </select>
-              </td>
-              <td style="text-align: center;">
-                <a href="#" onclick="move_to_left('uid', 'notify_complete'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/left-arrow.png"></a>
-                &nbsp;&nbsp;&nbsp;
-                <a href="#" onclick="move_to_right('uid', 'notify_complete'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/right-arrow.png"></a>
-              </td>
-              <td style="width: 200px;">
-                <select size="4" multiple="multiple" style="width: 100%;" id="notify_complete_by_uid" name="notify_complete_by_uid[]">
-<?php
-                  foreach ($uid_options as $value => $rec) {
-                    if ($rec['selected_notify_complete'] == 1) {
-?>
-                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
-<?php
-                    }
-                  }
-?>
-                </select>
-              </td>
-            </tr>
-
-
-            <tr class="notify_by_pv_row" style="display: <?php print ($vars->notify_type == 1) ? '':'none'; ?>;">
-              <td style="width: 200px;">
-                <select size="4" multiple="multiple" style="width: 100%;" id="notify_complete_by_pv_unselected">
-<?php
-                  foreach ($pv_options as $value => $rec) {
-                    if ($rec['selected_notify_complete'] == 0) {
-?>
-                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
-<?php
-                    }
-                  }
-?>
-                </select>
-              </td>
-              <td style="text-align: center;">
-                <a href="#" onclick="move_to_left('pv', 'notify_complete'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/left-arrow.png"></a>
-                &nbsp;&nbsp;&nbsp;
-                <a href="#" onclick="move_to_right('pv', 'notify_complete'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/right-arrow.png"></a>
-              </td>
-              <td style="width: 200px;">
-                <select size="4" multiple="multiple" style="width: 100%;" id="notify_complete_by_pv" name="notify_complete_by_pv[]">
-<?php
-                  foreach ($pv_options as $value => $rec) {
-                    if ($rec['selected_notify_complete'] == 1) {
-?>
-                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
-<?php
-                    }
-                  }
-?>
-                </select>
-              </td>
-            </tr>
-
-
-            <tr><td colspan="3"><?php print t('Reminders'); ?></td></tr>
-            <tr class="notify_by_uid_row" style="display: <?php print ($vars->notify_type == 0) ? '':'none'; ?>;">
-              <td style="width: 200px;">
-                <select size="4" multiple="multiple" style="width: 100%;" id="notify_remind_by_uid_unselected">
-<?php
-                  foreach ($uid_options as $value => $rec) {
-                    if ($rec['selected_notify_remind'] == 0) {
-?>
-                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
-<?php
-                    }
-                  }
-?>
-                </select>
-              </td>
-              <td style="text-align: center;">
-                <a href="#" onclick="move_to_left('uid', 'notify_remind'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/left-arrow.png"></a>
-                &nbsp;&nbsp;&nbsp;
-                <a href="#" onclick="move_to_right('uid', 'notify_remind'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/right-arrow.png"></a>
-              </td>
-              <td style="width: 200px;">
-                <select size="4" multiple="multiple" style="width: 100%;" id="notify_remind_by_uid" name="notify_remind_by_uid[]">
-<?php
-                  foreach ($uid_options as $value => $rec) {
-                    if ($rec['selected_notify_remind'] == 1) {
-?>
-                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
-<?php
-                    }
-                  }
-?>
-                </select>
-              </td>
-            </tr>
-
-
-            <tr class="notify_by_pv_row" style="display: <?php print ($vars->notify_type == 1) ? '':'none'; ?>;">
-              <td style="width: 200px;">
-                <select size="4" multiple="multiple" style="width: 100%;" id="notify_remind_by_pv_unselected">
-<?php
-                  foreach ($pv_options as $value => $rec) {
-                    if ($rec['selected_notify_remind'] == 0) {
-?>
-                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
-<?php
-                    }
-                  }
-?>
-                </select>
-              </td>
-              <td style="text-align: center;">
-                <a href="#" onclick="move_to_left('pv', 'notify_remind'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/left-arrow.png"></a>
-                &nbsp;&nbsp;&nbsp;
-                <a href="#" onclick="move_to_right('pv', 'notify_remind'); return false;"><img src="<?php print $maestro_url; ?>/images/admin/right-arrow.png"></a>
-              </td>
-              <td style="width: 200px;">
-                <select size="4" multiple="multiple" style="width: 100%;" id="notify_remind_by_pv" name="notify_remind_by_pv[]">
-<?php
-                  foreach ($pv_options as $value => $rec) {
-                    if ($rec['selected_notify_remind'] == 1) {
-?>
-                      <option value="<?php print $value; ?>"><?php print $rec['label']; ?></option>
-<?php
-                    }
-                  }
-?>
-                </select>
+            <tr class="notify_row user role group fixed variable escalation" style="display: none;">
+              <td colspan="3">
+                <table width="100%">
+                  <tr>
+                    <td nowrap><?php print t('Subject:'); ?></td>
+                    <td style="width: 90%;"><input type="text" name="escalation_subject" value="<?php print $vars->escalation_subject; ?>"></td>
+                  </tr>
+                  <tr>
+                    <td nowrap style="vertical-align: top;"><?php print t('Message:'); ?></td>
+                    <td style="width: 90%;"><textarea style="width: 100%;" rows="4" name="escalation_message"><?php print $vars->escalation_message; ?></textarea></td>
+                  </tr>
+                  <tr>
+                    <td nowrap><?php print t('Escalate After (days):'); ?></td>
+                    <td><input type="text" style="width: 30px;" name="escalation_interval" value="<?php print $vars->escalation_interval; ?>"></td>
+                  </tr>
+                </table>
               </td>
             </tr>
           </table>

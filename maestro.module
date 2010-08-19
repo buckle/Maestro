@@ -9,7 +9,6 @@
 include_once './' . drupal_get_path('module', 'maestro') . '/maestro.class.php';
 include_once './' . drupal_get_path('module', 'maestro') . '/maestro_tasks.class.php';
 
-
 function maestro_menu() {
   $items = array();
 
@@ -231,7 +230,11 @@ function maestro_theme() {
     ),
     'maestro_workflow_edit_tasks_frame' => array(
       'template' => 'theme/structure/maestro-workflow-edit-tasks-frame',
-      'variables' => array('tdid' => NULL, 'tid' => NULL, 'form_content' => NULL, 'maestro_url' => NULL, 'pv_options' => NULL, 'uid_options' => NULL, 'task_class' => NULL, 'vars' => NULL, 'task_edit_tabs' => NULL, 'optional_parms' => NULL)
+      'variables' => array('tdid' => NULL, 'tid' => NULL, 'form_content' => NULL, 'maestro_url' => NULL, 'pv_options' => NULL, 'uid_options' => NULL, 'role_options' => NULL, 'og_options' => NULL, 'selected_options' => NULL, 'task_class' => NULL, 'vars' => NULL, 'task_edit_tabs' => NULL, 'optional_parms' => NULL, 'types' => NULL, 'bys' => NULL, 'whens' => NULL)
+    ),
+    'maestro_workflow_assign_notify_select_boxes' => array(
+      'template' => 'theme/structure/maestro-workflow-assign-notify-select-boxes',
+      'variables' => array('maestro_url' => NULL, 'display' => NULL, 'row_class' => NULL, 'type' => NULL, 'by_variable' => NULL, 'when' => NULL, 'options' => NULL, 'selected_options' => NULL, 'name' => NULL)
     ),
     'maestro_task_start' => array(
       'template' => 'theme/structure/tasks/maestro-task-start',

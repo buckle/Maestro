@@ -527,19 +527,21 @@ function maestro_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'uid' => array(
+      'assign_type' => array(
         'description' => '',
         'type' => 'int',
+        'size' => 'tiny',
         'not null' => TRUE,
         'default' => 0,
       ),
-      'gid' => array(
+      'assign_by_variable' => array(
         'description' => '',
         'type' => 'int',
+        'size' => 'tiny',
         'not null' => TRUE,
         'default' => 0,
       ),
-      'process_variable' => array(
+      'assign_id' => array(
         'description' => '',
         'type' => 'int',
         'not null' => TRUE,
@@ -548,7 +550,7 @@ function maestro_schema() {
     ),
     'primary key' => array('id'),
     'indexes' => array(
-      'process_variable' => array('process_variable'),
+      'assign_id' => array('assign_id'),
       'template_data_id' => array('template_data_id'),
     ),
   );
@@ -568,19 +570,28 @@ function maestro_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'pre_notify_id' => array(
+      'notify_type' => array(
         'description' => '',
         'type' => 'int',
+        'size' => 'tiny',
         'not null' => TRUE,
         'default' => 0,
       ),
-      'post_notify_id' => array(
+      'notify_by_variable' => array(
         'description' => '',
         'type' => 'int',
+        'size' => 'tiny',
         'not null' => TRUE,
         'default' => 0,
       ),
-      'reminder_notify_id' => array(
+      'notify_when' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'notify_id' => array(
         'description' => '',
         'type' => 'int',
         'not null' => TRUE,
@@ -589,9 +600,7 @@ function maestro_schema() {
     ),
     'primary key' => array('id'),
     'indexes' => array(
-      'pre_notify_id' => array('pre_notify_id'),
-      'post_notify_id' => array('post_notify_id'),
-      'reminder_notify_id' => array('reminder_notify_id'),
+      'notify_id' => array('notify_id'),
       'template_data_id' => array('template_data_id'),
     ),
   );
@@ -648,20 +657,6 @@ function maestro_schema() {
         'length' => '150',
         'not null' => FALSE,
       ),
-      'assigned_by_variable' => array(
-        'description' => '',
-        'type' => 'int',
-        'size' => 'tiny',
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'notify_type' => array(
-        'description' => '',
-        'type' => 'int',
-        'size' => 'tiny',
-        'not null' => TRUE,
-        'default' => 0,
-      ),
       'argument_variable' => array(
         'description' => '',
         'type' => 'varchar',
@@ -702,14 +697,7 @@ function maestro_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'reminder_interval_variable' => array(
-        'description' => '',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'subsequent_reminder_interval' => array(
+      'escalation_interval' => array(
         'description' => '',
         'type' => 'int',
         'size' => 'tiny',
@@ -741,6 +729,12 @@ function maestro_schema() {
         'length' => '127',
         'not null' => FALSE,
       ),
+      'escalation_subject' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '127',
+        'not null' => FALSE,
+      ),
       'pre_notify_message' => array(
         'description' => '',
         'type' => 'varchar',
@@ -762,16 +756,17 @@ function maestro_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
+      'escalation_message' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
       'num_reminders' => array(
         'description' => '',
         'type' => 'int',
         'size' => 'tiny',
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'escalate_variable_id' => array(
-        'description' => '',
-        'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
       ),
