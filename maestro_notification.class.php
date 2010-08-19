@@ -27,11 +27,11 @@ abstract class MaestroNotificationObserver {
 }
 
 class MaestroNotificationTypes {
-  CONST GENERAL = 'maestro_general_notification';
-  CONST ASSIGNMENT = 'maestro_assignment_notification';
-  CONST REMINDER = 'maestro_reminder_notification';
-  CONST COMPLETION = 'maestro_completion_notification';
-  CONST ESCALATION = 'maestro_escalation_notification';
+  CONST GENERAL = 'general_notification';
+  CONST ASSIGNMENT = 'assignment_notification';
+  CONST REMINDER = 'reminder_notification';
+  CONST COMPLETION = 'completion_notification';
+  CONST ESCALATION = 'escalation_notification';
 }
 
 

@@ -1101,6 +1101,7 @@ function maestro_maestro_notification_observer() {
  * Implementation of hook_mail
  */
 function maestro_mail($key, &$message, $params) {
+  include_once('maestro_notification.class.php');
   $options = array(
     'langcode' => $message['language']->language,
   );
@@ -1110,11 +1111,11 @@ function maestro_mail($key, &$message, $params) {
   //For now, I will treat each type the same until we round this out.
 
   switch ($key) {  //pick off the keys here to preprocess the emails
-    case 'maestro_general_notification':
-    case 'maestro_assignment_notification':
-    case 'maestro_reminder_notification':
-    case 'maestro_completion_notification':
-    case 'maestro_escalation_notification':
+    case MaestroNotificationTypes::GENERAL:
+    case MaestroNotificationTypes::ASSIGNMENT:
+    case MaestroNotificationTypes::REMINDER:
+    case MaestroNotificationTypes::COMPLETION:
+    case MaestroNotificationTypes::ESCALATION:
       $message['subject'] = check_plain($params['subject']);
       $message['body'][] = t('Maestro email notification for you!');
       $message['body'][] = check_plain($params['message']);
