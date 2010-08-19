@@ -62,7 +62,7 @@ class MaestroNotification {
    * @param $type
    *   String: The actual notification type using the MaestroNotificationTypes Constants
    */
-  function __construct($message = '', $subject = '', $queueID = 0, $type = MaestroNotificationTypes::GENERAL) {
+  function __construct($message = '', $subject = '', $queueID = 0, $type = MaestroNotificationTypes::ASSIGNMENT) {
     $this->_subject = $subject;
     $this->_notificationType = $type;
     $observers = array();
