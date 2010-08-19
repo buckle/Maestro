@@ -1111,7 +1111,6 @@ function maestro_mail($key, &$message, $params) {
   //For now, I will treat each type the same until we round this out.
 
   switch ($key) {  //pick off the keys here to preprocess the emails
-    case MaestroNotificationTypes::GENERAL:
     case MaestroNotificationTypes::ASSIGNMENT:
     case MaestroNotificationTypes::REMINDER:
     case MaestroNotificationTypes::COMPLETION:
