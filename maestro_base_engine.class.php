@@ -225,20 +225,8 @@
       if ($qid == 0) {
         $qid = $this->_queueId;
       }
-      //$notification = new MaestroNotification(t('Assigned Task Message Body'), t('You have a task assigned'), $qid, MaestroNotificationTypes::ASSIGNMENT);
-      //$notification->notify();
-    }
-
-    function sendTaskReminderNotifications ($qid=0, $user_id=0) {
-      include_once('maestro_notification.class.php');
-      if ($qid == 0) {
-        $qid = $this->_queueId;
-      }
-      //$notification = new MaestroNotification(t('Completed Task Message Body'), t('Task as been Completed'), $qid, MaestroNotificationTypes::REMINDER);
-      if($user_id != 0) {
-        //$notification->setUserIDs($user_id);
-      }
-      //$notification->notify();
+      $notification = new MaestroNotification(t('Assigned Task Message Body'), t('You have a task assigned'), $qid, MaestroNotificationTypes::ASSIGNMENT);
+      $notification->notify();
     }
 
     function sendTaskCompletionNotifications ($qid=0) {
@@ -246,8 +234,20 @@
       if ($qid == 0) {
           $qid = $this->_queueId;
       }
-      //$notification = new MaestroNotification(t('Reminder Notification Message Body'), t('Task Reminder'), $qid, MaestroNotificationTypes::COMPLETION);
-      //$notification->notify();
+      $notification = new MaestroNotification(t('Reminder Notification Message Body'), t('Task Reminder'), $qid, MaestroNotificationTypes::COMPLETION);
+      $notification->notify();
+    }
+
+    function sendTaskReminderNotifications ($qid=0, $user_id=0) {
+      include_once('maestro_notification.class.php');
+      if ($qid == 0) {
+        $qid = $this->_queueId;
+      }
+      $notification = new MaestroNotification(t('Completed Task Message Body'), t('Task as been Completed'), $qid, MaestroNotificationTypes::REMINDER);
+      if($user_id != 0) {
+        $notification->setUserIDs($user_id);
+      }
+      $notification->notify();
     }
 
     function reassignTask($qid, $current_uid, $reassign_uid) {

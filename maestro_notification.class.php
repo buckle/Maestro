@@ -1,7 +1,5 @@
 <?php
-
-//Id:
-
+// $Id$
 
 /**
  * @file
@@ -103,78 +101,35 @@ class MaestroNotification {
   function getNotificationUserIDs() {
     if(intval($this->_queueID) > 0 && $this->_notificationType != '') {
       $query = db_select('maestro_queue', 'a');
-      $query->fields('a', array('process_id'));
-      $query->fields('b', array('id', 'notify_type'));
-      $query->leftJoin('maestro_template_data', 'b', 'a.template_data_id=b.id');
+      $query->fields('a', array('process_id', 'template_data_id'));
       $query->condition('a.id', $this->_queueID, '=');
       $qRec = current($query->execute()->fetchAll());
 
       $query = db_select('maestro_template_notification', 'a');
-      switch($this->_notificationType) {
-        case MaestroNotificationTypes::ASSIGNMENT:
-          if ($qRec->notify_type == 0) {
-            $query->addField('a', 'pre_notify_id', 'uid');
-            $query->leftJoin('users', 'c', 'a.pre_notify_id = c.uid');
-          }
-          else if ($qRec->notify_type == 1) {  //storing the user ids
-            $query->addField('b', 'variable_value', 'uid');
-            $query->leftJoin('maestro_process_variables', 'b', 'a.pre_notify_id=b.template_variable_id');
-            $query->condition('b.process_id', $qRec->process_id, '=');
-            $query->leftJoin('users', 'c', 'b.variable_value = c.uid');
-          }
-          $query->condition('a.pre_notify_id', 0, '>');
-          break;
+      $query->leftJoin('users', 'b', 'a.notify_id=b.uid');
+      $query->fields('a', array('notify_id', 'notify_type', 'notify_when', 'notify_by_variable'));
+      $query->fields('b', array('uid', 'mail'));
+      $query->condition('a.notify_when', $this->_notificationType, '=');
+      $query->condition('a.notify_type', MaestroAssignmentTypes::USER, '=');   //@TODO: add support for ROLE and GROUP types
+      $query->condition('a.template_data_id', $qRec->template_data_id);
+      $res = $query->execute()->fetchAll();
 
-        case MaestroNotificationTypes::REMINDER:
-          if ($qRec->notify_type == 0) {
-            $query->addField('a', 'reminder_notify_id', 'uid');
-            $query->leftJoin('users', 'c', 'a.reminder_notify_id = c.uid');
-          }
-          else if ($qRec->notify_type == 1) {  //storing the user ids
-            $query->addField('b', 'variable_value', 'uid');
-            $query->leftJoin('maestro_process_variables', 'b', 'a.reminder_notify_id=b.template_variable_id');
-            $query->condition('b.process_id', $qRec->process_id, '=');
-            $query->leftJoin('users', 'c', 'b.variable_value = c.uid');
-          }
-          $query->condition('a.reminder_notify_id', 0, '>');
-        break;
-
-        case MaestroNotificationTypes::COMPLETION:
-          if ($qRec->notify_type == 0) {
-            $query->addField('a', 'post_notify_id', 'uid');
-            $query->leftJoin('users', 'c', 'a.post_notify_id = c.uid');
-          }
-          else if ($qRec->notify_type == 1) {  //storing the user ids
-            $query->addField('b', 'variable_value', 'uid');
-            $query->leftJoin('maestro_process_variables', 'b', 'a.post_notify_id=b.template_variable_id');
-            $query->condition('b.process_id', $qRec->process_id, '=');
-            $query->leftJoin('users', 'c', 'b.variable_value = c.uid');
-          }
-          $query->condition('a.post_notify_id', 0, '>');
-        break;
-
-        case MaestroNotificationTypes::GENERAL:
-          if ($qRec->notify_type == 0) {
-            $query->addField('a', 'pre_notify_id', 'uid');
-            $query->leftJoin('users', 'c', 'a.pre_notify_id = c.uid');
-          }
-          else if ($qRec->notify_type == 1) {  //storing the user ids
-            $query->addField('b', 'variable_value', 'uid');
-            $query->leftJoin('maestro_process_variables', 'b', 'a.pre_notify_id=b.template_variable_id');
-            $query->condition('b.process_id', $qRec->process_id, '=');
-            $query->leftJoin('users', 'c', 'b.variable_value = c.uid');
-          }
-          $query->condition('a.pre_notify_id', 0, '>');
-          break;
-      }
-      $query->condition('a.template_data_id', $qRec->id, '=');
-      $query->fields('c', array('mail'));
-      $res = $query->execute();
       $this->_userIDArray = array();
       $this->_userEmailArray = array();
       foreach ($res as $rec) {
-        $this->_userIDArray[$rec->uid] = $rec->uid;
-        $this->_userEmailArray[$rec->uid] = $rec->mail;
+        if ($rec->notify_by_variable == MaestroAssignmentBy::FIXED) {
+          $query2 = db_select('users', 'a');
+          $query2->fields('a', array('uid', 'mail'));
+          $query2->condition('a.uid', $rec->notify_id, '=');
+          $userRec = current($query2->execute()->fetchAll());
+
+          $this->_userIDArray[$rec->uid] = $userRec->uid;
+          $this->_userEmailArray[$rec->uid] = $userRec->mail;
+        }
+        else {
+          $this->_userIDArray[$rec->uid] = $rec->uid;
+          $this->_userEmailArray[$rec->uid] = $rec->mail;
+        }
       }
     }
     else {
