@@ -23,7 +23,41 @@ jQuery(function($) {
 jQuery(function($) {
   $('.maestro_taskconsole_viewdetail').click(function() {
     var taskid = jQuery(this).attr('taskid');
-    $('#maestro_taskconsole_detail_rec' + taskid).toggle();
+    var rowid = jQuery(this).attr('rowid');
+    if (document.getElementById('maestro_taskconsole_detail_rec' + taskid).style.display == 'none') {
+      $.ajax({
+        type: 'POST',
+        url : ajax_url + '/getdetails',
+        cache: false,
+        data : {
+        taskid : taskid,
+        rowid : rowid
+        },
+        dataType: 'json',
+        success:  function (data) {
+          if (data.status == 1) {
+            var s = $('#maestro_viewdetail_foldericon' + taskid).attr('src');
+            var index = s.indexOf('_closed');
+            var newicon = s.substr(0, index) + '_open' + s.substr(index + 7);
+            $('#maestro_viewdetail_foldericon' + taskid).attr('src',newicon);
+            $('#projectdetail_rec' + rowid).html(data.html);
+            $('#maestro_taskconsole_detail_rec' + taskid).show();
+          } else {
+            alert('An error occurred updating assignment');
+          }
+        },
+        error: function() { alert('there was a SERVER Error processing AJAX request'); }
+
+      });
+
+    } else {
+        var s = $('#maestro_viewdetail_foldericon' + taskid).attr('src');
+        var index = s.indexOf('_open');
+        var newicon = s.substr(0, index) + '_closed' + s.substr(index + 5);
+        $('#maestro_viewdetail_foldericon' + taskid).attr('src',newicon);
+        $('#maestro_taskconsole_detail_rec' + taskid).hide();
+    }
+
   })
 });
 
@@ -31,7 +65,6 @@ jQuery(function($) {
 /* In the project details area, the workflow admin can change the assigned user for a task */
 function maestro_ajaxUpdateTaskAssignment(id) {
   (function ($) {
-    //enable_activity_indicator();
     $.ajax({
       type: 'POST',
       url : ajax_url + '/setassignment',
@@ -49,12 +82,99 @@ function maestro_ajaxUpdateTaskAssignment(id) {
   })(jQuery);
 }
 
-/* Function handles the form submit buttons for the inline interactive tasks
- * All the form buttons should be of input type 'button' even the 'task complete'
- * Function will fire automatically when a form button is pressed and execute the
- * ajax operation for the interactive_post action and automatically post the form contents plus
- * the taskid and task operation that was picked up from the button's custom 'maestro' attribute.
- * <input type="button" maestro="save" value="Save Data">
+/* In the project details area, the workflow admin can delete a project and its associated tasks and content */
+function maestro_ajaxDeleteProject(id) {
+  alert('Delete Project feature not yet implemented.');
+  /*
+  (function ($) {
+    $.ajax({
+      type: 'POST',
+      url : ajax_url + '/deleteproject',
+      cache: false,
+      data: {tracking_id: id},
+      dataType: 'json',
+      success:  function (data) {
+        if (data.status != 1) {
+          alert('An error occurred deleting project');
+        }
+      },
+      error: function() { alert('there was a SERVER Error processing AJAX request'); }
+
+    });
+  })(jQuery);
+  */
+}
+
+function ajaxMaestroComment(op, rowid, id, cid) {
+  if (op == 'new') {
+  jQuery('#newcomment_container_' + rowid).show();
+  } else if (op == 'add') {
+    (function ($) {
+      $.ajax({
+        type : 'POST',
+        url : ajax_url + '/add_comment',
+        cache : false,
+        data : {
+          rowid : rowid,
+          tracking_id : id,
+          comment: document.getElementById("newcomment_" + rowid).value
+        },
+        dataType : 'json',
+        success : function(data) {
+          if (data.status == 1) {
+            $('#projectCommentsOpen_rec' + rowid).html(data.html);
+            $('html,body').animate({scrollTop: $('#projectCommentsOpen_rec' + rowid).offset().top-1},500);
+          } else {
+            alert('An error occurred adding comment');
+          }
+        },
+        error : function() {
+          alert('there was a SERVER Error processing AJAX request');
+        }
+
+      });
+      $('#newcomment_container_' + rowid).hide();
+    })(jQuery);
+
+  } else if (op == 'del') {
+    (function ($) {
+      $.ajax({
+      type : 'POST',
+      url : ajax_url + '/del_comment',
+      cache : false,
+      data : {
+        rowid : rowid,
+        tracking_id : id,
+        cid : cid
+      },
+      dataType : 'json',
+      success : function(data) {
+        if (data.status == 1) {
+          $('#projectCommentsOpen_rec' + rowid).html(data.html);
+          $('html,body').animate({scrollTop: $('#projectCommentsOpen_rec' + rowid).offset().top-1},500);
+        } else {
+          alert('An error occurred deleting comment');
+        }
+      },
+      error : function() {
+        alert('there was a SERVER Error processing AJAX request');
+      }
+
+    });
+    })(jQuery);
+
+  }
+
+}
+
+/*
+ * Function handles the form submit buttons for the inline interactive tasks All
+ * the form buttons should be of input type 'button' even the 'task complete'
+ * Function will fire automatically when a form button is pressed and execute
+ * the ajax operation for the interactive_post action and automatically post the
+ * form contents plus the taskid and task operation that was picked up from the
+ * button's custom 'maestro' attribute. <input type="button" maestro="save"
+ * value="Save Data">
  */
 jQuery(function($) {
   $('.maestro_taskconsole_interactivetaskcontent input[type=button]').click(function() {
@@ -91,8 +211,8 @@ jQuery(function($) {
 
 jQuery(function($) {
   $('#taskConsoleLaunchNewProcess').click(function() {
-  	$("#newProcessStatusRowSuccess").hide();
-  	$("#newProcessStatusRowFailure").hide();
+    $("#newProcessStatusRowSuccess").hide();
+    $("#newProcessStatusRowFailure").hide();
     dataString = jQuery('#frmLaunchNewProcess').serialize();
     dataString += "&op=newprocess";
     jQuery.ajax( {
@@ -102,9 +222,9 @@ jQuery(function($) {
       dataType : "json",
       success : function(data) {
         if (data.status == 1 && data.processid > 0) {
-	        $("#newProcessStatusRowSuccess").show();
+          $("#newProcessStatusRowSuccess").show();
         } else {
-        	$("#newProcessStatusRowFailure").show();
+          $("#newProcessStatusRowFailure").show();
         }
       },
       error : function() { $("#newProcessStatusRowFailure").show(); },
@@ -115,7 +235,6 @@ jQuery(function($) {
 });
 
 
-// toggleProjectSection('summary','Closed',1);
 function toggleProjectSection(section,state,rowid) {
     var obj1 = document.getElementById(section + state + '_rec' + rowid);
     if (obj1) {

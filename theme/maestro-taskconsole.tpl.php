@@ -65,13 +65,9 @@
     </td>
     <td width="10%" nowrap><?php print $task->assigned_shortdate; ?></td>
     <td width="5%" style="border-right:1px solid white;" nowrap>
-    	<span class="maestro_taskconsole_viewdetail" taskid="<?php print $task->queue_id;?>" href="#"><img src="<?php print $module_base_url; ?>/images/taskconsole/details.png"></span>
-    	<?php
-    	print $task->hold;
-    	print $task->view;
-    	print $task->edit;
-    	print $task->delete;
-    	?>
+    	<span class="maestro_taskconsole_viewdetail" taskid="<?php print $task->queue_id;?>" rowid="<?php print $rowid;?>">
+         <img id="maestro_viewdetail_foldericon<?php print $task->queue_id; ?>" src="<?php print $module_base_url; ?>/images/taskconsole/folder_closed.gif" TITLE="<?php print t('Click to toggle workflow details'); ?>">
+      </span>
     </td>
 </tr>
 

@@ -2,15 +2,13 @@
     <span id="expandProject<?php print $rowid; ?>" style="padding:0px 0px 15px 10px;"><a href="#" onClick='projectDetailToggleAll("expand",<?php print $rowid; ?>);return false;'><?php print t('Expand All'); ?></a></span>
     <span id="collapseProject<?php print $rowid; ?>" style="padding:0px 0px 15px 10px;display:none;"><a href="#" onClick='projectDetailToggleAll("collapse",<?php print $rowid; ?>);return false;'><?php print t('Collapse All'); ?></a></span>
     <span style="padding:0px 0px 15px 20px;display:<?php print $hiderequestlink ?>;">[&nbsp;<a href="<?php print $project_link ?>" onclick="alert('Not yet implemented');return false;"><?php print t('Request Link'); ?></a>&nbsp;]</span>
-        <div id="newcomment_{<?php print $rowid; ?>}" style="padding-top:10px;display:none;">
-            <form name="fprjcmt_{<?php print $rowid; ?>}" id="fprjcmt_{<?php print $rowid; ?>}" ACTION="{actionurl}" METHOD="post" style="margin:0px;">
+        <div id="newcomment_container_<?php print $rowid; ?>" style="padding-top:10px;display:none;">
+            <form name="fprjcmt_<?php print $rowid; ?>" id="fprjcmt_<?php print $rowid; ?>" ACTION="" METHOD="post" style="margin:0px;">
                 <fieldset><legend><b><?php print t('New Comment'); ?></b></legend>
-                <div style="padding:5px;"><TEXTAREA id="newcomment{project_id}" name="comment" cols="100" rows="3"></TEXTAREA></div>
+                <div style="padding:5px;"><TEXTAREA id="newcomment_<?php print $tracking_id;?>" name="maestro_comment" cols="100" rows="3"></TEXTAREA></div>
                 <div style="padding-left:50px;">
-                    <input type="button" value="<?php print t('Cancel'); ?>" onClick="document.getElementById('newcomment_{<?php print $rowid; ?>}').style.display='none';">&nbsp;
-                    <input type="button" value="<?php print t('Add Comment'); ?>" onClick="ajaxProjectComment('addcomment',{<?php print $rowid; ?>},{project_id},{taskuser});">
-                    <input type="hidden" name="projectid" value="{project_id}">
-                    <input type="hidden" name="taskuser" value="{taskuser}">
+                    <input type="button" value="<?php print t('Cancel'); ?>" onClick="document.getElementById('newcomment_container_<?php print $rowid; ?>').style.display='none';">&nbsp;
+                    <input type="button" value="<?php print t('Add Comment'); ?>" onClick="ajaxMaestroComment('add',<?php print $rowid; ?>,<?php print $tracking_id;?>);">
                 </div>
                 </fieldset>
             </form>
@@ -50,14 +48,17 @@
             </legend>
         </div>
 
+
+        <?php
+          if (count($content_records) > 0) { //  Test if there is any content - else don't show this section ?>
         <div class="taskdetail taskdetailOpenRec<?php print $rowid; ?>" id="projectContentOpen_rec<?php print $rowid; ?>" style="display:none;">
         <fieldset>
             <legend>
                 <span>
                     <img src="<?php print $module_base_url; ?>/images/taskconsole/collapse.png" border="0" onClick="toggleProjectSection('projectContent','Open',<?php print $rowid; ?>)">
-                        <span onClick="toggleProjectSection('projectContent','Open',<?php print $rowid; ?>)"><b><?php print t('Content'); ?></b>
+                        <span onClick="toggleProjectSection('projectContent','Open',<?php print $rowid; ?>)"><b><?php print t('Content'); ?></b></span>
                 </span>
-            </legend>&nbsp;
+            </legend>
             <?php
               foreach ($content_records as $content) {
                 print $content;
@@ -69,11 +70,12 @@
         <div class="taskdetail taskdetailClosedRec<?php print $rowid; ?>" id="projectContentClosed_rec<?php print $rowid; ?>" style="padding:5px 19px;">
             <legend>
                 <span>
-                    <img src="<?php print $module_base_url; ?>/images/taskconsole/expand.png" border="0" onClick="toggleProjectSection('projectforms','Closed',<?php print $rowid; ?>)">
+                    <img src="<?php print $module_base_url; ?>/images/taskconsole/expand.png" border="0" onClick="toggleProjectSection('projectContent','Closed',<?php print $rowid; ?>)">
                         <span onClick="toggleProjectSection('projectContent','Closed',<?php print $rowid; ?>)"><b><?php print t('Content'); ?></b></span>
                 </span>
             </legend>
         </div>
+        <?php }  // End of IF test to see if there is any content to display ?>
 
         <div class="taskdetail taskdetailOpenRec<?php print $rowid; ?>" id="outstandingTasksOpen_rec<?php print $rowid; ?>" style="display:none;">
         <fieldset>
@@ -163,28 +165,7 @@
             </legend>
         </div>
         <div class="taskdetail taskdetailOpenRec<?php print $rowid; ?>" id="projectCommentsOpen_rec<?php print $rowid; ?>" style="display:none;">
-        <fieldset>
-            <legend>
-                <span>
-                    <img src="<?php print $module_base_url; ?>/images/taskconsole/collapse.png" border="0" onClick="toggleProjectSection('projectComments','Open',<?php print $rowid; ?>)">
-                        <span onClick="toggleProjectSection('projectComments','Open',<?php print $rowid; ?>)"><b><?php print t('Comments'); ?></b></span>
-                </span>
-            </legend>
-            <?php
-              foreach ($comment_records as $comment) {  ?>
-              <!--
-                <div class="comment">
-                     <img src="<?php print $module_base_url; ?>/images/taskconsole/comment.gif" alt="" align="middle" border="0" height="16" width="16">&nbsp;Comment by: {comment_username} on {comment_date}&nbsp;{comment_del_link}&nbsp;{comment_add_link}<br>
-                    <div style="padding-bottom:5px;">{comment_taskname}</div>
-                -->
-                    <div class="boxed elementUpdated"><p><?php print $comment; ?></p></div>
-                <!--
-                  </div>
-                -->
-                <?php
-              }
-              ?>
-        </fieldset>
+          <?php print theme('maestro_project_comments',array('rowid' => $rowid, 'tracking_id' => $tracking_id)); ?>
         </div>
         <div class="taskdetail taskdetailClosedRec<?php print $rowid; ?>" id="projectCommentsClosed_rec<?php print $rowid; ?>" style="padding:5px 19px;">
             <legend>

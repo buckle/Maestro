@@ -192,6 +192,23 @@ span.maestro_working {
 }
 
 
+.maestro_comment {
+    padding: 2px;
+}
+div.maestro_boxed {
+    border: dashed 1px #CCC;
+    overflow: auto;
+}
+.maestro_boxed p {
+    padding: 5px;
+    margin: 0px;
+}
+.elementUpdated {
+    background-color: rgb(255, 255, 225);
+}
+
+
+
 /* Older tooltip or on-hover css styles */
 a.info{
   position:relative; /*this is the key*/
