@@ -214,6 +214,10 @@ function maestro_handle_structure_ajax_request(){
         $query->condition('template_data_id',$rec->id,'=');
         $query->execute();
 
+        $query = db_delete('maestro_template_notification');
+        $query->condition('template_data_id',$rec->id,'=');
+        $query->execute();
+
         $query = db_delete('maestro_template_data_next_step');
         $query->condition('template_data_from',$rec->id,'=');
         $query->execute();
