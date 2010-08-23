@@ -462,7 +462,13 @@ abstract class MaestroTaskInterface {
     $display = t('Assigned to:') . ' ';
 
     $query = db_select('maestro_template_assignment', 'a');
+    $query->leftJoin('maestro_template_variables', 'b', 'a.assign_id=b.id');
+    $query->leftJoin('users', 'c', 'a.assign_id=c.uid');
+    $query->leftJoin('role', 'd', 'a.assign_id=d.rid');
     $query->fields('a', array('assign_id', 'assign_type', 'assign_by'));
+    $query->fields('b', array('variable_name'));
+    $query->addField('c', 'name', 'username');
+    $query->addField('d', 'name', 'rolename');
     $query->condition('a.template_data_id', $this->_task_id, '=');
 
     $res = $query->execute();
@@ -473,7 +479,24 @@ abstract class MaestroTaskInterface {
         $assigned_list .= ', ';
       }
 
-      $assigned_list .= $rec->assign_id;
+      if ($rec->assign_by == MaestroAssignmentBy::FIXED) {
+        switch ($rec->assign_type) {
+        case MaestroAssignmentTypes::USER:
+          $assigned_list .= $rec->username;
+          break;
+
+        case MaestroAssignmentTypes::ROLE:
+          $assigned_list .= $rec->rolename;
+          break;
+
+        case MaestroAssignmentTypes::GROUP:
+          //@TODO: add support for organic groups
+          break;
+        }
+      }
+      else {
+        $assigned_list .= $rec->variable_name;
+      }
     }
 
     if ($assigned_list == '') {
@@ -722,6 +745,8 @@ class MaestroTaskInterfaceBatch extends MaestroTaskInterface {
     $this->_is_interactive = 0;
 
     parent::__construct($task_id, $template_id);
+
+    $this->_task_edit_tabs = array('notification' => 1);
   }
 
   function display() {
@@ -751,7 +776,7 @@ class MaestroTaskInterfaceBatchFunction extends MaestroTaskInterface {
 
     parent::__construct($task_id, $template_id);
 
-    $this->_task_edit_tabs = array('optional' => 1);
+    $this->_task_edit_tabs = array('optional' => 1, 'notification' => 1);
   }
 
   function display() {

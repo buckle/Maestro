@@ -351,6 +351,7 @@ function save_task_success(r) {
     }
     $.modal.close();
     disable_ajax_indicator();
+    select_boxes = [];   //reset the array for when the user re-opens the edit panel;
   })(jQuery);
 }
 
@@ -358,18 +359,7 @@ function get_assignment_display() {
   var assigned = '';
   var options = '';
 
-  /*if (document.getElementById('assigned_by_variable_opt1').checked) {
-    options = get_selected_options(document.getElementById('assign_by_uid'))
-  }
-  else {
-    options = get_selected_options(document.getElementById('assign_by_pv'));
-  }
-
-  if (options == '') {
-    options = '<i>' + Drupal.t('nobody') + '</i>';
-  }
-
-  assigned = Drupal.t('Assigned to:') + ' ' + options;*/
+  assigned = Drupal.t('Assigned to:') + ' ' + get_summary('assign', '');
 
   return assigned;
 }
@@ -562,6 +552,9 @@ function move_options(sel_from_id, sel_to_id) {
       add_option(sel_to, text[i], values[i]);
     }
   }
+
+  set_summary('assign');
+  set_summary('notify');
 }
 
 function get_selected_options(sel) {
@@ -657,19 +650,45 @@ function toggle_list_type(area) {
     $('.' + area + '_row').hide();
     $('.' + area + '_row' + type + by_var + when).show();
 
-    $('#' + area + '_summary').html(get_summary(area));
+    set_summary(area);
   })(jQuery);
 }
 
-function get_summary(area) {
+function set_summary(area) {
+  (function ($) {
+    if (area == 'assign') {
+      $('#' + area + '_summary').html(get_summary(area, ''));
+    }
+    else {
+      $('#' + area + '_assign_summary').html(get_summary(area, 'assignment'));
+      $('#' + area + '_complete_summary').html(get_summary(area, 'completion'));
+      $('#' + area + '_remind_summary').html(get_summary(area, 'reminder'));
+      $('#' + area + '_escalate_summary').html(get_summary(area, 'escalation'));
+    }
+  })(jQuery);
+}
+
+function get_summary(area, when) {
   var summary = '';
+  var value;
+  var i;
+  var j;
+  var sel;
 
   for (i in select_boxes) {
-    if (area.indexOf(area) != -1) {
-      if (summary != '') {
-        summary += ', ';
+    if ((select_boxes[i].indexOf(area + '_row') != -1) && (select_boxes[i].indexOf(when) != -1)) {
+      sel = document.getElementById(select_boxes[i]);
+      select_all_options(sel);
+
+      value = get_selected_options(sel);
+      if (value != '') {
+        if (summary != '') {
+          summary += ', ';
+        }
+        summary += value;
       }
-      summary += get_selected_options(document.getElementById(select_boxes[i]));
+
+      unselect_all_options(sel);
     }
   }
 

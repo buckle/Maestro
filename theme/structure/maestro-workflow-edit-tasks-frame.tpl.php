@@ -29,7 +29,7 @@
   if (array_key_exists('assignment', $task_edit_tabs) && $task_edit_tabs['assignment'] == 1) {
 ?>
     <div id="task_edit_tab_assignment" class="unactive"><div class="maestro_task_edit_tab"><div class="t"><div class=""><div class="r"><div class="l"><div class="bl-tab"><div class="br-tab"><div class="tl-tab"><div class="tr-tab">
-    <a href="#" onclick="switch_task_edit_section('assignment'); return false;"><?php print t('Assignment'); ?></a>
+    <a href="#" onclick="switch_task_edit_section('assignment'); set_summary('assign'); return false;"><?php print t('Assignment'); ?></a>
     </div></div></div></div></div></div></div></div></div></div>
 <?php
   }
@@ -39,7 +39,7 @@
   if (array_key_exists('notification', $task_edit_tabs) && $task_edit_tabs['notification'] == 1) {
 ?>
     <div id="task_edit_tab_notification" class="unactive"><div class="maestro_task_edit_tab"><div class="t"><div class=""><div class="r"><div class="l"><div class="bl-tab"><div class="br-tab"><div class="tl-tab"><div class="tr-tab">
-    <a href="#" onclick="switch_task_edit_section('notification'); return false;"><?php print t('Notification'); ?></a>
+    <a href="#" onclick="switch_task_edit_section('notification'); set_summary('notify'); return false;"><?php print t('Notification'); ?></a>
     </div></div></div></div></div></div></div></div></div></div>
 <?php
   }
@@ -48,7 +48,7 @@
   <div style="margin: 0px 10px 0px 0px; float: right;">&nbsp;</div>
 
   <div class="active"><div class="maestro_task_edit_tab_close" style="float: right;"><div class="t"><div class=""><div class="r"><div class="l"><div class="bl-cl"><div class="br-cl"><div class="tl-cl"><div class="tr-cl">
-  <a href="#" onclick="(function($) { $.modal.close(); disable_ajax_indicator(); })(jQuery); return false;"><img src="<?php print $maestro_url; ?>/images/admin/close.png"></a>
+  <a href="#" onclick="(function($) { $.modal.close(); disable_ajax_indicator(); select_boxes = []; })(jQuery); return false;"><img src="<?php print $maestro_url; ?>/images/admin/close.png"></a>
   </div></div></div></div></div></div></div></div></div></div>
 
   <div style="clear: both;"></div>
@@ -172,9 +172,8 @@
             <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'assign_row', 'type' => 'group', 'by_variable' => 'variable', 'when' => '', 'options' => $pv_options, 'selected_options' => $selected_options[1][MaestroAssignmentTypes::GROUP][MaestroAssignmentBy::VARIABLE][1], 'name' => 'assign_ids_' . MaestroAssignmentTypes::GROUP . '_' . MaestroAssignmentBy::VARIABLE . '_1[]')); ?>
 
             <tr>
-              <td colspan="3"><?php print t('Assignment Summary:'); ?><span id="assign_summary"></span></td>
+              <td colspan="3"><?php print t('Assignment Summary:'); ?>&nbsp;<span id="assign_summary"></span></td>
             </tr>
-
           </table>
         </div>
 <?php
@@ -332,6 +331,16 @@
                 </table>
               </td>
             </tr>
+
+            <tr>
+              <td colspan="3">
+                <b><?php print t('On Assign:'); ?></b>&nbsp;<span id="notify_assign_summary"></span>&nbsp;&nbsp;&nbsp;
+                <b><?php print t('On Complete:'); ?></b>&nbsp;<span id="notify_complete_summary"></span>&nbsp;&nbsp;&nbsp;
+                <b><?php print t('On Remind:'); ?></b>&nbsp;<span id="notify_remind_summary"></span>&nbsp;&nbsp;&nbsp;
+                <b><?php print t('On Escalate:'); ?></b>&nbsp;<span id="notify_escalate_summary"></span>
+              </td>
+            </tr>
+
           </table>
         </div>
 <?php
