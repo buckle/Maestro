@@ -333,12 +333,30 @@ function maestro_handle_structure_ajax_request(){
 
         $assignmentres = db_query("SELECT * FROM {maestro_template_assignment} WHERE template_data_id = :id", array('id' => $rec->id));
         foreach($assignmentres as $ares) {
-          $sql  = "INSERT INTO {maestro_template_assignment} (template_data_id, uid, gid, process_variable) ";
+          $assign_by = $ares->assign_by;
+          $modulated_id = intval($ares->assign_id);
+          switch($ares->assign_type) {
+            case MaestroAssignmentTypes::USER:
+              if($assign_by == MaestroAssignmentBy::VARIABLE) {
+                $modulated_id = $variable_xref_array[$ares->assign_id];
+              }
+              break;
+
+            case MaestroAssignmentTypes::GROUP:
+              //@TODO:  implement this when we implement OG suppport
+              break;
+
+            case MaestroAssignmentTypes::ROLE:
+              //@TODO:  implement this when we implement Role suppport
+              break;
+          }
+
+          $sql  = "INSERT INTO {maestro_template_assignment} (template_data_id, assign_type, assign_by, assign_id) ";
           $sql .= "VALUES (:a1, :b1, :c1, :d1)";
           db_query($sql, array( 'a1' => $taskDataArray[$ares->template_data_id],
-                                'b1' => $ares->uid,
-                                'c1' => $ares->gid,
-                                'd1' => $variable_xref_array[$ares->process_variable]
+                                'b1' => $ares->assign_type,
+                                'c1' => $ares->assign_by,
+                                'd1' => $modulated_id
                                 ));
         }
 
@@ -613,9 +631,6 @@ function maestro_export($id) {
         $output_php .='\'c1\' => ' . $ares->assign_by . ',';
         $output_php .='\'d1\' => $modulated_id,';
         $output_php .='));' . "\n";
-
-
-
 
       }
     }
