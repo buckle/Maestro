@@ -167,7 +167,7 @@ function maestro_test_flows_install() {
   $res->condition('a.id', $ti->get_task_id(), '=');
   $rec = current($res->execute()->fetchAll());
   $rec->is_interactive = 1;
-  $fixed_data = $ti->modulateExportTaskData('a:2:{s:7:"handler";s:27:"maestro_common_show_message";s:13:"optional_parm";a:1:{s:7:"message";s:27:"var1 is not greater than 5.";}}', $variable_xref_array);
+  $fixed_data = $ti->modulateExportTaskData('a:2:{s:7:"handler";s:19:"maestro_showmessage";s:13:"optional_parm";a:1:{s:7:"message";s:27:"var1 is not greater than 5.";}}', $variable_xref_array);
   $rec->task_data = $fixed_data;
   $rec->handler = '';
   $rec->first_task = 0;
@@ -201,7 +201,7 @@ function maestro_test_flows_install() {
   $res->condition('a.id', $ti->get_task_id(), '=');
   $rec = current($res->execute()->fetchAll());
   $rec->is_interactive = 1;
-  $fixed_data = $ti->modulateExportTaskData('a:2:{s:7:"handler";s:27:"maestro_common_show_message";s:13:"optional_parm";a:1:{s:7:"message";s:23:"var1 is greater than 5.";}}', $variable_xref_array);
+  $fixed_data = $ti->modulateExportTaskData('a:2:{s:7:"handler";s:19:"maestro_showmessage";s:13:"optional_parm";a:1:{s:7:"message";s:23:"var1 is greater than 5.";}}', $variable_xref_array);
   $rec->task_data = $fixed_data;
   $rec->handler = '';
   $rec->first_task = 0;
@@ -347,7 +347,7 @@ function maestro_test_flows_install() {
   $res->condition('a.id', $ti->get_task_id(), '=');
   $rec = current($res->execute()->fetchAll());
   $rec->is_interactive = 1;
-  $fixed_data = $ti->modulateExportTaskData('a:2:{s:7:"handler";s:27:"maestro_common_show_message";s:13:"optional_parm";a:1:{s:7:"message";s:22:"Third Interactive Task";}}', $variable_xref_array);
+  $fixed_data = $ti->modulateExportTaskData('a:2:{s:7:"handler";s:19:"maestro_showmessage";s:13:"optional_parm";a:1:{s:7:"message";s:22:"Third Interactive Task";}}', $variable_xref_array);
   $rec->task_data = $fixed_data;
   $rec->handler = '';
   $rec->first_task = 0;
@@ -381,7 +381,7 @@ function maestro_test_flows_install() {
   $res->condition('a.id', $ti->get_task_id(), '=');
   $rec = current($res->execute()->fetchAll());
   $rec->is_interactive = 1;
-  $fixed_data = $ti->modulateExportTaskData('a:2:{s:7:"handler";s:27:"maestro_common_show_message";s:13:"optional_parm";a:1:{s:7:"message";s:23:"Second Interactive Task";}}', $variable_xref_array);
+  $fixed_data = $ti->modulateExportTaskData('a:2:{s:7:"handler";s:19:"maestro_showmessage";s:13:"optional_parm";a:1:{s:7:"message";s:23:"Second Interactive Task";}}', $variable_xref_array);
   $rec->task_data = $fixed_data;
   $rec->handler = '';
   $rec->first_task = 0;
@@ -415,7 +415,7 @@ function maestro_test_flows_install() {
   $res->condition('a.id', $ti->get_task_id(), '=');
   $rec = current($res->execute()->fetchAll());
   $rec->is_interactive = 1;
-  $fixed_data = $ti->modulateExportTaskData('a:2:{s:7:"handler";s:27:"maestro_common_show_message";s:13:"optional_parm";a:1:{s:7:"message";s:22:"First Interactive Task";}}', $variable_xref_array);
+  $fixed_data = $ti->modulateExportTaskData('a:2:{s:7:"handler";s:19:"maestro_showmessage";s:13:"optional_parm";a:1:{s:7:"message";s:22:"First Interactive Task";}}', $variable_xref_array);
   $rec->task_data = $fixed_data;
   $rec->handler = '';
   $rec->first_task = 0;
@@ -607,7 +607,7 @@ function maestro_test_flows_install() {
   $res->condition('a.id', $ti->get_task_id(), '=');
   $rec = current($res->execute()->fetchAll());
   $rec->is_interactive = 1;
-  $fixed_data = $ti->modulateExportTaskData('a:2:{s:7:"handler";s:27:"maestro_common_show_message";s:13:"optional_parm";a:1:{s:7:"message";s:21:"Serial Branch Task #1";}}', $variable_xref_array);
+  $fixed_data = $ti->modulateExportTaskData('a:2:{s:7:"handler";s:19:"maestro_showmessage";s:13:"optional_parm";a:1:{s:7:"message";s:21:"Serial Branch Task #1";}}', $variable_xref_array);
   $rec->task_data = $fixed_data;
   $rec->handler = '';
   $rec->first_task = 0;
@@ -641,7 +641,7 @@ function maestro_test_flows_install() {
   $res->condition('a.id', $ti->get_task_id(), '=');
   $rec = current($res->execute()->fetchAll());
   $rec->is_interactive = 1;
-  $fixed_data = $ti->modulateExportTaskData('a:2:{s:7:"handler";s:27:"maestro_common_show_message";s:13:"optional_parm";a:1:{s:7:"message";s:21:"Serial Branch Task #2";}}', $variable_xref_array);
+  $fixed_data = $ti->modulateExportTaskData('a:2:{s:7:"handler";s:19:"maestro_showmessage";s:13:"optional_parm";a:1:{s:7:"message";s:21:"Serial Branch Task #2";}}', $variable_xref_array);
   $rec->task_data = $fixed_data;
   $rec->handler = '';
   $rec->first_task = 0;
@@ -675,7 +675,7 @@ function maestro_test_flows_install() {
   $res->condition('a.id', $ti->get_task_id(), '=');
   $rec = current($res->execute()->fetchAll());
   $rec->is_interactive = 1;
-  $fixed_data = $ti->modulateExportTaskData('a:2:{s:7:"handler";s:27:"maestro_common_show_message";s:13:"optional_parm";a:1:{s:7:"message";s:23:"Parallel Branch Task #1";}}', $variable_xref_array);
+  $fixed_data = $ti->modulateExportTaskData('a:2:{s:7:"handler";s:19:"maestro_showmessage";s:13:"optional_parm";a:1:{s:7:"message";s:23:"Parallel Branch Task #1";}}', $variable_xref_array);
   $rec->task_data = $fixed_data;
   $rec->handler = '';
   $rec->first_task = 0;
@@ -709,7 +709,7 @@ function maestro_test_flows_install() {
   $res->condition('a.id', $ti->get_task_id(), '=');
   $rec = current($res->execute()->fetchAll());
   $rec->is_interactive = 1;
-  $fixed_data = $ti->modulateExportTaskData('a:2:{s:7:"handler";s:27:"maestro_common_show_message";s:13:"optional_parm";a:1:{s:7:"message";s:30:"Second Parallel Branch task #1";}}', $variable_xref_array);
+  $fixed_data = $ti->modulateExportTaskData('a:2:{s:7:"handler";s:19:"maestro_showmessage";s:13:"optional_parm";a:1:{s:7:"message";s:30:"Second Parallel Branch task #1";}}', $variable_xref_array);
   $rec->task_data = $fixed_data;
   $rec->handler = '';
   $rec->first_task = 0;
@@ -743,7 +743,7 @@ function maestro_test_flows_install() {
   $res->condition('a.id', $ti->get_task_id(), '=');
   $rec = current($res->execute()->fetchAll());
   $rec->is_interactive = 1;
-  $fixed_data = $ti->modulateExportTaskData('a:2:{s:7:"handler";s:27:"maestro_common_show_message";s:13:"optional_parm";a:1:{s:7:"message";s:30:"Second Parallel Branch Task #2";}}', $variable_xref_array);
+  $fixed_data = $ti->modulateExportTaskData('a:2:{s:7:"handler";s:19:"maestro_showmessage";s:13:"optional_parm";a:1:{s:7:"message";s:30:"Second Parallel Branch Task #2";}}', $variable_xref_array);
   $rec->task_data = $fixed_data;
   $rec->handler = '';
   $rec->first_task = 0;
@@ -1396,7 +1396,7 @@ function maestro_test_flows_install() {
   $res->condition('a.id', $ti->get_task_id(), '=');
   $rec = current($res->execute()->fetchAll());
   $rec->is_interactive = 1;
-  $fixed_data = $ti->modulateExportTaskData('a:2:{s:7:"handler";s:27:"maestro_common_show_message";s:13:"optional_parm";a:1:{s:7:"message";s:25:"Execution was successful.";}}', $variable_xref_array);
+  $fixed_data = $ti->modulateExportTaskData('a:2:{s:7:"handler";s:19:"maestro_showmessage";s:13:"optional_parm";a:1:{s:7:"message";s:25:"Execution was successful.";}}', $variable_xref_array);
   $rec->task_data = $fixed_data;
   $rec->handler = '';
   $rec->first_task = 0;
@@ -1430,7 +1430,7 @@ function maestro_test_flows_install() {
   $res->condition('a.id', $ti->get_task_id(), '=');
   $rec = current($res->execute()->fetchAll());
   $rec->is_interactive = 1;
-  $fixed_data = $ti->modulateExportTaskData('a:2:{s:7:"handler";s:27:"maestro_common_show_message";s:13:"optional_parm";a:1:{s:7:"message";s:36:"Unsuccessful Execution of Batch Task";}}', $variable_xref_array);
+  $fixed_data = $ti->modulateExportTaskData('a:2:{s:7:"handler";s:19:"maestro_showmessage";s:13:"optional_parm";a:1:{s:7:"message";s:36:"Unsuccessful Execution of Batch Task";}}', $variable_xref_array);
   $rec->task_data = $fixed_data;
   $rec->handler = '';
   $rec->first_task = 0;
@@ -1478,6 +1478,16 @@ function maestro_test_flows_install() {
   db_query($sql, array( 'a1' => $task_xref_array[140],'b1' => 1,'c1' => 2,'d1' => $modulated_id,));
   $sql  = "INSERT INTO {maestro_template_data_next_step} (template_data_from, template_data_to, template_data_to_false) VALUES (:a1, :b1, :c1)";
   db_query($sql, array('a1' => $task_xref_array[141], 'b1' => $task_xref_array[137], 'c1' => $task_xref_array[0]));
+  $query = db_select('maestro_template_data', 'a');
+  $query->fields('a',array('task_class_name'));
+  $query->condition('a.id',$task_xref_array[141],'=');
+  $name=current($query->execute()->fetchAll());
+  $task_type = substr($name->task_class_name, 15);
+  $task_class = 'MaestroTaskInterface' . $task_type;
+  $ti = new $task_class(0,0);
+  $modulated_id = $variable_xref_array[34];
+  $sql  = "INSERT INTO {maestro_template_assignment} (template_data_id, assign_type, assign_by, assign_id) VALUES (:a1, :b1, :c1, :d1)";
+  db_query($sql, array( 'a1' => $task_xref_array[141],'b1' => 1,'c1' => 2,'d1' => $modulated_id,));
 
 }
 
