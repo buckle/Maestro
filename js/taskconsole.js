@@ -13,6 +13,7 @@ jQuery(function($) {
     var taskid = jQuery(this).attr('taskid');
     $('#maestro_actionrec' + taskid).toggle();
     $.post(ajax_url + '/starttask/',"taskid=" + taskid);
+    $('html,body').animate({scrollTop: $('#maestro_actionrec' + taskid).offset().top - 125},500);
   })
 });
 
@@ -117,7 +118,7 @@ function ajaxMaestroComment(op, rowid, id, cid) {
         data : {
           rowid : rowid,
           tracking_id : id,
-          comment: document.getElementById("newcomment_" + rowid).value
+          comment: document.getElementById("newcomment_" + id).value
         },
         dataType : 'json',
         success : function(data) {
@@ -195,6 +196,7 @@ jQuery(function($) {
         if (data.status == 1) {
           if (data.hidetask == 1) {
             $("#maestro_taskcontainer" + taskid).hide();
+            $("#maestro_taskconsole_detail_rec" + taskid).hide();
           }
         } else {
           alert('An error occurred processing this interactive task');

@@ -71,17 +71,20 @@
     </td>
 </tr>
 
-<tr  id="maestro_taskconsole_detail_rec<?php print $task->queue_id; ?>" style="display:none;">
-    <td colspan="5" style="padding:10px;">
-        <div id="projectdetail_rec<?php print $rowid; ?>"></div>
-    </td>
-</tr>
 <!-- {inline action record} -->
-<?php
-  print $task->action_record;
-  $rowid++;
-  $zebra = ($zebra == 'even') ? 'odd': 'even';
+  <?php
+    print $task->action_record;
+  ?>
+  <tr  id="maestro_taskconsole_detail_rec<?php print $task->queue_id; ?>" style="display:none;">
+      <td colspan="5" style="padding:10px;">
+          <div id="projectdetail_rec<?php print $rowid; ?>"></div>
+      </td>
+  </tr>
+    <?php
+      $rowid++;
+      $zebra = ($zebra == 'even') ? 'odd': 'even';
 }
 ?>
+
 </table>
 
