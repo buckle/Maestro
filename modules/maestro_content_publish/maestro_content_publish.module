@@ -7,6 +7,23 @@
  */
 
 
+
+/* Maestro HOOK to modules to return info on any new task handlers - ie functions for tasks */
+function maestro_content_publish_maestro_handler_options() {
+
+  $handlers = array(
+    'MaestroTaskTypeInteractiveFunction' => array(
+      'maestro_reviewContentType' => t('Generic Function to display a review form with link to content node. Requires that you use a process variables called "content_type" that is set to the content type this function will review.'),
+      'maestro_dummy' => t('Test interactive function - do nothing')
+      ),
+    'MaestroTaskTypeBatchFunction' => array(
+      'maestro_batch_dummy' => t('Test batch function - do nothing')
+      )
+    );
+    return $handlers;
+}
+
+
 function maestro_content_publish_theme() {
   return array(
     'maestro_content_publish_review' => array(
