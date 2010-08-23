@@ -11,7 +11,7 @@ function maestro_common_maestro_handler_options() {
 
   $handlers = array(
     'MaestroTaskTypeInteractiveFunction' => array(
-      'maestro_common_show_message' => t('Generic Function to display a message. Requires that you use a process variables called "message" that is set to the message string you want displayed.')
+      'maestro_show_message' => t('Generic Function to display a message. Requires that you use a process variables called "message" that is set to the message string you want displayed.')
       )
     );
     return $handlers;
