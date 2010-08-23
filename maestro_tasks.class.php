@@ -486,7 +486,7 @@ class MaestroTaskTypeIf extends MaestroTask {
 
 }
 
-class MaestroTaskTypeInteractivefunction extends MaestroTask {
+class MaestroTaskTypeInteractiveFunction extends MaestroTask {
 
   function execute() {
     /* Nothing much for an interactiveTask to do in the execute method.

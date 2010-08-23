@@ -838,6 +838,17 @@ function maestro_maestro_get_taskobject_info() {
 }
 
 
+function maestro_maestro_handler_options() {
+
+  $handlers = array(
+    'MaestroTaskTypeBatchFunction' => array(
+      'maestro_test_batch_function' => t('Sample test batch function - do nothing.')
+      )
+    );
+    return $handlers;
+}
+
+
 function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
   global $user;
 

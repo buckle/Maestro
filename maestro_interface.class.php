@@ -6,12 +6,30 @@
  * maestro_task_interface.class.php
  */
 
+ /* Utility function used in the contructor to merge arrays and maintain keys
+  * Copy of example function found on php.net documentation page for array_merge
+  */
+ function maestro_array_merge_keys($arr1, $arr2) {
+    foreach($arr2 as $k=>$v) {
+        if (!array_key_exists($k, $arr1)) { //K DOESN'T EXISTS //
+            $arr1[$k] = $v;
+        }
+        else { // K EXISTS //
+            if (is_array($v)) { // K IS AN ARRAY //
+                $arr1[$k] = maestro_array_merge_keys($arr1[$k], $arr2[$k]);
+            }
+        }
+    }
+    return $arr1;
+}
+
 class MaestroInterface {
   private $_template_id;
 
   function __construct($template_id) {
     $this->_template_id = $template_id;
     $context_options = cache_get('maestro_taskclass_info');
+
     // Test if context options are cached - if not then we will set it
     // The class function getContextMenu will read options from the cache
     if($context_options === FALSE) {
@@ -33,7 +51,7 @@ class MaestroInterface {
       foreach (module_implements('maestro_handler_options') as $module) {
         $function = $module . '_maestro_handler_options';
         if ($arr = $function()) {
-          $handler_options[] = $arr;
+          $handler_options = maestro_array_merge_keys($arr,$handler_options);
         }
       }
       cache_set('maestro_handler_options', $handler_options);
