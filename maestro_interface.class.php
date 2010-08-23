@@ -11,22 +11,34 @@ class MaestroInterface {
 
   function __construct($template_id) {
     $this->_template_id = $template_id;
-    $options = cache_get('maestro_context_menu');
-
-
-    if($options === FALSE) {
-      //need to scan through each available class type and fetch its corresponding context menu.
-      foreach (module_implements('maestro_context_menu') as $module) {
-        $function = $module . '_maestro_context_menu';
+    $context_options = cache_get('maestro_taskclass_info');
+    // Test if context options are cached - if not then we will set it
+    // The class function getContextMenu will read options from the cache
+    if($context_options === FALSE) {
+      // Scan through each available class type and fetch its corresponding context menu.
+      foreach (module_implements('maestro_get_taskobject_info') as $module) {
+        $function = $module . '_maestro_get_taskobject_info';
         if ($arr = $function()) {
-          $options[] = $arr;
+          $context_options[] = $arr;
         }
       }
-      cache_set('maestro_context_menu', $options);
+      cache_set('maestro_taskclass_info', $context_options);
     }
-    else {
-      $options = current($options->data);
+
+    $handler_options = cache_get('maestro_handler_options');
+    // Test if task type handler options are cached - if not then we will set it
+    // The class function getHandlerOptions will read options from the cache
+    if($handler_options === FALSE) {
+      // Scan through each available class type and fetch its corresponding context menu.
+      foreach (module_implements('maestro_handler_options') as $module) {
+        $function = $module . '_maestro_handler_options';
+        if ($arr = $function()) {
+          $handler_options[] = $arr;
+        }
+      }
+      cache_set('maestro_handler_options', $handler_options);
     }
+
   }
 
   //displays the main task page
@@ -69,7 +81,7 @@ class MaestroInterface {
   //should get the valid task types to create, excluding start and end tasks, from the drupal cache
   function getContextMenu() {
     //we need to rebuild the cache in the event it is empty.
-    $options = cache_get('maestro_context_menu');
+    $options = cache_get('maestro_taskclass_info');
     return $options;
   }
 

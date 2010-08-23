@@ -797,43 +797,41 @@ function maestro_createAppGroupDropDown($name, $selected = 0){
   return $output;
 }
 
-function maestro_maestro_context_menu() {
+/* Any other maestro task type modules will also implement this function
+ * For the core task types that we implement as part of maestro
+ * we need to describe them in this function
+ *
+ * This information is used by the maestro UI (interface) presently
+ * to get contextMenu options and handler options.
+ */
+function maestro_maestro_get_taskobject_info() {
   $options = array(
     array('display_name' => 'And Task',
-      'class_name' => 'MaestroTaskInterfaceAnd',
-      'file_location' => ''
+      'class_name' => 'MaestroTaskInterfaceAnd'
     ),
     array('display_name' => 'If Task',
-      'class_name' => 'MaestroTaskInterfaceIf',
-      'file_location' => ''
+      'class_name' => 'MaestroTaskInterfaceIf'
     ),
     array('display_name' => 'Batch Task',
-      'class_name' => 'MaestroTaskInterfaceBatch',
-      'file_location' => ''
+      'class_name' => 'MaestroTaskInterfaceBatch'
     ),
     array('display_name' => 'Batch Function Task',
-      'class_name' => 'MaestroTaskInterfaceBatchFunction',
-      'file_location' => ''
+      'class_name' => 'MaestroTaskInterfaceBatchFunction'
     ),
     array('display_name' => 'Interactive Function Task',
-      'class_name' => 'MaestroTaskInterfaceInteractiveFunction',
-      'file_location' => ''
+      'class_name' => 'MaestroTaskInterfaceInteractiveFunction'
     ),
     array('display_name' => 'Set Process Variable Task',
-      'class_name' => 'MaestroTaskInterfaceSetProcessVariable',
-      'file_location' => ''
+      'class_name' => 'MaestroTaskInterfaceSetProcessVariable'
     ),
     array('display_name' => 'Manual Web Task',
-      'class_name' => 'MaestroTaskInterfaceManualWeb',
-      'file_location' => ''
+      'class_name' => 'MaestroTaskInterfaceManualWeb'
     ),
     array('display_name' => 'Content Type Task',
-      'class_name' => 'MaestroTaskInterfaceContentType',
-      'file_location' => ''
+      'class_name' => 'MaestroTaskInterfaceContentType'
     ),
     array('display_name' => 'Fire Trigger Task',
-      'class_name' => 'MaestroTaskInterfaceFireTrigger',
-      'file_location' => ''
+      'class_name' => 'MaestroTaskInterfaceFireTrigger'
     ),
   );
   return $options;
