@@ -1003,10 +1003,10 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
       break;
 
     case 'getdetails':
-      $flowname = db_query("SELECT description FROM {maestro_projects} WHERE id = :id",
-        array(':id' => $_POST['taskid']))->fetchField();
       $task = new stdClass();
       $task->tracking_id = maestro_getTaskTrackingId($_POST['taskid']);  // Retrieve the tracking_id from the taskid
+      $flowname = db_query("SELECT description FROM {maestro_projects} WHERE id = :id",
+        array(':id' => $task->tracking_id))->fetchField();
       $task->flow_name = $flowname;
       $rowid = intval($_POST['rowid']);
       $html = theme('maestro_taskconsole_details',array('task' => $task, 'source' => 'mytasks', 'rowid' => $rowid ));
