@@ -299,7 +299,7 @@ function redraw_lines() {
 
 function display_task_panel(r) {
   (function($) {
-    $.modal(r.html, { modal: true, overlayClose: false, position: [30, 0], overlayCss: {backgroundColor:"#888"}, opacity:80 });
+    $.modal(r.html, { modal: true, overlayClose: false, position: [130, 0], overlayCss: {backgroundColor:"#888"}, opacity:80 });
     disable_ajax_indicator();
   })(jQuery);
 }
