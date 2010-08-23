@@ -384,7 +384,7 @@ function maestro_admin_form() {
     '#required' => FALSE,
   );
 
-  include('maestro_notification.class.php');
+  include_once('maestro_notification.class.php');
   $observers = array();
   $observers[0] = t("No Notifier");
   foreach (module_implements('maestro_notification_observer') as $module) {
@@ -579,14 +579,40 @@ function maestro_export($id) {
         $output_php .='$task_type = substr($name->task_class_name, 15);' . "\n";
         $output_php .='$task_class = \'MaestroTaskInterface\' . $task_type;' . "\n";
         $output_php .='$ti = new $task_class(0,0);' . "\n";
-        $temp_user_info = user_load($ares->uid);
-        $output_php .='$modulated_user = $ti->modulateExportUser("' . $temp_user_info->name . '");' . "\n";
-        $output_php .='$sql  = "INSERT INTO {maestro_template_assignment} (template_data_id, uid, gid, process_variable) VALUES (:a1, :b1, :c1, :d1)";' . "\n";
+
+        //we'll just make an initial assumption that the assign_by is by variable
+        //we overwrite this in the switch if it is actually by a fixed value
+        $assign_by = $ares->assign_by;
+        $modulated_string = '$modulated_id = $variable_xref_array[' . intval($ares->assign_id) . '];' . "\n";
+        switch($ares->assign_type) {
+          case MaestroAssignmentTypes::USER:
+            if($assign_by == MaestroAssignmentBy::FIXED) {
+              $temp_user_info = user_load($ares->assign_id);
+              $modulated_string ='$modulated_id = $ti->modulateExportUser("' . $temp_user_info->name . '");' . "\n";
+            }
+            break;
+
+          case MaestroAssignmentTypes::GROUP:
+            //@TODO:  implement this when we implement OG suppport
+            break;
+
+          case MaestroAssignmentTypes::ROLE:
+            //@TODO:  implement this when we implement Role suppport
+            break;
+        }
+
+        $output_php .= $modulated_string;
+
+        $output_php .='$sql  = "INSERT INTO {maestro_template_assignment} (template_data_id, assign_type, assign_by, assign_id) VALUES (:a1, :b1, :c1, :d1)";' . "\n";
         $output_php .='db_query($sql, array( \'a1\' => $task_xref_array[' . $ares->template_data_id . '],';
-        $output_php .='\'b1\' => $modulated_user,';
-        $output_php .='\'c1\' => ' . $ares->gid . ',';  //future proof
-        $output_php .='\'d1\' => $variable_xref_array[' . $ares->process_variable . '],';
+        $output_php .='\'b1\' => ' . $ares->assign_type . ',';
+        $output_php .='\'c1\' => ' . $ares->assign_by . ',';
+        $output_php .='\'d1\' => $modulated_id,';
         $output_php .='));' . "\n";
+
+
+
+
       }
     }
   }
