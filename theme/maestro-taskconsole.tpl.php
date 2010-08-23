@@ -73,7 +73,7 @@
 
 <tr  id="maestro_taskconsole_detail_rec<?php print $task->queue_id; ?>" style="display:none;">
     <td colspan="5" style="padding:10px;">
-        <div id="projectdetail_rec<?php print $rowid; ?>"><?php print $task->project_detail; ?></div>
+        <div id="projectdetail_rec<?php print $rowid; ?>"></div>
     </td>
 </tr>
 <!-- {inline action record} -->
