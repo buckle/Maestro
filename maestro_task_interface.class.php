@@ -199,16 +199,16 @@ abstract class MaestroTaskInterface {
     }
 
     if (array_key_exists('assignment', $this->_task_edit_tabs) && $this->_task_edit_tabs['assignment'] == 1) {
-      $res = db_query("SELECT assign_type, assign_by_variable, assign_id FROM {maestro_template_assignment} WHERE template_data_id=:tdid", array(':tdid' => $this->_task_id));
+      $res = db_query("SELECT assign_type, assign_by, assign_id FROM {maestro_template_assignment} WHERE template_data_id=:tdid", array(':tdid' => $this->_task_id));
       foreach ($res as $rec) {
-        $selected_options[1][$rec->assign_type][$rec->assign_by_variable][1][] = $rec->assign_id;
+        $selected_options[1][$rec->assign_type][$rec->assign_by][1][] = $rec->assign_id;
       }
     }
 
     if (array_key_exists('notification', $this->_task_edit_tabs) && $this->_task_edit_tabs['assignment'] == 1) {
-      $res = db_query("SELECT notify_type, notify_by_variable, notify_when, notify_id FROM {maestro_template_notification} WHERE template_data_id=:tdid", array(':tdid' => $this->_task_id));
+      $res = db_query("SELECT notify_type, notify_by, notify_when, notify_id FROM {maestro_template_notification} WHERE template_data_id=:tdid", array(':tdid' => $this->_task_id));
       foreach ($res as $rec) {
-        $selected_options[2][$rec->notify_type][$rec->notify_by_variable][$rec->notify_when][] = $rec->notify_id;
+        $selected_options[2][$rec->notify_type][$rec->notify_by][$rec->notify_when][] = $rec->notify_id;
       }
     }
 
@@ -246,7 +246,7 @@ abstract class MaestroTaskInterface {
         foreach ($bys as $by_var => $opt) {
           if (array_key_exists("assign_ids_{$type}_{$by_var}_1", $_POST)) {
             foreach ($_POST["assign_ids_{$type}_{$by_var}_1"] as $id) {
-              db_query("INSERT INTO {maestro_template_assignment} (template_data_id, assign_type, assign_by_variable, assign_id) VALUES (:tdid, :type, :by_var, :id)", array(':tdid' => $this->_task_id, ':type' => $type, ':by_var' => $by_var, ':id' => $id));
+              db_query("INSERT INTO {maestro_template_assignment} (template_data_id, assign_type, assign_by, assign_id) VALUES (:tdid, :type, :by_var, :id)", array(':tdid' => $this->_task_id, ':type' => $type, ':by_var' => $by_var, ':id' => $id));
             }
           }
         }
@@ -260,7 +260,7 @@ abstract class MaestroTaskInterface {
           foreach ($whens as $when => $opt) {
             if (array_key_exists("notify_ids_{$type}_{$by_var}_{$when}", $_POST)) {
               foreach ($_POST["notify_ids_{$type}_{$by_var}_{$when}"] as $id) {
-                db_query("INSERT INTO {maestro_template_notification} (template_data_id, notify_type, notify_by_variable, notify_when, notify_id) VALUES (:tdid, :type, :by_var, :when, :id)", array(':tdid' => $this->_task_id, ':type' => $type, ':by_var' => $by_var, 'when' => $when, ':id' => $id));
+                db_query("INSERT INTO {maestro_template_notification} (template_data_id, notify_type, notify_by, notify_when, notify_id) VALUES (:tdid, :type, :by_var, :when, :id)", array(':tdid' => $this->_task_id, ':type' => $type, ':by_var' => $by_var, 'when' => $when, ':id' => $id));
               }
             }
           }
@@ -462,7 +462,7 @@ abstract class MaestroTaskInterface {
     $display = t('Assigned to:') . ' ';
 
     $query = db_select('maestro_template_assignment', 'a');
-    $query->fields('a', array('assign_id', 'assign_type', 'assign_by_variable'));
+    $query->fields('a', array('assign_id', 'assign_type', 'assign_by'));
     $query->condition('a.template_data_id', $this->_task_id, '=');
 
     $res = $query->execute();
@@ -482,6 +482,16 @@ abstract class MaestroTaskInterface {
     $display .= $assigned_list;
 
     return $display;
+  }
+
+  function getHandlerOptions() {
+    $all_handler_options = cache_get('maestro_handler_options');
+    $handler_options = array();
+    if (array_key_exists('MaestroTaskType' . $this->_task_type, $all_handler_options->data)) {
+      $handler_options = $all_handler_options->data['MaestroTaskType' . $this->_task_type];
+    }
+
+    return $handler_options;
   }
 
   function setCanvasHeight() {
@@ -752,13 +762,16 @@ class MaestroTaskInterfaceBatchFunction extends MaestroTaskInterface {
     $this->_fetchTaskInformation();
     $batch_function = drupal_get_path('module','maestro') . "/batch/batch_functions.php";
     $this->_task_data->task_data['handler_location'] = $batch_function;
-    return theme('maestro_task_batch_function_edit', array('tdid' => $this->_task_id, 'td_rec' => $this->_task_data, 'ta_rec' => $this->_task_assignment_data));
+
+    $handler_options = $this->getHandlerOptions();
+
+    return theme('maestro_task_batch_function_edit', array('tdid' => $this->_task_id, 'td_rec' => $this->_task_data, 'ta_rec' => $this->_task_assignment_data, 'handler_options' => $handler_options));
   }
 
   function save() {
     $rec = new stdClass();
     $rec->id = $_POST['template_data_id'];
-    $rec->task_data = serialize(array('handler' => $_POST['handler']));
+    $rec->task_data = serialize(array('handler' => ($_POST['handler'] == '') ? $_POST['handler_other'] : $_POST['handler']));
     drupal_write_record('maestro_template_data', $rec, array('id'));
 
     return parent::save();
@@ -785,13 +798,15 @@ class MaestroTaskInterfaceInteractiveFunction extends MaestroTaskInterface {
       $this->_task_data->optional_parm = '';
     }
 
-    return theme('maestro_task_interactive_function_edit', array('tdid' => $this->_task_id, 'td_rec' => $this->_task_data, 'ta_rec' => $this->_task_assignment_data));
+    $handler_options = $this->getHandlerOptions();
+
+    return theme('maestro_task_interactive_function_edit', array('tdid' => $this->_task_id, 'td_rec' => $this->_task_data, 'ta_rec' => $this->_task_assignment_data, 'handler_options' => $handler_options));
   }
 
   function save() {
     $rec = new stdClass();
     $rec->id = $_POST['template_data_id'];
-    $rec->task_data = serialize(array('handler' => $_POST['handler']));
+    $rec->task_data = serialize(array('handler' => ($_POST['handler'] == '') ? $_POST['handler_other'] : $_POST['handler']));
 
     drupal_write_record('maestro_template_data', $rec, array('id'));
 

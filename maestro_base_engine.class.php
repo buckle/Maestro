@@ -202,7 +202,7 @@
         $query = db_select('maestro_queue', 'a');
         $query->leftJoin('maestro_template_assignment', 'b', 'a.template_data_id=b.template_data_id');
         $query->fields('a', array('id'));
-        $query->condition('b.assign_by_variable', MaestroAssignmentBy::VARIABLE, '=');
+        $query->condition('b.assign_by', MaestroAssignmentBy::VARIABLE, '=');
         $query->condition('b.assign_id', $processVariableRecord->template_variable_id, '=');
         $res = $query->execute()->fetchAll();
 

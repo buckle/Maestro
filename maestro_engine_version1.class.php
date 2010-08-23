@@ -691,7 +691,7 @@
       $assigned = array();
       $query = db_select('maestro_template_assignment', 'a');
       $query->leftJoin('maestro_queue', 'b', 'a.template_data_id=b.template_data_id');
-      $query->fields('a', array('assign_type', 'assign_by_variable', 'assign_id'));
+      $query->fields('a', array('assign_type', 'assign_by', 'assign_id'));
       $query->fields('b', array('process_id'));
       $query->condition('b.id', $queue_id, '=');
       $res = $query->execute()->fetchAll();
@@ -700,8 +700,8 @@
       $assigned[MaestroAssignmentTypes::USER][MaestroAssignmentBy::VARIABLE] = array();
 
       foreach ($res as $rec) {
-        if ($rec->assign_by_variable == MaestroAssignmentBy::FIXED) {
-          $assigned[$rec->assign_type][$rec->assign_by_variable][] = $rec->assign_id;
+        if ($rec->assign_by == MaestroAssignmentBy::FIXED) {
+          $assigned[$rec->assign_type][$rec->assign_by][] = $rec->assign_id;
         }
         else {
           $pvQuery = db_select('maestro_process_variables', 'a');
@@ -710,7 +710,7 @@
           $pvQuery->condition('a.process_id', $rec->process_id, '=');
           $pvRec = current($pvQuery->execute()->fetchAll());
           $assign_id = $pvRec->variable_value;
-          $assigned[$rec->assign_type][$rec->assign_by_variable][$rec->assign_id] = $assign_id;
+          $assigned[$rec->assign_type][$rec->assign_by][$rec->assign_id] = $assign_id;
         }
       }
 

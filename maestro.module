@@ -272,7 +272,7 @@ function maestro_theme() {
     ),
     'maestro_task_interactive_function_edit' => array(
       'template' => 'theme/structure/tasks/maestro-task-interactive-function-edit',
-      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL)
+      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL, 'handler_options' => NULL)
     ),
     'maestro_task_set_process_variable_edit' => array(
       'template' => 'theme/structure/tasks/maestro-task-set-process-variable-edit',
@@ -284,7 +284,7 @@ function maestro_theme() {
     ),
     'maestro_task_batch_function_edit' => array(
       'template' => 'theme/structure/tasks/maestro-task-batch-function-edit',
-      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL)
+      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL, 'handler_options' => NULL)
     ),
     'maestro_task_if_edit' => array(
       'template' => 'theme/structure/tasks/maestro-task-if-edit',

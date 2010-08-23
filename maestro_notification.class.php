@@ -107,7 +107,7 @@ class MaestroNotification {
 
       $query = db_select('maestro_template_notification', 'a');
       $query->leftJoin('users', 'b', 'a.notify_id=b.uid');
-      $query->fields('a', array('notify_id', 'notify_type', 'notify_when', 'notify_by_variable'));
+      $query->fields('a', array('notify_id', 'notify_type', 'notify_when', 'notify_by'));
       $query->fields('b', array('uid', 'mail'));
       $query->condition('a.notify_when', $this->_notificationType, '=');
       $query->condition('a.notify_type', MaestroAssignmentTypes::USER, '=');   //@TODO: add support for ROLE and GROUP types
@@ -117,7 +117,7 @@ class MaestroNotification {
       $this->_userIDArray = array();
       $this->_userEmailArray = array();
       foreach ($res as $rec) {
-        if ($rec->notify_by_variable == MaestroAssignmentBy::FIXED) {
+        if ($rec->notify_by == MaestroAssignmentBy::FIXED) {
           $query2 = db_select('users', 'a');
           $query2->fields('a', array('uid', 'mail'));
           $query2->condition('a.uid', $rec->notify_id, '=');

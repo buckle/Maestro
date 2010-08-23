@@ -534,7 +534,7 @@ function maestro_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'assign_by_variable' => array(
+      'assign_by' => array(
         'description' => '',
         'type' => 'int',
         'size' => 'tiny',
@@ -577,7 +577,7 @@ function maestro_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'notify_by_variable' => array(
+      'notify_by' => array(
         'description' => '',
         'type' => 'int',
         'size' => 'tiny',

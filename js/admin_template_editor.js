@@ -656,6 +656,41 @@ function toggle_list_type(area) {
 
     $('.' + area + '_row').hide();
     $('.' + area + '_row' + type + by_var + when).show();
+
+    $('#' + area + '_summary').html(get_summary(area));
+  })(jQuery);
+}
+
+function get_summary(area) {
+  var summary = '';
+
+  for (i in select_boxes) {
+    if (area.indexOf(area) != -1) {
+      if (summary != '') {
+        summary += ', ';
+      }
+      summary += get_selected_options(document.getElementById(select_boxes[i]));
+    }
+  }
+
+  return summary;
+}
+
+
+function change_handler_option() {
+  (function($) {
+    var selected = $('#handler_options').attr('value');
+    var message = $('#handler_' + selected).attr('message');
+    $('#handler_options_message').html(message);
+
+    if (selected == '') {
+      $('#handler_options_other').show();
+    }
+    else {
+      $('#handler_options_other').hide();
+    }
+
+    $('#handler_options_other_text').attr('value', '');
   })(jQuery);
 }
 

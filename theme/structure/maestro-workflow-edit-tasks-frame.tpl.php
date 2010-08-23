@@ -171,6 +171,10 @@
             <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'assign_row', 'type' => 'group', 'by_variable' => 'fixed', 'when' => '', 'options' => $og_options, 'selected_options' => $selected_options[1][MaestroAssignmentTypes::GROUP][MaestroAssignmentBy::FIXED][1], 'name' => 'assign_ids_' . MaestroAssignmentTypes::GROUP . '_' . MaestroAssignmentBy::FIXED . '_1[]')); ?>
             <?php print theme('maestro_workflow_assign_notify_select_boxes', array('maestro_url' => $maestro_url, 'display' => 'none', 'row_class' => 'assign_row', 'type' => 'group', 'by_variable' => 'variable', 'when' => '', 'options' => $pv_options, 'selected_options' => $selected_options[1][MaestroAssignmentTypes::GROUP][MaestroAssignmentBy::VARIABLE][1], 'name' => 'assign_ids_' . MaestroAssignmentTypes::GROUP . '_' . MaestroAssignmentBy::VARIABLE . '_1[]')); ?>
 
+            <tr>
+              <td colspan="3"><?php print t('Assignment Summary:'); ?><span id="assign_summary"></span></td>
+            </tr>
+
           </table>
         </div>
 <?php

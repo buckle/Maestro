@@ -1,5 +1,5 @@
 <?php
-// $Id:
+// $Id$
 
 /**
  * @file
@@ -9,18 +9,21 @@
  /* Utility function used in the contructor to merge arrays and maintain keys
   * Copy of example function found on php.net documentation page for array_merge
   */
- function maestro_array_merge_keys($arr1, $arr2) {
+function maestro_array_merge_keys($arr1, $arr2) {
+  if (is_array($arr2)) {
     foreach($arr2 as $k=>$v) {
-        if (!array_key_exists($k, $arr1)) { //K DOESN'T EXISTS //
-            $arr1[$k] = $v;
+      if (!array_key_exists($k, $arr1)) { //K DOESN'T EXISTS //
+        $arr1[$k] = $v;
+      }
+      else { // K EXISTS //
+        if (is_array($v)) { // K IS AN ARRAY //
+          $arr1[$k] = maestro_array_merge_keys($arr1[$k], $arr2[$k]);
         }
-        else { // K EXISTS //
-            if (is_array($v)) { // K IS AN ARRAY //
-                $arr1[$k] = maestro_array_merge_keys($arr1[$k], $arr2[$k]);
-            }
-        }
+      }
     }
-    return $arr1;
+  }
+
+  return $arr1;
 }
 
 class MaestroInterface {
