@@ -205,7 +205,7 @@ abstract class MaestroTaskInterface {
       }
     }
 
-    if (array_key_exists('notification', $this->_task_edit_tabs) && $this->_task_edit_tabs['assignment'] == 1) {
+    if (array_key_exists('notification', $this->_task_edit_tabs) && $this->_task_edit_tabs['notification'] == 1) {
       $res = db_query("SELECT notify_type, notify_by, notify_when, notify_id FROM {maestro_template_notification} WHERE template_data_id=:tdid", array(':tdid' => $this->_task_id));
       foreach ($res as $rec) {
         $selected_options[2][$rec->notify_type][$rec->notify_by][$rec->notify_when][] = $rec->notify_id;
