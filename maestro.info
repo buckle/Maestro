@@ -2,13 +2,11 @@
 name = Maestro
 description = Maestro workflow management system which lets you define processes and route tasks to different site users.
 package = Maestro
-version = 7.x-1.0-dev
+version = 7.x-1.0-alpha1
 core = 7.x
+dependencies[] = trigger
 files[] = maestro.module
 files[] = maestro.install
 files[] = maestro.test
 files[] = maestro.admin.inc
-files[] = maestro-workflow-list.tpl.php
-files[] = maestro-workflow-list-item.tpl.php
-files[] = maestro-workflow-edit.tpl.php
 configure = admin/structure/maestro
