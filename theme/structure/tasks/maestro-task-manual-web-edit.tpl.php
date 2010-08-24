@@ -10,8 +10,11 @@
 
 <table>
   <tr>
-    <td><?php print t('Handler URL:'); ?></td>
-    <td><input type="text" name="handler" value="<?php print filter_xss($td_rec->task_data['handler']); ?>"></td>
+    <td style="vertical-align: top;"><?php print t('Handler URL:'); ?></td>
+    <td>
+    <input type="text" name="handler" value="<?php print filter_xss($td_rec->task_data['handler']); ?>"><br>
+    <?php print t('Use [site_url] to denote your current site.<br>Example:  [site_url]/index.php?q=maestro_manual_web_example'); ?>
+    </td>
   </tr>
   <tr>
     <td><?php print t('Open Link in new window?:'); ?></td>

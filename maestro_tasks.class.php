@@ -619,8 +619,12 @@ class MaestroTaskTypeManualWeb extends MaestroTask {
   }
 
   function getTaskConsoleURL(){
+    global $base_url;
+
     $prop=unserialize($this->_properties->task_data);
     $url = $prop['handler'];
+    $url=str_replace('[site_url]',$base_url,$url);
+
     if(strpos($url, "?")) {
       $url .= "&queueid=" . $this->_properties->queue_id;
     }
