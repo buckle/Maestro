@@ -26,6 +26,7 @@ jQuery(function($) {
     var taskid = jQuery(this).attr('taskid');
     var rowid = jQuery(this).attr('rowid');
     if (document.getElementById('maestro_taskconsole_detail_rec' + taskid).style.display == 'none') {
+      $('#maestro_ajax_indicator' + taskid).show();
       $.ajax({
         type: 'POST',
         url : ajax_url + '/getdetails',
@@ -37,12 +38,14 @@ jQuery(function($) {
         dataType: 'json',
         success:  function (data) {
           if (data.status == 1) {
+            // Swap the image of the closed folder for a open folder icon
             var s = $('#maestro_viewdetail_foldericon' + taskid).attr('src');
             var index = s.indexOf('_closed');
             var newicon = s.substr(0, index) + '_open' + s.substr(index + 7);
             $('#maestro_viewdetail_foldericon' + taskid).attr('src',newicon);
             $('#projectdetail_rec' + rowid).html(data.html);
             $('#maestro_taskconsole_detail_rec' + taskid).show();
+            $('#maestro_ajax_indicator' + taskid).hide();
           } else {
             alert('An error occurred updating assignment');
           }
@@ -52,6 +55,7 @@ jQuery(function($) {
       });
 
     } else {
+        // Swap the image of the open folder for a closed folder icon
         var s = $('#maestro_viewdetail_foldericon' + taskid).attr('src');
         var index = s.indexOf('_open');
         var newicon = s.substr(0, index) + '_closed' + s.substr(index + 5);
@@ -108,7 +112,8 @@ function maestro_ajaxDeleteProject(id) {
 
 function ajaxMaestroComment(op, rowid, id, cid) {
   if (op == 'new') {
-  jQuery('#newcomment_container_' + rowid).show();
+    jQuery('#newcomment_container_' + rowid).show();
+    jQuery('html,body').animate({scrollTop: jQuery('#newcomment_container_' + rowid).offset().top -50},500);
   } else if (op == 'add') {
     (function ($) {
       $.ajax({
