@@ -9,6 +9,9 @@
 include_once './' . drupal_get_path('module', 'maestro') . '/maestro_notification.class.php';
 
 abstract class MaestroTaskInterface {
+  CONST IS_INTERACTIVE = 1;
+  CONST IS_NOT_INTERACTIVE = 0;
+
   protected $_task_id;
   protected $_template_id;
   protected $_task_type;
@@ -37,7 +40,7 @@ abstract class MaestroTaskInterface {
       $this->_template_id = $template_id;
     }
 
-    if ($this->_is_interactive == 1) {
+    if ($this->_is_interactive == MaestroTaskInterface::IS_INTERACTIVE) {
       $this->_task_edit_tabs = array('assignment' => 1, 'notification' => 1);
     }
     else {
@@ -550,7 +553,7 @@ abstract class MaestroTaskInterface {
 class MaestroTaskInterfaceStart extends MaestroTaskInterface {
   function __construct($task_id=0, $template_id=0) {
     $this->_task_type = 'Start';
-    $this->_is_interactive = 0;
+    $this->_is_interactive = MaestroTaskInterface::IS_NOT_INTERACTIVE;
 
     parent::__construct($task_id, $template_id);
   }
@@ -596,7 +599,7 @@ class MaestroTaskInterfaceStart extends MaestroTaskInterface {
 class MaestroTaskInterfaceEnd extends MaestroTaskInterface {
   function __construct($task_id=0, $template_id=0) {
     $this->_task_type = 'End';
-    $this->_is_interactive = 0;
+    $this->_is_interactive = MaestroTaskInterface::IS_NOT_INTERACTIVE;
 
     parent::__construct($task_id, $template_id);
   }
@@ -635,7 +638,7 @@ class MaestroTaskInterfaceEnd extends MaestroTaskInterface {
 class MaestroTaskInterfaceIf extends MaestroTaskInterface {
   function __construct($task_id=0, $template_id=0) {
     $this->_task_type = 'If';
-    $this->_is_interactive = 0;
+    $this->_is_interactive = MaestroTaskInterface::IS_NOT_INTERACTIVE;
 
     parent::__construct($task_id, $template_id);
   }
@@ -742,7 +745,7 @@ class MaestroTaskInterfaceIf extends MaestroTaskInterface {
 class MaestroTaskInterfaceBatch extends MaestroTaskInterface {
   function __construct($task_id=0, $template_id=0) {
     $this->_task_type = 'Batch';
-    $this->_is_interactive = 0;
+    $this->_is_interactive = MaestroTaskInterface::IS_NOT_INTERACTIVE;
 
     parent::__construct($task_id, $template_id);
 
@@ -772,7 +775,7 @@ class MaestroTaskInterfaceBatch extends MaestroTaskInterface {
 class MaestroTaskInterfaceBatchFunction extends MaestroTaskInterface {
   function __construct($task_id=0, $template_id=0) {
     $this->_task_type = 'BatchFunction';
-    $this->_is_interactive = 0;
+    $this->_is_interactive = MaestroTaskInterface::IS_NOT_INTERACTIVE;
 
     parent::__construct($task_id, $template_id);
 
@@ -805,7 +808,7 @@ class MaestroTaskInterfaceBatchFunction extends MaestroTaskInterface {
 
 class MaestroTaskInterfaceInteractiveFunction extends MaestroTaskInterface {
   function __construct($task_id=0, $template_id=0) {
-    $this->_is_interactive = 1;
+    $this->_is_interactive = MaestroTaskInterface::IS_INTERACTIVE;
     $this->_task_type = 'InteractiveFunction';
 
     parent::__construct($task_id, $template_id);
@@ -842,7 +845,7 @@ class MaestroTaskInterfaceInteractiveFunction extends MaestroTaskInterface {
 class MaestroTaskInterfaceSetProcessVariable extends MaestroTaskInterface {
   function __construct($task_id=0, $template_id=0) {
     $this->_task_type = 'SetProcessVariable';
-    $this->_is_interactive = 0;
+    $this->_is_interactive = MaestroTaskInterface::IS_NOT_INTERACTIVE;
 
     parent::__construct($task_id, $template_id);
   }
@@ -893,7 +896,7 @@ class MaestroTaskInterfaceSetProcessVariable extends MaestroTaskInterface {
 class MaestroTaskInterfaceAnd extends MaestroTaskInterface {
   function __construct($task_id=0, $template_id=0) {
     $this->_task_type = 'And';
-    $this->_is_interactive = 0;
+    $this->_is_interactive = MaestroTaskInterface::IS_NOT_INTERACTIVE;
 
     parent::__construct($task_id, $template_id);
   }
@@ -910,7 +913,7 @@ class MaestroTaskInterfaceAnd extends MaestroTaskInterface {
 class MaestroTaskInterfaceManualWeb extends MaestroTaskInterface {
   function __construct($task_id=0, $template_id=0) {
     $this->_task_type = 'ManualWeb';
-    $this->_is_interactive = 1;
+    $this->_is_interactive = MaestroTaskInterface::IS_INTERACTIVE;
 
     parent::__construct($task_id, $template_id);
   }
@@ -943,7 +946,7 @@ class MaestroTaskInterfaceManualWeb extends MaestroTaskInterface {
 class MaestroTaskInterfaceContentType extends MaestroTaskInterface {
   function __construct($task_id=0, $template_id=0) {
     $this->_task_type = 'ContentType';
-    $this->_is_interactive = 1;
+    $this->_is_interactive = MaestroTaskInterface::IS_INTERACTIVE;
     parent::__construct($task_id, $template_id);
   }
 
@@ -971,7 +974,7 @@ class MaestroTaskInterfaceContentType extends MaestroTaskInterface {
 class MaestroTaskInterfaceFireTrigger extends MaestroTaskInterface {
   function __construct($task_id=0, $template_id=0) {
     $this->_task_type = 'FireTrigger';
-    $this->_is_interactive = 0;
+    $this->_is_interactive = MaestroTaskInterface::IS_NOT_INTERACTIVE;
 
     parent::__construct($task_id, $template_id);
 
