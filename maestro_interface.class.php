@@ -111,7 +111,7 @@ class MaestroInterface {
     $options = $this->getContextMenu();
     $html = "<div id=\"maestro_main_context_menu\" class=\"maestro_context_menu\"><ul>\n";
 
-    foreach ($options->data[0] as $key => $option) {
+    foreach ($options->data as $key => $option) {
       $task_type = substr($option['class_name'], 20);
       $option = t($option['display_name']);
       $html .= "<li style=\"white-space: nowrap;\" id=\"$task_type\">$option</li>\n";
@@ -137,7 +137,7 @@ class MaestroInterface {
 
     $js .= "bindings: {\n";
 
-    foreach ($options->data[0] as $key => $option) {
+    foreach ($options->data as $key => $option) {
       $task_type = substr($option['class_name'], 20);
       $js .= "'$task_type': function(t) {\n";
       $js .= "enable_ajax_indicator();\n";
