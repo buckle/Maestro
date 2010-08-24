@@ -11,6 +11,22 @@ We recommend that you install all 3 modules to begin.  Common Functions and Cont
 that is used in the tasks shipped with Maestro.  The Test Workflow patterns module is strongly suggested to get you up and 
 running and familiar with Maestro.  It will install a handful of workflows that give you examples to begin structuring your workflows with.
 
+During the installation of the Maestro Test Workflow Patterns module, a content type test workflow is installed.
+The content type test workflow pattern requires at least 3 distinct users -- the person initiating the workflow, a user named Editor
+and a user named Publisher.  Since you probably don't have those users in your system, the import will not be able to assign two
+of the tasks to those users.
+  
+You will have to do one of the following two things to ensure the Content Type test workflow works for you:
+
+1.  Edit the Test Content Type Task workflow and assign the Editor Review Article to an existing user in your system.
+    Edit the Publisher Review Article Task and assign it to an existing user in your system.
+    
+  OR
+  
+2. Create an Editor and Publisher user.  Assign the Editor Review Article to the Editor user and assign the Publisher Review Article task 
+  to the Publisher user.
+
+
 CONFIGURATION INSTRUCTIONS
 --------------------------
 You will find the Maestro base configuration options under the Configuration menu.  Maestro is found under the Workflow category and

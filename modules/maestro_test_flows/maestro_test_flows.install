@@ -1102,7 +1102,7 @@ function maestro_test_flows_install() {
   $rec->task_data = $fixed_data;
   $rec->handler = '';
   $rec->first_task = 0;
-  $rec->taskname = 'New Task';
+  $rec->taskname = 'Publisher Review Article';
   $rec->argument_variable = '';
   $rec->regenerate = 0;
   $rec->regen_all_live_tasks = 0;
