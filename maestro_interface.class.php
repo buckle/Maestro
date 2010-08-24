@@ -36,6 +36,7 @@ class MaestroInterface {
     // Test if context options are cached - if not then we will set it
     // The class function getContextMenu will read options from the cache
     if($context_options === FALSE) {
+      $context_options = array();
       // Scan through each available class type and fetch its corresponding context menu.
       foreach (module_implements('maestro_get_taskobject_info') as $module) {
         $function = $module . '_maestro_get_taskobject_info';

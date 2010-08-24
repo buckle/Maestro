@@ -124,14 +124,6 @@ function maestro_menu() {
     'file' => 'maestro.admin.inc'
     );
 
-    $items['maestro_manual_web_example'] = array(
-    'title' => 'Maestro Manual Web Example',
-    'description' => 'Manual Web example.',
-    'page callback' => 'maestro_manual_web_example',
-    'access arguments' => array('maestro user'),
-    'type' => MENU_CALLBACK,
-    );
-
     $items['admin/structure/maestro/export'] = array(
     'title' => 'Export a Maestro Template',
     'page callback' => 'maestro_export_template',
@@ -301,10 +293,6 @@ function maestro_theme() {
     'maestro_task_manual_web_edit' => array(
       'template' => 'theme/structure/tasks/maestro-task-manual-web-edit',
       'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL)
-    ),
-    'maestro_manual_web_example' => array(
-      'template' => 'theme/examples/maestro-manual-web-example',
-      'variables' => array('queue_id' => 0)
     ),
     'maestro_task_content_type' => array(
       'template' => 'theme/structure/tasks/maestro-task-content-type',
@@ -1116,15 +1104,6 @@ function maestro_node_update($node) {
 
 function maestro_content_form_submit($form, &$form_state) {
   $form_state['redirect'] = 'maestro/taskconsole';
-}
-
-
-function maestro_manual_web_example() {
-  global $base_url;
-  $maestro_path = $base_url . '/' . drupal_get_path('module', 'maestro');
-  drupal_add_css($maestro_path . '/css/maestro.css');
-  $queue_id=check_plain($_GET['queueid']);
-  return theme('maestro_manual_web_example', array('queue_id' => $queue_id));
 }
 
 
