@@ -40,7 +40,7 @@ class MaestroInterface {
       foreach (module_implements('maestro_get_taskobject_info') as $module) {
         $function = $module . '_maestro_get_taskobject_info';
         if ($arr = $function()) {
-          $context_options[] = $arr;
+          $context_options = maestro_array_merge_keys($context_options, $arr);
         }
       }
       cache_set('maestro_taskclass_info', $context_options);
