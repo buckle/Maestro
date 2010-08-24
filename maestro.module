@@ -20,12 +20,6 @@ function maestro_menu() {
     'type' => MENU_NORMAL_ITEM,
   );
 
-  $items['maestro/test'] = array(
-    'title' => 'Maestro Test Notifications',
-    'page callback' => 'maestro_enginetest',
-    'access callback' => TRUE,
-  );
-
   $items['maestro/launch'] = array(
     'page callback' => 'maestro_launch_workflow',
     'access callback' => TRUE,
@@ -101,15 +95,6 @@ function maestro_menu() {
     $items['maestro_enginetest'] = array(
     'title' => 'Execute Development Test',
     'page callback' => 'maestro_enginetest',
-    'page arguments' => array(),
-    'access callback' => TRUE,
-    'type' => MENU_CALLBACK,
-    'file'  => 'lib-test.php',
-    );
-
-    $items['maestro_runengine'] = array(
-    'title' => 'Execute Development Test',
-    'page callback' => 'maestro_runengine',
     'page arguments' => array(),
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
@@ -427,13 +412,6 @@ function maestro_cleanqueue() {
   drupal_goto($base_url);
 }
 
-function maestro_enginetest() {
-  global $base_url;
-
-  include('lib-test.php');
-  test_observers();
-
-}
 
 function maestro_launch_workflow($template = 0) {
   global $base_url;
@@ -734,7 +712,6 @@ function template_preprocess_maestro_workflow_list_item(&$variables) {
   }
   $variables['template_variables'] = $output;
 
-
 }
 
 
@@ -767,7 +744,6 @@ function template_preprocess_maestro_workflow_edit_template_variables_list(&$var
     $variables['show_variable_actions'] = '';
     $variables['show_variable_edit_actions'] = 'none';
   }
-
 
 }
 
@@ -1002,7 +978,6 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
       $retdata = array ('html' => $html,'status' => "1");
       echo json_encode($retdata);
       break;
-
   }
 
 }
