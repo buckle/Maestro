@@ -1,6 +1,7 @@
 <?php
 
   /* Using Drupal OO Coding Standards as described: http://drupal.org/node/608152 */
+include_once('maestro_constants.class.php');
 
   abstract class MaestroEngine {
 //@TODO: Need to convert these to the proper public/protected variables.

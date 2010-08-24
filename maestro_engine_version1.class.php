@@ -1,7 +1,7 @@
 <?php
 
   /* Using Drupal OO Coding Standards as described: http://drupal.org/node/608152 */
-
+  include_once('maestro_task_interface.class.php');
   class MaestroEngineVersion1 extends MaestroEngine {
 
       var $_version = '1.x';
@@ -307,13 +307,6 @@
       $processTaskList = array("id" => array(), "processid" => array() );
       $processTaskListcount = 0;
 
-      /* @TODO: Call Observer Hooks to send out any task notifications and reminders */
-      $interactiveCondition = db_and()->condition(db_or()->condition('a.status',0) ->condition('a.status',0,'>'))->condition('a.is_interactive',1);
-      $batchStatusCondition = db_or()->condition('a.status',0,'>')->condition('a.status',3)->condition('a.status',4);
-      $batchOverallCondition = db_and()->condition($batchStatusCondition)->condition('a.is_interactive',0);
-      $lastCondition = db_and()->condition('a.archived',0)->condition('b.complete',0)->condition('a.status',0,'>');
-      $finalCondition = db_and()->condition(db_or()->condition($interactiveCondition)->condition($batchOverallCondition))->condition($lastCondition);
-
       $query = db_select('maestro_queue', 'a');
       $query->join('maestro_process', 'b', 'a.process_id = b.id');
       $query->join('maestro_template_data', 'c', 'a.template_data_id = c.id');
@@ -348,7 +341,7 @@
          */
 
         // Test for any interactive Tasks that have completed - we need to archive them now and crank the engine
-        if ($queueRecord->status > 0 AND $queueRecord->is_interactive == 1 AND $queueRecord->archived == 0) {
+        if ($queueRecord->status > 0 AND $queueRecord->is_interactive == MaestroInteractiveFlag::IS_INTERACTIVE AND $queueRecord->archived == 0) {
              $this->nextStep();
         } else {
 
@@ -756,7 +749,7 @@
       //check if this task is interactive.  If interactive, assigned_uid is the user assigned.  else, its a 0 as its engine run.
       $is_interactive = db_query("SELECT is_interactive FROM {maestro_queue} WHERE id = :qid",
               array(':qid' => $qid))->fetchField();
-      if($is_interactive == 1) {
+      if($is_interactive == MaestroInteractiveFlag::IS_INTERACTIVE) {
         if ($this->_userId == '' or $this->_userId == null ) {
           $assigned_uid = db_query("SELECT uid FROM {maestro_production_assignments} WHERE task_id = :qid",
                           array(':qid' => $qid))->fetchField();

@@ -14,6 +14,8 @@
  * I've included our email observer in this file as well as a Skeletal Twitter observer pattern.
 */
 
+include_once('maestro_constants.class.php');
+
 abstract class MaestroNotificationObserver {
   public $displayName;
 
@@ -23,24 +25,6 @@ abstract class MaestroNotificationObserver {
 
   abstract function notify(MaestroNotification &$obj);
 }
-
-class MaestroNotificationTypes {
-  CONST ASSIGNMENT = 1;
-  CONST COMPLETION = 2;
-  CONST REMINDER = 3;
-  CONST ESCALATION = 4;
-
-  static public function getStatusLabel($var=NULL) {
-    $labels = array();
-    $labels[self::ASSIGNMENT] = array('name' => 'ASSIGNMENT', 'label' => t('On Assignment'));
-    $labels[self::COMPLETION] = array('name' => 'COMPLETION', 'label' => t('On Completion'));
-    $labels[self::REMINDER] = array('name' => 'REMINDER', 'label' => t('Reminder'));
-    $labels[self::ESCALATION] = array('name' => 'ESCALATION', 'label' => t('Escalation'));
-
-    return ($var === NULL) ? $labels:$labels[$var];
-  }
-}
-
 
 class MaestroNotification {
   protected $_userIDArray = array();
