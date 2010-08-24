@@ -539,7 +539,12 @@ abstract class MaestroTaskInterface {
     $query->fields('a',array('uid'));
     $query->condition('a.name',$username,'=');
     $uid=current($query->execute()->fetchAll());
-    return intval($uid->uid);
+    if(is_object($uid)) {
+      return intval($uid->uid);
+    }
+    else {
+      return 0;
+    }
   }
 
 
