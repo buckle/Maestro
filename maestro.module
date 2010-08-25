@@ -1022,7 +1022,7 @@ function maestro_form_alter(&$form, $form_state, $form_id) {
       if (isset($requestParms[$maestroIndex]) AND $requestParms[$maestroIndex] == 'maestro' AND isset($requestParms[$maestroIndex + 1])) {
         if ($requestParms[$maestroIndex + 1] == 'edit' AND intval($requestParms[$maestroIndex + 2] > 0)) {
           $form['maestro_taskid'] = array(
-            '#value'  => intval($requestParms[7]),
+            '#value'  => intval($requestParms[$maestroIndex + 2]),
             '#type'   => 'hidden',
           );
           // The extra option is added to the URL via MaestroTaskTypeContentType->getTaskConsoleURL()
