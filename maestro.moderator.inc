@@ -23,10 +23,12 @@ function maestro_outstanding_tasks($op='', $qid=0, $other=NULL) {
   switch ($op) {
   case 'reassign':
     $m->reassignTask($qid, $_POST['reassign_uid'], $_POST['current_uid']);
+    drupal_set_message("Task re-assignment completed and notification sent.");
     break;
 
   case 'email':
     $m->sendTaskReminderNotifications($qid, $other);
+    drupal_set_message("Task assignment reminder notification sent.");
     break;
 
   case 'trace':
