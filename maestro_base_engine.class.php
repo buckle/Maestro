@@ -199,17 +199,18 @@ include_once('maestro_constants.class.php');
             $retval = $variableValue;
         }
 
-        // Now see if that process variable controlled assignment
-        $query = db_select('maestro_queue', 'a');
-        $query->leftJoin('maestro_template_assignment', 'b', 'a.template_data_id=b.template_data_id');
-        $query->fields('a', array('id'));
-        $query->condition('b.assign_by', MaestroAssignmentBy::VARIABLE, '=');
-        $query->condition('b.assign_id', $processVariableRecord->template_variable_id, '=');
-        $res = $query->execute()->fetchAll();
-
-        $queueRecords = $query->execute();
-        foreach ($queueRecords as $queueRecord) {
-          $this->assignTask($queueRecord->id, array($processVariableRecord->variable_id => $variableValue));
+         // Now see if that process variable controlled assignment
+        if (isset($processVariableRecord->template_variable_id) AND $processVariableRecord->template_variable_id > 0) {
+          $query = db_select('maestro_queue', 'a');
+          $query->leftJoin('maestro_template_assignment', 'b', 'a.template_data_id=b.template_data_id');
+          $query->fields('a', array('id'));
+          $query->condition('b.assign_by', MaestroAssignmentBy::VARIABLE, '=');
+          $query->condition('b.assign_id', $processVariableRecord->template_variable_id, '=');
+          $res = $query->execute()->fetchAll();
+          $queueRecords = $query->execute();
+          foreach ($queueRecords as $queueRecord) {
+            $this->assignTask($queueRecord->id, array($processVariableRecord->variable_id => $variableValue));
+          }
         }
       }
       else {
