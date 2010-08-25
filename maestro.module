@@ -1175,7 +1175,6 @@ function maestro_mail($key, &$message, $params) {
     case MaestroNotificationTypes::COMPLETION:
     case MaestroNotificationTypes::ESCALATION:
       $message['subject'] = check_plain($params['subject']);
-      $message['body'][] = t('Maestro email notification for you!');
       $message['body'][] = check_plain($params['message']);
       break;
   }
