@@ -226,8 +226,8 @@ class MaestroNotification {
       $query->condition('a.uid', $userid, '=');
       $userRec = current($query->execute()->fetchAll());
 
-      $this->_userIDArray[$rec->uid] = $userRec->uid;
-      $this->_userEmailArray[$rec->uid] = $userRec->mail;
+      $this->_userIDArray[$userRec->uid] = $userRec->uid;
+      $this->_userEmailArray[$userRec->uid] = $userRec->mail;
     }
 
     return $this->_userEmailArray[$userid];
