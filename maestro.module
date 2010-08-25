@@ -632,7 +632,7 @@ function template_preprocess_maestro_project_comments(&$variables) {
   $query->condition('a.tracking_id',$variables['tracking_id'],'=');
   $res = $query->execute();
   foreach ($res as $record) {
-    if ($record->task_id > 0) {
+    if (isset($record->task_id) AND $record->task_id > 0) {
     $query = db_select('maestro_queue','a');
     $query->join('maestro_template_data','b','b.id = a.template_data_id');
     $query->addField('b','taskname','taskname');
