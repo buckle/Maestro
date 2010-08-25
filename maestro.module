@@ -1009,35 +1009,47 @@ function maestro_form_alter(&$form, $form_state, $form_id) {
   if (in_array($form_id,$maestro_content_types)) {
     $request = urldecode(request_uri());
     $requestParms = explode('/',$request);
-    if (isset($requestParms[5]) AND $requestParms[5] == 'maestro' AND isset($requestParms[6])) {
-      if ($requestParms[6] == 'edit' AND intval($requestParms[7] > 0)) {
-        $form['maestro_taskid'] = array(
-          '#value'  => intval($requestParms[7]),
-          '#type'   => 'hidden',
-        );
-        // The extra option is added to the URL via MaestroTaskTypeContentType->getTaskConsoleURL()
-        // Clicking on a EDIT Form as a direct task - should complete the task on submit.
-        if (isset($requestParms[8]) AND $requestParms[8] == 'completeonsubmit') {
-          $form['maestro_completeonsubmit'] = array(
-            '#value'  => 1,
+
+    $maestroIndex=-1;
+    foreach($requestParms as $index => $val) {
+      if($val == 'maestro') {
+        $maestroIndex = $index;
+        break;
+      }
+    }
+
+    if($maestroIndex >=0 ) {
+      if (isset($requestParms[$maestroIndex]) AND $requestParms[$maestroIndex] == 'maestro' AND isset($requestParms[$maestroIndex + 1])) {
+        echo "in";
+        if ($requestParms[$maestroIndex + 1] == 'edit' AND intval($requestParms[$maestroIndex + 2] > 0)) {
+          $form['maestro_taskid'] = array(
+            '#value'  => intval($requestParms[7]),
             '#type'   => 'hidden',
-            );
+          );
+          // The extra option is added to the URL via MaestroTaskTypeContentType->getTaskConsoleURL()
+          // Clicking on a EDIT Form as a direct task - should complete the task on submit.
+          if (isset($requestParms[$maestroIndex + 3]) AND $requestParms[$maestroIndex + 3] == 'completeonsubmit') {
+            $form['maestro_completeonsubmit'] = array(
+              '#value'  => 1,
+              '#type'   => 'hidden',
+              );
+          }
         }
+        else {
+          $form['maestro_taskid'] = array(
+            '#value'  => intval($requestParms[$maestroIndex + 1]),
+            '#type'   => 'hidden',
+          );
+        }
+        /* Overwrite the default node submission handler with our own.
+         * Had a real issue getting this to work as the available docs indicate
+         * $form['#submit'][] = 'maestro_content_form_submit';
+         * should work but the default node submit handler 'node_form_submit()' would always be used.
+         * Posted to rfay's blog: http://randyfay.com/node/66
+         * On IRC, DamZ recommended this syntax which works
+         */
+          $form['actions']['submit']['#submit'][] = 'maestro_content_form_submit';
       }
-      else {
-        $form['maestro_taskid'] = array(
-          '#value'  => intval($requestParms[6]),
-          '#type'   => 'hidden',
-        );
-      }
-      /* Overwrite the default node submission handler with our own.
-       * Had a real issue getting this to work as the available docs indicate
-       * $form['#submit'][] = 'maestro_content_form_submit';
-       * should work but the default node submit handler 'node_form_submit()' would always be used.
-       * Posted to rfay's blog: http://randyfay.com/node/66
-       * On IRC, DamZ recommended this syntax which works
-       */
-        $form['actions']['submit']['#submit'][] = 'maestro_content_form_submit';
     }
   }
 }
