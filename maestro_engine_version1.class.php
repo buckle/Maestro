@@ -635,37 +635,38 @@
         }
     }
 
-    function reassignTask($queueId,$assignUid,$currentUid,$variableId) {
+    function reassignTask($queueId, $assignUid, $currentUid, $variableId=0) {
+      /* Assignment Record has to exist - but there can be multiple for this workflow queue record (process task)
+      * If the assign_uid is 0 then it's not presently assigned
+      * If the process_variable field is 0 then the task is assigned by UID and not by variable
+      */
 
-        /* Assignment Record has to exist - but there can be multiple for this workflow queue record (process task)
-         * If the assign_uid is 0 then it's not presently assigned
-         * If the process_variable field is 0 then the task is assigned by UID and not by variable
-        */
+      // Check that user exists, is valid and status is an active user - else skip the re-assignment
+      $user_status = db_query("SELECT status FROM {users} WHERE uid = :uid", array(':uid' => $assignUid))->fetchField();
 
-        // Check that user exists, is valid and status is an active user - else skip the re-assignment
-        $user_status = db_query("SELECT status FROM {users} WHERE uid = :uid",
-          array(':uid' => $assignUid))->fetchField();
-
-        if ($assignUid >= 1 AND $user_status > 0) {
-            $query = db_select('maestro_production_assignments','a');
-            $query->fields('a', array('id','uid','assign_back_uid'));
-            $query->condition('task_id', $queueId, '=');
-            if ($variableId > 0) {
-                $query->condition('process_variable',$variableId,'=');
-            } elseif($currentUid > 0) {
-                $query->condition('uid',$currentUid,'=')->condition('process_variable',0,'=');
-            }
-            $rec =  $query->execute()->fetchObject();
-            if ($rec->id) {
-                /* If the task has been re-assigned previously for this task, then we will now loose the originally assigned user */
-                /* Need to now check if the to-be-assigned user is away and if so .. then assigned to their backup */
-                $assignToUserId = $this->getAwayReassignmentUid($assignUid);
-                db_update('maestro_production_assignments')
-                  ->fields(array('uid' => $assignToUserId, 'last_updated' => time(), 'assign_back_uid' => $currentUid))
-                  ->condition('id', $rec->id, '=')
-                  ->execute();
-            }
+      if ($assignUid >= 1 AND $user_status > 0) {
+        $query = db_select('maestro_production_assignments', 'a');
+        $query->fields('a', array('id', 'uid', 'assign_back_uid'));
+        $query->condition('task_id', $queueId, '=');
+        if ($variableId > 0) {
+          $query->condition('process_variable', $variableId, '=');
         }
+        else if ($currentUid > 0) {
+          $query->condition('uid', $currentUid, '=');
+        }
+
+        $res = $query->execute();
+        $rec = $query->execute()->fetchObject();
+        if ($rec !== FALSE && $rec->id) {
+          /* If the task has been re-assigned previously for this task, then we will now loose the originally assigned user */
+          /* Need to now check if the to-be-assigned user is away and if so .. then assigned to their backup */
+          $assignToUserId = $this->getAwayReassignmentUid($assignUid);
+          db_update('maestro_production_assignments')
+            ->fields(array('uid' => $assignToUserId, 'last_updated' => time(), 'assign_back_uid' => $currentUid))
+            ->condition('id', $rec->id, '=')
+            ->execute();
+        }
+      }
     }
 
 

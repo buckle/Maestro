@@ -41,11 +41,11 @@ class MaestroNotification {
    * @param $users
    *   Mandatory - An array of integers or single integer specifying the Drupal users to notify.
    *
-   * @param $message
-   *   String: The actual message to send in the email.
+   * @param $defaultMessage
+   *   String: The default message to send in the email, overridden with the message stored in the template_data record
    *
-   * @param $subject
-   *   String: The email subject
+   * @param $defaultSubject
+   *   String: The default email subject, overridden with the message stored in the template_data record
    *
    * @param $queueID
    *   Integer: The QueueID associated with the message you're sending out
@@ -53,13 +53,13 @@ class MaestroNotification {
    * @param $type
    *   String: The actual notification type using the MaestroNotificationTypes Constants
    */
-  function __construct($message = '', $subject = '', $queueID = 0, $type = MaestroNotificationTypes::ASSIGNMENT) {
-    $this->_subject = $subject;
-    $this->_notificationType = $type;
+  function __construct($defaultMessage = '', $defaultSubject = '', $queueID = 0, $type = MaestroNotificationTypes::ASSIGNMENT) {
     $observers = array();
-    $this->_message = $message;
+    $this->_notificationType = $type;
     $this->_queueID = $queueID;
     $this->getNotificationUserIDs();
+
+    $this->setNotificationSubjectAndMessage($defaultMessage, $defaultSubject);
 
     //Now, lets determine if we've got our observers cached.  If not, lets rebuild that observer list
     //This is how we subscribe to becoming a notification provider for Maestro.
@@ -80,6 +80,54 @@ class MaestroNotification {
     else {
       $this->_observers = ($observers->data);
     }
+  }
+
+  function setNotificationSubjectAndMessage($defaultMessage, $defaultSubject) {
+    $fields = array();
+    $fields[MaestroNotificationTypes::ASSIGNMENT] = 'pre_notify';
+    $fields[MaestroNotificationTypes::COMPLETION] = 'post_notify';
+    $fields[MaestroNotificationTypes::REMINDER] = 'reminder';
+    $fields[MaestroNotificationTypes::ESCALATION] = 'escalation';
+
+    $query = db_select('maestro_queue', 'a');
+    $query->leftJoin('maestro_template_data', 'b', 'a.template_data_id=b.id');
+    $query->leftJoin('maestro_template', 'c', 'b.template_id=c.id');
+    $query->fields('b', array('taskname'));
+    $query->fields('c', array('template_name'));
+    $query->addField('b', $fields[$this->_notificationType] . '_message', 'message');
+    $query->addField('b', $fields[$this->_notificationType] . '_subject', 'subject');
+    $query->condition('a.id', $this->_queueID, '=');
+    $rec = $query->execute()->fetchObject();
+
+    $message = ($rec->message == '') ? $defaultMessage : $rec->message;
+    $subject = ($rec->subject == '') ? $defaultSubject : $rec->subject;
+
+    //now apply the string replace for the tokens
+    $tokens = array('task_console_url' => '[task_console_url]', 'workflow_name' => '[workflow_name]', 'task_name' => '[task_name]', 'owner_name' => '[owner_name]');
+    $replace = array();
+    $replace['task_console_url'] = url('maestro/taskconsole');
+    $replace['task_name'] = $rec->taskname;
+    $replace['workflow_name'] = $rec->template_name;
+
+    $userQuery = db_select('maestro_production_assignments', 'a');
+    $userQuery->leftJoin('users', 'b', 'a.uid=b.uid');
+    $userQuery->fields('b', array('name'));
+    $userQuery->condition('a.task_id', $this->_queueID, '=');
+    $userRes = $userQuery->execute()->fetchAll();
+
+    $replace['owner_name'] = '';
+    foreach ($userRes as $userRec) {
+      if ($replace['owner_name'] != '') {
+        $replace['owner_name'] .= ', ';
+      }
+      $replace['owner_name'] .= $userRec->name;
+    }
+
+    str_replace($tokens, $replace, $message);
+    str_replace($tokens, $replace, $subject);
+
+    $this->_message = $message;
+    $this->_subject = $subject;
   }
 
   function getNotificationUserIDs() {
@@ -167,9 +215,20 @@ class MaestroNotification {
     return $this->_userIDArray;
   }
 
-  function getUserEmailAddresses($userid = 0){
+  function getUserEmailAddresses($userid = 0) {
     $userid = intval($userid);
-    if($userid == 0) return $this->_userEmailArray;
+    if ($userid == 0) return $this->_userEmailArray;
+
+    //add the array entry if it doesnt exist (like in some cases with the outstandind task reminder action
+    if (!array_key_exists($userid, $this->_userEmailArray) && $userid > 0) {
+      $query = db_select('users', 'a');
+      $query->fields('a', array('uid', 'mail'));
+      $query->condition('a.uid', $userid, '=');
+      $userRec = current($query->execute()->fetchAll());
+
+      $this->_userIDArray[$rec->uid] = $userRec->uid;
+      $this->_userEmailArray[$rec->uid] = $userRec->mail;
+    }
 
     return $this->_userEmailArray[$userid];
   }

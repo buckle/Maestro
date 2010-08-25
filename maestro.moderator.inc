@@ -22,7 +22,7 @@ function maestro_outstanding_tasks($op='', $qid=0, $other=NULL) {
 
   switch ($op) {
   case 'reassign':
-    $m->reassignTask($qid, $_POST['current_uid'], $_POST['reassign_uid']);
+    $m->reassignTask($qid, $_POST['reassign_uid'], $_POST['current_uid']);
     break;
 
   case 'email':

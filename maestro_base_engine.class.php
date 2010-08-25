@@ -227,7 +227,10 @@ include_once('maestro_constants.class.php');
       if ($qid == 0) {
         $qid = $this->_queueId;
       }
-      $notification = new MaestroNotification(t('Assigned Task Message Body'), t('You have a task assigned'), $qid, MaestroNotificationTypes::ASSIGNMENT);
+
+      $message = "Hello,\n\nA new task, [task_name] has been assigned to [task_owner].\n\nClick here for your task console: [task_console_url]\n\nRegards,\nAdministrator";
+      $subject = "Task [task_name] has been Assigned";
+      $notification = new MaestroNotification(t($message), t($subject), $qid, MaestroNotificationTypes::ASSIGNMENT);
       $notification->notify();
     }
 
@@ -236,7 +239,9 @@ include_once('maestro_constants.class.php');
       if ($qid == 0) {
           $qid = $this->_queueId;
       }
-      $notification = new MaestroNotification(t('Reminder Notification Message Body'), t('Task Reminder'), $qid, MaestroNotificationTypes::COMPLETION);
+      $message = "Hello,\n\nThe task [task_name] has been completed by [task_owner].\n\nRegards,\nAdministrator";
+      $subject = "Task [task_name] has been Completed";
+      $notification = new MaestroNotification(t($message), t($subject), $qid, MaestroNotificationTypes::COMPLETION);
       $notification->notify();
     }
 
@@ -245,7 +250,11 @@ include_once('maestro_constants.class.php');
       if ($qid == 0) {
         $qid = $this->_queueId;
       }
-      $notification = new MaestroNotification(t('Completed Task Message Body'), t('Task as been Completed'), $qid, MaestroNotificationTypes::REMINDER);
+
+      $message = "Hello,\n\nThis is a reminder of the task [task_name] which has been assigned to [task_owner] and is not yet completed.\n\nClick here for your task console: [task_console_url]\n\nRegards,\nAdministrator";
+      $subject = "Task [task_name] Reminder";
+      $notification = new MaestroNotification(t($message), t($subject), $qid, MaestroNotificationTypes::REMINDER);
+
       if($user_id != 0) {
         $notification->setUserIDs($user_id);
       }
