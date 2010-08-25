@@ -552,11 +552,18 @@ class MaestroTaskTypeContentType extends MaestroTask {
     * so we need to test for that and update that for any URL link
     */
     $content_type = str_replace('_','-',$taskdata['content_type']);
+    $tracking_id = db_select('maestro_process')
+    ->fields('maestro_process', array('tracking_id'))
+    ->condition('id', $this->_properties->process_id, '=')
+    ->execute()->fetchField();
+
     if ($this->_properties->regen) {
+
       // Determine the content nid
       $query = db_select('maestro_project_content', 'a');
       $query->addField('a','nid');
       $query->condition('a.instance', 1,'=');
+      $query->condition('a.tracking_id', $tracking_id,'=');
       $query->condition(db_and()->condition('a.content_type', $taskdata['content_type'],'='));
       $nid = $query->execute()->fetchField();
       if (variable_get('clean_url')) {
