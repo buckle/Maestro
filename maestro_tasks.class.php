@@ -109,9 +109,6 @@ abstract class MaestroTask {
 class MaestroTaskTypeStart extends MaestroTask {
 
   function execute() {
-    $msg = 'Execute Task Type: "Start" - properties: ' . print_r($this->_properties, true);
-    watchdog('maestro',$msg);
-    $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
     $this->setTaskStartedDate($this->_properties->id);
     $this->executionStatus = TRUE;
     $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
@@ -126,9 +123,6 @@ class MaestroTaskTypeStart extends MaestroTask {
 class MaestroTaskTypeEnd extends MaestroTask {
 
   function execute() {
-    $msg = 'Execute Task Type: "End" - properties: ' . print_r($this->_properties, true);
-    watchdog('maestro',$msg);
-    $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
     $this->setTaskStartedDate($this->_properties->id);
     $this->executionStatus = TRUE;
     $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
@@ -143,10 +137,7 @@ class MaestroTaskTypeEnd extends MaestroTask {
 class MaestroTaskTypeBatch extends MaestroTask {
 
   function execute() {
-    $msg = 'Execute Task Type: "Batch" - properties: ' . print_r($this->_properties, true);
-    watchdog('maestro',$msg);
     $success = FALSE;
-
     $current_path=variable_get('maestro_batch_script_location',drupal_get_path('module','maestro') . "/batch/");
 
     if (file_exists($current_path . $this->_properties->handler)) {
@@ -163,7 +154,6 @@ class MaestroTaskTypeBatch extends MaestroTask {
     }
     $this->setTaskStartedDate($this->_properties->id);
     $this->executionStatus = TRUE;
-    $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
     return $this;
   }
 
@@ -178,8 +168,6 @@ class MaestroTaskTypeBatch extends MaestroTask {
 class MaestroTaskTypeBatchFunction extends MaestroTask {
 
   function execute() {
-    $msg = 'Execute Task Type: "BatchFunction" - properties: ' . print_r($this->_properties, true);
-    watchdog('maestro',$msg);
     $success = FALSE;
     $current_path = drupal_get_path('module','maestro') . "/batch/";
     include($current_path . "batch_functions.php" );
@@ -199,7 +187,6 @@ class MaestroTaskTypeBatchFunction extends MaestroTask {
       $this->completionStatus = FALSE;
     }
     $this->executionStatus = TRUE;
-    $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
     return $this;
   }
 
@@ -216,8 +203,6 @@ class MaestroTaskTypeBatchFunction extends MaestroTask {
 class MaestroTaskTypeAnd extends MaestroTask {
 
   function execute() {
-    $msg = 'Execute Task Type: "AND" - properties: ' . print_r($this->_properties, true);
-    watchdog('maestro',$msg);
     $this->setTaskStartedDate($this->_properties->id);
     $numComplete = 0;
     $numIncomplete = 0;
@@ -244,8 +229,6 @@ class MaestroTaskTypeAnd extends MaestroTask {
       $this->completionStatus = FALSE;
       $this->executionStatus = FALSE;
     }
-
-    $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
     return $this;
   }
 
@@ -257,10 +240,7 @@ class MaestroTaskTypeAnd extends MaestroTask {
 class MaestroTaskTypeIf extends MaestroTask {
 
   function execute() {
-    $msg = 'Execute Task Type: "IF" - properties: ' . print_r($this->_properties, true);
-    watchdog('maestro',$msg);
     $this->setTaskStartedDate($this->_properties->id);
-    $this->setMessage( $msg . print_r($this->_properties, true) . '<br>');
 
     $serializedData = db_query("SELECT task_data FROM {maestro_queue} WHERE id = :tid",
     array(':tid' => $this->_properties->id))->fetchField();
@@ -408,8 +388,6 @@ class MaestroTaskTypeInteractiveFunction extends MaestroTask {
     * It's up to the defined interactiveTask function to complete the task.
     */
     $this->setRunOnceFlag($this->_properties->id);
-    $msg = 'Execute Task Type: "MaestroTaskTypeInteractivefunction" - properties: ' . print_r($this->_properties, true);
-    watchdog('maestro',$msg);
     $this->completionStatus = FALSE;
     $this->executionStatus = TRUE;
     return $this;
@@ -462,8 +440,6 @@ class MaestroTaskTypeSetProcessVariable extends MaestroTask {
   function execute() {
 
     $this->executionStatus = FALSE;
-    $msg = 'Execute Task Type: "SetProcessVariable" - properties: ' . print_r($this->_properties, true);
-    watchdog('maestro',$msg);
     $this->setTaskStartedDate($this->_properties->id);
     $query = db_select('maestro_template_data', 'a');
     $query->fields('a',array('task_data'));
@@ -521,8 +497,6 @@ class MaestroTaskTypeManualWeb extends MaestroTask {
     * We have a hook_node_insert method that will trigger a completeTask to tell the masesto engine
     * this task is now complete and it can be archived and crank the engine forward for this w/f instance (process).
     */
-    $msg = 'Execute Task Type: "Manual Web" - properties: ' . print_r($this->_properties, true);
-    watchdog('maestro',$msg);
     $this->completionStatus = FALSE;
     $this->executionStatus = TRUE;
     $this->setRunOnceFlag($this->_properties->id);
@@ -557,9 +531,6 @@ class MaestroTaskTypeManualWeb extends MaestroTask {
 class MaestroTaskTypeContentType extends MaestroTask {
 
   function execute() {
-    $msg = 'Execute Task Type: "Content Type" - properties: ' . print_r($this->_properties, true);
-    watchdog('maestro',$msg);
-
     // Check to see if the current status has been set to 1.
     // If so, completion status is set to true to complete the task.
 
@@ -667,8 +638,6 @@ class MaestroTaskTypeContentType extends MaestroTask {
 class MaestroTaskTypeFireTrigger extends MaestroTask {
 
   function execute() {
-    $msg = 'Execute Task Type: "FireTrigger" - properties: ' . print_r($this->_properties, true);
-    watchdog('maestro', $msg);
     $this->setTaskStartedDate($this->_properties->id);
     $aids = trigger_get_assigned_actions('fire_trigger_task' . $this->_properties->template_data_id);
 
