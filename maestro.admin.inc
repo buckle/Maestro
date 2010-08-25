@@ -441,6 +441,62 @@ function maestro_admin_form() {
     '#multiple'    => TRUE,
   );
 
+  $form['maestro_assignment_subject'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Assignment Notification Default Subject'),
+    '#default_value' => variable_get('maestro_assignment_subject'),
+    '#required' => FALSE,
+  );
+  $form['maestro_assignment_message'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Assignment Notification Default Message'),
+    '#default_value' => variable_get('maestro_assignment_message'),
+    '#description' => t('Valid tokens: [workflow_name], [task_name], [task_owner], [task_console_url]'),
+    '#required' => FALSE,
+  );
+
+  $form['maestro_completion_subject'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Completion Notification Default Subject'),
+    '#default_value' => variable_get('maestro_completion_subject'),
+    '#required' => FALSE,
+  );
+  $form['maestro_completion_message'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Completion Notification Default Message'),
+    '#default_value' => variable_get('maestro_completion_message'),
+    '#description' => t('Valid tokens: [workflow_name], [task_name], [task_owner], [task_console_url]'),
+    '#required' => FALSE,
+  );
+
+  $form['maestro_reminder_subject'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Reminder Notification Default Subject'),
+    '#default_value' => variable_get('maestro_reminder_subject'),
+    '#required' => FALSE,
+  );
+  $form['maestro_reminder_message'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Reminder Notification Default Message'),
+    '#default_value' => variable_get('maestro_reminder_message'),
+    '#description' => t('Valid tokens: [workflow_name], [task_name], [task_owner], [task_console_url]'),
+    '#required' => FALSE,
+  );
+
+  $form['maestro_escalation_subject'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Escalation Notification Default Subject'),
+    '#default_value' => variable_get('maestro_escalation_subject'),
+    '#required' => FALSE,
+  );
+  $form['maestro_escalation_message'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Escalation Notification Default Message'),
+    '#default_value' => variable_get('maestro_escalation_message'),
+    '#description' => t('Valid tokens: [workflow_name], [task_name], [task_owner], [task_console_url]'),
+    '#required' => FALSE,
+  );
+
   return system_settings_form($form);
 }
 

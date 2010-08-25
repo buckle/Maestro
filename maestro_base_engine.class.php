@@ -228,9 +228,9 @@ include_once('maestro_constants.class.php');
         $qid = $this->_queueId;
       }
 
-      $message = "Hello,\n\nA new task, [task_name] has been assigned to [task_owner].\n\nClick here for your task console: [task_console_url]\n\nRegards,\nAdministrator";
-      $subject = "Task [task_name] has been Assigned";
-      $notification = new MaestroNotification(t($message), t($subject), $qid, MaestroNotificationTypes::ASSIGNMENT);
+      $message = variable_get('maestro_assignment_message');
+      $subject = variable_get('maestro_assignment_subject');
+      $notification = new MaestroNotification($message, $subject, $qid, MaestroNotificationTypes::ASSIGNMENT);
       $notification->notify();
     }
 
@@ -239,9 +239,10 @@ include_once('maestro_constants.class.php');
       if ($qid == 0) {
           $qid = $this->_queueId;
       }
-      $message = "Hello,\n\nThe task [task_name] has been completed by [task_owner].\n\nRegards,\nAdministrator";
-      $subject = "Task [task_name] has been Completed";
-      $notification = new MaestroNotification(t($message), t($subject), $qid, MaestroNotificationTypes::COMPLETION);
+
+      $message = variable_get('maestro_completion_message');
+      $subject = variable_get('maestro_completion_subject');
+      $notification = new MaestroNotification($message, $subject, $qid, MaestroNotificationTypes::COMPLETION);
       $notification->notify();
     }
 
@@ -251,9 +252,9 @@ include_once('maestro_constants.class.php');
         $qid = $this->_queueId;
       }
 
-      $message = "Hello,\n\nThis is a reminder of the task [task_name] which has been assigned to [task_owner] and is not yet completed.\n\nClick here for your task console: [task_console_url]\n\nRegards,\nAdministrator";
-      $subject = "Task [task_name] Reminder";
-      $notification = new MaestroNotification(t($message), t($subject), $qid, MaestroNotificationTypes::REMINDER);
+      $message = variable_get('maestro_reminder_message');
+      $subject = variable_get('maestro_reminder_subject');
+      $notification = new MaestroNotification($message, $subject, $qid, MaestroNotificationTypes::REMINDER);
 
       if($user_id != 0) {
         $notification->setUserIDs($user_id);

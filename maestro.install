@@ -11,6 +11,15 @@ function maestro_install() {
   variable_set('maestro_run_orchestrator_in_task_console', 1);
   variable_set('maestro_enable_notifications', 1);
   variable_set('maestro_enabled_notifiers', NULL);
+
+  variable_set('maestro_assignment_subject', "Task [task_name] has been Assigned");
+  variable_set('maestro_assignment_message', "Hello,\n\nA new task, \"[task_name]\" has been assigned to [task_owner].\n\nClick here for your task console: [task_console_url]\n\nRegards,\nAdministrator");
+  variable_set('maestro_completion_subject', "Task [task_name] has been Completed");
+  variable_set('maestro_completion_message', "Hello,\n\nThe task \"[task_name]\" has been completed by [task_owner].\n\nRegards,\nAdministrator");
+  variable_set('maestro_reminder_subject', "Task [task_name] Reminder");
+  variable_set('maestro_reminder_message', "Hello,\n\nThis is a reminder of the task \"[task_name]\" which has been assigned to [task_owner] and is not yet completed.\n\nClick here for your task console: [task_console_url]\n\nRegards,\nAdministrator");
+  variable_set('maestro_escalation_subject', "Task [task_name] Escalation");
+  variable_set('maestro_escalation_message', "Hello,\n\nThe task \"[task_name]\" has gone uncompleted for too long. This message is to make the supervisor aware of this.\n\nRegards,\nAdministrator");
 }
 
 
@@ -19,6 +28,15 @@ function maestro_uninstall() {
   variable_del('maestro_run_orchestrator_in_task_console');
   variable_del('maestro_enable_import_window');
   variable_del('maestro_enabled_notifiers');
+
+  variable_del('maestro_assignment_subject');
+  variable_del('maestro_assignment_message');
+  variable_del('maestro_completion_subject');
+  variable_del('maestro_completion_message');
+  variable_del('maestro_reminder_subject');
+  variable_del('maestro_reminder_message');
+  variable_del('maestro_escalation_subject');
+  variable_del('maestro_escalation_message');
 }
 
 function maestro_schema() {
