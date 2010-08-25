@@ -169,8 +169,6 @@ class MaestroTaskTypeBatchFunction extends MaestroTask {
 
   function execute() {
     $success = FALSE;
-    $current_path = drupal_get_path('module','maestro') . "/batch/";
-    include($current_path . "batch_functions.php" );
 
     $function = $this->_properties->handler;
     if (function_exists($function)) {
