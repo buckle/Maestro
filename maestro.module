@@ -939,7 +939,7 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
         $html = theme('maestro_project_comments',array('rowid' => $rowid, 'tracking_id' => $_POST['tracking_id']));
         $retdata = array ('html' => $html,'status' => "1");
       } else {
-        $retdata = array ('status' => "0");
+        $retdata = array ('status' => "1");
       }
       echo json_encode($retdata);
       break;
