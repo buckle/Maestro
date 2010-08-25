@@ -849,24 +849,6 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
         $maestro = Maestro::createMaestroObject(1);
         if ($assigned_uid != $_POST['task_reassign_uid']) {
           $maestro->engine()->reassignTask($taskid,$_POST['task_reassign_uid'],$_POST['taskuser'],$_POST['variable_id']);
-
-          $taskname = db_query("SELECT taskname FROM {maestro_template_data} WHERE id = :tid",
-          array(':tid' => $task_data_id))->fetchField();
-          $assigned_name = db_query("SELECT name FROM {users} WHERE uid = :uid",
-          array(':uid' => $assigned_uid))->fetchField();
-          $reassigned_name = db_query("SELECT name FROM {users} WHERE uid = :uid",
-          array(':uid' => $_POST['task_reassign_uid']))->fetchField();
-          $comment = "Task Owner change, was {$assigned_name}, now {$reassigned_name} for task: {$taskname}";
-          db_insert('maestro_project_comments')
-          ->fields(array('tracking_id','uid','task_id','timestamp','comment'))
-          ->values(array(
-              'tracking_id' => $tracking_id,
-              'uid' => $assigned_uid,
-              'task_id' => $taskid,
-              'timestamp' => time(),
-              'comment'  => $comment
-          ))
-          ->execute();
         }
         $retdata = array ('status' => TRUE);
       } else {

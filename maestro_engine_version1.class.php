@@ -665,6 +665,32 @@
             ->fields(array('uid' => $assignToUserId, 'last_updated' => time(), 'assign_back_uid' => $currentUid))
             ->condition('id', $rec->id, '=')
             ->execute();
+
+          // Create a comment in the project comments
+          $query = db_select('maestro_queue', 'a');
+          $query->join('maestro_process','b','b.id = a.process_id');
+          $query->fields('a', array('id','template_data_id', 'process_id'));
+          $query->fields('b', array('tracking_id'));
+          $query->condition('a.id', $queueId, '=');
+          $rec = $query->execute()->fetchObject();
+          $taskname = db_query("SELECT taskname FROM {maestro_template_data} WHERE id = :tid",
+          array(':tid' => $rec->template_data_id))->fetchField();
+          $assigned_name = db_query("SELECT name FROM {users} WHERE uid = :uid",
+          array(':uid' => $currentUid))->fetchField();
+          $reassigned_name = db_query("SELECT name FROM {users} WHERE uid = :uid",
+          array(':uid' => $assignToUserId))->fetchField();
+          $comment = "Task Owner change, was {$assigned_name}, now {$reassigned_name} for task: {$taskname}";
+          db_insert('maestro_project_comments')
+          ->fields(array('tracking_id','uid','task_id','timestamp','comment'))
+          ->values(array(
+              'tracking_id' => $rec->tracking_id,
+              'uid' => $assignToUserId,
+              'task_id' => $rec->id,
+              'timestamp' => time(),
+              'comment'  => $comment
+          ))
+          ->execute();
+
         }
       }
     }
