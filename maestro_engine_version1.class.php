@@ -767,12 +767,13 @@
         ->condition('id',$qid,'=')
         ->execute();
 
+      //notify before deleting the production assignment record
+      $this->sendTaskCompletionNotifications($qid);
+
       // Self Prune Production Assignment table - delete the now completed task assignment record
       db_delete('maestro_production_assignments')
         ->condition('task_id',$qid,'=')
         ->execute();
-
-      $this->sendTaskCompletionNotifications();
 
     }
 
