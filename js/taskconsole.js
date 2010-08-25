@@ -13,7 +13,9 @@ jQuery(function($) {
     var taskid = jQuery(this).attr('taskid');
     $('#maestro_actionrec' + taskid).toggle();
     $.post(ajax_url + '/starttask/',"taskid=" + taskid);
-    $('html,body').animate({scrollTop: $('#maestro_actionrec' + taskid).offset().top - 125},500);
+    if (document.getElementById('maestro_actionrec' + taskid)) {
+      $('html,body').animate({scrollTop: $('#maestro_actionrec' + taskid).offset().top - 125},500);
+    }
   })
 });
 
