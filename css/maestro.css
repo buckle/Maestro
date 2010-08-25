@@ -126,6 +126,10 @@
   border:1px solid #D9EAF5;
 }
 
+.maestroDetailSubTable td {
+  font-size:92%;
+}
+
 .tl { background: url(../images/admin/corners/tl.png) 0 0 no-repeat; }
 .tr { background: url(../images/admin/corners/tr.png) 100% 0 no-repeat; padding: 10px; }
 .bl { background: url(../images/admin/corners/bl.png) 0 100% no-repeat; }

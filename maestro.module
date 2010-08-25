@@ -551,7 +551,7 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
     $variables['delete_project_action'] = '';
   }
 
-  $variables['task_history'] = maestro_getProjectTasksHistory($task->tracking_id);
+  $variables['completed_tasks'] = maestro_getProjectTasksHistory($task->tracking_id);
 
   /* Format Outstanding Tasks Object to be used in the template */
   $arr_otasks = array();  // Array of outstanding task objects
@@ -1138,28 +1138,20 @@ function maestro_getProjectTasksHistory($tracking_id) {
   $query->condition(db_or()->condition('queue.completed_date',0,'>')->condition('queue.status',MaestroTaskStatusCodes::STATUS_ON_HOLD,'='));
   $res = $query->execute();
 
-  $retval = '';
-  $header = array(
-  array('data' => t('Task Name'), 'field' => 'taskname'),
-  array('data' => t('Owner'), 'field' => 'owner'),
-  array('data' => t('Assigned'), 'field' => 'assigned'),
-  array('data' => t('Started'), 'field' => 'started'),
-  array('data' => t('Completed'), 'field' => 'completed'),
-  array('data' => t('Status'), 'field' => 'status'));
-  $rows = array();
-
+  $retval = array();
   foreach ($res as $record) {
-    $assigned = strftime("%b %d/%Y %H:%M",$record->created_date);
-    $started = strftime("%b %d/%Y %H:%M",$record->started_date);
-    $completed = strftime("%b %d/%Y %H:%M",$record->completed_date);
-    $status = 'completed';
+    $ctask = new stdClass();
+    $ctask->assigned_date = strftime("%b %d/%Y %H:%M",$record->created_date);
+    $ctask->started_date = strftime("%b %d/%Y %H:%M",$record->started_date);
+    $ctask->completed_date = strftime("%b %d/%Y %H:%M",$record->completed_date);
+    $ctask->status = t('Completed');
     if ($record->uid == 0) $record->username = t('Maestro');
     if ($record->parent_process_id > 0) $record->taskname = '<span style="color:red;padding-right:3px;">[R]</span>' . $record->taskname;
-    $rows[] = array($record->taskname,$record->username,$assigned,$started,$completed,$status);
+    $ctask->owner = $record->username;
+    $ctask->taskname = $record->taskname;
+    $retval[] = $ctask;
   }
-  if ( count($rows) ) {
-    $retval = theme('table', array('header' => $header, 'rows' => $rows), array('sticky' => TRUE));
-  }
+
   return $retval;
 }
 

@@ -14,6 +14,8 @@
             </form>
         </div>
 
+
+        <!-- Project Summary Section -->
         <div class="taskdetail taskdetailOpenRec<?php print $rowid; ?>" id="summaryOpen_rec<?php print $rowid; ?>">
         <fieldset>
             <legend>
@@ -23,7 +25,7 @@
                 </span>
             </legend>
             <div style="clear:both;"></div>
-            <table class="pluginSubTable" cellpadding="0" cellspacing="0" width="98%" border="0" >
+            <table class="maestroDetailSubTable" cellpadding="0" cellspacing="0" width="98%" border="0" >
                 <tr class="taskconsolesummary">
                     <td width="160"><?php print t('Flow Name'); ?>:</td><td><?php print $flow_description ?></td>
                 </tr>
@@ -50,6 +52,7 @@
         </div>
 
 
+        <!-- Project Related Content Section -->
         <?php
           if (count($content_records) > 0) { //  Test if there is any content - else don't show this section ?>
         <div class="taskdetail taskdetailOpenRec<?php print $rowid; ?>" id="projectContentOpen_rec<?php print $rowid; ?>" style="display:none;">
@@ -78,6 +81,7 @@
         </div>
         <?php }  // End of IF test to see if there is any content to display ?>
 
+        <!-- Outstanding Tasks Section -->
         <div class="taskdetail taskdetailOpenRec<?php print $rowid; ?>" id="outstandingTasksOpen_rec<?php print $rowid; ?>" style="display:none;">
         <fieldset>
             <legend>
@@ -87,7 +91,7 @@
                 </span>
             </legend>
             <div id="outstanding_task_rec<?php print $rowid; ?>">
-                <table class="pluginSubTable" cellpadding="0" cellspacing="1" width="99%" border="0">
+                <table class="maestroDetailSubTable" cellpadding="0" cellspacing="1" width="99%" border="0">
                     <tr>
                         <th><?php print t('Task Name'); ?></th>
                         <th><?php print t('Owner'); ?></th>
@@ -138,6 +142,7 @@
             </div>
         </fieldset>
         </div>
+
         <div class="taskdetail taskdetailClosedRec<?php print $rowid; ?>" id="outstandingTasksClosed_rec<?php print $rowid; ?>" style="padding:5px 19px;">
             <legend>
                 <span>
@@ -146,6 +151,9 @@
                 </span>
             </legend>
         </div>
+
+
+        <!-- Task History Section -->
         <div class="taskdetail taskdetailOpenRec<?php print $rowid; ?>" id="tasklogOpen_rec<?php print $rowid; ?>" style="display:none;">
         <fieldset>
             <legend>
@@ -154,9 +162,34 @@
                         <span onClick="toggleProjectSection('tasklog','Open',<?php print $rowid; ?>)"><b><?php print t('Task History'); ?></b></span>
                 </span>
             </legend>
-            <?php print $task_history; ?>
+                <table class="maestroDetailSubTable" cellpadding="0" cellspacing="1" width="99%" border="0">
+                    <tr>
+                        <th><?php print t('Task Name'); ?></th>
+                        <th><?php print t('Owner'); ?></th>
+                        <th><?php print t('Assigned'); ?></th>
+                        <th><?php print t('Started'); ?></th>
+                        <th><?php print t('Completed'); ?></th>
+                        <th><?php print t('Status'); ?></th>
+                    </tr>
+                        <?php
+                        $class = 'odd';
+                        foreach ($completed_tasks as $ctask) { ?>
+                          <tr class="<?php print $class; ?>">
+                          <td><?php print $ctask->taskname ?></td>
+                          <td><?php print $ctask->owner ?></td>
+                          <td><?php print $ctask->assigned_date ?></td>
+                          <td><?php print $ctask->started_date ?></td>
+                          <td><?php print $ctask->completed_date ?></td>
+                          <td><?php print $ctask->status ?></td>
+                        </tr>
+                        <?php
+                        $class = ($class == 'odd') ? 'even' : 'odd';
+                        }
+                        ?>
+                </table>
         </fieldset>
         </div>
+
         <div class="taskdetail taskdetailClosedRec<?php print $rowid; ?>" id="tasklogClosed_rec<?php print $rowid; ?>" style="padding:5px 19px;">
             <legend>
                 <span>
@@ -176,4 +209,6 @@
                 </span>
             </legend>
         </div>
+
+
     </div>
