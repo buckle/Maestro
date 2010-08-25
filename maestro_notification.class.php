@@ -83,6 +83,8 @@ class MaestroNotification {
   }
 
   function setNotificationSubjectAndMessage($defaultMessage, $defaultSubject) {
+    global $base_url;
+
     $fields = array();
     $fields[MaestroNotificationTypes::ASSIGNMENT] = 'pre_notify';
     $fields[MaestroNotificationTypes::COMPLETION] = 'post_notify';
@@ -99,19 +101,13 @@ class MaestroNotification {
     $query->condition('a.id', $this->_queueID, '=');
     $rec = $query->execute()->fetchObject();
 
-    if ($rec !== FALSE) {
-      $message = ($rec->message == '') ? $defaultMessage : $rec->message;
-      $subject = ($rec->subject == '') ? $defaultSubject : $rec->subject;
-    }
-    else {
-      $message = $defaultMessage;
-      $subject = $defaultSubject;
-    }
+    $message = ($rec->message == '') ? $defaultMessage : $rec->message;
+    $subject = ($rec->subject == '') ? $defaultSubject : $rec->subject;
 
     //now apply the string replace for the tokens
     $tokens = array('task_console_url' => '[task_console_url]', 'workflow_name' => '[workflow_name]', 'task_name' => '[task_name]', 'task_owner' => '[task_owner]');
     $replace = array();
-    $replace['task_console_url'] = url('maestro/taskconsole');
+    $replace['task_console_url'] = $base_url . url('maestro/taskconsole');
     $replace['task_name'] = $rec->taskname;
     $replace['workflow_name'] = $rec->template_name;
 
@@ -155,10 +151,12 @@ class MaestroNotification {
       $this->_userIDArray = array();
       $this->_userEmailArray = array();
       foreach ($res as $rec) {
-        if ($rec->notify_by == MaestroAssignmentBy::FIXED) {
-          $query2 = db_select('users', 'a');
-          $query2->fields('a', array('uid', 'mail'));
-          $query2->condition('a.uid', $rec->notify_id, '=');
+        if ($rec->notify_by == MaestroAssignmentBy::VARIABLE) {
+          $query2 = db_select('maestro_process_variables', 'a');
+          $query2->leftJoin('users', 'b', 'a.variable_value=b.uid');
+          $query2->fields('b', array('uid', 'mail'));
+          $query2->condition('a.process_id', $qRec->process_id, '=');
+          $query2->condition('a.template_variable_id', $rec->notify_id, '=');
           $userRec = current($query2->execute()->fetchAll());
 
           $this->_userIDArray[$rec->uid] = $userRec->uid;
