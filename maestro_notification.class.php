@@ -99,11 +99,17 @@ class MaestroNotification {
     $query->condition('a.id', $this->_queueID, '=');
     $rec = $query->execute()->fetchObject();
 
-    $message = ($rec->message == '') ? $defaultMessage : $rec->message;
-    $subject = ($rec->subject == '') ? $defaultSubject : $rec->subject;
+    if ($rec !== FALSE) {
+      $message = ($rec->message == '') ? $defaultMessage : $rec->message;
+      $subject = ($rec->subject == '') ? $defaultSubject : $rec->subject;
+    }
+    else {
+      $message = $defaultMessage;
+      $subject = $defaultSubject;
+    }
 
     //now apply the string replace for the tokens
-    $tokens = array('task_console_url' => '[task_console_url]', 'workflow_name' => '[workflow_name]', 'task_name' => '[task_name]', 'owner_name' => '[owner_name]');
+    $tokens = array('task_console_url' => '[task_console_url]', 'workflow_name' => '[workflow_name]', 'task_name' => '[task_name]', 'task_owner' => '[task_owner]');
     $replace = array();
     $replace['task_console_url'] = url('maestro/taskconsole');
     $replace['task_name'] = $rec->taskname;
@@ -115,16 +121,16 @@ class MaestroNotification {
     $userQuery->condition('a.task_id', $this->_queueID, '=');
     $userRes = $userQuery->execute()->fetchAll();
 
-    $replace['owner_name'] = '';
+    $replace['task_owner'] = '';
     foreach ($userRes as $userRec) {
-      if ($replace['owner_name'] != '') {
-        $replace['owner_name'] .= ', ';
+      if ($replace['task_owner'] != '') {
+        $replace['task_owner'] .= ', ';
       }
-      $replace['owner_name'] .= $userRec->name;
+      $replace['task_owner'] .= $userRec->name;
     }
 
-    str_replace($tokens, $replace, $message);
-    str_replace($tokens, $replace, $subject);
+    $message = str_replace($tokens, $replace, $message);
+    $subject = str_replace($tokens, $replace, $subject);
 
     $this->_message = $message;
     $this->_subject = $subject;
