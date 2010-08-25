@@ -1020,7 +1020,6 @@ function maestro_form_alter(&$form, $form_state, $form_id) {
 
     if($maestroIndex >=0 ) {
       if (isset($requestParms[$maestroIndex]) AND $requestParms[$maestroIndex] == 'maestro' AND isset($requestParms[$maestroIndex + 1])) {
-        echo "in";
         if ($requestParms[$maestroIndex + 1] == 'edit' AND intval($requestParms[$maestroIndex + 2] > 0)) {
           $form['maestro_taskid'] = array(
             '#value'  => intval($requestParms[7]),
