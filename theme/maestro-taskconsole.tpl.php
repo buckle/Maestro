@@ -35,11 +35,11 @@
 
 <table width="100%">
 <tr>
-  <th width="5%"><?php print t(''); ?></th>
+  <th width="3%"><?php print t(''); ?></th>
   <th width="30%"><?php print t('Flow Name'); ?></th>
-  <th width="35%"><?php print t('Task Name'); ?></th>
-  <th width="25%"><?php print t('Assigned'); ?></th>
-  <th width="5%">&nbsp;</th>
+  <th width="30%"><?php print t('Task Name'); ?></th>
+  <th width="12%"><?php print t('Assigned'); ?></th>
+  <th colspan="2" width="5%">&nbsp;</th>
 </tr>
 
 <?php

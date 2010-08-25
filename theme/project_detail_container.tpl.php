@@ -22,7 +22,8 @@
                         <span onClick="toggleProjectSection('summary','Open',<?php print $rowid; ?>)"><b><?php print t('Summary'); ?></b></span>
                 </span>
             </legend>
-            <table class="pluginSubTable" cellpadding="0" cellspacing="0" width="98%" border="0" style="margin:10px 5px 5px 5px;">
+            <div style="clear:both;"></div>
+            <table class="pluginSubTable" cellpadding="0" cellspacing="0" width="98%" border="0" >
                 <tr class="taskconsolesummary">
                     <td width="160"><?php print t('Flow Name'); ?>:</td><td><?php print $flow_description ?></td>
                 </tr>
@@ -86,7 +87,7 @@
                 </span>
             </legend>
             <div id="outstanding_task_rec<?php print $rowid; ?>">
-                <table class="pluginSubTable" cellpadding="0" cellspacing="1" width="99%" border="0" style="margin:10px 5px 5px 5px;">
+                <table class="pluginSubTable" cellpadding="0" cellspacing="1" width="99%" border="0">
                     <tr>
                         <th><?php print t('Task Name'); ?></th>
                         <th><?php print t('Owner'); ?></th>

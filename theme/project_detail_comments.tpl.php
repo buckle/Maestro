@@ -5,6 +5,7 @@
                         <span onClick="toggleProjectSection('projectComments','Open',<?php print $rowid; ?>)"><b><?php print t('Comments'); ?></b></span>
                 </span>
             </legend>
+            <div style="clear:both;">&nbsp;</div>
             <?php
               if (count($comment_records) > 0) {
               foreach ($comment_records as $rec) {  ?>
@@ -23,7 +24,7 @@
                 <?php
               }
               } else {
-                ?><a href="#" onClick="ajaxMaestroComment('new',<?php print $rowid; ?>);"><?php print t('New Comment'); ?></a>
+                ?><span style="padding-left:10px;"></span><a href="#" onClick="ajaxMaestroComment('new',<?php print $rowid; ?>);"><?php print t('New Comment'); ?></a></span>
                 <?php
               }
               ?>
