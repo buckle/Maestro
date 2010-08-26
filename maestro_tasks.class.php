@@ -662,3 +662,61 @@ class MaestroTaskTypeFireTrigger extends MaestroTask {
   function prepareTask() {}
 
 }
+
+
+class MaestroTaskTypeInlineFormAPI extends MaestroTask {
+
+  function execute() {
+    /* Nothing much for an interactiveTask to do in the execute method.
+    * We want to return an executionStatus of FALSE as this task is really executed from the task console by the user.
+    * The defined function for this task will execute and present the task to the user in the task console.
+    * The taskconsole will call the processInteractiveTask method for this task type.
+    * It's up to the defined interactiveTask function to complete the task.
+    */
+    $this->setRunOnceFlag($this->_properties->id);
+    $this->completionStatus = FALSE;
+    $this->executionStatus = TRUE;
+    return $this;
+  }
+
+  function prepareTask() {
+    $serializedData = db_query("SELECT task_data FROM {maestro_template_data} WHERE id = :tid",
+    array(':tid' => $this->_properties->taskid))->fetchField();
+    $taskdata = @unserialize($serializedData);
+
+    return array('form_api_code' => $taskdata['form_api_code'], 'serialized_data' => $serializedData);
+  }
+
+  function showInteractiveTask() {
+    $retval = '';
+    $serializedData = db_query("SELECT task_data FROM {maestro_queue} WHERE id = :id",
+    array(':id' => $this->_properties->queue_id))->fetchField();
+    $taskdata = @unserialize($serializedData);
+
+    $form = array();
+
+    eval($taskdata['form_api_code']);
+    $form['submit'] = array(
+      '#type'           => 'submit',
+      '#value'          => 'Save',
+    );
+
+    $form['#submit'][] = 'maestro_inline_form_api_task_form_submit';
+
+    return drupal_render(drupal_get_form('maestro_inline_form_api_task_form', $form));
+  }
+
+  function processInteractiveTask($taskid,$taskop) {
+    $ret = new stdClass();
+    $ret->retcode = FALSE;
+    $ret->engineop = '';
+    $serializedData = db_query("SELECT task_data FROM {maestro_queue} WHERE id = :id",
+    array(':id' => $taskid))->fetchField();
+    $taskdata = @unserialize($serializedData);
+    if (function_exists($taskdata['handler'])) {
+      $ret = $taskdata['handler']($taskop,$this,$taskdata['optional_parm']);
+    }
+    return $ret;
+  }
+
+}

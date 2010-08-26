@@ -249,23 +249,23 @@ function maestro_theme() {
     ),
     'maestro_task_interactive_function_edit' => array(
       'template' => 'theme/structure/tasks/maestro-task-interactive-function-edit',
-      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL, 'handler_options' => NULL)
+      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'handler_options' => NULL)
     ),
     'maestro_task_set_process_variable_edit' => array(
       'template' => 'theme/structure/tasks/maestro-task-set-process-variable-edit',
-      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL, 'pvars' => NULL)
+      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'pvars' => NULL)
     ),
     'maestro_task_batch_edit' => array(
       'template' => 'theme/structure/tasks/maestro-task-batch-edit',
-      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL)
+      'variables' => array('tdid' => NULL, 'td_rec' => NULL)
     ),
     'maestro_task_batch_function_edit' => array(
       'template' => 'theme/structure/tasks/maestro-task-batch-function-edit',
-      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL, 'handler_options' => NULL)
+      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'handler_options' => NULL)
     ),
     'maestro_task_if_edit' => array(
       'template' => 'theme/structure/tasks/maestro-task-if-edit',
-      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL)
+      'variables' => array('tdid' => NULL, 'td_rec' => NULL)
     ),
     'maestro_task_and' => array(
       'template' => 'theme/structure/tasks/maestro-task-and',
@@ -277,7 +277,7 @@ function maestro_theme() {
     ),
     'maestro_task_manual_web_edit' => array(
       'template' => 'theme/structure/tasks/maestro-task-manual-web-edit',
-      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL)
+      'variables' => array('tdid' => NULL, 'td_rec' => NULL)
     ),
     'maestro_task_content_type' => array(
       'template' => 'theme/structure/tasks/maestro-task-content-type',
@@ -285,7 +285,7 @@ function maestro_theme() {
     ),
     'maestro_task_content_type_edit' => array(
       'template' => 'theme/structure/tasks/maestro-task-content-type-edit',
-      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL, 'content_types' => NULL)
+      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'content_types' => NULL)
     ),
     'maestro_task_fire_trigger' => array(
       'template' => 'theme/structure/tasks/maestro-task-fire-trigger',
@@ -293,7 +293,15 @@ function maestro_theme() {
     ),
     'maestro_task_fire_trigger_edit' => array(
       'template' => 'theme/structure/tasks/maestro-task-fire-trigger-edit',
-      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'ta_rec' => NULL, 'aa_res' => NULL, 'options' => NULL)
+      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'aa_res' => NULL, 'options' => NULL)
+    ),
+    'maestro_task_inline_form_api' => array(
+      'template' => 'theme/structure/tasks/maestro-task-inline-form-api',
+      'variables' => array('tdid' => NULL)
+    ),
+    'maestro_task_inline_form_api_edit' => array(
+      'template' => 'theme/structure/tasks/maestro-task-inline-form-api-edit',
+      'variables' => array('tdid' => NULL, 'td_rec' => NULL)
     ),
   );
 }
@@ -797,6 +805,9 @@ function maestro_maestro_get_taskobject_info() {
     array('display_name' => t('Fire Trigger Task'),
       'class_name' => 'MaestroTaskInterfaceFireTrigger'
     ),
+    array('display_name' => t('Inline Form API Task'),
+      'class_name' => 'MaestroTaskInterfaceInlineFormAPI'
+    ),
   );
   return $options;
 }
@@ -1178,4 +1189,14 @@ function maestro_mail($key, &$message, $params) {
       $message['body'][] = check_plain($params['message']);
       break;
   }
+}
+
+function maestro_inline_form_api_task_form($form, &$form_state, $dynamic_form) {
+  return $dynamic_form;
+}
+
+function maestro_inline_form_api_task_form_submit($form, &$form_state) {
+  debugbreak();
+
+
 }
