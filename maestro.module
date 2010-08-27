@@ -1196,7 +1196,31 @@ function maestro_inline_form_api_task_form($form, &$form_state, $dynamic_form) {
 }
 
 function maestro_inline_form_api_task_form_submit($form, &$form_state) {
-  debugbreak();
+  $qid = $form['queue_id']['#value'];
+  $op = ($form['complete']['#value'] == $_POST['op']) ? 'complete' : 'save';
 
+  if ($qid > 0) {
+    $query = db_select('maestro_queue');
+    $query->fields('maestro_queue', array('task_class_name', 'process_id'));
+    $query->condition('id', $qid, '=');
+    $rec = $query->execute()->fetchObject();
+    $tasktype = $rec->task_class_name;
 
+    $data = new stdClass();
+    // Need to pass in data object when instantiating task class and queueid needs to be set in class _properties.
+    $data->process_id = $rec->process_id;
+    $data->queue_id = $qid;
+    $task = new $tasktype($data);
+    $ret = $task->processInteractiveTask($qid, $op);
+
+    if ($ret->retcode === TRUE) {
+      if ($ret->engineop == 'complete') {
+        if (!isset($ret->status)) {
+          $ret->status = 1;    // Just in case interactive function has not set this - set to default 'success'
+        }
+        $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
+        $maestro->engine()->completeTask($qid, $ret->status);
+      }
+    }
+  }
 }

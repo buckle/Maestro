@@ -17,6 +17,8 @@
 }
 
 #maestro_workflow_container {
+  position: relative;
+  overflow: auto;
 }
 
 .maestro_heading {

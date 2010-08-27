@@ -86,6 +86,57 @@ abstract class MaestroTask {
     }
   }
 
+  /*
+   * function saveProjectData saves project data to the project content table.
+   * it uses the content type and tracking id so the data can be brought back for other tasks
+   * in the workflow with the same identifiers.
+   *
+   * array $data - an array containing the data to be saved. structure should be array ('var_name' => 'var_value')
+   * int $tracking_id - the tracking id of this project
+   * string $content_type - a string containing the content type of the data you wish to store
+   */
+  function saveProjectData($data, $tracking_id, $content_type) {
+    global $user;
+
+    $query = db_select('maestro_project_content', 'a');
+    $query->fields('a', array('id', 'nid', 'tracking_id', 'task_id', 'instance', 'content_type', 'task_data', 'created_by_uid', 'status'));
+    $query->condition('a.tracking_id', $tracking_id, '=');
+    $query->condition('a.content_type', $content_type, '=');
+    $rec = $query->execute()->fetchObject();
+
+    if ($rec === FALSE) {
+      $rec = new stdClass();
+      $rec->nid = 0;
+      $rec->tracking_id = $tracking_id;
+      $rec->task_id = $this->_properties->queue_id;
+      $rec->instance = 1;
+      $rec->content_type = $content_type;
+      $rec->task_data = serialize($data);
+      $rec->created_by_uid = $user->uid;
+      $rec->status = 1; //@TODO: add the project content status code to the constants class, and properly update the status throughout the logic
+      drupal_write_record('maestro_project_content', $rec);
+    }
+    else {
+      $rec->task_data = serialize($data);
+      drupal_write_record('maestro_project_content', $rec, array('id'));
+    }
+  }
+
+  function getProjectData($tracking_id, $content_type) {
+    $query = db_select('maestro_project_content', 'a');
+    $query->fields('a', array('task_data'));
+    $query->condition('a.tracking_id', $tracking_id, '=');
+    $query->condition('a.content_type', $content_type, '=');
+    $rec = $query->execute()->fetchObject();
+
+    if ($rec === FALSE) {
+      return $rec;
+    }
+    else {
+      return unserialize($rec->task_data);
+    }
+  }
+
   function setRunOnceFlag($task_id) {
     $task_id = intval($task_id);
     db_update('maestro_queue')
@@ -667,12 +718,6 @@ class MaestroTaskTypeFireTrigger extends MaestroTask {
 class MaestroTaskTypeInlineFormAPI extends MaestroTask {
 
   function execute() {
-    /* Nothing much for an interactiveTask to do in the execute method.
-    * We want to return an executionStatus of FALSE as this task is really executed from the task console by the user.
-    * The defined function for this task will execute and present the task to the user in the task console.
-    * The taskconsole will call the processInteractiveTask method for this task type.
-    * It's up to the defined interactiveTask function to complete the task.
-    */
     $this->setRunOnceFlag($this->_properties->id);
     $this->completionStatus = FALSE;
     $this->executionStatus = TRUE;
@@ -696,9 +741,31 @@ class MaestroTaskTypeInlineFormAPI extends MaestroTask {
     $form = array();
 
     eval($taskdata['form_api_code']);
-    $form['submit'] = array(
+    $tracking_id = db_select('maestro_process')
+      ->fields('maestro_process', array('tracking_id'))
+      ->condition('id', $this->_properties->process_id, '=')
+      ->execute()->fetchField();
+    $default_data = $this->getProjectData($tracking_id, $taskdata['content_type']);
+
+    if ($default_data !== FALSE) {
+      $this->updateDefaultFormData($form, $default_data);
+    }
+
+    $form['queue_id'] = array(
+      '#type' => 'hidden',
+      '#default_value' => $this->_properties->queue_id,
+    );
+    $form['taskop'] = array(
+      '#type' => 'hidden',
+      '#default_value' => '',
+    );
+    $form['save'] = array(
       '#type'           => 'submit',
-      '#value'          => 'Save',
+      '#default_value'  => t('Save'),
+    );
+    $form['complete'] = array(
+      '#type'           => 'submit',
+      '#default_value'  => t('Complete Task'),
     );
 
     $form['#submit'][] = 'maestro_inline_form_api_task_form_submit';
@@ -706,16 +773,40 @@ class MaestroTaskTypeInlineFormAPI extends MaestroTask {
     return drupal_render(drupal_get_form('maestro_inline_form_api_task_form', $form));
   }
 
-  function processInteractiveTask($taskid,$taskop) {
-    $ret = new stdClass();
-    $ret->retcode = FALSE;
-    $ret->engineop = '';
-    $serializedData = db_query("SELECT task_data FROM {maestro_queue} WHERE id = :id",
-    array(':id' => $taskid))->fetchField();
-    $taskdata = @unserialize($serializedData);
-    if (function_exists($taskdata['handler'])) {
-      $ret = $taskdata['handler']($taskop,$this,$taskdata['optional_parm']);
+  function updateDefaultFormData(&$form, &$data, $parent='') {
+    $value_handled = FALSE;
+    foreach ($form as $key => $val) {
+      if ($key[0] == '#') {
+        if ($parent != '') {
+          if ($form['#type'] != 'fieldset') {
+            if (!$value_handled) {
+              $form['#default_value'] = $data;
+              $value_handled = TRUE;
+            }
+          }
+        }
+      }
+      else {  //recurse into the next level
+        $this->updateDefaultFormData($form[$key], $data[$key], $key);
+      }
     }
+  }
+
+  function processInteractiveTask($taskid, $taskop) {
+    $ret = new stdClass();
+    $ret->retcode = TRUE;
+    $ret->engineop = $taskop;
+
+    $serializedData = db_query("SELECT task_data FROM {maestro_queue} WHERE id = :id", array(':id' => $taskid))->fetchField();
+    $taskdata = @unserialize($serializedData);
+
+    $tracking_id = db_select('maestro_process')
+      ->fields('maestro_process', array('tracking_id'))
+      ->condition('id', $this->_properties->process_id, '=')
+      ->execute()->fetchField();
+
+    $this->saveProjectData($_POST, $tracking_id, $taskdata['content_type']);
+
     return $ret;
   }
 
