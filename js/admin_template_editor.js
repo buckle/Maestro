@@ -16,11 +16,18 @@ var oMenuBar;
 var menuCheckArray = [];
 var assignment_type = 0;
 var select_boxes = new Array();
+var posx = 0;
+var posy = 0;
 
 (function($) {
   $(document).ready(function() {
     initialize_drag_drop();
     initialize_lines();
+    $('#maestro_workflow_container').mousedown(function (e) {
+      var el = $('#maestro_workflow_container').offset();
+      posx = e.pageX - el.left;
+      posy = e.pageY - el.top;
+    });
   });
 
 })(jQuery);
