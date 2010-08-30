@@ -69,6 +69,35 @@ class MaestroProjectStatusCodes {
   }
 }
 
+
+// Maestro Project or workflow instance entity status codes
+class MaestroContentStatusCodes {
+  CONST STATUS_UNDEFINED = 0;
+  CONST STATUS_SUBMITTED = 1;
+  CONST STATUS_DRAFT = 2;
+  CONST STATUS_UNAPPROVED = 3;
+  CONST STATUS_UNDER_REVIEW = 4;
+  CONST STATUS_ACCEPTED = 10;
+  CONST STATUS_PUBLISHED = 11;
+  CONST STATUS_REJECTED = 20;
+
+
+  static public function getStatusLabel($var=NULL) {
+    $labels = array();
+    $labels[self::STATUS_UNDEFINED] = t('Un-Defined');
+    $labels[self::STATUS_SUBMITTED] = t('Submitted');
+    $labels[self::STATUS_DRAFT] = t('Draft');
+    $labels[self::STATUS_UNAPPROVED] = t('Unapproved');
+    $labels[self::STATUS_UNDER_REVIEW] = t('Under Review');
+    $labels[self::STATUS_ACCEPTED] = t('Accepted');
+    $labels[self::STATUS_PUBLISHED] = t('Published');
+    $labels[self::STATUS_REJECTED] = t('Rejected');
+
+    return ($var === NULL) ? $labels:$labels[$var];
+  }
+}
+
+
 // Maestro Process entity status codes
 class MaestroProcessStatusCodes {
   CONST STATUS_ON_HOLD = -1;

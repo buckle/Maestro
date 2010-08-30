@@ -88,20 +88,36 @@ function maestro_reviewContentType($op,&$task,$parms) {
       break;
     case 'complete':
       $data = $task->getTempData();
+      $tracking_id = maestro_getTaskTrackingId($task->_properties->queue_id);
       if (empty($data['reviewstatus']) AND !isset($_POST['reviewstatus'])) {
         $retval->retcode = FALSE;
+
       } elseif ($data['reviewstatus'] == 'accept' OR $_POST['reviewstatus'] == 'yes') {
         $data['reviewstatus'] = 'accept';
         $task->saveTempData($data);
         $retval->retcode = TRUE;
         $retval->status = MaestroTaskStatusCodes::STATUS_COMPLETE;
         $retval->engineop = 'completetask';
+        // Flag the content record as accepted
+        db_update('maestro_project_content')
+          ->fields(array( 'status' => MaestroContentStatusCodes::STATUS_UNDER_REVIEW))
+          ->condition('tracking_id', $tracking_id)
+          ->condition('nid', $nid)
+          ->execute();
+
       } elseif ($data['reviewstatus'] == 'reject' OR $_POST['reviewstatus'] == 'no') {
         $data['reviewstatus'] = 'reject';
         $task->saveTempData($data);
         $retval->retcode = TRUE;
         $retval->status = MaestroTaskStatusCodes::STATUS_IF_CONDITION_FALSE;
         $retval->engineop = 'completetask';
+        // Flag the content record as rejected
+        db_update('maestro_project_content')
+          ->fields(array( 'status' => MaestroContentStatusCodes::STATUS_REJECTED))
+          ->condition('tracking_id', $tracking_id)
+          ->condition('nid', $nid)
+          ->execute();
+
       } else {
         $retval->retcode = FALSE;
       }

@@ -650,6 +650,12 @@ class MaestroTaskTypeContentType extends MaestroTask {
     ->condition('id', $node->maestro_taskid, '=')
     ->execute()->fetchObject();
 
+    if ($node->status == 1) {
+      $status = MaestroContentStatusCodes::STATUS_PUBLISHED;
+    } else {
+      $status = 0;
+    }
+
     $tracking_id = db_select('maestro_process')
     ->fields('maestro_process', array('tracking_id'))
     ->condition('id', $rec->process_id, '=')
@@ -662,6 +668,7 @@ class MaestroTaskTypeContentType extends MaestroTask {
       'tracking_id' => $tracking_id,
       'task_id' => $rec->template_data_id,
       'content_type' => $node->type,
+      'status'  => $status
       ))
       ->execute();
 
@@ -678,13 +685,17 @@ class MaestroTaskTypeContentType extends MaestroTask {
     $retval = '';
     /* Format any content records */
     $query = db_select('maestro_project_content','content');
-    $query->addField('content','nid','nid');
+    $query->addField('content','nid');
+    $query->addField('content','status');
     $query->condition('content.tracking_id',$tracking_id,'=');
     $res = $query->execute();
     foreach ($res as $record) {
       $node = node_load($record->nid);
       $variables['content_records'][$record->nid] = $node->title;
-      $retval .= '<div>' . l($node->title, "node/{$record->nid}/maestro") . '</div>';
+      $retval .= '<div>' . l($node->title, "node/{$record->nid}/maestro");
+      $retval .= '<span style="padding-left:10px;">' . t('Status') . ': ';
+      $retval .= t(MaestroContentStatusCodes::getStatusLabel($record->status));
+      $retval .= '</span></div>';
     }
     return $retval;
   }

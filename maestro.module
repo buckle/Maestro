@@ -573,6 +573,7 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
   $query->fields('assignment', array('uid','process_variable'));
   $query->addField('queue','id','queue_id');
   $query->addField('user','name','username');
+  $query->addField('process','pid','parent_process_id');
   $query->addField('process','tracking_id','tracking_id');
   $query->condition('process.tracking_id', $task->tracking_id, '=');
   $query->condition('queue.status',0,'=');
@@ -582,6 +583,7 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
     $otask = new stdClass();
     $otask->assigned_date = strftime("%b %d/%Y %H:%M",$record->created_date);
     $otask->task_id = $record->queue_id;
+    if ($record->parent_process_id > 0) $record->taskname = '<span style="color:red;padding-right:3px;">[R]</span>' . $record->taskname;
     $otask->taskname = $record->taskname;
     $otask->taskuser = $record->uid;
     $otask->owner = $record->username;
