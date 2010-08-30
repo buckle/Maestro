@@ -6,26 +6,6 @@
  * maestro_task_interface.class.php
  */
 
- /* Utility function used in the contructor to merge arrays and maintain keys
-  * Copy of example function found on php.net documentation page for array_merge
-  */
-function maestro_array_merge_keys($arr1, $arr2) {
-  if (is_array($arr2)) {
-    foreach($arr2 as $k=>$v) {
-      if (!array_key_exists($k, $arr1)) { //K DOESN'T EXISTS //
-        $arr1[$k] = $v;
-      }
-      else { // K EXISTS //
-        if (is_array($v)) { // K IS AN ARRAY //
-          $arr1[$k] = maestro_array_merge_keys($arr1[$k], $arr2[$k]);
-        }
-      }
-    }
-  }
-
-  return $arr1;
-}
-
 class MaestroInterface {
   private $_template_id;
 
@@ -41,7 +21,7 @@ class MaestroInterface {
       foreach (module_implements('maestro_get_taskobject_info') as $module) {
         $function = $module . '_maestro_get_taskobject_info';
         if ($arr = $function()) {
-          $context_options = maestro_array_merge_keys($context_options, $arr);
+          $context_options = maestro_array_add($context_options, $arr);
         }
       }
       cache_set('maestro_taskclass_info', $context_options);

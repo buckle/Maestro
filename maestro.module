@@ -243,6 +243,10 @@ function maestro_theme() {
       'template' => 'theme/structure/tasks/maestro-task-set-process-variable',
       'variables' => array('tdid' => NULL)
     ),
+    'maestro_task_set_process_variable_edit' => array(
+      'template' => 'theme/structure/tasks/maestro-task-set-process-variable-edit',
+      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'pvars' => NULL, 'set_methods' => NULL)
+    ),
     'maestro_task_interactive_function' => array(
       'template' => 'theme/structure/tasks/maestro-task-interactive-function',
       'variables' => array('tdid' => NULL)
@@ -250,10 +254,6 @@ function maestro_theme() {
     'maestro_task_interactive_function_edit' => array(
       'template' => 'theme/structure/tasks/maestro-task-interactive-function-edit',
       'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'handler_options' => NULL)
-    ),
-    'maestro_task_set_process_variable_edit' => array(
-      'template' => 'theme/structure/tasks/maestro-task-set-process-variable-edit',
-      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'pvars' => NULL)
     ),
     'maestro_task_batch_edit' => array(
       'template' => 'theme/structure/tasks/maestro-task-batch-edit',
@@ -294,14 +294,6 @@ function maestro_theme() {
     'maestro_task_fire_trigger_edit' => array(
       'template' => 'theme/structure/tasks/maestro-task-fire-trigger-edit',
       'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'aa_res' => NULL, 'options' => NULL)
-    ),
-    'maestro_task_inline_form_api' => array(
-      'template' => 'theme/structure/tasks/maestro-task-inline-form-api',
-      'variables' => array('tdid' => NULL)
-    ),
-    'maestro_task_inline_form_api_edit' => array(
-      'template' => 'theme/structure/tasks/maestro-task-inline-form-api-edit',
-      'variables' => array('tdid' => NULL, 'td_rec' => NULL)
     ),
   );
 }
@@ -808,9 +800,6 @@ function maestro_maestro_get_taskobject_info() {
     array('display_name' => t('Fire Trigger Task'),
       'class_name' => 'MaestroTaskInterfaceFireTrigger'
     ),
-    array('display_name' => t('Inline Form API Task'),
-      'class_name' => 'MaestroTaskInterfaceInlineFormAPI'
-    ),
   );
   return $options;
 }
@@ -821,9 +810,31 @@ function maestro_maestro_handler_options() {
   $handlers = array(
     'MaestroTaskTypeBatchFunction' => array(
       'maestro_test_batch_function' => t('Sample test batch function - do nothing.')
-      )
-    );
-    return $handlers;
+    )
+  );
+  return $handlers;
+}
+
+
+function maestro_maestro_set_process_variable_methods() {
+  return array(
+    'hardcoded_value' => array (
+      'title' => t('Hardcoded Value'),
+      'engine_handler' => 'maestro_set_process_variable_logic_hardcoded'
+    ),
+    'increment_value' => array (
+      'title' => t('Add or Subtract a Value') . '<br>' . t('(negative number for subtraction)'),
+      'engine_handler' => 'maestro_set_process_variable_logic_increment'
+    ),
+  );
+}
+
+function maestro_set_process_variable_logic_hardcoded(&$task_class, $current_value, $arg) {
+  return $arg;
+}
+
+function maestro_set_process_variable_logic_increment(&$task_class, $current_value, $arg) {
+  return intval($current_value) + intval($arg);
 }
 
 
@@ -1195,36 +1206,33 @@ function maestro_mail($key, &$message, $params) {
   }
 }
 
-function maestro_inline_form_api_task_form($form, &$form_state, $dynamic_form) {
-  return $dynamic_form;
-}
-
-function maestro_inline_form_api_task_form_submit($form, &$form_state) {
-  $qid = $form['queue_id']['#value'];
-  $op = ($form['complete']['#value'] == $_POST['op']) ? 'complete' : 'save';
-
-  if ($qid > 0) {
-    $query = db_select('maestro_queue');
-    $query->fields('maestro_queue', array('task_class_name', 'process_id'));
-    $query->condition('id', $qid, '=');
-    $rec = $query->execute()->fetchObject();
-    $tasktype = $rec->task_class_name;
-
-    $data = new stdClass();
-    // Need to pass in data object when instantiating task class and queueid needs to be set in class _properties.
-    $data->process_id = $rec->process_id;
-    $data->queue_id = $qid;
-    $task = new $tasktype($data);
-    $ret = $task->processInteractiveTask($qid, $op);
-
-    if ($ret->retcode === TRUE) {
-      if ($ret->engineop == 'complete') {
-        if (!isset($ret->status)) {
-          $ret->status = 1;    // Just in case interactive function has not set this - set to default 'success'
+ /* Utility function used in the contructor to merge arrays and maintain keys
+  * Copy of example function found on php.net documentation page for array_merge
+  */
+function maestro_array_merge_keys($arr1, $arr2) {
+  if (is_array($arr2)) {
+    foreach($arr2 as $k=>$v) {
+      if (!array_key_exists($k, $arr1)) { //K DOESN'T EXISTS //
+        $arr1[$k] = $v;
+      }
+      else { // K EXISTS //
+        if (is_array($v)) { // K IS AN ARRAY //
+          $arr1[$k] = maestro_array_merge_keys($arr1[$k], $arr2[$k]);
         }
-        $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
-        $maestro->engine()->completeTask($qid, $ret->status);
       }
     }
   }
+
+  return $arr1;
 }
+
+function maestro_array_add($arr1, $arr2) {
+  if (is_array($arr1) && is_array($arr2)) {
+    foreach ($arr2 as $k=>$v) {
+      $arr1[] = $v;
+    }
+  }
+
+  return $arr1;
+}
+

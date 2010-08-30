@@ -27,7 +27,7 @@ function maestro_common_theme() {
   );
 }
 
-function maestro_showmessage($op,&$task,$parms) {
+function maestro_show_message($op,&$task,$parms) {
   global $base_url;
 
   $retval = new stdClass();

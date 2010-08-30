@@ -487,49 +487,62 @@ class MaestroTaskTypeInteractiveFunction extends MaestroTask {
 class MaestroTaskTypeSetProcessVariable extends MaestroTask {
 
   function execute() {
-
     $this->executionStatus = FALSE;
     $this->setTaskStartedDate($this->_properties->id);
     $query = db_select('maestro_template_data', 'a');
     $query->fields('a',array('task_data'));
     $query->condition('a.id', $this->_properties->template_data_id,'=');
     $taskDefinitionRec = $query->execute()->fetchObject();
+
     if ($taskDefinitionRec) {   // Needs to be valid variable to set
       $taskDefinitionRec->task_data = unserialize($taskDefinitionRec->task_data);
       if ($taskDefinitionRec->task_data['var_to_set'] > 0) {
-        if ($taskDefinitionRec->task_data['var_value'] != '') {  // Set by input
-          $setvalue = intval($taskDefinitionRec->task_data['var_value']);
+        $query = db_select('maestro_process_variables', 'a');
+        $query->addField('a','variable_value');
+        $query->condition('a.process_id', $this->_properties->process_id,'=');
+        $query->condition('a.template_variable_id', $taskDefinitionRec->task_data['var_to_set'],'=');
+        $curvalue = $query->execute()->fetchField();
+
+        $methods = $this->getSetMethods();
+        $function = $methods[$taskDefinitionRec->task_data['set_type']]['engine_handler'];
+        if (function_exists($function)) {
+          $setvalue = $function($this, $curvalue, $taskDefinitionRec->task_data[$taskDefinitionRec->task_data['set_type'] . '_value']);
           db_update('maestro_process_variables')
-          ->fields(array('variable_value' => $setvalue))
-          ->condition('process_id', $this->_properties->process_id, '=')
-          ->condition('template_variable_id',$taskDefinitionRec->task_data['var_to_set'],'=')
-          ->execute();
-        }
-        else if ($taskDefinitionRec->task_data['inc_value'] != 0) {  // Set by increment
-            $query = db_select('maestro_process_variables', 'a');
-            $query->addField('a','variable_value');
-            $query->condition('a.process_id', $this->_properties->process_id,'=');
-            $query->condition('a.template_variable_id', $taskDefinitionRec->task_data['var_to_set'],'=');
-            $curvalue = intval($query->execute()->fetchField());
-            $setvalue = $curvalue + intval($taskDefinitionRec->task_data['inc_value']);
-            db_update('maestro_process_variables')
             ->fields(array('variable_value' => $setvalue))
             ->condition('process_id', $this->_properties->process_id, '=')
-            ->condition('template_variable_id',$taskDefinitionRec->task_data['var_to_set'],'=')
+            ->condition('template_variable_id', $taskDefinitionRec->task_data['var_to_set'], '=')
             ->execute();
-          }
-          $query = db_select('maestro_process_variables', 'a');
+          $this->executionStatus = TRUE;
+        }
+
+        $query = db_select('maestro_process_variables', 'a');
         $query->addField('a','variable_value');
         $query->condition('a.process_id', $this->_properties->process_id,'=');
         $query->condition(db_and()->condition('a.template_variable_id', $taskDefinitionRec->task_data['var_to_set'],'='));
         $varvalue = $query->execute()->fetchField();
         if ($varvalue == $setvalue) $this->completionStatus = MaestroTaskStatusCodes::STATUS_COMPLETE;
       }
-      $this->executionStatus = TRUE;
-    } else {
-      $this->executionStatus = FALSE;
     }
+
     return $this;
+  }
+
+  function getSetMethods() {
+    $set_process_variable_methods = cache_get('maestro_set_process_variable_methods');
+    if($set_process_variable_methods === FALSE) {
+      $set_process_variable_methods = array();
+      foreach (module_implements('maestro_set_process_variable_methods') as $module) {
+        $function = $module . '_maestro_set_process_variable_methods';
+        if ($arr = $function()) {
+          $set_process_variable_methods = maestro_array_merge_keys($set_process_variable_methods, $arr);
+        }
+      }
+      cache_set('maestro_set_process_variable_methods', $set_process_variable_methods);
+    }
+
+    $methods = cache_get('maestro_set_process_variable_methods');
+
+    return $methods->data;
   }
 
   function prepareTask() {}
@@ -726,99 +739,3 @@ class MaestroTaskTypeFireTrigger extends MaestroTask {
 }
 
 
-class MaestroTaskTypeInlineFormAPI extends MaestroTask {
-
-  function execute() {
-    $this->setRunOnceFlag($this->_properties->id);
-    $this->completionStatus = FALSE;
-    $this->executionStatus = TRUE;
-    return $this;
-  }
-
-  function prepareTask() {
-    $serializedData = db_query("SELECT task_data FROM {maestro_template_data} WHERE id = :tid",
-    array(':tid' => $this->_properties->taskid))->fetchField();
-    $taskdata = @unserialize($serializedData);
-
-    return array('form_api_code' => $taskdata['form_api_code'], 'serialized_data' => $serializedData);
-  }
-
-  function showInteractiveTask() {
-    $retval = '';
-    $serializedData = db_query("SELECT task_data FROM {maestro_queue} WHERE id = :id",
-    array(':id' => $this->_properties->queue_id))->fetchField();
-    $taskdata = @unserialize($serializedData);
-
-    $form = array();
-
-    eval($taskdata['form_api_code']);
-    $tracking_id = db_select('maestro_process')
-      ->fields('maestro_process', array('tracking_id'))
-      ->condition('id', $this->_properties->process_id, '=')
-      ->execute()->fetchField();
-    $default_data = $this->getProjectData($tracking_id, $taskdata['content_type']);
-
-    if ($default_data !== FALSE) {
-      $this->updateDefaultFormData($form, $default_data);
-    }
-
-    $form['queue_id'] = array(
-      '#type' => 'hidden',
-      '#default_value' => $this->_properties->queue_id,
-    );
-    $form['taskop'] = array(
-      '#type' => 'hidden',
-      '#default_value' => '',
-    );
-    $form['save'] = array(
-      '#type'           => 'submit',
-      '#default_value'  => t('Save'),
-    );
-    $form['complete'] = array(
-      '#type'           => 'submit',
-      '#default_value'  => t('Complete Task'),
-    );
-
-    $form['#submit'][] = 'maestro_inline_form_api_task_form_submit';
-
-    return drupal_render(drupal_get_form('maestro_inline_form_api_task_form', $form));
-  }
-
-  function updateDefaultFormData(&$form, &$data, $parent='') {
-    $value_handled = FALSE;
-    foreach ($form as $key => $val) {
-      if ($key[0] == '#') {
-        if ($parent != '') {
-          if ($form['#type'] != 'fieldset') {
-            if (!$value_handled) {
-              $form['#default_value'] = $data;
-              $value_handled = TRUE;
-            }
-          }
-        }
-      }
-      else {  //recurse into the next level
-        $this->updateDefaultFormData($form[$key], $data[$key], $key);
-      }
-    }
-  }
-
-  function processInteractiveTask($taskid, $taskop) {
-    $ret = new stdClass();
-    $ret->retcode = TRUE;
-    $ret->engineop = $taskop;
-
-    $serializedData = db_query("SELECT task_data FROM {maestro_queue} WHERE id = :id", array(':id' => $taskid))->fetchField();
-    $taskdata = @unserialize($serializedData);
-
-    $tracking_id = db_select('maestro_process')
-      ->fields('maestro_process', array('tracking_id'))
-      ->condition('id', $this->_properties->process_id, '=')
-      ->execute()->fetchField();
-
-    $this->saveProjectData($_POST, $tracking_id, $taskdata['content_type']);
-
-    return $ret;
-  }
-
-}

@@ -30,7 +30,7 @@
 .maestro_tool_tip {
   background: #F8EFA6;
   z-index: 10000;
-  float: left;
+  position: relative;
 }
 
 .maestro_tool_tip_inner {

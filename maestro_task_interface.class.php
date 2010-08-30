@@ -859,12 +859,20 @@ class MaestroTaskInterfaceSetProcessVariable extends MaestroTaskInterface {
   }
 
   function getEditFormContent() {
+    $methods = $this->getSetMethods();
+
     $this->_fetchTaskInformation();
     if (!is_array(@($this->_task_data->task_data)) || !array_key_exists('set_type', $this->_task_data->task_data)) {
       $this->_task_data->task_data['var_to_set'] = '';
-      $this->_task_data->task_data['inc_value'] = '';
-      $this->_task_data->task_data['var_value'] = 0;
       $this->_task_data->task_data['set_type'] = 0;
+
+      $i = 0;
+      foreach ($methods as $key => $method) {
+        if ($i++ == 0) {
+          $this->_task_data->task_data['set_type'] = $key;
+        }
+        $this->_task_data->task_data[$key . '_value'] = '';
+      }
     }
 
     $res = db_query("SELECT id, variable_name FROM {maestro_template_variables} WHERE template_id=:tid", array('tid' => $this->_template_id));
@@ -872,17 +880,42 @@ class MaestroTaskInterfaceSetProcessVariable extends MaestroTaskInterface {
       $pvars[$rec->id] = $rec->variable_name;
     }
 
-    return theme('maestro_task_set_process_variable_edit', array('tdid' => $this->_task_id, 'td_rec' => $this->_task_data, 'pvars' => $pvars));
+    return theme('maestro_task_set_process_variable_edit', array('tdid' => $this->_task_id, 'td_rec' => $this->_task_data, 'pvars' => $pvars, 'set_methods' => $methods));
   }
 
   function save() {
     $rec = new stdClass();
     $rec->id = $_POST['template_data_id'];
-    $rec->task_data = serialize(array('var_to_set' => $_POST['var_to_set'], 'inc_value' => $_POST['inc_value'], 'var_value' => $_POST['var_value'], 'set_type' => $_POST['set_type']));
+    $methods = $this->getSetMethods();
+    $task_data = array();
+    foreach ($methods as $key => $method) {
+      $task_data[$key . '_value'] = $_POST[$key . '_value'];
+    }
+    $task_data['var_to_set'] = $_POST['var_to_set'];
+    $task_data['set_type'] = $_POST['set_type'];
+    $rec->task_data = serialize($task_data);
 
     drupal_write_record('maestro_template_data', $rec, array('id'));
 
     return parent::save();
+  }
+
+  function getSetMethods() {
+    $set_process_variable_methods = cache_get('maestro_set_process_variable_methods');
+    if($set_process_variable_methods === FALSE) {
+      $set_process_variable_methods = array();
+      foreach (module_implements('maestro_set_process_variable_methods') as $module) {
+        $function = $module . '_maestro_set_process_variable_methods';
+        if ($arr = $function()) {
+          $set_process_variable_methods = maestro_array_merge_keys($set_process_variable_methods, $arr);
+        }
+      }
+      cache_set('maestro_set_process_variable_methods', $set_process_variable_methods);
+    }
+
+    $methods = cache_get('maestro_set_process_variable_methods');
+
+    return $methods->data;
   }
 }
 
@@ -1026,36 +1059,3 @@ class MaestroTaskInterfaceFireTrigger extends MaestroTaskInterface {
   }
 }
 
-class MaestroTaskInterfaceInlineFormAPI extends MaestroTaskInterface {
-  function __construct($task_id=0, $template_id=0) {
-    $this->_task_type = 'InlineFormAPI';
-    $this->_is_interactive = MaestroInteractiveFlag::IS_INTERACTIVE;
-
-    parent::__construct($task_id, $template_id);
-
-    $this->_task_edit_tabs = array('assignment' => 1, 'notification' => 1);
-  }
-
-  function display() {
-    return theme('maestro_task_inline_form_api', array('tdid' => $this->_task_id, 'taskname' => $this->_taskname, 'ti' => $this));
-  }
-
-  function getEditFormContent() {
-    $this->_fetchTaskInformation();
-    if (!is_array(@($this->_task_data->task_data)) || !array_key_exists('form_api_code', $this->_task_data->task_data)) {
-      $this->_task_data->task_data['form_api_code'] = '';
-    }
-
-    return theme('maestro_task_inline_form_api_edit', array('tdid' => $this->_task_id, 'td_rec' => $this->_task_data));
-  }
-
-  function save() {
-    $rec = new stdClass();
-    $rec->id = $_POST['template_data_id'];
-    $rec->task_data = serialize(array('form_api_code' => $_POST['form_api_code'], 'content_type' => $_POST['content_type']));
-
-    drupal_write_record('maestro_template_data', $rec, array('id'));
-
-    return parent::save();
-  }
-}

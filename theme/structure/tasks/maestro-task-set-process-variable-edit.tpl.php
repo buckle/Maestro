@@ -30,44 +30,33 @@
       </select>
     </td>
   </tr>
+<?php
+  foreach ($set_methods as $key => $method) {
+?>
   <tr>
     <td>
-      <label for="set_type_opt0"><input type="radio" id="set_type_opt0" name="set_type" value="0" onchange="toggle_set_type(0);" <?php print ($td_rec->task_data['set_type'] == 0) ? 'checked="checked"':''; ?>>
-      <?php print t('Hardcoded Value:'); ?></label>
+      <label for="set_type_opt_<?php print $key; ?>"><input type="radio" id="set_type_opt_<?php print $key; ?>" name="set_type" value="<?php print $key; ?>" onchange="toggle_set_type('<?php print $key; ?>');" <?php print ($td_rec->task_data['set_type'] == $key) ? 'checked="checked"':''; ?>>
+      <?php print $method['title']; ?></label>
     </td>
-    <td><input id="set_type0" type="text" name="var_value" value="<?php print $td_rec->task_data['var_value']; ?>"></td>
+    <td><input class="set_method" id="set_type_<?php print $key; ?>" type="text" name="<?php print $key; ?>_value" value="<?php print $td_rec->task_data[$key . '_value']; ?>"></td>
   </tr>
-  <tr>
-    <td>
-      <label for="set_type_opt1"><input type="radio" id="set_type_opt1" name="set_type" value="1" onchange="toggle_set_type(1);" <?php print ($td_rec->task_data['set_type'] == 1) ? 'checked="checked"':''; ?>>
-      <?php print t('Add or Subtract a Value') . '<br>' . t('(negative number for subtraction):'); ?></label>
-    </td>
-    <td><input id="set_type1" type="text" name="inc_value" value="<?php print $td_rec->task_data['inc_value']; ?>"></td>
-  </tr>
+<?php
+  }
+?>
 </table>
 
 <script type="text/javascript">
   setTimeout(tick, 500);
 
   function tick() {
-    toggle_set_type(<?php print $td_rec->task_data['set_type']; ?>);
+    toggle_set_type('<?php print $td_rec->task_data['set_type']; ?>');
   }
 
 
   function toggle_set_type(type) {
     (function($) {
-      var i;
-
-      for (i = 0; i < 2; i++) {
-        if (i == type) {
-          $('#set_type' + i).show();
-        }
-        else {
-          $('#set_type' + i).hide();
-          $('#set_type' + i).attr('value', '');
-        }
-      }
-
+      $('.set_method').hide();
+      $('#set_type_' + type).show();
     })(jQuery);
   }
 </script>
