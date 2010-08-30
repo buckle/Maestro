@@ -65,7 +65,8 @@ function maestro_reviewContentType($op,&$task,$parms) {
 
   $node = node_load($nid);
   if ($node === FALSE) {
-    $retval->retcode = FALSE;
+    $retval->retcode = TRUE;
+    $retval->html = t('Invalid Node: Content possibly has been deleted.');
     return $retval;
   }
   $retval = new stdClass();
