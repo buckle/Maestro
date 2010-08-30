@@ -64,6 +64,7 @@
             <?php print t('Task Name'); ?>: <input id="maestro_task_name" type="text" name="taskname" value="<?php print $vars->taskname; ?>"><br>
             <label for="regen"><input type="checkbox" id="regen" name="regen" value="1" <?php print ($vars->regenerate == 1) ? 'checked="checked"':''; ?>><?php print t('Regenerate This Task'); ?></label>&nbsp;&nbsp;&nbsp;
             <label for="regenall"><input type="checkbox" id="regenall" name="regenall" value="1" <?php print ($vars->regen_all_live_tasks == 1) ? 'checked="checked"':''; ?>><?php print t('Regenerate All In-Production Tasks'); ?></label>
+            <label for="showindetail"><input type="checkbox" id="showindetail" name="showindetail" value="1" <?php print ($vars->show_in_detail == 1) ? 'checked="checked"':''; ?>><?php print t('Show in Detail'); ?></label>
           </div></div></div></div></div></div></div></div></div><br />
 
           <?php print $form_content; ?>

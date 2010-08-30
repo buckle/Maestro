@@ -46,7 +46,7 @@
         if ($startoffset == null ) {
             $query = db_select('maestro_template_data_next_step', 'a');
             $query->fields('a',array('template_data_from'));
-            $query->fields('b',array('regen_all_live_tasks','reminder_interval','task_class_name','is_interactive','task_data','handler'));
+            $query->fields('b',array('regen_all_live_tasks','show_in_detail','reminder_interval','task_class_name','is_interactive','task_data','handler'));
             $query->addField('b','id','taskid');
             $query->fields('c',array('template_name'));
             $query->join('maestro_template_data', 'b', 'a.template_data_from = b.id');     // default is an INNER JOIN
@@ -62,7 +62,7 @@
             $query = db_select('maestro_template_data','a');
             $query->addField('a','id','taskid');
             $query->fields('b',array('template_name'));
-            $query->fields('a',array('regen_all_live_tasks','reminder_interval','task_class_name','is_interactive','task_data','handler'));
+            $query->fields('a',array('regen_all_live_tasks','show_in_detail','reminder_interval','task_class_name','is_interactive','task_data','handler'));
             $query->join('maestro_template', 'b', 'b.id = a.template_id');
             $query->condition('a.id',$startoffset);
         }
@@ -115,6 +115,7 @@
             $queue_record->template_data_id = $templaterec->taskid;
             $queue_record->task_class_name = $templaterec->task_class_name;
             $queue_record->is_interactive = $templaterec->is_interactive;
+            $queue_record->show_in_detail = $templaterec->show_in_detail;
             $queue_record->handler = $templaterec->handler;
             $queue_record->task_data = $templaterec->task_data;
             $queue_record->status = 0;
@@ -395,7 +396,7 @@
         else {
           $query->addField('b','template_data_to','taskid');
         }
-        $query->fields('c',array('task_class_name','is_interactive','reminder_interval'));
+        $query->fields('c',array('task_class_name','is_interactive','show_in_detail','reminder_interval'));
         $query->join('maestro_template_data_next_step', 'b', 'a.template_data_id = b.template_data_from');
         if($this->_lastTestStatus == MaestroTaskStatusCodes::STATUS_IF_CONDITION_FALSE) {
           $query->join('maestro_template_data', 'c', 'c.id = b.template_data_to_false');
@@ -455,7 +456,8 @@
                         $queue_record->process_id = $this->_processId;
                         $queue_record->template_data_id = $nextTaskRec->taskid;
                         $queue_record->task_class_name = $nextTaskRec->task_class_name;
-                        $queue_record->is_interactive =$nextTaskRec->is_interactive;
+                        $queue_record->is_interactive = $nextTaskRec->is_interactive;
+                        $queue_record->show_in_detail = $nextTaskRec->show_in_detail;
                         $queue_record->status = 0;
                         $queue_record->archived = 0;
                         $queue_record->engine_version = $this->_version;

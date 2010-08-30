@@ -67,6 +67,7 @@ abstract class MaestroTaskInterface {
     $rec->is_interactive = $this->_is_interactive;
     if ($this->_is_interactive) {
       $rec->assigned_by_variable = 1;
+      $rec->show_in_detail = 1;
     }
     $rec->first_task = 0;
     $rec->offset_left = $_POST['offset_left'];
@@ -131,7 +132,7 @@ abstract class MaestroTaskInterface {
     $maestro_url = $base_url . '/' . drupal_get_path('module', 'maestro');
 
     $res = db_select('maestro_template_data', 'a');
-    $res->fields('a', array('task_class_name', 'taskname', 'regenerate', 'regen_all_live_tasks', 'pre_notify_subject', 'pre_notify_message', 'post_notify_subject', 'post_notify_message', 'reminder_subject', 'reminder_message', 'escalation_subject', 'escalation_message', 'reminder_interval', 'escalation_interval'));
+    $res->fields('a', array('task_class_name', 'taskname', 'regenerate', 'regen_all_live_tasks', 'show_in_detail', 'pre_notify_subject', 'pre_notify_message', 'post_notify_subject', 'post_notify_message', 'reminder_subject', 'reminder_message', 'escalation_subject', 'escalation_message', 'reminder_interval', 'escalation_interval'));
     $res->condition('a.id', $this->_task_id, '=');
     $vars = current($res->execute()->fetchAll());
 
@@ -288,6 +289,9 @@ abstract class MaestroTaskInterface {
     }
     if (array_key_exists('regenall', $_POST)) {
       $rec->regen_all_live_tasks = $_POST['regenall'];
+    }
+    if (array_key_exists('showindetail', $_POST)) {
+      $rec->show_in_detail = $_POST['showindetail'];
     }
 
     drupal_write_record('maestro_template_data', $rec, array('id'));

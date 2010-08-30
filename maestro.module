@@ -576,6 +576,7 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
   $query->addField('process','tracking_id','tracking_id');
   $query->condition('process.tracking_id', $task->tracking_id, '=');
   $query->condition('queue.status',0,'=');
+  $query->condition('queue.show_in_detail',1,'=');
   $res = $query->execute();
   foreach ($res as $record) {
     $otask = new stdClass();
@@ -1139,6 +1140,7 @@ function maestro_getProjectTasksHistory($tracking_id) {
   $query->addField('queue','id','queue_id');
   $query->addField('process','pid','parent_process_id');
   $query->condition('process.tracking_id', $tracking_id, '=');
+  $query->condition('queue.show_in_detail',1,'=');
   $query->condition(db_or()->condition('queue.completed_date',0,'>')->condition('queue.status',MaestroTaskStatusCodes::STATUS_ON_HOLD,'='));
   $res = $query->execute();
 

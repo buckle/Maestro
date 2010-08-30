@@ -391,6 +391,12 @@ function maestro_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
+      'show_in_detail' => array(
+        'description' => '',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
       'handler' => array(
         'description' => '',
         'type' => 'varchar',
@@ -689,6 +695,13 @@ function maestro_schema() {
         'default' => 0,
       ),
       'regen_all_live_tasks' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => FALSE,
+        'default' => 0,
+      ),
+      'show_in_detail' => array(
         'description' => '',
         'type' => 'int',
         'size' => 'tiny',
