@@ -464,37 +464,43 @@
                         $queue_record->created_date = time();
                         $queue_record->next_reminder_date = $next_reminder_date;
                         // Instantiate the tasktype specific method to set the queue record task data
-                        $taskdata = $this->prepareTask(new $nextTaskRec->task_class_name($nextTaskRec));
-                        if (isset($taskdata) AND is_array($taskdata)) {
-                          if (isset($taskdata['handler'])) $queue_record->handler = $taskdata['handler'];
-                          if (isset($taskdata['serialized_data'])) $queue_record->task_data = $taskdata['serialized_data'];
-                        }
-
-                        drupal_write_record('maestro_queue',$queue_record);
-
-                        $next_record = new stdClass();
-                        $next_record->queue_id = $queue_record->id;
-                        $next_record->from_queue_id = $this->_queueId;
-                        drupal_write_record('maestro_queue_from',$next_record);
-
-                        if ($queue_record->id > 0) {
-                          if ($this->_debug ) {
-                              $logmsg  = "New queue id (3) : {$this->_queueId} - Template Taskid: {$nextTaskRec->taskid} - ";
-                              $logmsg .= "Assigned to " . $this->getTaskOwner($nextTaskRec->taskid,$this->_processId);
-                              watchdog('maestro', $logmsg);
+                        if (class_exists($nextTaskRec->task_class_name)) {
+                          $taskdata = $this->prepareTask(new $nextTaskRec->task_class_name($nextTaskRec));
+                          if (isset($taskdata) AND is_array($taskdata)) {
+                            if (isset($taskdata['handler'])) $queue_record->handler = $taskdata['handler'];
+                            if (isset($taskdata['serialized_data'])) $queue_record->task_data = $taskdata['serialized_data'];
                           }
+
+                          drupal_write_record('maestro_queue',$queue_record);
+
+                          $next_record = new stdClass();
+                          $next_record->queue_id = $queue_record->id;
+                          $next_record->from_queue_id = $this->_queueId;
+                          drupal_write_record('maestro_queue_from',$next_record);
+
+                          if ($queue_record->id > 0) {
+                            if ($this->_debug ) {
+                                $logmsg  = "New queue id (3) : {$this->_queueId} - Template Taskid: {$nextTaskRec->taskid} - ";
+                                $logmsg .= "Assigned to " . $this->getTaskOwner($nextTaskRec->taskid,$this->_processId);
+                                watchdog('maestro', $logmsg);
+                            }
+                          }
+                          else {
+                            watchdog('maestro', "nextStep Method FAIL! - Unexpected problem creating queue record");
+                          }
+
+                          $newTaskAssignedUsers = $this->getAssignedUID($queue_record->id);
+                          if (is_array($newTaskAssignedUsers) AND count($newTaskAssignedUsers) > 0) {
+                              $this->assignTask($queue_record->id,$newTaskAssignedUsers);
+                          }
+
+                          // Check if notification has been defined for new task assignment
+                          $this->sendTaskAssignmentNotifications($queue_record->id);
                         }
                         else {
-                          watchdog('maestro', "nextStep Method FAIL! - Unexpected problem creating queue record");
+                          watchdog('maestro', "Invalid Task Type: {$nextTaskRec->task_class_name}");
+                          drupal_set_message("Invalid Task Type: {$nextTaskRec->task_class_name}", 'error');
                         }
-
-                        $newTaskAssignedUsers = $this->getAssignedUID($queue_record->id);
-                        if (is_array($newTaskAssignedUsers) AND count($newTaskAssignedUsers) > 0) {
-                            $this->assignTask($queue_record->id,$newTaskAssignedUsers);
-                        }
-
-                        // Check if notification has been defined for new task assignment
-                        $this->sendTaskAssignmentNotifications($queue_record->id);
 
                     }
                     else {

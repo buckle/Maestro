@@ -219,77 +219,93 @@ function maestro_theme() {
       'template' => 'theme/structure/maestro-workflow-assign-notify-select-boxes',
       'variables' => array('maestro_url' => NULL, 'display' => NULL, 'row_class' => NULL, 'type' => NULL, 'by_variable' => NULL, 'when' => NULL, 'options' => NULL, 'selected_options' => NULL, 'name' => NULL)
     ),
+
+    'maestro_task_unknown' => array(
+      'template' => 'theme/structure/tasks/maestro-task-unknown',
+      'variables' => array('tdid' => NULL, 'taskname' => NULL, 'ti' => NULL)
+    ),
+
     'maestro_task_start' => array(
       'template' => 'theme/structure/tasks/maestro-task-start',
-      'variables' => array('tdid' => NULL)
+      'variables' => array('tdid' => NULL, 'taskname' => NULL, 'ti' => NULL)
     ),
+
     'maestro_task_end' => array(
       'template' => 'theme/structure/tasks/maestro-task-end',
-      'variables' => array('tdid' => NULL)
+      'variables' => array('tdid' => NULL, 'taskname' => NULL, 'ti' => NULL)
     ),
+
+    'maestro_task_and' => array(
+      'template' => 'theme/structure/tasks/maestro-task-and',
+      'variables' => array('tdid' => NULL, 'taskname' => NULL, 'ti' => NULL)
+    ),
+
     'maestro_task_if' => array(
       'template' => 'theme/structure/tasks/maestro-task-if',
-      'variables' => array('tdid' => NULL)
-    ),
-    'maestro_task_batch' => array(
-      'template' => 'theme/structure/tasks/maestro-task-batch',
-      'variables' => array('tdid' => NULL)
-    ),
-    'maestro_task_batch_function' => array(
-      'template' => 'theme/structure/tasks/maestro-task-batch-function',
-      'variables' => array('tdid' => NULL)
-    ),
-    'maestro_task_set_process_variable' => array(
-      'template' => 'theme/structure/tasks/maestro-task-set-process-variable',
-      'variables' => array('tdid' => NULL)
-    ),
-    'maestro_task_set_process_variable_edit' => array(
-      'template' => 'theme/structure/tasks/maestro-task-set-process-variable-edit',
-      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'pvars' => NULL, 'set_methods' => NULL)
-    ),
-    'maestro_task_interactive_function' => array(
-      'template' => 'theme/structure/tasks/maestro-task-interactive-function',
-      'variables' => array('tdid' => NULL)
-    ),
-    'maestro_task_interactive_function_edit' => array(
-      'template' => 'theme/structure/tasks/maestro-task-interactive-function-edit',
-      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'handler_options' => NULL)
-    ),
-    'maestro_task_batch_edit' => array(
-      'template' => 'theme/structure/tasks/maestro-task-batch-edit',
-      'variables' => array('tdid' => NULL, 'td_rec' => NULL)
-    ),
-    'maestro_task_batch_function_edit' => array(
-      'template' => 'theme/structure/tasks/maestro-task-batch-function-edit',
-      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'handler_options' => NULL)
+      'variables' => array('tdid' => NULL, 'taskname' => NULL, 'ti' => NULL)
     ),
     'maestro_task_if_edit' => array(
       'template' => 'theme/structure/tasks/maestro-task-if-edit',
       'variables' => array('tdid' => NULL, 'td_rec' => NULL)
     ),
-    'maestro_task_and' => array(
-      'template' => 'theme/structure/tasks/maestro-task-and',
-      'variables' => array('tdid' => NULL)
+
+    'maestro_task_batch' => array(
+      'template' => 'theme/structure/tasks/maestro-task-batch',
+      'variables' => array('tdid' => NULL, 'taskname' => NULL, 'ti' => NULL)
     ),
+    'maestro_task_batch_edit' => array(
+      'template' => 'theme/structure/tasks/maestro-task-batch-edit',
+      'variables' => array('tdid' => NULL, 'td_rec' => NULL)
+    ),
+
+    'maestro_task_batch_function' => array(
+      'template' => 'theme/structure/tasks/maestro-task-batch-function',
+      'variables' => array('tdid' => NULL, 'taskname' => NULL, 'ti' => NULL)
+    ),
+    'maestro_task_batch_function_edit' => array(
+      'template' => 'theme/structure/tasks/maestro-task-batch-function-edit',
+      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'handler_options' => NULL)
+    ),
+
+    'maestro_task_set_process_variable' => array(
+      'template' => 'theme/structure/tasks/maestro-task-set-process-variable',
+      'variables' => array('tdid' => NULL, 'taskname' => NULL, 'ti' => NULL)
+    ),
+    'maestro_task_set_process_variable_edit' => array(
+      'template' => 'theme/structure/tasks/maestro-task-set-process-variable-edit',
+      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'pvars' => NULL, 'set_methods' => NULL)
+    ),
+
+    'maestro_task_interactive_function' => array(
+      'template' => 'theme/structure/tasks/maestro-task-interactive-function',
+      'variables' => array('tdid' => NULL, 'taskname' => NULL, 'ti' => NULL)
+    ),
+    'maestro_task_interactive_function_edit' => array(
+      'template' => 'theme/structure/tasks/maestro-task-interactive-function-edit',
+      'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'handler_options' => NULL)
+    ),
+
     'maestro_task_manual_web' => array(
       'template' => 'theme/structure/tasks/maestro-task-manual-web',
-      'variables' => array('tdid' => NULL)
+      'variables' => array('tdid' => NULL, 'taskname' => NULL, 'ti' => NULL)
     ),
     'maestro_task_manual_web_edit' => array(
       'template' => 'theme/structure/tasks/maestro-task-manual-web-edit',
       'variables' => array('tdid' => NULL, 'td_rec' => NULL)
     ),
+
     'maestro_task_content_type' => array(
       'template' => 'theme/structure/tasks/maestro-task-content-type',
-      'variables' => array('tdid' => NULL)
+      'variables' => array('tdid' => NULL, 'taskname' => NULL, 'ti' => NULL)
     ),
     'maestro_task_content_type_edit' => array(
       'template' => 'theme/structure/tasks/maestro-task-content-type-edit',
       'variables' => array('tdid' => NULL, 'td_rec' => NULL, 'content_types' => NULL)
     ),
+
     'maestro_task_fire_trigger' => array(
       'template' => 'theme/structure/tasks/maestro-task-fire-trigger',
-      'variables' => array('tdid' => NULL)
+      'variables' => array('tdid' => NULL, 'taskname' => NULL, 'ti' => NULL)
     ),
     'maestro_task_fire_trigger_edit' => array(
       'template' => 'theme/structure/tasks/maestro-task-fire-trigger-edit',
@@ -815,7 +831,16 @@ function maestro_maestro_handler_options() {
   return $handlers;
 }
 
-
+/**
+* @desc Implements HOOK_maestro_set_process_variable_methods.
+*       The return must be an array structure as follows:
+*       array (
+*         'set_method_name' => array (    //a unique name for your set method
+*           'title' => t('Title'),        //the title which will show up when you edit the set process variable task
+*           'engine_handler' => 'maestro_set_process_variable_handler'    //the function that gets called which returns
+*         )                                                               //the value to set the process variable to.
+*       );
+*/
 function maestro_maestro_set_process_variable_methods() {
   return array(
     'hardcoded_value' => array (

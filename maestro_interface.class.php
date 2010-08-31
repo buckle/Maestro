@@ -73,7 +73,13 @@ class MaestroInterface {
       $task_type = substr($rec->task_class_name, 15);
       $task_class = 'MaestroTaskInterface' . $task_type;
 
-      $ti = new $task_class($rec->id);
+      if (class_exists($task_class)) {
+        $ti = new $task_class($rec->id);
+      }
+      else {
+        $ti = new MaestroTaskInterfaceUnknown($rec->id, 0, $task_class);
+      }
+
       $html .= $ti->displayTask();
     }
 

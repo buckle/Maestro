@@ -543,6 +543,53 @@ abstract class MaestroTaskInterface {
   abstract function getEditFormContent();
 }
 
+class MaestroTaskInterfaceUnknown extends MaestroTaskInterface {
+  public $_task_class;
+
+  function __construct($task_id=0, $template_id=0, $task_class) {
+    $this->_task_type = 'Unknown';
+    $this->_is_interactive = MaestroInteractiveFlag::IS_NOT_INTERACTIVE;
+    $this->_task_class = $task_class;
+
+    parent::__construct($task_id, $template_id);
+  }
+
+  function display() {
+    return theme('maestro_task_unknown', array('tdid' => $this->_task_id, 'taskname' => $this->_taskname, 'ti' => $this));
+  }
+
+  function getEditFormContent() {
+    return '';
+  }
+
+  function getContextMenu() {
+    $draw_line_msg = t('Select a task to draw the line to.');
+    $options = array (
+      'draw_line' => array(
+        'label' => t('Draw Line'),
+        'js' => "draw_status = 1; draw_type = 1; line_start = document.getElementById('task{$this->_task_id}'); set_tool_tip('$draw_line_msg');\n"
+      ),
+      'clear_lines' => array(
+        'label' => t('Clear Adjacent Lines'),
+        'js' => "clear_task_lines(document.getElementById('task{$this->_task_id}'));\n"
+      ),
+      'delete_task' => array(
+        'label' => t('Delete Task'),
+        'js' => "enable_ajax_indicator(); \$.ajax({
+          type: 'POST',
+          url: ajax_url + 'MaestroTaskInterface{$this->_task_type}/{$this->_task_id}/0/destroy/',
+          cache: false,
+          success: delete_task,
+          dataType: 'json',
+          error: editor_ajax_error
+        });\n"
+      )
+    );
+
+    return $options;
+  }
+}
+
 class MaestroTaskInterfaceStart extends MaestroTaskInterface {
   function __construct($task_id=0, $template_id=0) {
     $this->_task_type = 'Start';
