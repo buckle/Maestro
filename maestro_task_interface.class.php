@@ -1042,7 +1042,12 @@ class MaestroTaskInterfaceContentType extends MaestroTaskInterface {
     $rec->id = $_POST['template_data_id'];
     $rec->task_data = serialize(array('content_type' => $_POST['content_type']));
     drupal_write_record('maestro_template_data', $rec, array('id'));
-    return parent::save();
+    $retval = parent::save();
+
+    //clear the cache for maestro_content_types so on page load the new content type task will be added for sure
+    cache_clear_all();
+
+    return $retval;
   }
 }
 
