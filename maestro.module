@@ -858,12 +858,59 @@ function maestro_maestro_set_process_variable_methods() {
   );
 }
 
+
+/**
+ *@desc the following are functions that set_process_variable() calls to
+ *      get the value to set the process variable to.
+ */
 function maestro_set_process_variable_logic_hardcoded(&$task_class, $current_value, $arg) {
   return $arg;
 }
 
 function maestro_set_process_variable_logic_increment(&$task_class, $current_value, $arg) {
   return intval($current_value) + intval($arg);
+}
+
+function content_type_task_maestro_set_process_variable_logic(&$task, $current_value, $arg) {
+  $args = explode(':', $arg);  //$args[0] = content type, $arg[1] = field name
+  if (empty($args[0]) OR empty($args[1])) {
+    return FALSE;
+  }
+
+  $content_type = $args[0];
+  $field_name = $args[1];
+
+  // Retrieve the tracking_id for the workflow instance
+  // Use the tracking_id to get the Node id for the content record of type $content_type
+  $tracking_id = maestro_getTaskTrackingId($task->_properties->id);
+  $query = db_select('maestro_project_content','content');
+  $query->addField('content','nid');
+  $query->condition('content.tracking_id',$tracking_id,'=');
+  $query->condition('content.instance',1,'=');
+  $query->condition('content.content_type',$content_type,'=');
+  $nid = $query->execute()->fetchField();
+  if (empty($nid)) {
+    return FALSE;
+  }
+
+  $node = node_load($nid);
+  if ($field_name == 'title') {  // Unlikely but title is not implemented as a field - still in the node table
+    return $node->title;
+  }
+
+  $field_info = field_info_field($field_name);
+
+  /* Need to assume the first element in the field definition maps to the field value but this could be dangerous
+   * Does not appear to be another way to return just the field value
+   * Tried field_view_value but that returns a formatted array that may not even contain the value - could be a link for display
+   */
+  $field_data_column = key($field_info['columns']);
+  $node_entity = entity_load('node',array($nid));
+  $data = field_view_field('node',$node_entity[$nid],$field_name);
+  $retval = $data['#items'][0][$field_data_column];
+
+  return $retval;
+
 }
 
 
