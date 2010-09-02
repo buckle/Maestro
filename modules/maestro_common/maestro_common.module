@@ -37,6 +37,10 @@ function maestro_show_message($op,&$task,$parms) {
 
   switch ($op) {
     case 'display':
+      if (!isset($parms['message'])) {
+        $maestro = Maestro::createMaestroObject(1);
+        $parms['message'] = $maestro->engine()->getProcessVariable('message', $task->_properties->process_id);
+      }
       $retval->html = theme('maestro_common_show_message',array('message' => $parms['message']));
       $retval->retcode = TRUE;
       $retval->engineop = '';
