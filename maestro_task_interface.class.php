@@ -304,6 +304,9 @@ abstract class MaestroTaskInterface {
     $offset_left = intval($_POST['offset_left']);
     $offset_top = intval($_POST['offset_top']);
 
+    if ($offset_left < 0) $offset_left = 0;
+    if ($offset_top < 0) $offset_top = 0;
+
     db_query("UPDATE {maestro_template_data} SET offset_left=:ofl, offset_top=:ofr WHERE id=:tdid", array(':ofl' => $offset_left, ':ofr' => $offset_top, ':tdid' => $this->_task_id));
   }
 

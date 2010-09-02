@@ -845,19 +845,22 @@
           $this->_userTaskCount = 0;
           $query = db_select('maestro_queue', 'a');
           $query->join('maestro_template_data', 'b', 'a.template_data_id = b.id');
-          $query->join('maestro_production_assignments', 'c', 'a.id = c.task_id');
+          $query->leftJoin('maestro_production_assignments', 'c', 'a.id = c.task_id');
           $query->join('maestro_process', 'd', 'a.process_id = d.id');
           $query->fields('a',array('id','template_data_id','process_id','is_interactive','handler','task_data','created_date','started_date'));
           $query->fields('b',array('task_class_name','template_id','taskname','is_dynamic_taskname','dynamic_taskname_variable_id'));
           if ($this->_mode == 'admin') {
             $query->fields('c',array('uid'));
             $query->fields('e',array('name'));
-            $query->join('users', 'e', 'c.uid = e.uid');
+            $query->leftJoin('users', 'e', 'c.uid = e.uid');
           }
           $query->addField('d','pid','parent_process_id');
           $query->fields('d',array('tracking_id','flow_name'));
           if ($this->_mode != 'admin') {
             $query->condition('c.uid',$this->_userId,'=');
+          }
+          if ($show_system_tasks == FALSE) {
+            $query->condition('a.is_interactive', MaestroInteractiveFlag::IS_INTERACTIVE);
           }
           $query->condition(db_or()->condition('a.archived',0)->condition('a.archived',NULL));
           $query->condition(db_and()->condition('a.status', 0, '>='));
