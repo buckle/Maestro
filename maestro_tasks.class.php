@@ -502,19 +502,21 @@ class MaestroTaskTypeSetProcessVariable extends MaestroTask {
         $query->condition('a.process_id', $this->_properties->process_id,'=');
         $query->condition('a.template_variable_id', $taskDefinitionRec->task_data['var_to_set'],'=');
         $curvalue = $query->execute()->fetchField();
-
         $methods = $this->getSetMethods();
         $function = $methods[$taskDefinitionRec->task_data['set_type']]['engine_handler'];
         if (function_exists($function)) {
           $setvalue = $function($this, $curvalue, $taskDefinitionRec->task_data[$taskDefinitionRec->task_data['set_type'] . '_value']);
-          db_update('maestro_process_variables')
-            ->fields(array('variable_value' => $setvalue))
-            ->condition('process_id', $this->_properties->process_id, '=')
-            ->condition('template_variable_id', $taskDefinitionRec->task_data['var_to_set'], '=')
-            ->execute();
-          $this->executionStatus = TRUE;
+          if ($setvalue === FALSE OR $setvalue == NULL) {
+            $this->executionStatus = FALSE;
+          } else {
+            db_update('maestro_process_variables')
+              ->fields(array('variable_value' => $setvalue))
+              ->condition('process_id', $this->_properties->process_id, '=')
+              ->condition('template_variable_id', $taskDefinitionRec->task_data['var_to_set'], '=')
+              ->execute();
+            $this->executionStatus = TRUE;
+          }
         }
-
         $query = db_select('maestro_process_variables', 'a');
         $query->addField('a','variable_value');
         $query->condition('a.process_id', $this->_properties->process_id,'=');
@@ -738,4 +740,46 @@ class MaestroTaskTypeFireTrigger extends MaestroTask {
 
 }
 
+
+function content_type_task_maestro_set_process_variable_logic(&$task, $current_value, $arg) {
+  $args = explode(':', $arg);  //$args[0] = content type, $arg[1] = field name
+  if (empty($args[0]) OR empty($args[1])) {
+    return FALSE;
+  }
+
+  $content_type = $args[0];
+  $field_name = $args[1];
+
+  // Retrieve the tracking_id for the workflow instance
+  // Use the tracking_id to get the Node id for the content record of type $content_type
+  $tracking_id = maestro_getTaskTrackingId($task->_properties->id);
+  $query = db_select('maestro_project_content','content');
+  $query->addField('content','nid');
+  $query->condition('content.tracking_id',$tracking_id,'=');
+  $query->condition('content.instance',1,'=');
+  $query->condition('content.content_type',$content_type,'=');
+  $nid = $query->execute()->fetchField();
+  if (empty($nid)) {
+    return FALSE;
+  }
+
+  $node = node_load($nid);
+  if ($field_name == 'title') {  // Unlikely but title is not implemented as a field - still in the node table
+    return $node->title;
+  }
+
+  $field_info = field_info_field($field_name);
+
+  /* Need to assume the first element in the field definition maps to the field value but this could be dangerous
+   * Does not appear to be another way to return just the field value
+   * Tried field_view_value but that returns a formatted array that may not even contain the value - could be a link for display
+   */
+  $field_data_column = key($field_info['columns']);
+  $node_entity = entity_load('node',array($nid));
+  $data = field_view_field('node',$node_entity[$nid],$field_name);
+  $retval = $data['#items'][0][$field_data_column];
+
+  return $retval;
+
+}
 

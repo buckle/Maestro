@@ -851,6 +851,10 @@ function maestro_maestro_set_process_variable_methods() {
       'title' => t('Add or Subtract a Value') . '<br>' . t('(negative number for subtraction)'),
       'engine_handler' => 'maestro_set_process_variable_logic_increment'
     ),
+    'maestro_content_type_task' => array (
+      'title' => t('Content Field Result'),
+      'engine_handler' => 'content_type_task_maestro_set_process_variable_logic'
+    ),
   );
 }
 

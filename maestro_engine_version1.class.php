@@ -831,7 +831,7 @@
          ->execute();
     }
 
-    function getQueue($show_system_tasks=FALSE) {
+    function getQueue($show_system_tasks = FALSE) {
         if (!empty($this->_userId) AND $this->_userId > 0) {
          /* Instance where the user id is known.  need to see if there is a processID given.
           * This means that the mode in which we're working is user based.. we only care about a user in this case
