@@ -50,7 +50,7 @@
     <td width="3%" class="<?php print $task->queue_id; ?>" style="border-left:1px solid white">
         <img src="<?php print $task->task_icon; ?>" TITLE="<?php print t('Process ID: '); print $task->process_id; print t(', Task ID: '); print $task->queue_id; print $task->task_started; ?>" id="taskIconImg<?php print $rowid; ?>">
     </td>
-    <td width="30%"><?php print $task->class_newtask; ?></td>
+    <td width="30%"><?php print $task->flow_name; ?></td>
     <td width="30%" class="maestro_taskconsole_interactivetaskName">
         <a class="info" style="text-decoration:none;" taskid="<?php print $task->queue_id; ?>" href="<?php print $task->task_action_url; ?>"><?php print $task->taskname; ?>
             <span style="width:300px;display: <?php print $task->hidetaskinfo; ?>;">
