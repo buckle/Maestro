@@ -10,8 +10,8 @@
 <fieldset class="form-wrapper">
   <div style="float: right;">
     <form id="system_tasks_form" action="<?php print url('maestro/outstanding'); ?>" method="POST">
-    <?php print t('Show Hidden Tasks'); ?>
-    <input type="checkbox" name="show_system_tasks" value="1" onchange="document.getElementById('system_tasks_form').submit();" <?php print ($show_system_tasks == 1) ? 'checked="checked"':''; ?>>
+    <label for="show_system_tasks"><?php print t('Show Hidden Tasks'); ?></label>
+    <input type="checkbox" id="show_system_tasks" name="show_system_tasks" value="1" onchange="document.getElementById('system_tasks_form').submit();" <?php print ($show_system_tasks == 1) ? 'checked="checked"':''; ?>>
     </form>
   </div>
   <table class="sticky-enabled sticky-table">
