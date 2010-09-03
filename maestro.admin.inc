@@ -73,10 +73,10 @@ function maestro_handle_structure_ajax_request(){
         $templatecode=($_POST['templatecode']);
         //Lets see if someone has tried to do something "evil".
         if(strpos(strtolower($templatecode),'delete') !== FALSE ||
-           strpos(strtolower($templatecode),'drop') !== FALSE ||
-           strpos(strtolower($templatecode),'truncate') !== FALSE ) {
-            $status = -1;
-            }
+        strpos(strtolower($templatecode),'drop') !== FALSE ||
+        strpos(strtolower($templatecode),'truncate') !== FALSE ) {
+          $status = -1;
+        }
         else {
           try {
             $ret=eval($templatecode);
@@ -362,7 +362,7 @@ function maestro_handle_structure_ajax_request(){
                                 'b1' => $ares->assign_type,
                                 'c1' => $ares->assign_by,
                                 'd1' => $modulated_id
-                                ));
+          ));
         }
 
       }
@@ -403,6 +403,7 @@ function maestro_admin_form() {
     '#description' => t('Enabling this option will turn on the Import Window in the template editor.  It is NOT recommended to have this on in production environments.'),
     '#required' => FALSE,
   );
+
   $form['maestro_enable_notifications'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable Maestro Notifications.'),
@@ -429,12 +430,13 @@ function maestro_admin_form() {
     $x = array();
     foreach($observers as $key => $val) {
       if($key != '0') {
-       $x[$key] = $key;
+        $x[$key] = $key;
       }
     }
 
     variable_set('maestro_enabled_notifiers',$x);
   }
+
 
   $form['maestro_enabled_notifiers'] = array(
     '#type' => 'select',
@@ -446,63 +448,107 @@ function maestro_admin_form() {
     '#multiple'    => TRUE,
   );
 
-  $form['maestro_assignment_subject'] = array(
+  $form['notifications'] = array(
+  '#type' => 'vertical_tabs',
+  );
+
+  $form['assignment_notifications'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Task Assignment Notifcation settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#tree' => TRUE,
+    '#group' => 'notifications'
+    );
+
+    $form['assignment_notifications']['maestro_assignment_subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Assignment Notification Default Subject'),
     '#default_value' => variable_get('maestro_assignment_subject'),
     '#required' => FALSE,
-  );
-  $form['maestro_assignment_message'] = array(
+    );
+
+    $form['assignment_notifications']['maestro_assignment_message'] = array(
     '#type' => 'textarea',
     '#title' => t('Assignment Notification Default Message'),
     '#default_value' => variable_get('maestro_assignment_message'),
     '#description' => t('Valid tokens: [workflow_name], [task_name], [task_owner], [task_console_url]'),
     '#required' => FALSE,
-  );
+    );
 
-  $form['maestro_completion_subject'] = array(
+    $form['commpletion_notifications'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Task Completion Notifcation settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#tree' => TRUE,
+    '#group' => 'notifications'
+    );
+
+    $form['commpletion_notifications']['maestro_completion_subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Completion Notification Default Subject'),
     '#default_value' => variable_get('maestro_completion_subject'),
     '#required' => FALSE,
-  );
-  $form['maestro_completion_message'] = array(
+    );
+
+    $form['commpletion_notifications']['maestro_completion_message'] = array(
     '#type' => 'textarea',
     '#title' => t('Completion Notification Default Message'),
     '#default_value' => variable_get('maestro_completion_message'),
     '#description' => t('Valid tokens: [workflow_name], [task_name], [task_owner], [task_console_url]'),
     '#required' => FALSE,
-  );
+    );
 
-  $form['maestro_reminder_subject'] = array(
+    $form['reminder_notifications'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Task Reminder Notifcation settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#tree' => TRUE,
+    '#group' => 'notifications'
+    );
+
+    $form['reminder_notifications']['maestro_reminder_subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Reminder Notification Default Subject'),
     '#default_value' => variable_get('maestro_reminder_subject'),
     '#required' => FALSE,
-  );
-  $form['maestro_reminder_message'] = array(
+    );
+
+    $form['reminder_notifications']['maestro_reminder_message'] = array(
     '#type' => 'textarea',
     '#title' => t('Reminder Notification Default Message'),
     '#default_value' => variable_get('maestro_reminder_message'),
     '#description' => t('Valid tokens: [workflow_name], [task_name], [task_owner], [task_console_url]'),
     '#required' => FALSE,
-  );
+    );
 
-  $form['maestro_escalation_subject'] = array(
+    $form['escalation_notifications'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Task Escalation Notification settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#tree' => TRUE,
+    '#group' => 'notifications'
+    );
+
+    $form['escalation_notifications']['maestro_escalation_subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Escalation Notification Default Subject'),
     '#default_value' => variable_get('maestro_escalation_subject'),
     '#required' => FALSE,
-  );
-  $form['maestro_escalation_message'] = array(
+    );
+
+    $form['escalation_notifications']['maestro_escalation_message'] = array(
     '#type' => 'textarea',
     '#title' => t('Escalation Notification Default Message'),
     '#default_value' => variable_get('maestro_escalation_message'),
     '#description' => t('Valid tokens: [workflow_name], [task_name], [task_owner], [task_console_url]'),
     '#required' => FALSE,
-  );
+    );
 
-  return system_settings_form($form);
+    return system_settings_form($form);
 }
 
 
@@ -586,10 +632,10 @@ function maestro_deleteAppGroup($id){
 function maestro_joinAppGroup($template_id, $appgroup_id) {
   if(!user_access('maestro admin')) return false;
   $update = db_update('maestro_template')
-      ->fields(array( 'app_group' => $appgroup_id
-      ))
-      ->condition('id', $template_id)
-      ->execute();
+  ->fields(array( 'app_group' => $appgroup_id
+  ))
+  ->condition('id', $template_id)
+  ->execute();
 }
 
 function maestro_export($id) {
@@ -620,30 +666,30 @@ function maestro_export($id) {
     //lets get all of the template_data entries
     $template_data_record_set=db_query("SELECT * FROM {maestro_template_data} WHERE template_id = :tid", array('tid' => $id));
     foreach($template_data_record_set as $rec) {
-        $task_type = substr($rec->task_class_name, 15);
-        $task_class = 'MaestroTaskInterface' . $task_type;
-        $output_php .= '$ti = new ' . $task_class . '(0, $templateID);' . "\n";
-        $output_php .= '$ti->create();' . "\n";
-        $output_php .= '$task_xref_array[' . $rec->id . '] = $ti->get_task_id();' . "\n";
-        $output_php .= '$res = db_select(\'maestro_template_data\', \'a\');' . "\n";
-        $output_php .= '$res->fields(\'a\', array(\'id\', \'task_data\'));' . "\n";
-        $output_php .= '$res->condition(\'a.id\', $ti->get_task_id(), \'=\');' . "\n";
-        $output_php .= '$rec = current($res->execute()->fetchAll());' . "\n";
-        foreach($rec as $key => $data){
-          if($key!='id' && $key!='task_class_name' && $key!='template_id') {
-            if($key == 'task_data') {
-              $output_php .= '$fixed_data = $ti->modulateExportTaskData(\'' . $data . '\', $variable_xref_array);' . "\n";
-              $output_php .='$rec->task_data = $fixed_data;' . "\n";
-            }
-            elseif(is_numeric($data)) {
-              $output_php .='$rec->' . $key . ' = ' . $data . ';' . "\n";
-            }
-            else {
-              $output_php .='$rec->' . $key . ' = \'' . $data . '\';' . "\n";
-            }
+      $task_type = substr($rec->task_class_name, 15);
+      $task_class = 'MaestroTaskInterface' . $task_type;
+      $output_php .= '$ti = new ' . $task_class . '(0, $templateID);' . "\n";
+      $output_php .= '$ti->create();' . "\n";
+      $output_php .= '$task_xref_array[' . $rec->id . '] = $ti->get_task_id();' . "\n";
+      $output_php .= '$res = db_select(\'maestro_template_data\', \'a\');' . "\n";
+      $output_php .= '$res->fields(\'a\', array(\'id\', \'task_data\'));' . "\n";
+      $output_php .= '$res->condition(\'a.id\', $ti->get_task_id(), \'=\');' . "\n";
+      $output_php .= '$rec = current($res->execute()->fetchAll());' . "\n";
+      foreach($rec as $key => $data){
+        if($key!='id' && $key!='task_class_name' && $key!='template_id') {
+          if($key == 'task_data') {
+            $output_php .= '$fixed_data = $ti->modulateExportTaskData(\'' . $data . '\', $variable_xref_array);' . "\n";
+            $output_php .='$rec->task_data = $fixed_data;' . "\n";
+          }
+          elseif(is_numeric($data)) {
+            $output_php .='$rec->' . $key . ' = ' . $data . ';' . "\n";
+          }
+          else {
+            $output_php .='$rec->' . $key . ' = \'' . $data . '\';' . "\n";
           }
         }
-        $output_php .= 'drupal_write_record(\'maestro_template_data\', $rec, array(\'id\'));' . "\n";
+      }
+      $output_php .= 'drupal_write_record(\'maestro_template_data\', $rec, array(\'id\'));' . "\n";
     }
     //we now have to create the next step and assignmnents
     $template_data_record_set=db_query("SELECT * FROM {maestro_template_data} WHERE template_id = :tid", array('tid' => $id));
