@@ -8,6 +8,7 @@
 
 include_once './' . drupal_get_path('module', 'maestro') . '/maestro.class.php';
 include_once './' . drupal_get_path('module', 'maestro') . '/maestro_tasks.class.php';
+include_once './' . drupal_get_path('module', 'maestro') . '/maestro.views.inc';
 
 function maestro_menu() {
   $items = array();

@@ -9,4 +9,5 @@ files[] = maestro.module
 files[] = maestro.install
 files[] = maestro.test
 files[] = maestro.admin.inc
+files[] = maestro.views.inc
 configure = admin/structure/maestro
