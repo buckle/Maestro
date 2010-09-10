@@ -5,6 +5,7 @@
 /**
  * @file
  * maestro.views.inc
+ * Contains all Views related API calls and default view creation information
  */
 
 /**
@@ -268,4 +269,123 @@ class views_handler_field_maestro_assigned_users extends views_handler_field_num
     }
     return $output;
   }
+}
+/**
+ * Implements hook_views_default_views().
+ */
+function maestro_views_default_views() {
+  $view = new view;
+  $view->name = 'All Queue Tasks';
+  $view->description = 'Sample View to show off all in queue tasks';
+  $view->tag = 'maestro';
+  $view->view_php = '';
+  $view->base_table = 'maestro_queue';
+  $view->is_cacheable = FALSE;
+  $view->api_version = '3.0-alpha1';
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+  /* Display: Defaults */
+  $handler = $view->new_display('default', 'Defaults', 'default');
+  $handler->display->display_options['title'] = 'All Queue Tasks';
+  $handler->display->display_options['access']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['exposed_form']['type'] = 'basic';
+  $handler->display->display_options['pager']['type'] = 'full';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '50';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['pager']['options']['id'] = '0';
+  $handler->display->display_options['style_plugin'] = 'table';
+  $handler->display->display_options['style_options']['columns'] = array(
+    'process_id' => 'process_id',
+    'status' => 'status',
+    'taskname' => 'taskname',
+    'uid' => 'uid',
+    'template_name' => 'template_name',
+  );
+  $handler->display->display_options['style_options']['default'] = '-1';
+  $handler->display->display_options['style_options']['info'] = array(
+    'process_id' => array(
+      'sortable' => 1,
+      'align' => '',
+      'separator' => '',
+    ),
+    'status' => array(
+      'sortable' => 1,
+      'align' => '',
+      'separator' => '',
+    ),
+    'taskname' => array(
+      'sortable' => 1,
+      'align' => '',
+      'separator' => '',
+    ),
+    'uid' => array(
+      'sortable' => 1,
+      'align' => '',
+      'separator' => '',
+    ),
+    'template_name' => array(
+      'sortable' => 1,
+      'align' => '',
+      'separator' => '',
+    ),
+  );
+  $handler->display->display_options['style_options']['override'] = 1;
+  $handler->display->display_options['style_options']['sticky'] = 0;
+  /* Field: Maestro Queue: Process ID */
+  $handler->display->display_options['fields']['process_id']['id'] = 'process_id';
+  $handler->display->display_options['fields']['process_id']['table'] = 'maestro_queue';
+  $handler->display->display_options['fields']['process_id']['field'] = 'process_id';
+  /* Field: Maestro Queue: Status flag */
+  $handler->display->display_options['fields']['status']['id'] = 'status';
+  $handler->display->display_options['fields']['status']['table'] = 'maestro_queue';
+  $handler->display->display_options['fields']['status']['field'] = 'status';
+  /* Field: Maestro Template Data: Task Name */
+  $handler->display->display_options['fields']['taskname']['id'] = 'taskname';
+  $handler->display->display_options['fields']['taskname']['table'] = 'maestro_template_data';
+  $handler->display->display_options['fields']['taskname']['field'] = 'taskname';
+  /* Field: Maestro Queue: Completed By */
+  $handler->display->display_options['fields']['uid']['id'] = 'uid';
+  $handler->display->display_options['fields']['uid']['table'] = 'maestro_queue';
+  $handler->display->display_options['fields']['uid']['field'] = 'uid';
+  /* Field: Maestro Template: Template Name */
+  $handler->display->display_options['fields']['template_name']['id'] = 'template_name';
+  $handler->display->display_options['fields']['template_name']['table'] = 'maestro_template';
+  $handler->display->display_options['fields']['template_name']['field'] = 'template_name';
+  /* Field: Maestro Queue: Assigned Users */
+  $handler->display->display_options['fields']['assigned_users']['id'] = 'assigned_users';
+  $handler->display->display_options['fields']['assigned_users']['table'] = 'maestro_queue';
+  $handler->display->display_options['fields']['assigned_users']['field'] = 'assigned_users';
+
+  /* Display: All Queue Tasks */
+  $handler = $view->new_display('page', 'All Queue Tasks', 'all_queue_tasks');
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Maestro Queue: Process ID */
+  $handler->display->display_options['fields']['process_id']['id'] = 'process_id';
+  $handler->display->display_options['fields']['process_id']['table'] = 'maestro_queue';
+  $handler->display->display_options['fields']['process_id']['field'] = 'process_id';
+  /* Field: Maestro Queue: Status flag */
+  $handler->display->display_options['fields']['status']['id'] = 'status';
+  $handler->display->display_options['fields']['status']['table'] = 'maestro_queue';
+  $handler->display->display_options['fields']['status']['field'] = 'status';
+  /* Field: Maestro Template Data: Task Name */
+  $handler->display->display_options['fields']['taskname']['id'] = 'taskname';
+  $handler->display->display_options['fields']['taskname']['table'] = 'maestro_template_data';
+  $handler->display->display_options['fields']['taskname']['field'] = 'taskname';
+  /* Field: Maestro Queue: Completed By */
+  $handler->display->display_options['fields']['uid']['id'] = 'uid';
+  $handler->display->display_options['fields']['uid']['table'] = 'maestro_queue';
+  $handler->display->display_options['fields']['uid']['field'] = 'uid';
+  /* Field: Maestro Template: Template Name */
+  $handler->display->display_options['fields']['template_name']['id'] = 'template_name';
+  $handler->display->display_options['fields']['template_name']['table'] = 'maestro_template';
+  $handler->display->display_options['fields']['template_name']['field'] = 'template_name';
+  /* Field: Maestro Queue: Assigned Users */
+  $handler->display->display_options['fields']['assigned_users']['id'] = 'assigned_users';
+  $handler->display->display_options['fields']['assigned_users']['table'] = 'maestro_queue';
+  $handler->display->display_options['fields']['assigned_users']['field'] = 'assigned_users';
+  $handler->display->display_options['path'] = 'all_queue_tasks';
+  $views[$view->name] = $view;
+  return $views;
 }
