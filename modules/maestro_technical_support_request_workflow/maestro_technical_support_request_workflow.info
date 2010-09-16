@@ -10,6 +10,7 @@ project = "maestro_technical_support_request_workflow"
 version = 7.x-1.0-dev
 core = 7.x
 dependencies[] = maestro
+dependencies[] = features
 files[] = maestro_technical_support_request_workflow.module
 files[] = maestro_technical_support_request_workflow.install
 files[] = maestro_technical_support_request_workflow.features.inc
