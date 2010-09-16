@@ -678,7 +678,7 @@ function maestro_export($id) {
       foreach($rec as $key => $data){
         if($key!='id' && $key!='task_class_name' && $key!='template_id') {
           if($key == 'task_data') {
-            $output_php .= '$fixed_data = $ti->modulateExportTaskData(\'' . addslashes($data) . '\', $variable_xref_array);' . "\n";
+            $output_php .= '$fixed_data = $ti->modulateExportTaskData(\'' . str_replace("'", "\'", $data) . '\', $variable_xref_array);' . "\n";
             $output_php .='$rec->task_data = $fixed_data;' . "\n";
           }
           elseif(is_numeric($data)) {
