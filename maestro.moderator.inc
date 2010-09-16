@@ -177,6 +177,5 @@ function maestro_save_process_variables() {
   exit();
 }
 
-?>
 
 
