@@ -8,7 +8,7 @@
 
 include_once './' . drupal_get_path('module', 'maestro') . '/maestro.class.php';
 include_once './' . drupal_get_path('module', 'maestro') . '/maestro_tasks.class.php';
-include_once './' . drupal_get_path('module', 'maestro') . '/maestro.views.inc';
+//include_once './' . drupal_get_path('module', 'maestro') . '/maestro.views.inc';
 
 function maestro_menu() {
   $items = array();
@@ -336,6 +336,32 @@ function launch_workflow_action(&$object, $context = array()) {
   $newprocess = 0;
   if ($template > 0) {
     $newprocess = $maestro->engine()->newProcess($template);
+  }
+
+  $tracking_id = $maestro->engine()->getTrackingId($newprocess);
+  $query = db_select('maestro_queue', 'a');
+  $query->fields('a', array('id'));
+  $query->condition('a.process_id', $newprocess, '=');
+  $rec = current($query->execute()->fetchAll());
+  $task_id = $rec->id;
+  switch ($context['group']) {
+  case 'node':
+    //check to see if node id exists in project content table
+    $query = db_insert('maestro_project_content');
+    $query->fields(array('nid', 'tracking_id', 'task_id', 'instance', 'content_type', 'task_data', 'created_by_uid', 'is_locked_by_uid', 'status'));
+    $query->values(array(
+      'nid' => $context['node']->nid,
+      'tracking_id' => $tracking_id,
+      'task_id' => $task_id,
+      'instance' => 1,
+      'content_type' => $context['node']->type,
+      'task_data' => NULL,
+      'created_by_uid' => $user->uid,
+      'is_locked_by_uid' => 0,
+      'status' => MaestroContentStatusCodes::STATUS_SUBMITTED)
+    );
+    $query->execute();
+    break;
   }
 
   if ($newprocess > 0) {
@@ -895,6 +921,7 @@ function content_type_task_maestro_set_process_variable_logic(&$task, $current_v
   }
 
   $node = node_load($nid);
+
   if ($field_name == 'title') {  // Unlikely but title is not implemented as a field - still in the node table
     return $node->title;
   }
