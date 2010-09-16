@@ -1,6 +1,6 @@
 <?php
 
-function maestro_test_flows_install() {
+function maestro_technical_support_request_workflow_install() {
   include(drupal_get_path('module','maestro') . '/maestro.admin.inc');
 
   $_POST['offset_top'] = 0;
