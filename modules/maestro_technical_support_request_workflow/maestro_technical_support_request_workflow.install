@@ -9,7 +9,7 @@ function maestro_technical_support_request_workflow_install() {
   $variable_xref_array[0] = 0;
   $task_xref_array = Array();
   $task_xref_array[0] = 0;
-  $templateID = maestro_createNewTemplate("IMPORT - Technical Support Request", TRUE, TRUE, 700);
+  $templateID = maestro_createNewTemplate("Technical Support Request", TRUE, TRUE, 700);
   $variable_xref_array[9] = maestro_createTemplateVariable($templateID, "initiator", "");
   $variable_xref_array[10] = maestro_createTemplateVariable($templateID, "assignee", "0");
   $ti = new MaestroTaskInterfaceStart(0, $templateID);
