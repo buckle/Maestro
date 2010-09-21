@@ -8,7 +8,6 @@
 
 include_once './' . drupal_get_path('module', 'maestro') . '/maestro.class.php';
 include_once './' . drupal_get_path('module', 'maestro') . '/maestro_tasks.class.php';
-//include_once './' . drupal_get_path('module', 'maestro') . '/maestro.views.inc';
 
 function maestro_menu() {
   $items = array();
@@ -48,6 +47,22 @@ function maestro_menu() {
     'page callback' => 'maestro_outstanding_tasks',
     'type' => MENU_NORMAL_ITEM,
     'access arguments' => array('view outstanding tasks'),
+    'file' => 'maestro.moderator.inc'
+    );
+
+    $items['maestro/allflows'] = array(
+    'title' => 'All Maestro Workflows',
+    'page callback' => 'maestro_all_flows',
+    'type' => MENU_NORMAL_ITEM,
+    'access arguments' => array('maestro admin'),
+    'file' => 'maestro.moderator.inc'
+    );
+
+    $items['maestro/myflows'] = array(
+    'title' => 'My Workflows',
+    'page callback' => 'maestro_my_flows',
+    'type' => MENU_NORMAL_ITEM,
+    'access arguments' => array('maestro taskconsole'),
     'file' => 'maestro.moderator.inc'
     );
 
@@ -165,7 +180,16 @@ function maestro_admin_paths() {
 }
 
 function maestro_theme() {
+  global $base_url;
   return array(
+    'maestro_all_flows' => array(
+      'template' => 'theme/maestro-all-flows',
+      'variables' => array('ajax_url' => NULL, 'filter_url' => NULL, 'database_result_set' => NULL),
+    ),
+    'maestro_all_flows_display' => array(
+      'template' => 'theme/maestro-all-flows-display',
+      'variables' => array('ajax_url' => NULL, 'database_result_set' => NULL, 'maestro_path' => $base_url . '/' . drupal_get_path('module', 'maestro')),
+    ),
     'maestro_taskconsole' => array(
       'template' => 'theme/maestro-taskconsole',
       'render element' => 'stucture'
@@ -1086,6 +1110,42 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
       $rowid = intval($_POST['rowid']);
       $html = theme('maestro_taskconsole_details',array('task' => $task, 'source' => 'mytasks', 'rowid' => $rowid ));
 
+      $retdata = array ('html' => $html,'status' => "1");
+      echo json_encode($retdata);
+      break;
+
+    case 'myflows':
+      $myflowfilter =  array('myflows' => true);
+    case 'filterprojects':
+      include('maestro.moderator.inc');
+      $filter = array(
+        'username' => check_plain($_POST['userNameFilter']),
+        'projectname' => check_plain($_POST['flowNameFilter'])
+        );
+      if(is_array($myflowfilter)) {  //this has to be an array.  otherwise, this is not a valid executable area for a non-regular user
+        $filter = array_merge($filter, $myflowfilter);
+      }
+      else {  //better check if the user should be here
+        if(!user_access('maestro admin')) {
+          $retdata = array ('html' => t('Illegal attempt on viewing flow data detected.'),'status' => "0");
+          echo json_encode($retdata);
+          exit(0);
+        }
+      }
+      $rows = maestro_get_all_flows_data($filter);
+      $ajax_url = url('maestro/taskconsole/ajax');
+      $retdata = array ('html' => theme('maestro_all_flows_display', array('ajax_url' => $ajax_url, 'database_result_set' => $rows)),'status' => "1");
+      echo json_encode($retdata);
+      break;
+
+    case 'getprojectdetails':
+      $task = new stdClass();
+      $task->tracking_id = intval($_POST['projectID']);
+      $flowname = db_query("SELECT description FROM {maestro_projects} WHERE id = :id",
+        array(':id' => $task->tracking_id))->fetchField();
+      $task->flow_name = $flowname;
+      $rowid = intval($_POST['projectID']);
+      $html = theme('maestro_taskconsole_details',array('task' => $task, 'source' => 'mytasks', 'rowid' => $rowid ));
       $retdata = array ('html' => $html,'status' => "1");
       echo json_encode($retdata);
       break;

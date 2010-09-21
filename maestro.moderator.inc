@@ -178,4 +178,75 @@ function maestro_save_process_variables() {
 }
 
 
+function maestro_all_flows() {
+  global $base_url;
+  $maestro_path = '/' . drupal_get_path('module', 'maestro');
+  $maestro_url = $base_url . $maestro_path;
+  drupal_add_css($base_url . $maestro_path . '/css/maestro.css');
+  drupal_add_js($base_url . $maestro_path . '/js/moderator.js');
+  drupal_add_js($base_url . $maestro_path . '/js/taskconsole.js');
+  $ajax_url = url('maestro/taskconsole/ajax') ;
+  $rows = maestro_get_all_flows_data();  //no filters.  all flows here
+  return theme('maestro_all_flows', array('ajax_url' => $ajax_url, 'filter_url' => $ajax_url, 'database_result_set' => $rows));
+}
+
+function maestro_my_flows() {
+  global $base_url, $user;
+  $maestro_path = '/' . drupal_get_path('module', 'maestro');
+  $maestro_url = $base_url . $maestro_path;
+  drupal_add_css($base_url . $maestro_path . '/css/maestro.css');
+  drupal_add_js($base_url . $maestro_path . '/js/moderator.js');
+  drupal_add_js($base_url . $maestro_path . '/js/taskconsole.js');
+  $ajax_url = url('maestro/taskconsole/ajax')  ;
+  $filter = array(
+        'myflows' => true,
+        );
+  $rows = maestro_get_all_flows_data($filter);  //user as a filter
+  return theme('maestro_all_flows', array('ajax_url' => $ajax_url , 'filter_url' => $ajax_url . '/myflows', 'database_result_set' => $rows));
+}
+
+//filters is a keyed array where the key is what to search for, value is what to filter on
+function maestro_get_all_flows_data($filters = NULL) {
+  global $user;
+
+  $query = db_select('maestro_projects', 'a')->extend('PagerDefault');
+  $query->fields('a', array('originator_uid', 'description', 'id'));
+  $query->fields('c', array('name'));
+  $query->join('maestro_process', 'b', 'a.id = b.tracking_id');
+  $query->join('users', 'c', 'a.originator_uid = c.uid');
+  $query->join('maestro_queue', 'd', 'b.id = d.process_id');
+  $query->join('users', 'e', 'd.uid = e.uid');
+  $query->groupBy('a.originator_uid');
+  $query->groupBy('a.description');
+  $query->groupBy('a.id');
+  $query->groupBy('c.name');
+  //$query->limit(1);
+
+  if(is_array($filters)) {
+    foreach($filters as $key => $filter) {
+      if(isset($filter) && $filter !=''){
+
+        switch($key) {
+          case 'userid':
+            $query->condition(db_or()->condition('a.originator_uid', intval($filter))->condition('e.uid', intval($filter)));
+            break;
+
+          case 'projectname':
+            $query->condition('a.description', '%' . $filter . '%', 'LIKE');
+            break;
+
+          case 'username':
+            $query->condition(db_or()->condition('c.name', $filter)->condition('e.name', $filter));
+            break;
+
+          case 'myflows':  //this is a pseudo filter to force on the right filtering for the query to isolate the flows ONLY for that user
+            $query->condition(db_or()->condition('a.originator_uid', intval($user->uid))->condition('e.uid', intval($user->uid)));
+            break;
+        }
+      }
+    }
+  }
+  $res = $query->execute();
+  return $res;
+}
 
