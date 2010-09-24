@@ -447,4 +447,3 @@ function maestro_technical_support_request_workflow_install() {
   db_query($sql, array('a1' => $task_xref_array[49], 'b1' => $task_xref_array[40], 'c1' => $task_xref_array[0]));
 }
 
-?>
