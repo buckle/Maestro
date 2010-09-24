@@ -26,6 +26,12 @@ function maestro_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  $items['maestro/newprocess'] = array(
+    'page callback' => 'maestro_new_process',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
   $items['admin/structure/maestro'] = array(
     'title' => 'Maestro Workflows',
     'description' => 'Define and administer workflows.',
@@ -480,7 +486,7 @@ function maestro_cleanqueue() {
 }
 
 
-function maestro_launch_workflow($template = 0) {
+function maestro_launch_workflow($template=0) {
   global $base_url;
 
   $template = intval ($template);
@@ -498,7 +504,28 @@ function maestro_launch_workflow($template = 0) {
     drupal_set_message("New Process Code FAIL! - No Template ID Given");
   }
 
-  //drupal_goto($base_url);
+  return $newprocess;
+}
+
+function maestro_new_process($template=0) {
+  global $base_url;
+
+  $template = intval ($template);
+  if ($template > 0) {
+    $maestro = Maestro::createMaestroObject(1);
+    $newprocess = $maestro->engine()->newProcess($template);
+
+    if ($newprocess > 0) {
+      drupal_set_message("New Process Code Success! - Process ID: $newprocess");
+    } else {
+      drupal_set_message("New Process Code FAIL! - Template: $template not defined");
+    }
+  }
+  else {
+    drupal_set_message("New Process Code FAIL! - No Template ID Given");
+  }
+
+  drupal_goto('maestro/taskconsole');
   return $newprocess;
 }
 
