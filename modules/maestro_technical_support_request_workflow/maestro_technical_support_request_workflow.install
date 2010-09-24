@@ -1,5 +1,12 @@
 <?php
 
+function maestro_technical_support_request_workflow_uninstall() {
+  db_update('node_type')
+  ->fields(array('custom' => 1))
+  ->condition('type', 'technical_support_request', '=')
+  ->execute();
+}
+
 function maestro_technical_support_request_workflow_install() {
   include(drupal_get_path('module','maestro') . '/maestro.admin.inc');
 
