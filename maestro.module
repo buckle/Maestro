@@ -704,7 +704,7 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
     if(!in_array($taskrec->template_data_id,$uniqueTasks)) {
       $uniqueTasks[] = $taskrec->template_data_id;
       $current_task = new $taskrec->task_class_name();
-      $taskContent = $current_task->showContentDetail($task->tracking_id);
+      $taskContent = $current_task->showContentDetail($task->tracking_id,$taskrec->template_data_id);
       if (!empty($taskContent)) {
         $variables['content_records'][] = $taskContent;
       }

@@ -55,6 +55,9 @@ function maestro_show_message($op,&$task,$parms) {
 
 }
 
-
+/* Batch function - dummy or test function returns TRUE */
+function maestro_batch_dummy($queue_id, $process_id) {
+  return TRUE;
+}
 
 ?>

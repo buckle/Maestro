@@ -701,7 +701,7 @@ class MaestroTaskTypeContentType extends MaestroTask {
   }
 
   // Method to return HTML formatted content to include in the project detail area
-  function showContentDetail($tracking_id) {
+  function showContentDetail($tracking_id,$task_id) {
 
     $retval = '';
     /* Format any content records */
@@ -709,6 +709,7 @@ class MaestroTaskTypeContentType extends MaestroTask {
     $query->addField('content','nid');
     $query->addField('content','status');
     $query->condition('content.tracking_id',$tracking_id,'=');
+    $query->condition('content.task_id',$task_id,'=');
     $res = $query->execute();
     foreach ($res as $record) {
       $node = node_load($record->nid);

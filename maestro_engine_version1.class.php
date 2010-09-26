@@ -876,6 +876,7 @@ class MaestroEngineVersion1 extends MaestroEngine {
       }
       $query->condition(db_or()->condition('a.archived',0)->condition('a.archived',NULL));
       $query->condition(db_and()->condition('a.status', 0, '>='));
+      $query->orderBy('a.id','DESC');
       $userTaskResult = $query->execute();
       $numTaskRows = $query->countQuery()->execute()->fetchField();
       if ($numTaskRows == 0) {
