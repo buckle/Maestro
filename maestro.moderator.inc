@@ -220,6 +220,7 @@ function maestro_get_all_flows_data($filters = NULL) {
   $query->groupBy('a.description');
   $query->groupBy('a.id');
   $query->groupBy('c.name');
+  $query->orderBy('d.id','DESC');
   //$query->limit(1);
 
   if(is_array($filters)) {
