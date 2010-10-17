@@ -12,7 +12,7 @@ include_once './' . drupal_get_path('module', 'maestro') . '/maestro_task_interf
 function maestro_admin($tid=0, $operation='', $var=0) {
   global $base_url;
   $maestro_path = $base_url . '/' . drupal_get_path('module', 'maestro');
-  drupal_add_css($maestro_path . '/css/maestro.css');
+  drupal_add_css(drupal_get_path('module', 'maestro') . '/css/maestro.css');
   drupal_add_js($maestro_path . '/js/maestro_structure_admin.js');
 
   return theme('maestro_workflow_list', array('tid' => $tid, 'operation' => $operation , 'edit_var' => $var));
@@ -24,7 +24,7 @@ function maestro_edit_workflow($tid) {
 
   $maestro_path = '/' . drupal_get_path('module', 'maestro');
 
-  drupal_add_css($base_url . $maestro_path . '/css/maestro.css');
+  drupal_add_css(drupal_get_path('module', 'maestro') . '/css/maestro.css');
   drupal_add_js($base_url . $maestro_path . '/js/wz_jsgraphics.js');
   drupal_add_js($base_url . $maestro_path . '/js/admin_template_editor.js');
   drupal_add_js($base_url . $maestro_path . '/js/jquery.contextmenu.js');

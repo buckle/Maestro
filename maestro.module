@@ -457,9 +457,8 @@ function maestro_trigger_info() {
  * Display of the Task Console - called from hook_menu callback.
  */
 function maestro_taskconsole() {
-  global $base_url, $base_path, $user;
-  $maestro_path = $base_url . '/' . drupal_get_path('module', 'maestro');
-  drupal_add_css($maestro_path . '/css/maestro.css');
+
+  drupal_add_css(drupal_get_path('module', 'maestro') . '/css/maestro.css');
   $modulepath = drupal_get_path('module', 'maestro');
   drupal_set_breadcrumb('');
 
