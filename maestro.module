@@ -39,106 +39,113 @@ function maestro_menu() {
     'access arguments' => array('maestro admin'),
     //'type' => MENU_LOCAL_TASK,
     'file' => 'maestro.admin.inc'
-    );
+  );
 
-    $items['maestro/taskconsole/ajax'] = array(
+  $items['maestro/taskconsole/ajax'] = array(
     'page callback' => 'maestro_handle_taskconsole_ajax_request',
     'page arguments' => array(3, 4) ,      // Passing in wildcard which should be parm 1
     'type' => MENU_CALLBACK,
     'access arguments' => array('maestro taskconsole')
-    );
+  );
 
-    $items['maestro/outstanding'] = array(
+  $items['maestro/outstanding'] = array(
     'title' => 'Outstanding Tasks',
     'page callback' => 'maestro_outstanding_tasks',
     'type' => MENU_NORMAL_ITEM,
     'access arguments' => array('view outstanding tasks'),
     'file' => 'maestro.moderator.inc'
-    );
+  );
 
-    $items['maestro/allflows'] = array(
+  $items['maestro/allflows'] = array(
     'title' => 'All Maestro Workflows',
     'page callback' => 'maestro_all_flows',
     'type' => MENU_NORMAL_ITEM,
     'access arguments' => array('maestro admin'),
     'file' => 'maestro.moderator.inc'
-    );
+  );
 
-    $items['maestro/myflows'] = array(
+  $items['maestro/myflows'] = array(
     'title' => 'My Workflows',
     'page callback' => 'maestro_my_flows',
     'type' => MENU_NORMAL_ITEM,
     'access arguments' => array('maestro taskconsole'),
     'file' => 'maestro.moderator.inc'
-    );
+  );
 
-    $items['maestro/trace'] = array(
+  $items['maestro/trace'] = array(
     'page callback' => 'maestro_trace',
     'type' => MENU_CALLBACK,
     'access arguments' => array('edit outstanding tasks'),
     'file' => 'maestro.moderator.inc'
-    );
+  );
 
-    $items['admin/structure/maestro/ajax'] = array(
+  $items['admin/structure/maestro/ajax'] = array(
     'page callback' => 'maestro_handle_editor_ajax_request',
     'type' => MENU_CALLBACK,
     'access arguments' => array('maestro admin'),
     'file' => 'maestro.admin.inc'
-    );
+  );
 
-    $items['admin/structure/maestro/structure_ajax'] = array(
+  $items['admin/structure/maestro/structure_ajax'] = array(
     'page callback' => 'maestro_handle_structure_ajax_request',
     'type' => MENU_CALLBACK,
     'access arguments' => array('maestro admin'),
     'file' => 'maestro.admin.inc'
-    );
+  );
 
-    $items['admin/structure/maestro/new'] = array(
+  $items['admin/structure/maestro/new'] = array(
     'title' => 'New',
     'type' => MENU_LOCAL_TASK,
-    );
+  );
 
-    $items['admin/structure/maestro/edit'] = array(
+  $items['admin/structure/maestro/edit'] = array(
     'title' => 'Edit',
     'page callback' => 'maestro_edit_workflow',
     'access arguments' => array('maestro admin'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'maestro.admin.inc'
-    );
+  );
 
-    $items['admin/structure/maestro/edit_properties'] = array(
+  $items['admin/structure/maestro/edit_properties'] = array(
     'title' => 'Edit Template Name and Variables',
     'page callback' => 'maestro_edit_properties',
     'access arguments' => array('maestro admin'),
     'type' => MENU_CALLBACK,
     'file' => 'maestro.admin.inc'
-    );
+  );
 
-    $items['maestro_enginetest'] = array(
+  $items['maestro_enginetest'] = array(
     'title' => 'Execute Development Test',
     'page callback' => 'maestro_enginetest',
     'page arguments' => array(),
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
     'file'  => 'lib-test.php',
-    );
+  );
 
-    $items['admin/config/workflow/maestro_configure'] = array(
+  $items['admin/config/workflow/maestro_configure'] = array(
     'title' => 'Maestro Config',
     'description' => 'Configure the Maestro Engine.',
     'page callback' => 'maestro_configure',
     'access arguments' => array('maestro admin'),
     'file' => 'maestro.admin.inc'
-    );
+  );
 
-    $items['admin/structure/maestro/export'] = array(
+  $items['admin/structure/maestro/export'] = array(
     'title' => 'Export a Maestro Template',
     'page callback' => 'maestro_export_template',
     'access arguments' => array('maestro admin'),
     'type' => MENU_CALLBACK,
     'file' => 'maestro.admin.inc'
-    );
-    return $items;
+  );
+
+  $items['maestro/orchestrator'] = array(
+    'page callback' => 'maestro_orchestrator',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
 }
 
 
@@ -155,10 +162,11 @@ function maestro_permission() {
     ),
     'maestro edit outstanding tasks' => array(
       'title' => t('Edit Outstanding Tasks')
-  ),
+    ),
     'maestro reassign tasks' => array(
       'title' => t('Re-Assign Tasks')
-  )  );
+    )
+  );
 }
 
 function maestro_help($path, $arg) {
@@ -526,6 +534,11 @@ function maestro_new_process($template=0) {
 
   drupal_goto('maestro/taskconsole');
   return $newprocess;
+}
+
+function maestro_orchestrator() {
+  $maestro = Maestro::createMaestroObject(1);
+  $maestro->engine()->cleanQueue();
 }
 
 function template_preprocess_maestro_taskconsole(&$variables) {
