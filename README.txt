@@ -67,3 +67,7 @@ To set up the cron, see http://drupal.org/cron. Note however in this documentati
 using http://www.example.com/cron.php as the url, use http://www.example.com/maestro/orchestrator. This orchestrator
 cron should be set to run every few minutes.
 
+Current release of Maestro does not have a "secured" orchestrator link.  Therefore anyone can hit the maestro/orchestrator link and run 
+the orchestrator.  While this is not necessarily harmful, it is not optimal as the engine will run and potentially be run more than once
+at the same time causing queue issues.  Eventually there will be an application token that would have to be passed to the orchestrator link
+in order to run the orchestrator from cron. However for now, be aware there are no safeguards around it.
