@@ -368,7 +368,10 @@ abstract class MaestroTaskInterface {
 
   //remove any next step records pertaining to this task
   function clearAdjacentLines() {
-    db_query("DELETE FROM {maestro_template_data_next_step} WHERE template_data_from=:tdid OR template_data_to=:tdid OR template_data_to_false=:tdid", array(':tdid' => $this->_task_id));
+    //RK -- had to change the logic on this delete as PDO for SQL Server was failing for some reason even though the
+    //resulting query was 100% correct.
+    $taskid=intval($this->_task_id);
+    db_query("DELETE FROM {maestro_template_data_next_step} WHERE template_data_from={$taskid} OR template_data_to={$taskid} OR template_data_to_false={$taskid}");
   }
 
   //returns an array of options for when the user right-clicks the task
