@@ -88,7 +88,11 @@ abstract class MaestroTaskInterface {
     if ((array_key_exists('confirm_delete', $_POST) && $_POST['confirm_delete'] == 1) || $rec == '') {
       db_query("DELETE FROM {maestro_template_data} WHERE id=:tdid", array(':tdid' => $this->_task_id));
       db_query("DELETE FROM {maestro_template_assignment} WHERE template_data_id=:tdid", array(':tdid' => $this->_task_id));
-      db_query("DELETE FROM {maestro_template_data_next_step} WHERE template_data_to=:tdid OR template_data_to_false=:tdid OR template_data_from=:tdid", array(':tdid' => $this->_task_id));
+
+      //RK -- This query has been simplified to remove the db_query replacement facility as it fails in SQL Server
+      $tdID = intval($this->_task_id);
+      db_query("DELETE FROM {maestro_template_data_next_step} WHERE template_data_to={$tdID} OR template_data_to_false={$tdID} OR template_data_from={$tdID}");
+
       db_query("DELETE FROM {maestro_queue} WHERE template_data_id=:tdid", array(':tdid' => $this->_task_id));
       $retval = '';
       $success = 1;
