@@ -408,6 +408,17 @@ function launch_workflow_action(&$object, $context = array()) {
   else {
     watchdog('maestro', "Maestro Launch Workflow Action has been invoked by user {$user->uid}. Failed to launch new process of template id #$template.");
   }
+
+  //RK - I think we need a post-launch trigger/action ability here.
+  //we'll need something to let other modules hook into this.  The handler will be
+  // modulename_maestro_post_action_handler
+  //this will give devs the ability to read the db, handle a new process, do anything with data manipulation/UI etc.
+  foreach (module_implements('maestro_post_action_handler') as $module) {
+    $function = $module . '_maestro_post_action_handler';
+    if(function_exists($function)) {
+      $function($newprocess);
+    }
+  }
 }
 
 function launch_workflow_action_submit($form, $form_state) {
