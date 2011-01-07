@@ -1450,3 +1450,20 @@ function maestro_array_add($arr1, $arr2) {
   return $arr1;
 }
 
+function maestro_set_process_flow_name ($process_id, $new_flow_name) {
+  if($process_id >0 && $new_flow_name != '') {
+    db_update('maestro_process')
+            ->fields(array('flow_name' => $new_flow_name))
+            ->condition('id', $process_id, '=')
+            ->execute();
+    $query = db_select('maestro_process', 'a');
+    $query->fields('a', array('tracking_id'));
+    $query->condition('a.id', $process_id, "=");
+    $res = current($query->execute()->fetchAll());
+    $proj_id = intval($res->tracking_id);
+    db_update('maestro_projects')
+           ->fields(array('description' => $new_flow_name))
+           ->condition('id', $proj_id, '=')
+           ->execute();
+  }
+}
