@@ -1205,7 +1205,6 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
 
 
 function maestro_form_alter(&$form, $form_state, $form_id) {
-
   /* Determine if the cached list of content types being used by configured maestro workflow templates is setup. */
   $maestro_content_types = cache_get('maestro_content_types');
   if($maestro_content_types === FALSE) {  // if not set - scan templates for unique content types
@@ -1235,10 +1234,10 @@ function maestro_form_alter(&$form, $form_state, $form_id) {
     foreach($requestParms as $index => $val) {
       if($val == 'maestro') {
         $maestroIndex = $index;
-        break;
+        //removed the break, because we are looking for the last occurrance
+        //of 'maestro' in the requestParms.
       }
     }
-
     if($maestroIndex >=0 ) {
       if (isset($requestParms[$maestroIndex]) AND $requestParms[$maestroIndex] == 'maestro' AND isset($requestParms[$maestroIndex + 1])) {
         if ($requestParms[$maestroIndex + 1] == 'edit' AND intval($requestParms[$maestroIndex + 2] > 0)) {
@@ -1252,7 +1251,7 @@ function maestro_form_alter(&$form, $form_state, $form_id) {
             $form['maestro_completeonsubmit'] = array(
               '#value'  => 1,
               '#type'   => 'hidden',
-              );
+            );
           }
         }
         else {
@@ -1261,14 +1260,31 @@ function maestro_form_alter(&$form, $form_state, $form_id) {
             '#type'   => 'hidden',
           );
         }
-        /* Overwrite the default node submission handler with our own.
+        /** Overwrite the default node submission handler with our own.
          * Had a real issue getting this to work as the available docs indicate
          * $form['#submit'][] = 'maestro_content_form_submit';
          * should work but the default node submit handler 'node_form_submit()' would always be used.
          * Posted to rfay's blog: http://randyfay.com/node/66
          * On IRC, DamZ recommended this syntax which works
          */
-          $form['actions']['submit']['#submit'][] = 'maestro_content_form_submit';
+        $form['actions']['submit']['#submit'][] = 'maestro_content_form_submit';
+      }
+    }
+    else if (array_key_exists('complete form', $form_state) && array_key_exists('maestro_taskid', $form_state['complete form'])) {
+      /** If there is a get/post action called, such as when an attachment field's upload button is clicked,
+       * we need to re-add the fields to the form. so we check the form_state to see if the previous values
+       * there so that we know it is a maestro content type task form we are dealing with.
+       */
+      $form['actions']['submit']['#submit'][] = 'maestro_content_form_submit';
+      $form['maestro_taskid'] = array(
+        '#value'  => $form_state['complete form']['maestro_taskid']['#value'],
+        '#type'   => 'hidden',
+      );
+      if (array_key_exists('maestro_completeonsubmit', $form_state['complete form'])) {
+        $form['maestro_completeonsubmit'] = array(
+          '#value'  => $form_state['complete form']['maestro_completeonsubmit']['#value'],
+          '#type'   => 'hidden',
+        );
       }
     }
   }
