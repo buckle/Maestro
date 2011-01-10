@@ -19,8 +19,10 @@ function maestro_admin($tid=0, $operation='', $var=0) {
 }
 
 //called from the hooks_menu
-function maestro_edit_workflow($tid) {
+function maestro_edit_workflow($tid='') {
   global $base_url;
+
+  if ($tid === '') drupal_goto('admin/structure/maestro');
 
   $maestro_path = '/' . drupal_get_path('module', 'maestro');
 
