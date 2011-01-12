@@ -1238,7 +1238,7 @@ function maestro_form_alter(&$form, $form_state, $form_id) {
         //of 'maestro' in the requestParms.
       }
     }
-    if($maestroIndex >=0 ) {
+    if($maestroIndex >= 2 ) { //really only applies if your site is named maestro, ie localhost/maestro, but a valid index should be around 5
       if (isset($requestParms[$maestroIndex]) AND $requestParms[$maestroIndex] == 'maestro' AND isset($requestParms[$maestroIndex + 1])) {
         if ($requestParms[$maestroIndex + 1] == 'edit' AND intval($requestParms[$maestroIndex + 2] > 0)) {
           $form['maestro_taskid'] = array(
