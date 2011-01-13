@@ -687,7 +687,7 @@ class MaestroTaskTypeContentType extends MaestroTask {
       ->fields(array(
       'nid' => $node->nid,
       'tracking_id' => $tracking_id,
-      'task_id' => $rec->template_data_id,
+      'task_id' => $taskid,
       'content_type' => $node->type,
       'status'  => $status
       ))

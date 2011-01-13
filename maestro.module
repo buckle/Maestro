@@ -717,7 +717,7 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
   $variables['content_records'] = array();
   $query = db_select('maestro_process','process');
   $query->join('maestro_queue', 'queue', 'queue.process_id = process.id');
-  $query->fields('queue', array('process_id','template_data_id','task_class_name'));
+  $query->fields('queue', array('id','process_id','template_data_id','task_class_name'));
   $query->addField('queue','id','queue_id');
   $query->condition('process.tracking_id', $task->tracking_id, '=');
   $res = $query->execute();
@@ -727,7 +727,7 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
     if(!in_array($taskrec->template_data_id,$uniqueTasks)) {
       $uniqueTasks[] = $taskrec->template_data_id;
       $current_task = new $taskrec->task_class_name();
-      $taskContent = $current_task->showContentDetail($task->tracking_id,$taskrec->template_data_id);
+      $taskContent = $current_task->showContentDetail($task->tracking_id,$taskrec->id);
       if (!empty($taskContent)) {
         $variables['content_records'][] = $taskContent;
       }
