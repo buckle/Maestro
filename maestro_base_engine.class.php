@@ -72,13 +72,13 @@ include_once('maestro_constants.class.php');
       elseif ($pid == 0 AND $this->_processId > 0) {
         $id = db_select('maestro_process')
           ->fields('maestro_process', array('tracking_id'))
-          ->condition('process_id', $this->_processId, '=')
+          ->condition('id', $this->_processId, '=')
           ->execute()->fetchField();
         $retval = $id;
       } elseif ($pid > 0) {
         $id = db_select('maestro_process')
           ->fields('maestro_process', array('tracking_id'))
-          ->condition('process_id', $this->_processId, '=')
+          ->condition('id', $pid, '=')
           ->execute()->fetchField();
         $retval = $id;
       }
