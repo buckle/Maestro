@@ -112,7 +112,7 @@ class MaestroNotification {
     $replace['workflow_name'] = $rec->template_name;
 
     $userQuery = db_select('maestro_production_assignments', 'a');
-    $userQuery->leftJoin('users', 'b', 'a.uid=b.uid');
+    $userQuery->leftJoin('users', 'b', 'a.assign_id=b.uid');
     $userQuery->fields('b', array('name'));
     $userQuery->condition('a.task_id', $this->_queueID, '=');
     $userRes = $userQuery->execute()->fetchAll();

@@ -1,4 +1,4 @@
-function show_reassign(link, uid) {
+function show_reassign(link, uid, type) {
   (function ($) {
     var html;
     var show_flag = true;
@@ -12,7 +12,7 @@ function show_reassign(link, uid) {
 
     if (show_flag == true) {
       html  = '<div id="reassign_form"><form style="margin: 8px 0px 8px 0px; padding: 0px" method="post" action="' + $(link).attr('href') + '">';
-      html += $('#user_select').html();
+      html += $('#' + type + '_select').html();
       html += '<input type="hidden" name="current_uid" value="' + uid + '">';
       html += '<input type="submit" value="' + Drupal.t('Go') + '">';
       html += '</form></div>';
@@ -108,10 +108,10 @@ jQuery(function($) {
       success : function(data) {
         try{
         	if (data.status == 1) {
-        		//success	  
+        		//success
         		jQuery('#maestro_filter_working').removeClass('maestro_working');
         		jQuery('#maestro_all_flows_display').html(data.html);
-        	} 
+        	}
         	else {
         		maestro_allFlowsShowErrorBar(Drupal.t('There has been an error with your filter.  Please adjust the filter and try again'));
         		jQuery('#maestro_filter_working').removeClass('maestro_working');

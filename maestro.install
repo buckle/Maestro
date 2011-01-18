@@ -208,7 +208,14 @@ function maestro_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'uid' => array(
+      'assign_type' => array(
+        'description' => '',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'assign_id' => array(
         'description' => '',
         'type' => 'int',
         'not null' => TRUE,
@@ -220,7 +227,7 @@ function maestro_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'assign_back_uid' => array(
+      'assign_back_id' => array(
         'description' => '',
         'type' => 'int',
         'not null' => TRUE,
@@ -242,7 +249,7 @@ function maestro_schema() {
     ),
     'primary key' => array('id'),
     'indexes' => array(
-      'assign_back_uid' => array('assign_back_uid'),
+      'assign_back_id' => array('assign_back_id'),
       'process_variable' => array('process_variable'),
       'task_id' => array('task_id'),
     ),

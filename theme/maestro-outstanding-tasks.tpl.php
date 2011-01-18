@@ -35,7 +35,7 @@
         <td style="vertical-align: top;"><?php print $task->taskname; ?></td>
         <td style="vertical-align: top;"><?php print $task->username; ?></td>
         <td style="text-align:right;vertical-align: top; width: 200px;">
-          <?php print l("<img class=\"valigncenter\" src=\"{$maestro_url}/images/taskconsole/reassign.png\">", "maestro/outstanding/reassign/{$task->queue_id}", array('html' => TRUE, 'attributes' => array('title' => t('Reassign this Task'), 'onclick' => "show_reassign(this, '{$task->uid}'); return false;") )); ?>
+          <?php print l("<img class=\"valigncenter\" src=\"{$maestro_url}/images/taskconsole/reassign.png\">", "maestro/outstanding/reassign/{$task->queue_id}", array('html' => TRUE, 'attributes' => array('title' => t('Reassign this Task'), 'onclick' => "show_reassign(this, '{$task->uid}', '{$assign_types[$task->assign_type]}'); return false;") )); ?>
           <?php print l("<img class=\"valigncenter\" src=\"{$maestro_url}/images/taskconsole/email.png\">", "maestro/outstanding/email/{$task->queue_id}/{$task->uid}", array('html' => TRUE, 'attributes' => array('title' => t('Send a Reminder to Task Owner')) )); ?>
           <?php print l("<img class=\"valigncenter\" src=\"{$maestro_url}/images/taskconsole/trace.png\">", "maestro/trace/0/{$task->process_id}/{$task->queue_id}", array('html' => TRUE, 'attributes' => array('title' => t('Trace this Process')) )); ?>
           <?php print l("<img class=\"valigncenter\" src=\"{$maestro_url}/images/taskconsole/delete.png\">", "maestro/outstanding/delete/{$task->queue_id}", array('html' => TRUE, 'attributes' => array('title' => t('Delete this Task'), 'onclick' => "return confirm('" . t('Are you sure you want to delete this task?') . "');") )); ?>
@@ -58,14 +58,44 @@
 </fieldset>
 
 <div id="user_select" style="display: none;">
-  <select name="reassign_uid">
+
+  <select name="reassign_id">
     <option value="0"><?php print t('Select User'); ?></option>
 <?php
       foreach ($users as $user) {
 ?>
-        <option value="<?php print $user->uid; ?>"><?php print $user->name; ?></option>
+        <option value="<?php print $user->aid; ?>"><?php print $user->name; ?></option>
 <?php
       }
 ?>
   </select>
+
+</div>
+<div id="role_select" style="display: none;">
+
+  <select name="reassign_id">
+    <option value="0"><?php print t('Select Role'); ?></option>
+<?php
+      foreach ($roles as $role) {
+?>
+        <option value="<?php print $role->aid; ?>"><?php print $role->name; ?></option>
+<?php
+      }
+?>
+  </select>
+
+  </div>
+<div id="group_select" style="display: none;">
+
+  <select name="reassign_id">
+    <option value="0"><?php print t('Select Organic Group'); ?></option>
+<?php
+      foreach ($groups as $group) {
+?>
+        <option value="<?php print $group->aid; ?>"><?php print $group->name; ?></option>
+<?php
+      }
+?>
+  </select>
+
 </div>

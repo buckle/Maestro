@@ -265,9 +265,9 @@ include_once('maestro_constants.class.php');
     function reassignTask($qid, $current_uid, $reassign_uid) {
       if ($qid > 0 && $reassign_uid > 0) {
         db_update('maestro_production_assignments')
-          ->fields(array('uid' => $reassign_uid, 'assign_back_uid' => $current_uid))
+          ->fields(array('assign_id' => $reassign_uid, 'assign_back_id' => $current_uid))
           ->condition('task_id', $qid, '=')
-          ->condition('uid', $current_uid, '=')
+          ->condition('assign_id', $current_uid, '=')
           ->execute();
       }
     }
@@ -301,7 +301,7 @@ include_once('maestro_constants.class.php');
         if ($rec->archived != 1) {
           $q2 = db_select('maestro_production_assignments', 'a');
           $q2->fields('b', array('name'));
-          $q2->leftJoin('users', 'b', 'a.uid=b.uid');
+          $q2->leftJoin('users', 'b', 'a.assign_id=b.uid');
           $q2->condition('a.task_id', $rec->id, '=');
           $res2 = $q2->execute();
           $rec->username = '';

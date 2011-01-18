@@ -22,7 +22,7 @@ function maestro_outstanding_tasks($op='', $qid=0, $other=NULL) {
 
   switch ($op) {
   case 'reassign':
-    $m->reassignTask($qid, $_POST['reassign_uid'], $_POST['current_uid']);
+    $m->reassignTask($qid, $_POST['reassign_id'], $_POST['current_uid']);
     drupal_set_message("Task re-assignment completed and notification sent.");
     break;
 
@@ -43,11 +43,35 @@ function maestro_outstanding_tasks($op='', $qid=0, $other=NULL) {
     $q = $m->getQueue($show_system_tasks);
 
     $query = db_select('users', 'a');
-    $query->fields('a', array('uid', 'name'));
+    $query->addField('a', 'uid', 'aid');
+    $query->addField('a', 'name');
     $query->condition('a.uid', 0, '>');
     $user_res = $query->execute();
 
-    return theme('maestro_outstanding_tasks', array('maestro_url' => $maestro_url, 'show_system_tasks' => $show_system_tasks, 'maestro' => $m, 'queue' => $q, 'users' => $user_res));
+    $query = db_select('role', 'a');
+    $query->addField('a', 'rid', 'aid');
+    $query->addField('a', 'name');
+    $query->condition('a.rid', 2, '>');
+    $role_res = $query->execute();
+
+    if (module_exists('og')) {
+      $query = db_select('og', 'a');
+      $query->addField('a', 'gid', 'aid');
+      $query->addField('a', 'label', 'name');
+      $query->condition('a.gid', 0, '>');
+      $group_res = $query->execute();
+    }
+    else {
+      $group_res = FALSE;
+    }
+
+    if (!$user_res) $user_res = array();
+    if (!$role_res) $role_res = array();
+    if (!$group_res) $group_res = array();
+
+    $assign_types = array(MaestroAssignmentTypes::USER => 'user', MaestroAssignmentTypes::ROLE => 'role', MaestroAssignmentTypes::GROUP => 'group');
+
+    return theme('maestro_outstanding_tasks', array('maestro_url' => $maestro_url, 'show_system_tasks' => $show_system_tasks, 'maestro' => $m, 'queue' => $q, 'users' => $user_res, 'roles' => $role_res, 'groups' => $group_res, 'assign_types' => $assign_types));
     break;
   }
 

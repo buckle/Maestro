@@ -138,11 +138,8 @@
 ?>
                     <option value="<?php print strtolower($opt['name']); ?>"><?php print $opt['label']; ?></option>
 <?php
-                    break;  //remove when once we add the role / group options
                   }
 ?>
-                  <optgroup style="color: #AAAAAA;" value="role" label="<?php print t('Role'); ?>"></optgroup>
-                  <optgroup style="color: #AAAAAA;" value="organic_group" label="<?php print t('Organic Group'); ?>"></optgroup>
                 </select>&nbsp;
                 <select name="assign_by_variable" id="assign_by_variable" onchange="toggle_list_type('assign');">
 <?php
@@ -193,11 +190,8 @@
 ?>
                     <option value="<?php print strtolower($opt['name']); ?>"><?php print $opt['label']; ?></option>
 <?php
-                    break;  //remove when once we add the role / group options
                   }
 ?>
-                  <optgroup style="color: #AAAAAA;" value="role" label="<?php print t('Role'); ?>"></optgroup>
-                  <optgroup style="color: #AAAAAA;" value="organic_group" label="<?php print t('Organic Group'); ?>"></optgroup>
                 </select>&nbsp;
                 <select name="notify_by_variable" id="notify_by_variable" onchange="toggle_list_type('notify');">
 <?php

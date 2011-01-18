@@ -253,8 +253,8 @@ class views_handler_field_maestro_assigned_users extends views_handler_field_num
     //return $value;
     //@TODO:  need to fix this method once the OG/role ability is rolled out
     $q = db_select('maestro_production_assignments', 'a');
-    $q->join('users', 'b', 'a.uid = b.uid');
-    $q->addField('a','uid');
+    $q->join('users', 'b', 'a.assign_id = b.uid');
+    $q->addField('b','uid');
     $q->addField('b','mail');
     $q->addField('b','name');
     $q->condition('a.task_id',intval($value));

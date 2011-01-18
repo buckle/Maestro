@@ -162,10 +162,16 @@ abstract class MaestroTaskInterface {
 
       $res = db_query("SELECT rid AS id, name FROM {role}");
       foreach ($res as $rec) {
-        $role_options[$rec->id] = $rec->name;
+        if ($rec->id != 1 && $rec->id != 2) { //filter the anonymous and authenticated user roles
+          $role_options[$rec->id] = $rec->name;
+        }
       }
 
-      //TODO: add $og_option builder logic here
+      $res = og_get_group_ids();
+      foreach ($res as $rec) {
+        $og = og_load($rec);
+        $og_options[$rec] = $og->label;
+      }
     }
 
     //initialize the selected array
@@ -466,6 +472,10 @@ abstract class MaestroTaskInterface {
     $query->leftJoin('maestro_template_variables', 'b', 'a.assign_id=b.id');
     $query->leftJoin('users', 'c', 'a.assign_id=c.uid');
     $query->leftJoin('role', 'd', 'a.assign_id=d.rid');
+    if (module_exists('og')) {
+      $query->leftJoin('og', 'e', 'a.assign_id=e.gid');
+      $query->addField('e', 'label', 'groupname');
+    }
     $query->fields('a', array('assign_id', 'assign_type', 'assign_by'));
     $query->fields('b', array('variable_name'));
     $query->addField('c', 'name', 'username');
@@ -491,7 +501,7 @@ abstract class MaestroTaskInterface {
           break;
 
         case MaestroAssignmentTypes::GROUP:
-          //@TODO: add support for organic groups
+          $assigned_list .= $rec->groupname;
           break;
         }
       }

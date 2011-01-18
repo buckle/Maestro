@@ -558,92 +558,102 @@ class MaestroEngineVersion1 extends MaestroEngine {
    If the assignment is by user, the key will be 0 or a negative value - in the case of multiple assignments
    * @return       n/a         No return
    */
-  function assignTask($queueId,$userObject) {
-    foreach ($userObject as $processVariableId => $userId) {
-      if (strpos($userId, ':') !== false) {
-        $userIds = explode(':', $userId);
-      }
-      else {
-        $userIds = array($userId);
-      }
+  function assignTask($queueId,$assignment) {
+    foreach ($assignment as $assignType => $assignmentBys) {
+      foreach ($assignmentBys as $assignBy => $object) {
+        foreach ($object as $processVariableId => $assignId) {
+          if ($assignBy != MaestroAssignmentBy::VARIABLE) {
+            $processVariableId = 0;
+          }
 
-      foreach ($userIds as $userId) {
-        $userId = intval($userId);
-        /* The array of users to be assigned may be an array of multiple assignments by user not variable
-         * In this case, we can not have multiple array records with a key of 0 - so a negative value is used
-         */
-        if($processVariableId < 0) $processVariableId = 0;
-        if ($userId > 0) {
-          $query = db_select('maestro_user_away', 'a');
-          $query->fields('a',array('away_start','away_return','is_active'));
-          $query->condition('a.uid',$userId,'=');
-          //$res1 = $query->execute()->fetchObject();
-          $res1 = NULL; //temporary until user away settings are added
-          if ($res1) {
-            // Check if user is away - away feature active and current time within the away window
-            if ($res1->is_active == 1 AND time() > $res1->away_start AND time() < $res1->away_return) {
-              /* User is away - determine who to re-assign task to */
-              $assignToUserId = $this->getAwayReassignmentUid($userId);
-              // If we have a new value for the assignment - then we need to set the assignBack field
-              if ($assignToUserId != $userId) {
-                $assignBack = $userId;
+          if (strpos($assignId, ':') !== false) {
+            $userIds = explode(':', $assignId);
+          }
+          else {
+            $assignIds = array($assignId);
+          }
+
+          foreach ($assignIds as $assignId) {
+            $assignId = intval($assignId);
+            /* The array of users to be assigned may be an array of multiple assignments by user not variable
+             * In this case, we can not have multiple array records with a key of 0 - so a negative value is used
+             */
+            if($processVariableId < 0) $processVariableId = 0;
+            if ($assignId > 0 && $assignType == MaestroAssignmentTypes::USER) {
+              $query = db_select('maestro_user_away', 'a');
+              $query->fields('a',array('away_start','away_return','is_active'));
+              $query->condition('a.uid',$assignId,'=');
+              //$res1 = $query->execute()->fetchObject();
+              $res1 = NULL; //temporary until user away settings are added
+              if ($res1) {
+                // Check if user is away - away feature active and current time within the away window
+                if ($res1->is_active == 1 AND time() > $res1->away_start AND time() < $res1->away_return) {
+                  /* User is away - determine who to re-assign task to */
+                  $assignToId = $this->getAwayReassignmentUid($userId);
+                  // If we have a new value for the assignment - then we need to set the assignBack field
+                  if ($assignToId != $assignId) {
+                    $assignBack = $assignId;
+                  }
+                  else {
+                    $assignBack = 0;
+                  }
+                }
+                else {
+                  $assignToId = $assignId;
+                  $assignBack = 0;
+                }
               }
               else {
+                $assignToId = $assignId;
                 $assignBack = 0;
               }
             }
-            else {
-              $assignToUserId = $userId;
+            else { //for either other assignemnt type, ie role or OG, there is no "role" out of office feature, so just use the existing ids
+              $assignToId = $assignId;
               $assignBack = 0;
             }
-          }
-          else {
-            $assignToUserId = $userId;
-            $assignBack = 0;
-          }
-        }
-        else {
-          $assignToUserId = 0;
-          $assignBack = 0;
-        }
 
-        // Check and see if we have an production assignment record for this task and processVariable
-        $query = db_select('maestro_production_assignments', 'a');
-        $query->addField('a','uid');
-        $query->condition('a.task_id',$queueId,'=');
-        if ($processVariableId > 0) {
-          $query->condition('a.process_variable',$processVariableId,'=');
-        }
-        else {
-          $query->condition('a.process_variable',0,'=');
-          $query->condition('a.uid',$userId,'=');
-        }
-        $res2 = $query->execute();
-        $numrows = $query->countQuery()->execute()->fetchField();
-        if ($numrows < count($userIds)) {
-          db_insert('maestro_production_assignments')
-          ->fields(array('task_id','uid','process_variable','assign_back_uid','last_updated'))
-          ->values(array(
-                    'task_id' => $queueId,
-                    'uid' => $assignToUserId,
-                    'process_variable' => $processVariableId,
-                    'assign_back_uid' => $assignBack,
-                    'last_updated'  => time()
-          ))
-          ->execute();
-        }
-        else {
-          db_update('maestro_production_assignments')
-          ->fields(array('uid' => $assignToUserId, 'last_updated' => time(), 'assign_back_uid' => $assignBack))
-          ->condition('task_id', $queueId, '=')
-          ->condition('process_variable',$processVariableId,'=')
-          ->execute();
+            // Check and see if we have an production assignment record for this task and processVariable
+            $query = db_select('maestro_production_assignments', 'a');
+            $query->addField('a','assign_id');
+            $query->condition('a.task_id',$queueId,'=');
+            if ($processVariableId > 0) {
+              $query->condition('a.process_variable',$processVariableId,'=');
+            }
+            else {
+              $query->condition('a.process_variable',0,'=');
+              $query->condition('a.assign_id',$assignId,'=');
+            }
+            $query->condition('a.assign_type',$assignType,'=');
+            $res2 = $query->execute();
+            $numrows = $query->countQuery()->execute()->fetchField();
+            if ($numrows < count($assignIds)) {
+              db_insert('maestro_production_assignments')
+              ->fields(array('task_id','assign_id','assign_type','process_variable','assign_back_id','last_updated'))
+              ->values(array(
+                        'task_id' => $queueId,
+                        'assign_type' => $assignType,
+                        'assign_id' => $assignToId,
+                        'process_variable' => $processVariableId,
+                        'assign_back_id' => $assignBack,
+                        'last_updated'  => time()
+              ))
+              ->execute();
+            }
+            else {
+              db_update('maestro_production_assignments')
+              ->fields(array('assign_id' => $assignToId, 'last_updated' => time(), 'assign_back_id' => $assignBack))
+              ->condition('task_id', $queueId, '=')
+              ->condition('process_variable',$processVariableId,'=')
+              ->execute();
+            }
+          }
         }
       }
     }
   }
 
-  function reassignTask($queueId, $assignUid, $currentUid=0, $variableId=0) {
+  function reassignTask($queueId, $assignUid, $currentUid=0, $variableId=0, $assignType=0) {
     /* Assignment Record has to exist - but there can be multiple for this workflow queue record (process task)
      * If the assign_uid is 0 then it's not presently assigned
      * If the process_variable field is 0 then the task is assigned by UID and not by variable
@@ -654,39 +664,51 @@ class MaestroEngineVersion1 extends MaestroEngine {
 
     if ($assignUid >= 1 AND $user_status > 0) {
       $query = db_select('maestro_production_assignments', 'a');
-      $query->fields('a', array('id', 'uid', 'assign_back_uid'));
+      $query->fields('a', array('id', 'assign_id', 'assign_type', 'assign_back_id'));
       $query->condition('task_id', $queueId, '=');
       if ($variableId > 0) {
         $query->condition('process_variable', $variableId, '=');
       }
       else if ($currentUid > 0) {
-        $query->condition('uid', $currentUid, '=');
+        $query->condition('assign_id', $currentUid, '=');
       }
 
       $res = $query->execute();
       $rec = $query->execute()->fetchObject();
       // Check and see if we have a production assignment record - if unassigned, then lets create one
       if ($rec === FALSE OR !isset($rec->id)) {
+        $originalAssignType = 0;
+        if ($assignType == 0) {
+          $assignType = MaestroAssignmentTypes::USER;
+        }
+
         db_insert('maestro_production_assignments')
-        ->fields(array('task_id','uid','process_variable','assign_back_uid','last_updated'))
+        ->fields(array('task_id','assign_id','process_variable','assign_back_id','last_updated'))
         ->values(array(
             'task_id' => $queueId,
-            'uid' => $assignUid,
+            'assign_type' => $assignType,
+            'assign_id' => $assignUid,
             'process_variable' => 0,
-            'assign_back_uid' => 0,
+            'assign_back_id' => 0,
             'last_updated'  => time()
         ))
         ->execute();
         $assignToUserId = $assignUid;
       } else {
+        $originalAssignType = $rec->assign_type;
         /* If the task has been re-assigned previously for this task, then we will now loose the originally assigned user */
         /* Need to now check if the to-be-assigned user is away and if so .. then assigned to their backup */
         $assignToUserId = $this->getAwayReassignmentUid($assignUid);
+        $updateFields = array('assign_id' => $assignToUserId, 'last_updated' => time(), 'assign_back_id' => $currentUid);
+        if ($assignType != 0) {
+          $updateFields['assign_type'] = $assignType;
+        }
         db_update('maestro_production_assignments')
-        ->fields(array('uid' => $assignToUserId, 'last_updated' => time(), 'assign_back_uid' => $currentUid))
+        ->fields($updateFields)
         ->condition('id', $rec->id, '=')
         ->execute();
       }
+
 
       // Create a comment in the project comments
       $query = db_select('maestro_queue', 'a');
@@ -697,10 +719,28 @@ class MaestroEngineVersion1 extends MaestroEngine {
       $rec = $query->execute()->fetchObject();
       $taskname = db_query("SELECT taskname FROM {maestro_template_data} WHERE id = :tid",
       array(':tid' => $rec->template_data_id))->fetchField();
-      $assigned_name = db_query("SELECT name FROM {users} WHERE uid = :uid",
-      array(':uid' => $currentUid))->fetchField();
-      $reassigned_name = db_query("SELECT name FROM {users} WHERE uid = :uid",
-      array(':uid' => $assignToUserId))->fetchField();
+      switch ($originalAssignType) {
+      case MaestroAssignmentTypes::USER:
+        $assigned_name = db_query("SELECT name FROM {users} WHERE uid = :uid", array(':uid' => $currentUid))->fetchField();
+        break;
+      case MaestroAssignmentTypes::ROLE:
+        $assigned_name = db_query("SELECT name FROM {role} WHERE rid = :rid", array(':rid' => $currentUid))->fetchField();
+        break;
+      case MaestroAssignmentTypes::GROUP:
+        $assigned_name = db_query("SELECT label FROM {og} WHERE gid = :gid", array(':gid' => $currentUid))->fetchField();
+        break;
+      }
+      switch ($assignType) {
+      case MaestroAssignmentTypes::USER:
+        $reassigned_name = db_query("SELECT name FROM {users} WHERE uid = :uid", array(':uid' => $assignToUserId))->fetchField();
+        break;
+      case MaestroAssignmentTypes::ROLE:
+        $reassigned_name = db_query("SELECT name FROM {role} WHERE rid = :rid", array(':rid' => $assignToUserId))->fetchField();
+        break;
+      case MaestroAssignmentTypes::GROUP:
+        $reassigned_name = db_query("SELECT label FROM {og} WHERE gid = :gid", array(':gid' => $assignToUserId))->fetchField();
+        break;
+      }
       $comment = "Task Owner change, was {$assigned_name}, now {$reassigned_name} for task: {$taskname}";
       db_insert('maestro_project_comments')
       ->fields(array('tracking_id','uid','task_id','timestamp','comment'))
@@ -738,7 +778,12 @@ class MaestroEngineVersion1 extends MaestroEngine {
 
     $assigned[MaestroAssignmentTypes::USER][MaestroAssignmentBy::FIXED] = array();
     $assigned[MaestroAssignmentTypes::USER][MaestroAssignmentBy::VARIABLE] = array();
+    $assigned[MaestroAssignmentTypes::ROLE][MaestroAssignmentBy::FIXED] = array();
+    $assigned[MaestroAssignmentTypes::ROLE][MaestroAssignmentBy::VARIABLE] = array();
+    $assigned[MaestroAssignmentTypes::GROUP][MaestroAssignmentBy::FIXED] = array();
+    $assigned[MaestroAssignmentTypes::GROUP][MaestroAssignmentBy::VARIABLE] = array();
 
+    $count = 0;
     foreach ($res as $rec) {
       if ($rec->assign_by == MaestroAssignmentBy::FIXED) {
         $assigned[$rec->assign_type][$rec->assign_by][] = $rec->assign_id;
@@ -752,9 +797,10 @@ class MaestroEngineVersion1 extends MaestroEngine {
         $assign_id = $pvRec->variable_value;
         $assigned[$rec->assign_type][$rec->assign_by][$rec->assign_id] = $assign_id;
       }
+      $count++;
     }
 
-    if (count($assigned) == 0) {
+    if ($count == 0) {
       //check to see if this is a valid queue_id, if so add a blank assignment record
       $query = db_select('maestro_queue', 'a');
       $query->fields('a', array('id'));
@@ -765,13 +811,13 @@ class MaestroEngineVersion1 extends MaestroEngine {
       }
     }
 
-    //TODO: hack for now to support current assignment. in beta we will need to return the $assigned array as it is right now, without the following logic
+    /*TODO: hack for now to support current assignment. in beta we will need to return the $assigned array as it is right now, without the following logic
     if (count($assigned[MaestroAssignmentTypes::USER][MaestroAssignmentBy::FIXED]) < count($assigned[MaestroAssignmentTypes::USER][MaestroAssignmentBy::VARIABLE])) {
       return $assigned[MaestroAssignmentTypes::USER][MaestroAssignmentBy::VARIABLE];
     }
     else {
       return $assigned[MaestroAssignmentTypes::USER][MaestroAssignmentBy::FIXED];
-    }
+    }*/
 
     return $assigned;
   }
@@ -798,7 +844,7 @@ class MaestroEngineVersion1 extends MaestroEngine {
     array(':qid' => $qid))->fetchField();
     if($is_interactive == MaestroInteractiveFlag::IS_INTERACTIVE) {
       if ($this->_userId == '' or $this->_userId == null ) {
-        $assigned_uid = db_query("SELECT uid FROM {maestro_production_assignments} WHERE task_id = :qid",
+        $assigned_uid = db_query("SELECT assign_id FROM {maestro_production_assignments} WHERE task_id = :qid",
         array(':qid' => $qid))->fetchField();
       } else {
         $assigned_uid = $this->_userId;
@@ -848,6 +894,9 @@ class MaestroEngineVersion1 extends MaestroEngine {
       /* Instance where the user id is known.  need to see if there is a processID given.
        * This means that the mode in which we're working is user based.. we only care about a user in this case
        */
+      $queries = array();
+
+      //query to get the user assigned to this task
       if ($this->_mode != 'admin') {
         $this->_mode = 'user';
       }
@@ -862,111 +911,178 @@ class MaestroEngineVersion1 extends MaestroEngine {
       $query->fields('a',array('id','template_data_id','process_id','is_interactive','handler','task_data','created_date','started_date'));
       $query->fields('b',array('task_class_name','template_id','taskname','is_dynamic_taskname','dynamic_taskname_variable_id'));
       if ($this->_mode == 'admin') {
-        $query->fields('c',array('uid'));
+        $query->fields('c',array('assign_id', 'assign_type'));
         $query->fields('e',array('name'));
-        $query->leftJoin('users', 'e', 'c.uid = e.uid');
+        $query->leftJoin('users', 'e', 'c.assign_id = e.uid');
       }
       $query->addField('d','pid','parent_process_id');
       $query->fields('d',array('tracking_id','flow_name'));
       if ($this->_mode != 'admin') {
-        $query->condition('c.uid',$this->_userId,'=');
+        $query->condition('c.assign_id',$this->_userId,'=');
       }
       if ($show_system_tasks == FALSE) {
         $query->condition('a.is_interactive', MaestroInteractiveFlag::IS_INTERACTIVE);
       }
       $query->condition(db_or()->condition('a.archived',0)->condition('a.archived',NULL));
       $query->condition(db_and()->condition('a.status', 0, '>='));
+      $query->condition('c.assign_type', MaestroAssignmentTypes::USER, '=');
       $query->orderBy('a.id','DESC');
-      $userTaskResult = $query->execute();
-      $numTaskRows = $query->countQuery()->execute()->fetchField();
-      if ($numTaskRows == 0) {
-        if ($this->_debug ) {
-          watchdog('maestro',"getQueue - 0 rows returned.  Nothing in queue for this user: {$this->_userId}.");
-        }
+
+      $queries[MaestroAssignmentTypes::USER] = $query;
+
+      //query to get the users associated with a role assigned to this task
+      $query = db_select('maestro_queue', 'a');
+      $query->join('maestro_template_data', 'b', 'a.template_data_id = b.id');
+      $query->leftJoin('maestro_production_assignments', 'c', 'a.id = c.task_id');
+      $query->join('maestro_process', 'd', 'a.process_id = d.id');
+      $query->leftJoin('users_roles', 'f', 'c.assign_id = f.rid');
+      $query->fields('a',array('id','template_data_id','process_id','is_interactive','handler','task_data','created_date','started_date'));
+      $query->fields('b',array('task_class_name','template_id','taskname','is_dynamic_taskname','dynamic_taskname_variable_id'));
+      if ($this->_mode == 'admin') {
+        $query->fields('c',array('assign_id', 'assign_type'));
+        $query->fields('g',array('name'));
+        $query->leftJoin('users', 'e', 'f.uid = e.uid');
+        $query->leftJoin('role', 'g', 'c.assign_id = g.rid');
       }
-      else {
-        // Return a semi-colon delimited list of queue id's for that user.
-        foreach ($userTaskResult as $userTaskRecord) {
-          if ($this->_queueId == '' ) {
-            $this->_queueId = $userTaskRecord->id;
-          } else {
-            $this->_queueId .= ";" . $userTaskRecord->id;
-          }
+      $query->addField('d','pid','parent_process_id');
+      $query->fields('d',array('tracking_id','flow_name'));
+      if ($this->_mode != 'admin') {
+        $query->condition('f.uid',$this->_userId,'=');
+      }
+      if ($show_system_tasks == FALSE) {
+        $query->condition('a.is_interactive', MaestroInteractiveFlag::IS_INTERACTIVE);
+      }
+      $query->condition(db_or()->condition('a.archived',0)->condition('a.archived',NULL));
+      $query->condition(db_and()->condition('a.status', 0, '>='));
+      $query->condition('c.assign_type', MaestroAssignmentTypes::ROLE, '=');
+      $query->orderBy('a.id','DESC');
 
-          // Simple test to determine if the task ID already exists for this user
-          $flag = 0;
-          for($flagcntr = 0;$flagcntr <= $this->_userTaskCount;$flagcntr++ ) {
-            if (isset($this->_userTaskObject[$flagcntr]->queue_id) AND $this->_userTaskObject[$flagcntr]->queue_id == $userTaskRecord->id ) {
-              $flag = 1;
-            }
-          }
-          if ($flag == 0 ) {
-            $taskObject = new stdClass();
-            $templatename = db_query("SELECT template_name FROM {maestro_template} WHERE id = :tid",
-            array(':tid' => $userTaskRecord->template_id))->fetchField();
+      $queries[MaestroAssignmentTypes::ROLE] = $query;
 
-            // Determine if this task is for a regenerated workflow and we need to update the main project/request record
-            $taskObject->regen = FALSE;
-            if ($userTaskRecord->parent_process_id > 0) {
-              // Now check if this same template task id was executed in the previous process - if so then it is a recycled task
-              // Don't show the re-generated attribute if in this instance of the process we proceed further and are executing new tasks
-              $regenquery = db_select('maestro_queue', 'a');
-              $regenquery->addExpression('COUNT(id)','rec_count');
-              $regenquery->condition('a.process_id', $userTaskRecord->parent_process_id,'=');
-              $regenquery->condition(db_and()->condition('a.template_data_id', $userTaskRecord->template_data_id,'='));
-              if ($regenquery->execute()->fetchField() > 0 ) {
-                $taskObject->regen = TRUE;
+      //query gets all og's assigned to this task, up to the logic to determine whether or not they are assigned
+      $query = db_select('maestro_queue', 'a');
+      $query->join('maestro_template_data', 'b', 'a.template_data_id = b.id');
+      $query->leftJoin('maestro_production_assignments', 'c', 'a.id = c.task_id');
+      $query->join('maestro_process', 'd', 'a.process_id = d.id');
+      $query->leftJoin('users_roles', 'f', 'c.assign_id = f.rid');
+      $query->fields('a',array('id','template_data_id','process_id','is_interactive','handler','task_data','created_date','started_date'));
+      $query->fields('b',array('task_class_name','template_id','taskname','is_dynamic_taskname','dynamic_taskname_variable_id'));
+      $query->fields('c',array('assign_id', 'assign_type'));
+      if ($this->_mode == 'admin') {
+        $query->addField('g', 'label', 'name');
+        $query->leftJoin('og', 'g', 'c.assign_id = g.gid');
+      }
+      $query->addField('d','pid','parent_process_id');
+      $query->fields('d',array('tracking_id','flow_name'));
+      if ($show_system_tasks == FALSE) {
+        $query->condition('a.is_interactive', MaestroInteractiveFlag::IS_INTERACTIVE);
+      }
+      $query->condition(db_or()->condition('a.archived',0)->condition('a.archived',NULL));
+      $query->condition(db_and()->condition('a.status', 0, '>='));
+      $query->condition('c.assign_type', MaestroAssignmentTypes::GROUP, '=');
+      $query->orderBy('a.id','DESC');
+
+      $queries[MaestroAssignmentTypes::GROUP] = $query;
+
+      foreach ($queries as $assign_type => $query) {
+        $userTaskResult = $query->execute();
+        $numTaskRows = $query->countQuery()->execute()->fetchField();
+        if ($numTaskRows > 0) {
+          // Return a semi-colon delimited list of queue id's for that user.
+          foreach ($userTaskResult as $userTaskRecord) {
+            if ($assign_type == MaestroAssignmentTypes::GROUP && $this->_mode != 'admin') {
+              $og_query = new EntityFieldQuery();
+              $og_query
+                ->entityCondition('entity_type', 'user')
+                ->fieldCondition(OG_AUDIENCE_FIELD, 'gid', $userTaskRecord->assign_id, '=');
+              $og_res = $og_query->execute();
+              if (!array_key_exists($this->_userId, $og_res['user'])) {
+                continue;
               }
             }
 
-            $queueRecDates = array('created' => $userTaskRecord->created_date, 'started' => $userTaskRecord->started_date);
-            $queueRecFlags = array('is_interactive' => $userTaskRecord->is_interactive);
-            $taskObject->task_data = $userTaskRecord->task_data;
-            $taskObject->queue_id = $userTaskRecord->id;
-            $taskObject->task_id = $userTaskRecord->template_data_id;
-            $taskObject->process_id = $userTaskRecord->process_id;
-            $taskObject->parent_process_id = $userTaskRecord->parent_process_id;
-            $taskObject->template_id = $userTaskRecord->template_id;
-            $taskObject->template_name = $templatename;
-            $taskObject->flow_name = $userTaskRecord->flow_name;
-            $taskObject->tracking_id = $userTaskRecord->tracking_id;
-            $taskObject->url = $userTaskRecord->handler;
-            $taskObject->dates = $queueRecDates;
-            $taskObject->flags = $queueRecFlags;
-            if ($this->_mode == 'admin') {
-              $taskObject->uid = $userTaskRecord->uid;
-              $taskObject->username = ($userTaskRecord->name != '') ? $userTaskRecord->name : '[' . t('nobody assigned') . ']';
+            if ($this->_queueId == '' ) {
+              $this->_queueId = $userTaskRecord->id;
+            } else {
+              $this->_queueId .= ";" . $userTaskRecord->id;
             }
 
-            // Handle dynamic task name based on a variable's value
-            $taskname = '';
-            if($userTaskRecord->is_dynamic_taskname == 1) {
-              $q2 = db_select('maestro_process_variables', 'a');
-              $q2->addField('a','variable_value');
-              $q2->condition('a.process_id',$userTaskRecord->process_id,'=');
-              $q2->condition('a.template_variable_id',$userTaskRecord->dynamic_taskname_variable_id,'=');
-              $res1 = $query->execute()->fetchObject();
-              if ($res1) {
-                $userTaskRecord->taskname = $res1->variable_value;
+            // Simple test to determine if the task ID already exists for this user
+            $flag = 0;
+            for($flagcntr = 0;$flagcntr <= $this->_userTaskCount;$flagcntr++ ) {
+              if (isset($this->_userTaskObject[$flagcntr]->queue_id) AND $this->_userTaskObject[$flagcntr]->queue_id == $userTaskRecord->id ) {
+                $flag = 1;
               }
             }
-            /* @TODO: Need to look at using a module HOOK that can be used in a similar way to define an custom taskname */
-            /*
-             if (function_exists('PLG_Nexflow_taskname')) {
-             $parms = array('pid' => $A['nf_processID'], 'tid' => $A['nf_templateDataID'], 'qid' => $A['id'], 'user' => $this->_nfUserId);
-             if (!empty($taskame)) {
-             $apiRetval = PLG_Nexflow_taskname($parms,$taskname);
-             } else {
-             $apiRetval = PLG_Nexflow_taskname($parms,$A['taskname']);
-             }
-             $taskname = $apiRetval['taskname'];
-             }
-             */
+            if ($flag == 0 ) {
+              $taskObject = new stdClass();
+              $templatename = db_query("SELECT template_name FROM {maestro_template} WHERE id = :tid",
+              array(':tid' => $userTaskRecord->template_id))->fetchField();
 
-            $taskObject->taskname = $userTaskRecord->taskname;
-            $taskObject->tasktype = $userTaskRecord->task_class_name;
-            $this->_userTaskObject[$this->_userTaskCount] = $taskObject;
-            $this->_userTaskCount += 1; // Increment the total user task counter
+              // Determine if this task is for a regenerated workflow and we need to update the main project/request record
+              $taskObject->regen = FALSE;
+              if ($userTaskRecord->parent_process_id > 0) {
+                // Now check if this same template task id was executed in the previous process - if so then it is a recycled task
+                // Don't show the re-generated attribute if in this instance of the process we proceed further and are executing new tasks
+                $regenquery = db_select('maestro_queue', 'a');
+                $regenquery->addExpression('COUNT(id)','rec_count');
+                $regenquery->condition('a.process_id', $userTaskRecord->parent_process_id,'=');
+                $regenquery->condition(db_and()->condition('a.template_data_id', $userTaskRecord->template_data_id,'='));
+                if ($regenquery->execute()->fetchField() > 0 ) {
+                  $taskObject->regen = TRUE;
+                }
+              }
+
+              $queueRecDates = array('created' => $userTaskRecord->created_date, 'started' => $userTaskRecord->started_date);
+              $queueRecFlags = array('is_interactive' => $userTaskRecord->is_interactive);
+              $taskObject->task_data = $userTaskRecord->task_data;
+              $taskObject->queue_id = $userTaskRecord->id;
+              $taskObject->task_id = $userTaskRecord->template_data_id;
+              $taskObject->process_id = $userTaskRecord->process_id;
+              $taskObject->parent_process_id = $userTaskRecord->parent_process_id;
+              $taskObject->template_id = $userTaskRecord->template_id;
+              $taskObject->template_name = $templatename;
+              $taskObject->flow_name = $userTaskRecord->flow_name;
+              $taskObject->tracking_id = $userTaskRecord->tracking_id;
+              $taskObject->url = $userTaskRecord->handler;
+              $taskObject->dates = $queueRecDates;
+              $taskObject->flags = $queueRecFlags;
+              if ($this->_mode == 'admin') {
+                $taskObject->assign_type = $userTaskRecord->assign_type;
+                $taskObject->uid = $userTaskRecord->assign_id;
+                $taskObject->username = ($userTaskRecord->name != '') ? $userTaskRecord->name : '[' . t('nobody assigned') . ']';
+              }
+
+              // Handle dynamic task name based on a variable's value
+              $taskname = '';
+              if($userTaskRecord->is_dynamic_taskname == 1) {
+                $q2 = db_select('maestro_process_variables', 'a');
+                $q2->addField('a','variable_value');
+                $q2->condition('a.process_id',$userTaskRecord->process_id,'=');
+                $q2->condition('a.template_variable_id',$userTaskRecord->dynamic_taskname_variable_id,'=');
+                $res1 = $query->execute()->fetchObject();
+                if ($res1) {
+                  $userTaskRecord->taskname = $res1->variable_value;
+                }
+              }
+              /* @TODO: Need to look at using a module HOOK that can be used in a similar way to define an custom taskname */
+              /*
+               if (function_exists('PLG_Nexflow_taskname')) {
+               $parms = array('pid' => $A['nf_processID'], 'tid' => $A['nf_templateDataID'], 'qid' => $A['id'], 'user' => $this->_nfUserId);
+               if (!empty($taskame)) {
+               $apiRetval = PLG_Nexflow_taskname($parms,$taskname);
+               } else {
+               $apiRetval = PLG_Nexflow_taskname($parms,$A['taskname']);
+               }
+               $taskname = $apiRetval['taskname'];
+               }
+               */
+
+              $taskObject->taskname = $userTaskRecord->taskname;
+              $taskObject->tasktype = $userTaskRecord->task_class_name;
+              $this->_userTaskObject[$this->_userTaskCount] = $taskObject;
+              $this->_userTaskCount += 1; // Increment the total user task counter
+            }
           }
         }
       }
@@ -1015,9 +1131,9 @@ class MaestroEngineVersion1 extends MaestroEngine {
       foreach ($assigned as $pv_id => $assigned_uid) {
         $rec = new stdClass();
         $rec->task_id = $qid;
-        $rec->uid = $assigned_uid;
+        $rec->assign_id = $assigned_uid;
         $rec->process_variable = ($assigned_by_variable == 1) ? $pv_id:0;
-        $rec->assign_back_uid = 0;
+        $rec->assign_back_id = 0;
         $rec->last_updated = time();
         drupal_write_record('maestro_production_assignments', $rec);
       }
