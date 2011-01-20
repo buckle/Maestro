@@ -161,9 +161,10 @@ function maestro_get_project_details(obj) {
         if (data.status == 1) {
         index = img.indexOf('_closed');
         newicon = img.substr(0, index) + '_open' + img.substr(index + 7);
-        jQuery('#maestro_viewdetail_' + projectID).attr('src',newicon);
-        jQuery('#maestro_project_information_row_' + projectID).toggle();
         jQuery('#maestro_project_information_div_'+ projectID).html(data.html);
+        jQuery('#maestro_project_information_row_' + projectID).attr('style','display:');
+        jQuery('#maestro_viewdetail_' + projectID).attr('src',newicon);
+
         } else {
           alert('An error occurred updating assignment');
         }
@@ -173,7 +174,7 @@ function maestro_get_project_details(obj) {
       });
     }
     else {
-      jQuery('#maestro_project_information_row_' + projectID).toggle();
+      jQuery('#maestro_project_information_row_' + projectID).attr('style','display:none');
       img = jQuery('#maestro_viewdetail_' + projectID).attr('src');
         index = img.indexOf('_open');
         newicon = img.substr(0, index) + '_closed' + img.substr(index + 5);
