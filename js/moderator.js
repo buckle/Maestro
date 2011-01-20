@@ -154,7 +154,7 @@ function maestro_get_project_details(obj) {
       url : ajax_url + '/getprojectdetails',
       cache: false,
       data : {
-      projectID : projectID,
+      projectID : projectID
       },
       dataType: 'json',
       success:  function (data) {
