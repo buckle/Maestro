@@ -327,7 +327,7 @@ include_once('maestro_constants.class.php');
       $query->fields('a', array('tracking_id', 'initiating_pid'));
       $query->fields('b', array('template_name'));
       $query->leftJoin('maestro_template', 'b', 'a.template_id=b.id');
-      $query->groupBy('a.initiating_pid');
+      $query->groupBy(array('a.initiating_pid', 'a.tracking_id','b.template_name'));
       $query->condition('a.tracking_id', $tracking_id, '=');
 
       return $query->execute();
