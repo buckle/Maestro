@@ -17,11 +17,11 @@ function maestro_technical_support_request_workflow_install() {
   $task_xref_array = Array();
   $task_xref_array[0] = 0;
   $templateID = maestro_createNewTemplate("Technical Support Request", TRUE, TRUE, 700);
-  $variable_xref_array[9] = maestro_createTemplateVariable($templateID, "initiator", "");
-  $variable_xref_array[10] = maestro_createTemplateVariable($templateID, "assignee", "0");
+  $variable_xref_array[1] = maestro_createTemplateVariable($templateID, "initiator", "");
+  $variable_xref_array[2] = maestro_createTemplateVariable($templateID, "assignee", "0");
   $ti = new MaestroTaskInterfaceStart(0, $templateID);
   $ti->create();
-  $task_xref_array[39] = $ti->get_task_id();
+  $task_xref_array[1] = $ti->get_task_id();
   $res = db_select('maestro_template_data', 'a');
   $res->fields('a', array('id', 'task_data'));
   $res->condition('a.id', $ti->get_task_id(), '=');
@@ -56,7 +56,7 @@ function maestro_technical_support_request_workflow_install() {
   drupal_write_record('maestro_template_data', $rec, array('id'));
   $ti = new MaestroTaskInterfaceEnd(0, $templateID);
   $ti->create();
-  $task_xref_array[40] = $ti->get_task_id();
+  $task_xref_array[2] = $ti->get_task_id();
   $res = db_select('maestro_template_data', 'a');
   $res->fields('a', array('id', 'task_data'));
   $res->condition('a.id', $ti->get_task_id(), '=');
@@ -85,13 +85,13 @@ function maestro_technical_support_request_workflow_install() {
   $rec->reminder_message = '';
   $rec->escalation_message = '';
   $rec->num_reminders = 0;
-  $rec->offset_left = 53;
-  $rec->offset_top = 577;
+  $rec->offset_left = 51;
+  $rec->offset_top = 589;
   $rec->surpress_first_notification = 0;
   drupal_write_record('maestro_template_data', $rec, array('id'));
   $ti = new MaestroTaskInterfaceContentType(0, $templateID);
   $ti->create();
-  $task_xref_array[41] = $ti->get_task_id();
+  $task_xref_array[3] = $ti->get_task_id();
   $res = db_select('maestro_template_data', 'a');
   $res->fields('a', array('id', 'task_data'));
   $res->condition('a.id', $ti->get_task_id(), '=');
@@ -126,7 +126,7 @@ function maestro_technical_support_request_workflow_install() {
   drupal_write_record('maestro_template_data', $rec, array('id'));
   $ti = new MaestroTaskInterfaceContentType(0, $templateID);
   $ti->create();
-  $task_xref_array[42] = $ti->get_task_id();
+  $task_xref_array[4] = $ti->get_task_id();
   $res = db_select('maestro_template_data', 'a');
   $res->fields('a', array('id', 'task_data'));
   $res->condition('a.id', $ti->get_task_id(), '=');
@@ -161,13 +161,13 @@ function maestro_technical_support_request_workflow_install() {
   drupal_write_record('maestro_template_data', $rec, array('id'));
   $ti = new MaestroTaskInterfaceSetProcessVariable(0, $templateID);
   $ti->create();
-  $task_xref_array[43] = $ti->get_task_id();
+  $task_xref_array[5] = $ti->get_task_id();
   $res = db_select('maestro_template_data', 'a');
   $res->fields('a', array('id', 'task_data'));
   $res->condition('a.id', $ti->get_task_id(), '=');
   $rec = current($res->execute()->fetchAll());
   $rec->is_interactive = 0;
-  $fixed_data = $ti->modulateExportTaskData('a:6:{s:21:"hardcoded_value_value";s:0:"";s:21:"increment_value_value";s:0:"";s:31:"maestro_content_type_task_value";s:40:"technical_support_request:field_assignee";s:34:"maestro_inline_form_api_task_value";s:0:"";s:10:"var_to_set";s:2:"10";s:8:"set_type";s:25:"maestro_content_type_task";}', $variable_xref_array);
+  $fixed_data = $ti->modulateExportTaskData('a:6:{s:21:"hardcoded_value_value";s:0:"";s:21:"increment_value_value";s:0:"";s:31:"maestro_content_type_task_value";s:40:"technical_support_request:field_assignee";s:34:"maestro_inline_form_api_task_value";s:0:"";s:10:"var_to_set";s:1:"2";s:8:"set_type";s:25:"maestro_content_type_task";}', $variable_xref_array);
   $rec->task_data = $fixed_data;
   $rec->handler = '';
   $rec->first_task = 0;
@@ -196,7 +196,7 @@ function maestro_technical_support_request_workflow_install() {
   drupal_write_record('maestro_template_data', $rec, array('id'));
   $ti = new MaestroTaskInterfaceContentType(0, $templateID);
   $ti->create();
-  $task_xref_array[44] = $ti->get_task_id();
+  $task_xref_array[6] = $ti->get_task_id();
   $res = db_select('maestro_template_data', 'a');
   $res->fields('a', array('id', 'task_data'));
   $res->condition('a.id', $ti->get_task_id(), '=');
@@ -231,7 +231,7 @@ function maestro_technical_support_request_workflow_install() {
   drupal_write_record('maestro_template_data', $rec, array('id'));
   $ti = new MaestroTaskInterfaceInteractiveFunction(0, $templateID);
   $ti->create();
-  $task_xref_array[45] = $ti->get_task_id();
+  $task_xref_array[7] = $ti->get_task_id();
   $res = db_select('maestro_template_data', 'a');
   $res->fields('a', array('id', 'task_data'));
   $res->condition('a.id', $ti->get_task_id(), '=');
@@ -266,7 +266,7 @@ function maestro_technical_support_request_workflow_install() {
   drupal_write_record('maestro_template_data', $rec, array('id'));
   $ti = new MaestroTaskInterfaceIf(0, $templateID);
   $ti->create();
-  $task_xref_array[46] = $ti->get_task_id();
+  $task_xref_array[8] = $ti->get_task_id();
   $res = db_select('maestro_template_data', 'a');
   $res->fields('a', array('id', 'task_data'));
   $res->condition('a.id', $ti->get_task_id(), '=');
@@ -301,19 +301,19 @@ function maestro_technical_support_request_workflow_install() {
   drupal_write_record('maestro_template_data', $rec, array('id'));
   $ti = new MaestroTaskInterfaceInlineFormAPI(0, $templateID);
   $ti->create();
-  $task_xref_array[48] = $ti->get_task_id();
+  $task_xref_array[9] = $ti->get_task_id();
   $res = db_select('maestro_template_data', 'a');
   $res->fields('a', array('id', 'task_data'));
   $res->condition('a.id', $ti->get_task_id(), '=');
   $rec = current($res->execute()->fetchAll());
   $rec->is_interactive = 1;
   $fixed_data = $ti->modulateExportTaskData('a:2:{s:13:"form_api_code";s:196:"$form[\'hours\'] = array(
-    \'#type\' => \'textfield\',
-    \'#title\' => t(\'Hours\'),
-    \'#size\' => 6,
-    \'#maxlength\' => 4,
-    \'#description\' => t(\'Enter the number of hours spent on this support issue.\'),
-  );";s:12:"content_type";s:9:"timesheet";}', $variable_xref_array);
+      \'#type\' => \'textfield\',
+      \'#title\' => t(\'Hours\'),
+      \'#size\' => 6,
+      \'#maxlength\' => 4,
+      \'#description\' => t(\'Enter the number of hours spent on this support issue.\'),
+    );";s:12:"content_type";s:9:"timesheet";}', $variable_xref_array);
   $rec->task_data = $fixed_data;
   $rec->handler = '';
   $rec->first_task = 0;
@@ -342,7 +342,7 @@ function maestro_technical_support_request_workflow_install() {
   drupal_write_record('maestro_template_data', $rec, array('id'));
   $ti = new MaestroTaskInterfaceBatchFunction(0, $templateID);
   $ti->create();
-  $task_xref_array[49] = $ti->get_task_id();
+  $task_xref_array[10] = $ti->get_task_id();
   $res = db_select('maestro_template_data', 'a');
   $res->fields('a', array('id', 'task_data'));
   $res->condition('a.id', $ti->get_task_id(), '=');
@@ -376,74 +376,75 @@ function maestro_technical_support_request_workflow_install() {
   $rec->surpress_first_notification = 0;
   drupal_write_record('maestro_template_data', $rec, array('id'));
   $sql  = "INSERT INTO {maestro_template_data_next_step} (template_data_from, template_data_to, template_data_to_false) VALUES (:a1, :b1, :c1)";
-  db_query($sql, array('a1' => $task_xref_array[39], 'b1' => $task_xref_array[41], 'c1' => $task_xref_array[0]));
+  db_query($sql, array('a1' => $task_xref_array[1], 'b1' => $task_xref_array[3], 'c1' => $task_xref_array[0]));
   $sql  = "INSERT INTO {maestro_template_data_next_step} (template_data_from, template_data_to, template_data_to_false) VALUES (:a1, :b1, :c1)";
-  db_query($sql, array('a1' => $task_xref_array[41], 'b1' => $task_xref_array[43], 'c1' => $task_xref_array[0]));
+  db_query($sql, array('a1' => $task_xref_array[3], 'b1' => $task_xref_array[5], 'c1' => $task_xref_array[0]));
   $query = db_select('maestro_template_data', 'a');
   $query->fields('a',array('task_class_name'));
-  $query->condition('a.id',$task_xref_array[41],'=');
+  $query->condition('a.id',$task_xref_array[3],'=');
   $name=current($query->execute()->fetchAll());
   $task_type = substr($name->task_class_name, 15);
   $task_class = 'MaestroTaskInterface' . $task_type;
   $ti = new $task_class(0,0);
-  $modulated_id = $ti->modulateExportUser("manager");
+  $modulated_id = $variable_xref_array[1];
   $sql  = "INSERT INTO {maestro_template_assignment} (template_data_id, assign_type, assign_by, assign_id) VALUES (:a1, :b1, :c1, :d1)";
-  db_query($sql, array( 'a1' => $task_xref_array[41],'b1' => 1,'c1' => 1,'d1' => $modulated_id,));
+  db_query($sql, array( 'a1' => $task_xref_array[3],'b1' => 1,'c1' => 2,'d1' => $modulated_id,));
   $sql  = "INSERT INTO {maestro_template_data_next_step} (template_data_from, template_data_to, template_data_to_false) VALUES (:a1, :b1, :c1)";
-  db_query($sql, array('a1' => $task_xref_array[42], 'b1' => $task_xref_array[44], 'c1' => $task_xref_array[0]));
+  db_query($sql, array('a1' => $task_xref_array[4], 'b1' => $task_xref_array[6], 'c1' => $task_xref_array[0]));
   $query = db_select('maestro_template_data', 'a');
   $query->fields('a',array('task_class_name'));
-  $query->condition('a.id',$task_xref_array[42],'=');
+  $query->condition('a.id',$task_xref_array[4],'=');
   $name=current($query->execute()->fetchAll());
   $task_type = substr($name->task_class_name, 15);
   $task_class = 'MaestroTaskInterface' . $task_type;
   $ti = new $task_class(0,0);
-  $modulated_id = $variable_xref_array[9];
+  $modulated_id = $variable_xref_array[1];
   $sql  = "INSERT INTO {maestro_template_assignment} (template_data_id, assign_type, assign_by, assign_id) VALUES (:a1, :b1, :c1, :d1)";
-  db_query($sql, array( 'a1' => $task_xref_array[42],'b1' => 1,'c1' => 2,'d1' => $modulated_id,));
+  db_query($sql, array( 'a1' => $task_xref_array[4],'b1' => 1,'c1' => 2,'d1' => $modulated_id,));
   $sql  = "INSERT INTO {maestro_template_data_next_step} (template_data_from, template_data_to, template_data_to_false) VALUES (:a1, :b1, :c1)";
-  db_query($sql, array('a1' => $task_xref_array[43], 'b1' => $task_xref_array[44], 'c1' => $task_xref_array[0]));
+  db_query($sql, array('a1' => $task_xref_array[5], 'b1' => $task_xref_array[6], 'c1' => $task_xref_array[0]));
   $sql  = "INSERT INTO {maestro_template_data_next_step} (template_data_from, template_data_to, template_data_to_false) VALUES (:a1, :b1, :c1)";
-  db_query($sql, array('a1' => $task_xref_array[44], 'b1' => $task_xref_array[45], 'c1' => $task_xref_array[0]));
+  db_query($sql, array('a1' => $task_xref_array[6], 'b1' => $task_xref_array[7], 'c1' => $task_xref_array[0]));
   $query = db_select('maestro_template_data', 'a');
   $query->fields('a',array('task_class_name'));
-  $query->condition('a.id',$task_xref_array[44],'=');
+  $query->condition('a.id',$task_xref_array[6],'=');
   $name=current($query->execute()->fetchAll());
   $task_type = substr($name->task_class_name, 15);
   $task_class = 'MaestroTaskInterface' . $task_type;
   $ti = new $task_class(0,0);
-  $modulated_id = $variable_xref_array[10];
+  $modulated_id = $variable_xref_array[2];
   $sql  = "INSERT INTO {maestro_template_assignment} (template_data_id, assign_type, assign_by, assign_id) VALUES (:a1, :b1, :c1, :d1)";
-  db_query($sql, array( 'a1' => $task_xref_array[44],'b1' => 1,'c1' => 2,'d1' => $modulated_id,));
+  db_query($sql, array( 'a1' => $task_xref_array[6],'b1' => 1,'c1' => 2,'d1' => $modulated_id,));
   $sql  = "INSERT INTO {maestro_template_data_next_step} (template_data_from, template_data_to, template_data_to_false) VALUES (:a1, :b1, :c1)";
-  db_query($sql, array('a1' => $task_xref_array[45], 'b1' => $task_xref_array[46], 'c1' => $task_xref_array[0]));
+  db_query($sql, array('a1' => $task_xref_array[7], 'b1' => $task_xref_array[8], 'c1' => $task_xref_array[0]));
   $query = db_select('maestro_template_data', 'a');
   $query->fields('a',array('task_class_name'));
-  $query->condition('a.id',$task_xref_array[45],'=');
+  $query->condition('a.id',$task_xref_array[7],'=');
   $name=current($query->execute()->fetchAll());
   $task_type = substr($name->task_class_name, 15);
   $task_class = 'MaestroTaskInterface' . $task_type;
   $ti = new $task_class(0,0);
-  $modulated_id = $variable_xref_array[9];
+  $modulated_id = $variable_xref_array[1];
   $sql  = "INSERT INTO {maestro_template_assignment} (template_data_id, assign_type, assign_by, assign_id) VALUES (:a1, :b1, :c1, :d1)";
-  db_query($sql, array( 'a1' => $task_xref_array[45],'b1' => 1,'c1' => 2,'d1' => $modulated_id,));
+  db_query($sql, array( 'a1' => $task_xref_array[7],'b1' => 1,'c1' => 2,'d1' => $modulated_id,));
   $sql  = "INSERT INTO {maestro_template_data_next_step} (template_data_from, template_data_to, template_data_to_false) VALUES (:a1, :b1, :c1)";
-  db_query($sql, array('a1' => $task_xref_array[46], 'b1' => $task_xref_array[0], 'c1' => $task_xref_array[42]));
+  db_query($sql, array('a1' => $task_xref_array[8], 'b1' => $task_xref_array[0], 'c1' => $task_xref_array[4]));
   $sql  = "INSERT INTO {maestro_template_data_next_step} (template_data_from, template_data_to, template_data_to_false) VALUES (:a1, :b1, :c1)";
-  db_query($sql, array('a1' => $task_xref_array[46], 'b1' => $task_xref_array[48], 'c1' => $task_xref_array[0]));
+  db_query($sql, array('a1' => $task_xref_array[8], 'b1' => $task_xref_array[9], 'c1' => $task_xref_array[0]));
   $sql  = "INSERT INTO {maestro_template_data_next_step} (template_data_from, template_data_to, template_data_to_false) VALUES (:a1, :b1, :c1)";
-  db_query($sql, array('a1' => $task_xref_array[48], 'b1' => $task_xref_array[49], 'c1' => $task_xref_array[0]));
+  db_query($sql, array('a1' => $task_xref_array[9], 'b1' => $task_xref_array[10], 'c1' => $task_xref_array[0]));
   $query = db_select('maestro_template_data', 'a');
   $query->fields('a',array('task_class_name'));
-  $query->condition('a.id',$task_xref_array[48],'=');
+  $query->condition('a.id',$task_xref_array[9],'=');
   $name=current($query->execute()->fetchAll());
   $task_type = substr($name->task_class_name, 15);
   $task_class = 'MaestroTaskInterface' . $task_type;
   $ti = new $task_class(0,0);
-  $modulated_id = $variable_xref_array[10];
+  $modulated_id = $variable_xref_array[2];
   $sql  = "INSERT INTO {maestro_template_assignment} (template_data_id, assign_type, assign_by, assign_id) VALUES (:a1, :b1, :c1, :d1)";
-  db_query($sql, array( 'a1' => $task_xref_array[48],'b1' => 1,'c1' => 2,'d1' => $modulated_id,));
+  db_query($sql, array( 'a1' => $task_xref_array[9],'b1' => 1,'c1' => 2,'d1' => $modulated_id,));
   $sql  = "INSERT INTO {maestro_template_data_next_step} (template_data_from, template_data_to, template_data_to_false) VALUES (:a1, :b1, :c1)";
-  db_query($sql, array('a1' => $task_xref_array[49], 'b1' => $task_xref_array[40], 'c1' => $task_xref_array[0]));
+  db_query($sql, array('a1' => $task_xref_array[10], 'b1' => $task_xref_array[2], 'c1' => $task_xref_array[0]));
+
 }
 
