@@ -135,9 +135,11 @@
                 <select name="assign_type" id="assign_type" onchange="toggle_list_type('assign');">
 <?php
                   foreach ($types as $opt) {
+                    if($opt !== FALSE) {
 ?>
                     <option value="<?php print strtolower($opt['name']); ?>"><?php print $opt['label']; ?></option>
 <?php
+                  }
                   }
 ?>
                 </select>&nbsp;
@@ -187,9 +189,11 @@
                 <select name="notify_type" id="notify_type" onchange="toggle_list_type('notify');">
 <?php
                   foreach ($types as $opt) {
+                    if($opt !== FALSE) {
 ?>
                     <option value="<?php print strtolower($opt['name']); ?>"><?php print $opt['label']; ?></option>
 <?php
+                  }
                   }
 ?>
                 </select>&nbsp;

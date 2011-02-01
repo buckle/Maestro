@@ -167,11 +167,13 @@ abstract class MaestroTaskInterface {
         }
       }
 
+      if(module_exists('og')) {
       $res = og_get_group_ids();
       foreach ($res as $rec) {
         $og = og_load($rec);
         $og_options[$rec] = $og->label;
       }
+    }
     }
 
     //initialize the selected array
