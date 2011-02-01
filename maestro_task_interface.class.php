@@ -430,7 +430,7 @@ abstract class MaestroTaskInterface {
     $html = "<div id=\"maestro_task{$this->_task_id}_context_menu\" class=\"maestro_context_menu\"><ul>\n";
 
     foreach ($options as $key => $option) {
-      $option = t($option);
+      $option = t($option['label']);
       $html .= "<li style=\"white-space: nowrap;\" id=\"$key\">{$option['label']}</li>\n";
     }
     $html .= "</ul></div>\n";
