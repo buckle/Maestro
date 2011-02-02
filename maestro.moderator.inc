@@ -185,7 +185,7 @@ function maestro_save_task_changes() {
     }
   }
 
-  print json_encode(array('success' => 1));
+  drupal_json_output(array('success' => 1));
   exit();
 }
 
@@ -197,7 +197,7 @@ function maestro_save_process_variables() {
     $query->execute();
   }
 
-  print json_encode(array('success' => 1));
+  drupal_json_output(array('success' => 1));
   exit();
 }
 

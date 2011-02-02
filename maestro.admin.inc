@@ -44,8 +44,7 @@ function maestro_handle_editor_ajax_request($task_type, $template_data_id, $temp
   else {
     $ti = new MaestroTaskInterfaceUnknown($template_data_id, $template_id);
   }
-
-  print json_encode($ti->$op());
+  drupal_json_output($ti->$op());
   exit();
 }
 
@@ -65,7 +64,7 @@ function maestro_handle_structure_ajax_request(){
         $status = 1;
       }
       $arr=array('status' => $status);
-      echo json_encode($arr);
+      drupal_json_output($arr);
       exit(0);
       break;
 
@@ -92,7 +91,7 @@ function maestro_handle_structure_ajax_request(){
       }
       $data=theme('maestro_workflow_list', array('tid' => 0, 'operation' => '' , 'edit_var' => 0));
       $arr=array('data' => $data, 'status' => $status);
-      echo json_encode($arr);
+      drupal_json_output($arr);
       break;
 
     case 'savetemplate':
@@ -110,7 +109,7 @@ function maestro_handle_structure_ajax_request(){
         $status="1";
       }
       $arr=array('id' => $id, 'cntr' => $cntr, 'status' => $status);
-      echo json_encode($arr);
+      drupal_json_output($arr);
       break;
 
     case 'createvariable':
@@ -124,7 +123,7 @@ function maestro_handle_structure_ajax_request(){
       $data=theme('maestro_workflow_edit_template_variables',  array('tid' => $id ));
 
       $arr=array('status' => $status, 'data' => $data, 'cntr' => $id );
-      echo json_encode($arr);
+      drupal_json_output($arr);
       break;
 
     case 'updatevariable':
@@ -148,7 +147,7 @@ function maestro_handle_structure_ajax_request(){
       }
       $data=theme('maestro_workflow_edit_template_variables',  array('tid' => $res->template_id ));
       $arr=array('status' => $status, 'data' => $data, 'var_id' => $id);
-      echo json_encode($arr);
+      drupal_json_output($arr);
       break;
 
     case 'deletevariable':
@@ -160,20 +159,20 @@ function maestro_handle_structure_ajax_request(){
         $status="1";
       }
       $arr=array('status' => $status, 'data' => $data, 'cntr' => $tid);
-      echo json_encode($arr);
+      drupal_json_output($arr);
       break;
 
     case 'editvariable':
       $tid=check_plain($_POST['tid']);
       $data=theme('maestro_workflow_edit_template_variables',  array('tid' => $tid, 'edit_var' => $id));
       $arr=array('status' => "1", 'data' => $data, 'cntr' => $tid);
-      echo json_encode($arr);
+      drupal_json_output($arr);
       break;
 
     case 'showvariables':
       $data=theme('maestro_workflow_edit_template_variables',  array('tid' => $id ));
       $arr=array('status' => "1", 'data' => $data, 'cntr' => $id);
-      echo json_encode($arr);
+      drupal_json_output($arr);
       break;
 
     case 'createtemplate':
@@ -186,7 +185,7 @@ function maestro_handle_structure_ajax_request(){
       $data=theme('maestro_workflow_list', array('tid' => 0, 'operation' => '' , 'edit_var' => 0));
 
       $arr=array('status' => $status, 'data' => $data);
-      echo json_encode($arr);
+      drupal_json_output($arr);
       break;
 
     case 'createappgroup':
@@ -197,21 +196,21 @@ function maestro_handle_structure_ajax_request(){
         $status = 1;
       }
       $arr=array('status' => $status, 'data' => '');
-      echo json_encode($arr);
+      drupal_json_output($arr);
       break;
 
     case 'deleteappgroup':
       maestro_deleteAppGroup($id);
       $data=maestro_createAppGroupDropDown('deleteAppGroup');
       $arr=array('status' => "1", 'data' => $data);
-      echo json_encode($arr);
+      drupal_json_output($arr);
       break;
 
     case 'refreshappgroup':
       $which=check_plain($_POST['which']);
       $data=maestro_createAppGroupDropDown($which);
       $arr=array('status' => "1", 'data' => $data);
-      echo json_encode($arr);
+      drupal_json_output($arr);
       break;
 
     case 'deletetemplate':
@@ -244,7 +243,7 @@ function maestro_handle_structure_ajax_request(){
 
       $data = theme('maestro_workflow_list', array('tid' => 0, 'operation' => '' , 'edit_var' => 0));
       $arr=array('status' => "1", 'data' => $data);
-      echo json_encode($arr);
+      drupal_json_output($arr);
       break;
 
     case 'copytemplate':
@@ -370,7 +369,7 @@ function maestro_handle_structure_ajax_request(){
       }
       $data = theme('maestro_workflow_list', array('tid' => 0, 'operation' => '' , 'edit_var' => 0));
       $arr=array('status' => "1", 'data' => $data);
-      echo json_encode($arr);
+      drupal_json_output($arr);
       break;
 
   }

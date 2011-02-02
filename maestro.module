@@ -1051,7 +1051,7 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
       $tid = intval($_POST['templateid']);
       $pid = maestro_launch_workflow($tid);
       $retdata = array ('status' => "1", 'processid' => $pid);
-      echo json_encode($retdata);
+      drupal_json_output($retdata);
       break;
 
     case 'setassignment':
@@ -1073,7 +1073,7 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
       } else {
         $retdata = array ('status' => FALSE);
       }
-      echo json_encode($retdata);
+      drupal_json_output($retdata);
       break;
 
     case 'interactivetask_post':
@@ -1106,7 +1106,7 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
       } else {
         $retdata = array('status' => FALSE, 'hidetask' => FALSE);
       }
-      echo json_encode($retdata);
+      drupal_json_output($retdata);
       break;
 
     case 'complete_task':
@@ -1115,13 +1115,13 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
       $queue_id = intval($queue_id);
       $maestro->engine()->completeTask($queue_id);
       $retdata = array ('status' => "1");
-      echo json_encode($retdata);
+      drupal_json_output($retdata);
       break;
 
     case 'deleteproject':
       $tracking_id = intval($_POST['tracking_id']);
       $retdata = array ('status' => "1");
-      echo json_encode($retdata);
+      drupal_json_output($retdata);
       break;
 
     case 'add_comment':
@@ -1142,7 +1142,7 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
       } else {
         $retdata = array ('status' => "1");
       }
-      echo json_encode($retdata);
+      drupal_json_output($retdata);
       break;
 
     case 'del_comment':
@@ -1164,7 +1164,7 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
       } else {
         $retdata = array ('status' => "0");
       }
-      echo json_encode($retdata);
+      drupal_json_output($retdata);
       break;
 
     case 'getdetails':
@@ -1177,7 +1177,7 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
       $html = theme('maestro_taskconsole_details',array('task' => $task, 'source' => 'mytasks', 'rowid' => $rowid ));
 
       $retdata = array ('html' => $html,'status' => "1");
-      echo json_encode($retdata);
+      drupal_json_output($retdata);
       break;
 
     case 'myflows':
@@ -1194,14 +1194,14 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
       else {  //better check if the user should be here
         if(!user_access('maestro admin')) {
           $retdata = array ('html' => t('Illegal attempt on viewing flow data detected.'),'status' => "0");
-          echo json_encode($retdata);
+          drupal_json_output($retdata);
           exit(0);
         }
       }
       $rows = maestro_get_all_flows_data($filter);
       $ajax_url = url('maestro/taskconsole/ajax');
       $retdata = array ('html' => theme('maestro_all_flows_display', array('ajax_url' => $ajax_url, 'database_result_set' => $rows)),'status' => "1");
-      echo json_encode($retdata);
+      drupal_json_output($retdata);
       break;
 
     case 'getprojectdetails':
@@ -1213,7 +1213,7 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
       $rowid = intval($_POST['projectID']);
       $html = theme('maestro_taskconsole_details',array('task' => $task, 'source' => 'mytasks', 'rowid' => $rowid ));
       $retdata = array ('html' => $html,'status' => "1");
-      echo json_encode($retdata);
+      drupal_json_output($retdata);
       break;
   }
 
