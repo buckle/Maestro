@@ -18,6 +18,34 @@ function maestro_menu() {
     'access callback' => 'user_access',
     'access arguments' => array('maestro taskconsole'),
     'type' => MENU_NORMAL_ITEM,
+    'weight' => '10',
+  );
+
+  $items['maestro/outstanding'] = array(
+    'title' => 'Outstanding Tasks',
+    'page callback' => 'maestro_outstanding_tasks',
+    'type' => MENU_NORMAL_ITEM,
+    'access arguments' => array('maestro view outstanding tasks'),
+    'file' => 'maestro.moderator.inc',
+    'weight' => '20',
+  );
+
+  $items['maestro/myflows'] = array(
+    'title' => 'My Workflows',
+    'page callback' => 'maestro_my_flows',
+    'type' => MENU_NORMAL_ITEM,
+    'access arguments' => array('maestro taskconsole'),
+    'file' => 'maestro.moderator.inc',
+    'weight' => '30',
+  );
+
+  $items['maestro/allflows'] = array(
+    'title' => 'All Maestro Workflows',
+    'page callback' => 'maestro_all_flows',
+    'type' => MENU_NORMAL_ITEM,
+    'access arguments' => array('maestro admin'),
+    'file' => 'maestro.moderator.inc',
+    'weight' => '40',
   );
 
   $items['maestro/launch'] = array(
@@ -48,34 +76,11 @@ function maestro_menu() {
     'access arguments' => array('maestro taskconsole')
   );
 
-  $items['maestro/outstanding'] = array(
-    'title' => 'Outstanding Tasks',
-    'page callback' => 'maestro_outstanding_tasks',
-    'type' => MENU_NORMAL_ITEM,
-    'access arguments' => array('view outstanding tasks'),
-    'file' => 'maestro.moderator.inc'
-  );
-
-  $items['maestro/allflows'] = array(
-    'title' => 'All Maestro Workflows',
-    'page callback' => 'maestro_all_flows',
-    'type' => MENU_NORMAL_ITEM,
-    'access arguments' => array('maestro admin'),
-    'file' => 'maestro.moderator.inc'
-  );
-
-  $items['maestro/myflows'] = array(
-    'title' => 'My Workflows',
-    'page callback' => 'maestro_my_flows',
-    'type' => MENU_NORMAL_ITEM,
-    'access arguments' => array('maestro taskconsole'),
-    'file' => 'maestro.moderator.inc'
-  );
-
+  /* Trace tool called from the Outstanding Tasks screen as it needs a process id */
   $items['maestro/trace'] = array(
     'page callback' => 'maestro_trace',
     'type' => MENU_CALLBACK,
-    'access arguments' => array('edit outstanding tasks'),
+    'access arguments' => array('maestro edit outstanding tasks'),
     'file' => 'maestro.moderator.inc'
   );
 
@@ -144,6 +149,7 @@ function maestro_menu() {
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
+
 
   return $items;
 }
