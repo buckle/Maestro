@@ -1061,6 +1061,7 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
       break;
 
     case 'setassignment':
+      $retdata = array ('status' => FALSE);
       if (user_access('maestro reassign tasks')) {
         $taskid = intval($_POST['taskid']);
         $process_id = db_query("SELECT process_id FROM {maestro_queue} WHERE id = :tid",
@@ -1074,10 +1075,11 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
         $maestro = Maestro::createMaestroObject(1);
         if ($assigned_uid != $_POST['task_reassign_uid']) {
           $maestro->engine()->reassignTask($taskid,$_POST['task_reassign_uid'],$_POST['taskuser'],$_POST['variable_id'],1);
+          $username = db_query("SELECT name FROM {users} WHERE uid = :uid", array(':uid' => $_POST['task_reassign_uid']))->fetchField();
+        } else {
+          $username = db_query("SELECT name FROM {users} WHERE uid = :uid", array(':uid' => $assigned_uid))->fetchField();
         }
-        $retdata = array ('status' => TRUE);
-      } else {
-        $retdata = array ('status' => FALSE);
+        $retdata = array ('status' => TRUE, 'username' => $username);
       }
       drupal_json_output($retdata);
       break;

@@ -105,12 +105,12 @@
                         foreach ($outstanding_tasks as $otask) { ?>
                           <tr class="<?php print $class; ?>">
                           <td><?php print $otask->taskname ?></td>
-                          <td><?php print $otask->owner ?></td>
+                          <td id="assigned_user_row<?php print $otask->task_id; ?>"><?php print $otask->owner ?></td>
                           <td><?php print $otask->assigned_date ?></td>
                           <td><?php
                             if ($workflow_admin) {
                               ?>
-                              <form id="frmOutstandingTasksRow<?php print $rowid; ?>" style="margin:0px;" method="post" action="" onsubmit="maestro_ajaxUpdateTaskAssignment(<?php print $rowid ?>); return false;">
+                              <form id="frmOutstandingTasksRow<?php print $otask->task_id; ?>" style="margin:0px;" method="post" action="" onsubmit="maestro_ajaxUpdateTaskAssignment(<?php print $otask->task_id ?>); return false;">
                                   <input type="hidden" name="rowid" value="<?php print $rowid; ?>">
                                   <input type="hidden" name="variable_id" value="<?php print $otask->variable_id; ?>">
                                   <input type="hidden" name="taskuser" value="<?php print $otask->taskuser ?>">

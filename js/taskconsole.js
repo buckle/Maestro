@@ -81,6 +81,8 @@ function maestro_ajaxUpdateTaskAssignment(id) {
       success:  function (data) {
         if (data.status != 1) {
           alert('An error occurred updating assignment');
+        } else {
+          $("#assigned_user_row" + id).html(data.username);
         }
       },
       error: function() { alert('there was a SERVER Error processing AJAX request'); }
