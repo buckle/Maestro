@@ -959,6 +959,7 @@ class MaestroEngineVersion1 extends MaestroEngine {
 
       $queries[MaestroAssignmentTypes::ROLE] = $query;
 
+      if (module_exists('og')) {
       //query gets all og's assigned to this task, up to the logic to determine whether or not they are assigned
       $query = db_select('maestro_queue', 'a');
       $query->join('maestro_template_data', 'b', 'a.template_data_id = b.id');
@@ -983,6 +984,7 @@ class MaestroEngineVersion1 extends MaestroEngine {
       $query->orderBy('a.id','DESC');
 
       $queries[MaestroAssignmentTypes::GROUP] = $query;
+      }
 
       foreach ($queries as $assign_type => $query) {
         $userTaskResult = $query->execute();
