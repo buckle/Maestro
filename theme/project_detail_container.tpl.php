@@ -63,7 +63,7 @@
                         <span onClick="toggleProjectSection('projectContent','Open',<?php print $rowid; ?>)"><b><?php print t('Content'); ?></b></span>
                 </span>
             </legend>
-            <div style="padding-top:15px;padding-left:15px;">
+            <div style="padding-top:20px;padding-left:15px;">
             <?php
               foreach ($content_records as $content) {
                 print $content;

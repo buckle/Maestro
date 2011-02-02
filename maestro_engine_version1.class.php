@@ -554,8 +554,8 @@ class MaestroEngineVersion1 extends MaestroEngine {
   /**
    * Method assign task - create productionAssignment Record and test if to-be-assigned user has their out-of-office setting active
    * @param        int         $queueID     Task ID from the workflow queue table
-   * @param        array       $assignemnt  Array of records where the key is the variable id  if applicable and the user id
-   If the assignment is by user, the key will be 0 or a negative value - in the case of multiple assignments
+   * @param        array       $assignment  Array of records where the key is the variable id  if applicable and the user id
+   *                           If the assignment is by user, the key will be 0 or a negative value - in the case of multiple assignments
    * @return       n/a         No return
    */
   function assignTask($queueId,$assignment) {
@@ -653,7 +653,17 @@ class MaestroEngineVersion1 extends MaestroEngine {
     }
   }
 
-  function reassignTask($queueId, $assignUid, $currentUid=0, $variableId=0, $assignType=0) {
+
+  /**
+   * Method reassign task - updates productionAssignment Record and records a comment in the workflow instance detail
+   * @param        int         $queueID      Task ID from the workflow queue table
+   * @param        int         $assignUid    New user id to assign task
+   * @param        int         $currentUid   Current user id, used to test that task is first owned by this user
+   * @param        int         $variableId   If assignment is by variable, used to test that task is first owned by this user
+   * @param        int         $assignType   Assignment Type - default is assumed to be by user.
+   * @return       n/a         No return
+   */
+  function reassignTask($queueId, $assignUid, $currentUid=0, $variableId=0, $assignType=1) {
     /* Assignment Record has to exist - but there can be multiple for this workflow queue record (process task)
      * If the assign_uid is 0 then it's not presently assigned
      * If the process_variable field is 0 then the task is assigned by UID and not by variable
