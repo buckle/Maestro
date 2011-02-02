@@ -20,17 +20,17 @@
   </div>
 
   <div>
-    <?php print t('Regeneration Instance'); ?>:
+    <span style="float:left;"><?php print t('Regeneration Instance'); ?>:</span>
 <?php
     foreach ($proc_res as $rec) {
       $checked = ($rec->id == $properties->process_id) ? 'checked="checked"':'';
 ?>
-      <label for="proc_radio<?php print $rec->id; ?>"><input id="proc_radio<?php print $rec->id; ?>" type="radio" name="regen_instance" <?php print $checked; ?> onclick="switch_process_focus(<?php print $rec->id; ?>);"><?php print $rec->id; ?></label>&nbsp;&nbsp;&nbsp;
+      <span style="float:left; padding-left:5px;"><label for="proc_radio<?php print $rec->id; ?>"><input id="proc_radio<?php print $rec->id; ?>" type="radio" name="regen_instance" <?php print $checked; ?> onclick="switch_process_focus(<?php print $rec->id; ?>);"><?php print $rec->id; ?></label></span>
 <?php
     }
 ?>
   </div>
-  <div style="width: 67%; float: left;">
+  <div style="width: 67%; float: left; clear:both;">
     <form id="maestro_task_history_form" method="post" action="" onsubmit="save_task_changes(this); return false;">
       <input type="hidden" name="op" value="save_task_changes">
       <fieldset class="form-wrapper">
