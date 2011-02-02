@@ -71,3 +71,44 @@ Current release of Maestro does not have a "secured" orchestrator link.  Therefo
 the orchestrator.  While this is not necessarily harmful, it is not optimal as the engine will run and potentially be run more than once
 at the same time causing queue issues.  Eventually there will be an application token that would have to be passed to the orchestrator link
 in order to run the orchestrator from cron. However for now, be aware there are no safeguards around it.
+
+
+FOR WINDOWS USERS - THE ORCHESTRATOR
+------------------------------------
+Until we release a Service for the Orchestrator, your best bet is to use a simple started task using the Task Scheduler.
+Place the following code in to a vbs file and have the task scheduler run it:
+
+CONST URL="http://FQDNofTHEserver/?q=maestro/orchestrator"
+CONST USER=""
+CONST PASSWORD=""
+CONST MESSAGES=0
+CONST SLEEPTIME=2000 'sleep for 2 seconds
+ON ERROR RESUME NEXT
+
+set WshShell = WScript.CreateObject("WScript.Shell")
+while true
+  runOrchestrator()
+  WScript.Sleep SLEEPTIME
+wend
+
+sub runOrchestrator
+  set objHttp= CreateObject("Msxml2.ServerXMLHttp")
+  objHttp.open "GET", url ,false ,USER,PASSWORD
+  objHttp.send()
+  str=objHttp.responseText
+  if MESSAGES then msgbox str
+end sub
+
+
+*NOTES: 
+- change the FQDNofTHEserver setting to match your server.
+- The choice is yours, but here are some useful settings for the started task:
+
+Program/script:
+c:\windows\system32\cscript.exe
+
+Add Arguments (optional):
+//B //Nologo path\to\your\vbs\orchestrator.vbs
+
+
+
