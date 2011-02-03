@@ -312,7 +312,7 @@ class MaestroTaskTypeIf extends MaestroTask {
       $useTrueBranch = null;
       switch (strtolower($ifArgumentProcess) ) {
         case 'lasttasksuccess':
-          if ($lastStatus == 0 or $lastStatus == 1) {
+          if ($lastStatus == MaestroTaskStatusCodes::STATUS_READY or $lastStatus == MaestroTaskStatusCodes::STATUS_COMPLETE) {
             $useTrueBranch = TRUE;
           }
           else {
@@ -320,7 +320,7 @@ class MaestroTaskTypeIf extends MaestroTask {
           }
           break;
         case 'lasttaskcancel':
-          if ($lastStatus == 3) {
+          if ($lastStatus == MaestroTaskStatusCodes::STATUS_CANCELED) {
             $useTrueBranch = TRUE;
           }
           else {
@@ -328,7 +328,7 @@ class MaestroTaskTypeIf extends MaestroTask {
           }
           break;
         case 'lasttaskhold':
-          if ($lastStatus == 2) {
+          if ($lastStatus == MaestroTaskStatusCodes::STATUS_ON_HOLD) {
             $useTrueBranch = TRUE;
           }
           else {
@@ -336,7 +336,7 @@ class MaestroTaskTypeIf extends MaestroTask {
           }
           break;
         case 'lasttaskaborted':
-          if ($lastStatus == 3) {
+          if ($lastStatus == MaestroTaskStatusCodes::STATUS_ABORTED) {
             $useTrueBranch = TRUE;
           }
           else {

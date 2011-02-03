@@ -11,7 +11,8 @@ function maestro_common_maestro_handler_options() {
 
   $handlers = array(
     'MaestroTaskTypeInteractiveFunction' => array(
-      'maestro_show_message' => t('Generic Function to display a message. Requires that you use a process variables called "message" that is set to the message string you want displayed.')
+      'maestro_show_message' => t('Generic Function to display a message. Requires that you use a process variables called "message" that is set to the message string you want displayed.'),
+      'maestro_accept_reject' => t('Simple Accept/reject function that lets you set a "message" var for the output and shows a simple accept/reject button.'),
       )
     );
     return $handlers;
@@ -23,7 +24,11 @@ function maestro_common_theme() {
     'maestro_common_show_message' => array(
       'template' => 'show_message',
       'variables' => array('messsage' => NULL),
-    )
+    ),
+    'maestro_show_message_accept_reject' => array(
+      'template' => 'maestro_show_message_accept_reject',
+      'variables' => array('messsage' => NULL),
+    ),
   );
 }
 
@@ -58,6 +63,42 @@ function maestro_show_message($op,&$task,$parms) {
 /* Batch function - dummy or test function returns TRUE */
 function maestro_batch_dummy($queue_id, $process_id) {
   return TRUE;
+}
+
+
+/*
+ * Implementation of a Maestro interactive function handler
+ * This one handles a simple output of an Accept/Reject task with the ability to set the message to whatever the user likes.
+ */
+function maestro_accept_reject($op,&$task,$parms) {
+  global $base_url;
+
+  $retval = new stdClass();
+  $retval->html = '';
+  $retval->retcode = FALSE;
+  $retval->engineop = '';
+
+  switch ($op) {
+    case 'display':
+      if (!isset($parms['message'])) {
+        $maestro = Maestro::createMaestroObject(1);
+        $parms['message'] = $maestro->engine()->getProcessVariable('message', $task->_properties->process_id);
+      }
+      $retval->html = theme('maestro_show_message_accept_reject',array('message' => $parms['message']));
+      $retval->retcode = TRUE;
+      $retval->engineop = '';
+      break;
+    case 'accept':
+      $retval->retcode = TRUE;
+      $retval->engineop = 'completetask';
+      break;
+    case 'reject':
+      $retval->status = MaestroProjectStatusCodes::STATUS_CANCELLED;
+      $retval->retcode = TRUE;
+      $retval->engineop = 'completetask';
+      break;
+  }
+  return $retval;
 }
 
 ?>

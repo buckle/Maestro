@@ -28,6 +28,7 @@ class MaestroNotificationTypes {
 
 // The maestro Engine's clean queue will not pick up any status' less than 0
 class MaestroTaskStatusCodes {
+  CONST STATUS_CANCELED = -3;
   CONST STATUS_DELETED = -2;
   CONST STATUS_ON_HOLD = -1;
   CONST STATUS_READY = 0;
@@ -37,6 +38,7 @@ class MaestroTaskStatusCodes {
 
   static public function getStatusLabel($var=NULL) {
     $labels = array();
+    $labels[self::STATUS_CANCELED] = t('Canceled');
     $labels[self::STATUS_DELETED] = t('Deleted');
     $labels[self::STATUS_ON_HOLD] = t('On Hold');
     $labels[self::STATUS_READY] = t('Ready');
