@@ -116,13 +116,15 @@ include_once('maestro_constants.class.php');
     }
 
 
-    // Get a process variable as defined for this template
-    // Requires the processID to be set and then pass in a variable's name.
-    // if both the process and the name exist, you get a value..
-    // otherwise, you get NULL
+    /* Get a process variable as defined for this template
+     * Requires the processID to be set and then pass in a variable's id or variable name.
+     * if both the process and the name exist, you get a value..
+     * otherwise, you get NULL
+     */
     function getProcessVariable($variable, $process_id=0) {
       $retval = NULL;
-      $thisvar = strtolower($variable);
+      $thisid = 0;
+      if (empty($variable)) return $retval;
 
       if ($process_id == 0 && !empty($this->_processId)) {
         $process_id = $this->_processId;
@@ -134,11 +136,20 @@ include_once('maestro_constants.class.php');
         }
       }
 
-      $query = db_select('maestro_process_variables', 'a');
-      $query->addField('a','variable_value');
-      $query->join('maestro_template_variables', 'b', 'a.template_variable_id = b.id');
-      $query->condition('a.process_id',$process_id,'=');
-      $query->condition('b.variable_name',$thisvar,'=');
+      // Test if a variable ID or variable Name has been passed in
+      if (is_numeric($variable) and $variable > 0) {
+        $query = db_select('maestro_process_variables', 'a');
+        $query->addField('a','variable_value');
+        $query->condition('a.process_id',$process_id,'=');
+        $query->condition('a.template_variable_id',$variable,'=');
+      } else {
+        $thisvar = strtolower($variable);
+        $query = db_select('maestro_process_variables', 'a');
+        $query->addField('a','variable_value');
+        $query->join('maestro_template_variables', 'b', 'a.template_variable_id = b.id');
+        $query->condition('a.process_id',$process_id,'=');
+        $query->condition('b.variable_name',$thisvar,'=');
+      }
       $result = $query->execute();
       $numrows = $query->countQuery()->execute()->fetchField();
       if ($numrows > 0 ) {
