@@ -102,20 +102,27 @@
                     </tr>
                         <?php
                         $class = 'odd';
-                        foreach ($outstanding_tasks as $otask) { ?>
+                        $taskcntr = 0;  // Needed when there are multiple assignments for the same task to display.
+                                        // Occurs since we support different assignment types and more then one can be active.
+                        foreach ($outstanding_tasks as $otask) {
+                          $taskcntr++;
+                          $unique_task_displayid = $otask->task_id . '_' . $taskcntr;
+                          ?>
                           <tr class="<?php print $class; ?>">
                           <td><?php print $otask->taskname ?></td>
-                          <td id="assigned_user_row<?php print $otask->task_id; ?>"><?php print $otask->owner ?></td>
+                          <td id="assigned_user_row<?php print $unique_task_displayid; ?>"><?php print $otask->owner ?></td>
                           <td><?php print $otask->assigned_date ?></td>
                           <td><?php
                             if ($workflow_admin) {
                               ?>
-                              <form id="frmOutstandingTasksRow<?php print $otask->task_id; ?>" style="margin:0px;" method="post" action="" onsubmit="maestro_ajaxUpdateTaskAssignment(<?php print $otask->task_id ?>); return false;">
+                              <form id="frmOutstandingTasksRow<?php print $unique_task_displayid; ?>" style="margin:0px;" method="post" action="" onsubmit="maestro_ajaxUpdateTaskAssignment('<?php print $unique_task_displayid; ?>'); return false;">
                                   <input type="hidden" name="rowid" value="<?php print $rowid; ?>">
                                   <input type="hidden" name="variable_id" value="<?php print $otask->variable_id; ?>">
                                   <input type="hidden" name="taskuser" value="<?php print $otask->taskuser ?>">
+                                  <input type="hidden" name="assignment_type" value="<?php print $otask->assignment_type; ?>">
                                   <input type="hidden" name="taskassign_mode" value="<?php print $otask->taskassign_mode; ?>">
                                   <input type="hidden" name="taskid" value="<?php print $otask->task_id; ?>">
+                                  <input type="hidden" name="assign_recid" value="<?php print $otask->assign_recid; ?>">
                                   <select name="task_reassign_uid">
                                       <option value="0"><?php print t('Assign to user'); ?></option>
                                         <?php

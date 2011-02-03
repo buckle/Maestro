@@ -684,13 +684,10 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
   $query->join('maestro_production_assignments', 'assignment', 'assignment.task_id = queue.id');
   $query->leftJoin('users', 'user', 'user.uid = assignment.assign_id');
   $query->leftJoin('role', 'role', 'role.rid = assignment.assign_id');
-  if (module_exists('og')) {
-    $query->leftJoin('og', 'og', 'og.gid = assignment.assign_id');
-    $query->addField('og', 'label', 'groupname');
-  }
   $query->fields('queue', array('process_id','created_date','started_date','completed_date','status'));
   $query->fields('template', array('taskname','is_dynamic_taskname','dynamic_taskname_variable_id'));
   $query->fields('assignment', array('assign_id','assign_type','process_variable'));
+  $query->addField('assignment','id','assign_recid');
   $query->addField('queue','id','queue_id');
   $query->addField('user','name','username');
   $query->addField('role','name','rolename');
@@ -707,22 +704,47 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
     if ($record->parent_process_id > 0) $record->taskname = '<span style="color:red;padding-right:3px;">[R]</span>' . $record->taskname;
     $otask->taskname = $record->taskname;
     $otask->taskuser = $record->assign_id;
+    $otask->assign_recid = $record->assign_recid;
     switch ($record->assign_type) {
-    case MaestroAssignmentTypes::USER:
-      $otask->owner = $record->username;
-      break;
-    case MaestroAssignmentTypes::ROLE:
-      $otask->owner = $record->rolename;
-      break;
-    case MaestroAssignmentTypes::GROUP:
-      $otask->owner = $record->groupname;
-      break;
+      case MaestroAssignmentTypes::USER:
+        $otask->owner = $record->username;
+        $otask->assignment_type = 'user';
+        break;
+      case MaestroAssignmentTypes::ROLE:
+        // Test if group name has been set to use a variable for this task
+        if($record->assign_id == 0 AND $record->process_variable > 0) {
+          $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
+          // The process variable is expected to contain the role name
+          $process_variable = $maestro->engine()->getProcessVariable($record->process_variable, $record->process_id);
+          $otask->owner = "R:{$process_variable}";
+        } else {
+          $otask->owner = "R:{$record->rolename}";
+        }
+        $otask->assignment_type = 'role';
+        break;
+      case MaestroAssignmentTypes::GROUP:
+        if (module_exists('og')) {
+          // Test if group name has been set to use a variable for this task
+          if($record->assign_id == 0 AND $record->process_variable > 0) {
+            $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
+            // The process variable is expected to contain the group name
+            $process_variable = $maestro->engine()->getProcessVariable($record->process_variable, $record->process_id);
+            $otask->owner = "G:{$process_variable}";
+          } else {
+            $og_groupinfo = og_label_multiple(array($record->assign_id));
+            $otask->owner = "G:{$og_groupinfo[$record->assign_id]}";
+          }
+        } else {
+          $otask->owner = "G:OG Disabled";
+        }
+        $otask->assignment_type = 'group';
+        break;
     }
     $otask->variable_id = $record->process_variable;
     if ($otask->variable_id > 0) {
       $otask->taskassign_mode = 'variable';
     } else {
-      $otask->taskassign_mode = 'user';
+      $otask->taskassign_mode = 'id';  // User ID or Role ID or Group ID
     }
     $variables['outstanding_tasks'][] = $otask;
   }
@@ -1063,6 +1085,7 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
     case 'setassignment':
       $retdata = array ('status' => FALSE);
       if (user_access('maestro reassign tasks')) {
+        $maestro = Maestro::createMaestroObject(1);
         $taskid = intval($_POST['taskid']);
         $process_id = db_query("SELECT process_id FROM {maestro_queue} WHERE id = :tid",
         array(':tid' => $taskid))->fetchField();
@@ -1070,16 +1093,38 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
         array(':tid' => $taskid))->fetchField();
         $tracking_id = db_query("SELECT tracking_id FROM {maestro_process} WHERE id = :pid",
         array(':pid' => $process_id))->fetchField();
-        $assigned_uid = db_query("SELECT assign_id FROM {maestro_production_assignments} WHERE task_id = :tid",
-        array(':tid' => $taskid))->fetchField();
-        $maestro = Maestro::createMaestroObject(1);
-        if ($assigned_uid != $_POST['task_reassign_uid']) {
-          $maestro->engine()->reassignTask($taskid,$_POST['task_reassign_uid'],$_POST['taskuser'],$_POST['variable_id'],1);
-          $username = db_query("SELECT name FROM {users} WHERE uid = :uid", array(':uid' => $_POST['task_reassign_uid']))->fetchField();
-        } else {
-          $username = db_query("SELECT name FROM {users} WHERE uid = :uid", array(':uid' => $assigned_uid))->fetchField();
+
+        // Retrieve the production assignment record to change
+        $sql = "SELECT assign_id FROM {maestro_production_assignments} WHERE id = :id";
+        $assigned_value = db_query($sql, array(':id' => $_POST['assign_recid']))->fetchField();
+
+        if ($assigned_value > 0 OR $_POST['variable_id'] > 0) {
+
+          switch ($_POST['assignment_type']) {
+          case 'user':
+            if ($assigned_value != $_POST['task_reassign_uid']) {
+              $maestro->engine()->reassignTask($taskid,$_POST['task_reassign_uid'],$_POST['taskuser'],$_POST['variable_id'],1);
+              $username = db_query("SELECT name FROM {users} WHERE uid = :uid", array(':uid' => $_POST['task_reassign_uid']))->fetchField();
+            } else {
+              $username = db_query("SELECT name FROM {users} WHERE uid = :uid", array(':uid' => $assigned_uid))->fetchField();
+            }
+            $retdata = array ('status' => TRUE, 'username' => $username);
+            break;
+          case 'role':
+            // Note in this case, the taskuser posted var is the group id unless it's been assigned by variable
+            $maestro->engine()->reassignTask($taskid,$_POST['task_reassign_uid'],$_POST['taskuser'],$_POST['variable_id'],2);
+            $username = db_query("SELECT name FROM {users} WHERE uid = :uid", array(':uid' => $_POST['task_reassign_uid']))->fetchField();
+            $retdata = array ('status' => TRUE, 'username' => $username);
+            break;
+          case 'group':
+            // Note in this case, the taskuser posted var is the group id unless it's been assigned by variable
+            $maestro->engine()->reassignTask($taskid,$_POST['task_reassign_uid'],$_POST['taskuser'],$_POST['variable_id'],3);
+            $username = db_query("SELECT name FROM {users} WHERE uid = :uid", array(':uid' => $_POST['task_reassign_uid']))->fetchField();
+            $retdata = array ('status' => TRUE, 'username' => $username);
+            break;
+          }
         }
-        $retdata = array ('status' => TRUE, 'username' => $username);
+
       }
       drupal_json_output($retdata);
       break;

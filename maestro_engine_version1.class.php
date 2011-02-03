@@ -656,6 +656,8 @@ class MaestroEngineVersion1 extends MaestroEngine {
 
   /**
    * Method reassign task - updates productionAssignment Record and records a comment in the workflow instance detail
+   * Supports tasks that have been assigned by user, role or group but only supports changing the assignment to user
+   *
    * @param        int         $queueID      Task ID from the workflow queue table
    * @param        int         $assignUid    New user id to assign task
    * @param        int         $currentUid   Current user id, used to test that task is first owned by this user
@@ -709,16 +711,12 @@ class MaestroEngineVersion1 extends MaestroEngine {
         /* If the task has been re-assigned previously for this task, then we will now loose the originally assigned user */
         /* Need to now check if the to-be-assigned user is away and if so .. then assigned to their backup */
         $assignToUserId = $this->getAwayReassignmentUid($assignUid);
-        $updateFields = array('assign_id' => $assignToUserId, 'last_updated' => time(), 'assign_back_id' => $currentUid);
-        if ($assignType != 0) {
-          $updateFields['assign_type'] = $assignType;
-        }
+        $updateFields = array('assign_type' => 1, 'assign_id' => $assignToUserId, 'process_variable' => 0, 'last_updated' => time(), 'assign_back_id' => $currentUid);
         db_update('maestro_production_assignments')
         ->fields($updateFields)
         ->condition('id', $rec->id, '=')
         ->execute();
       }
-
 
       // Create a comment in the project comments
       $query = db_select('maestro_queue', 'a');
@@ -970,30 +968,29 @@ class MaestroEngineVersion1 extends MaestroEngine {
       $queries[MaestroAssignmentTypes::ROLE] = $query;
 
       if (module_exists('og')) {
-      //query gets all og's assigned to this task, up to the logic to determine whether or not they are assigned
-      $query = db_select('maestro_queue', 'a');
-      $query->join('maestro_template_data', 'b', 'a.template_data_id = b.id');
-      $query->leftJoin('maestro_production_assignments', 'c', 'a.id = c.task_id');
-      $query->join('maestro_process', 'd', 'a.process_id = d.id');
-      $query->leftJoin('users_roles', 'f', 'c.assign_id = f.rid');
-      $query->fields('a',array('id','template_data_id','process_id','is_interactive','handler','task_data','created_date','started_date'));
-      $query->fields('b',array('task_class_name','template_id','taskname','is_dynamic_taskname','dynamic_taskname_variable_id'));
-      $query->fields('c',array('assign_id', 'assign_type'));
-      if ($this->_mode == 'admin') {
-        $query->addField('g', 'label', 'name');
-        $query->leftJoin('og', 'g', 'c.assign_id = g.gid');
-      }
-      $query->addField('d','pid','parent_process_id');
-      $query->fields('d',array('tracking_id','flow_name'));
-      if ($show_system_tasks == FALSE) {
-        $query->condition('a.is_interactive', MaestroInteractiveFlag::IS_INTERACTIVE);
-      }
-      $query->condition(db_or()->condition('a.archived',0)->condition('a.archived',NULL));
-      $query->condition(db_and()->condition('a.status', 0, '>='));
-      $query->condition('c.assign_type', MaestroAssignmentTypes::GROUP, '=');
-      $query->orderBy('a.id','DESC');
-
-      $queries[MaestroAssignmentTypes::GROUP] = $query;
+        //query gets all og's assigned to this task, up to the logic to determine whether or not they are assigned
+        $query = db_select('maestro_queue', 'a');
+        $query->join('maestro_template_data', 'b', 'a.template_data_id = b.id');
+        $query->leftJoin('maestro_production_assignments', 'c', 'a.id = c.task_id');
+        $query->join('maestro_process', 'd', 'a.process_id = d.id');
+        $query->leftJoin('users_roles', 'f', 'c.assign_id = f.rid');
+        $query->fields('a',array('id','template_data_id','process_id','is_interactive','handler','task_data','created_date','started_date'));
+        $query->fields('b',array('task_class_name','template_id','taskname','is_dynamic_taskname','dynamic_taskname_variable_id'));
+        $query->fields('c',array('assign_id', 'assign_type', 'process_variable'));
+        if ($this->_mode == 'admin') {
+          $query->addField('g', 'label', 'name');
+          $query->leftJoin('og', 'g', 'c.assign_id = g.gid');
+        }
+        $query->addField('d','pid','parent_process_id');
+        $query->fields('d',array('tracking_id','flow_name'));
+        if ($show_system_tasks == FALSE) {
+          $query->condition('a.is_interactive', MaestroInteractiveFlag::IS_INTERACTIVE);
+        }
+        $query->condition(db_or()->condition('a.archived',0)->condition('a.archived',NULL));
+        $query->condition(db_and()->condition('a.status', 0, '>='));
+        $query->condition('c.assign_type', MaestroAssignmentTypes::GROUP, '=');
+        $query->orderBy('a.id','DESC');
+        $queries[MaestroAssignmentTypes::GROUP] = $query;
       }
 
       foreach ($queries as $assign_type => $query) {
@@ -1001,15 +998,33 @@ class MaestroEngineVersion1 extends MaestroEngine {
         $numTaskRows = $query->countQuery()->execute()->fetchField();
         if ($numTaskRows > 0) {
           // Return a semi-colon delimited list of queue id's for that user.
+
           foreach ($userTaskResult as $userTaskRecord) {
             if ($assign_type == MaestroAssignmentTypes::GROUP && $this->_mode != 'admin') {
-              $og_query = new EntityFieldQuery();
-              $og_query
-                ->entityCondition('entity_type', 'user')
-                ->fieldCondition(OG_AUDIENCE_FIELD, 'gid', $userTaskRecord->assign_id, '=');
-              $og_res = $og_query->execute();
-              if (!array_key_exists($this->_userId, $og_res['user'])) {
-                continue;
+              // Test if group name has been set to use a variable for this task
+              if ($userTaskRecord->assign_id == 0 OR $userTaskRecord->process_variable > 0) {
+                // The group variable is expected to contain the group name
+                $group_variable = $this->getProcessVariable($userTaskRecord->process_variable, $userTaskRecord->process_id);
+                $og_gids = og_get_group_ids();
+                $og_groups = og_label_multiple($og_gids);
+                foreach ($og_groups as $gid => $group_name) {
+                  if ($group_name == $group_variable) {
+                    $userTaskRecord->assign_id = $gid;
+                  }
+                }
+              }
+              if ($userTaskRecord->assign_id > 0) {
+                $og_query = new EntityFieldQuery();
+                $og_query
+                  ->entityCondition('entity_type', 'user')
+                  ->fieldCondition(OG_AUDIENCE_FIELD, 'gid', $userTaskRecord->assign_id, '=');
+                $og_res = $og_query->execute();
+                if (!array_key_exists($this->_userId, $og_res['user'])) {
+                  continue;
+                }
+              } else {
+                watchdog('maestro',"maestro->getQueue could not resolve the assigned to user id for queue record {$userTaskRecord->id}");
+                break;
               }
             }
 
