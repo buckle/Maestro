@@ -5,7 +5,7 @@
         <div id="newcomment_container_<?php print $rowid; ?>" style="padding-top:10px;display:none;">
             <form name="fprjcmt_<?php print $rowid; ?>" id="fprjcmt_<?php print $rowid; ?>" ACTION="" METHOD="post" style="margin:0px;">
                 <fieldset><legend><b><?php print t('New Comment'); ?></b></legend>
-                <div style="padding:5px;"><TEXTAREA id="newcomment_<?php print $tracking_id;?>" name="maestro_comment" cols="100" rows="3"></TEXTAREA></div>
+                <div style="padding:15px 5px 5px 5px;"><TEXTAREA id="newcomment_<?php print $tracking_id;?>" name="maestro_comment" cols="100" rows="3"></TEXTAREA></div>
                 <div style="padding-left:50px;">
                     <input type="button" value="<?php print t('Cancel'); ?>" onClick="document.getElementById('newcomment_container_<?php print $rowid; ?>').style.display='none';">&nbsp;
                     <input type="button" value="<?php print t('Add Comment'); ?>" onClick="ajaxMaestroComment('add',<?php print $rowid; ?>,<?php print $tracking_id;?>);">
