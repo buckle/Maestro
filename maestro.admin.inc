@@ -727,7 +727,11 @@ function maestro_export($id) {
             break;
 
           case MaestroAssignmentTypes::ROLE:
-            //@TODO:  implement this when we implement Role suppport
+            $query = db_select('role', 'a');
+            $query->addField('a','name');
+            $query->condition('a.rid', intval($ares->assign_id),'=');
+            $role = $query->execute()->fetchField();
+            $modulated_string ='$modulated_id = $ti->modulateExportRole("' . $role . '");' . "\n";
             break;
         }
 

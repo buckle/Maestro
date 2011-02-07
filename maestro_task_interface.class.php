@@ -560,6 +560,21 @@ abstract class MaestroTaskInterface {
     }
   }
 
+  /*
+   * During the import routine, we take the exported role and try to find the rid (role id).
+   */
+  function modulateExportRole($role) {
+    $query = db_select('role', 'a');
+    $query->fields('a',array('rid'));
+    $query->condition('a.name', $role, '=');
+    $rid=current($query->execute()->fetchAll());
+    if(is_numeric($rid->rid)) {
+      return intval($rid->rid);
+    }
+    else { // lets return roleID 2 which is technically the authenticated user role
+      return 2;
+    }
+  }
 
   abstract function display();
   abstract function getEditFormContent();
