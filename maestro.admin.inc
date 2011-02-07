@@ -727,11 +727,13 @@ function maestro_export($id) {
             break;
 
           case MaestroAssignmentTypes::ROLE:
+            if($assign_by == MaestroAssignmentBy::FIXED) {
             $query = db_select('role', 'a');
             $query->addField('a','name');
             $query->condition('a.rid', intval($ares->assign_id),'=');
             $role = $query->execute()->fetchField();
             $modulated_string ='$modulated_id = $ti->modulateExportRole("' . $role . '");' . "\n";
+            }
             break;
         }
 
