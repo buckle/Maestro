@@ -576,6 +576,24 @@ abstract class MaestroTaskInterface {
     }
   }
 
+ /*
+   * During the import routine, we take the exported OG and try to find the gid (group id).
+   */
+  function modulateExportOG($group) {
+    if(module_exists('og')) {
+      $query = db_select('og', 'a');
+      $query->fields('a',array('gid'));
+      $query->condition('a.label', $group, '=');
+      $gid=current($query->execute()->fetchAll());
+      if(is_numeric($gid->gid)) {
+        return intval($gid->gid);
+      }
+      else { //here's the problem... we should return false here so that the import can insert the initiator
+        return FALSE;
+      }
+    }
+  }
+
   abstract function display();
   abstract function getEditFormContent();
 }

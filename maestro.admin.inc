@@ -659,9 +659,13 @@ function maestro_export($id) {
     $output_php .= '$templateID = maestro_createNewTemplate("IMPORT - ' . $original_template_name . '", TRUE, TRUE, ' . $canvas_height . ');' . "\n"; //create new template
     //lets get all of the template variables:
     $template_variables_record_set=db_query("SELECT * FROM {maestro_template_variables} WHERE template_id = :tid", array('tid' => $id));
+    $initiator_variable_id=0;
     foreach($template_variables_record_set as $rec) {
       $var_name = str_replace('"', '\"', $rec->variable_name);
       $var_value = str_replace('"', '\"', $rec->variable_value);
+      if($rec->variable_name == 'initiator') {
+        $initiator_variable_id = $rec->id;
+      }
       $output_php .= '$variable_xref_array[' . $rec->id . '] = maestro_createTemplateVariable($templateID, "' . $var_name . '", "' . $var_value . '");' . "\n";
     }
     //lets get all of the template_data entries
@@ -713,6 +717,10 @@ function maestro_export($id) {
         //we'll just make an initial assumption that the assign_by is by variable
         //we overwrite this in the switch if it is actually by a fixed value
         $assign_by = $ares->assign_by;
+        $assign_type = $ares->assign_type;
+        $output_php .='$assign_by = ' . $assign_by . ";\n";
+        $output_php .='$assign_type = ' . $assign_type . ";\n";
+
         $modulated_string = '$modulated_id = $variable_xref_array[' . intval($ares->assign_id) . '];' . "\n";
         switch($ares->assign_type) {
           case MaestroAssignmentTypes::USER:
@@ -723,7 +731,29 @@ function maestro_export($id) {
             break;
 
           case MaestroAssignmentTypes::GROUP:
-            //@TODO:  implement this when we implement OG suppport
+            if($assign_by == MaestroAssignmentBy::FIXED) {
+              if(module_exists('og')) {
+                $query = db_select('og', 'a');
+                $query->addField('a','label');
+                $query->condition('a.gid', intval($ares->assign_id),'=');
+                $group = $query->execute()->fetchField();
+                $modulated_string  ='$modulated_id = $ti->modulateExportOG("' . $group . '");' . "\n";
+                $modulated_string .='if($modulated_id == FALSE) {'. "\n";
+                $modulated_string .='  $assign_by = ' . MaestroAssignmentBy::VARIABLE . ";\n";
+                $modulated_string .='  $assign_type = ' . MaestroAssignmentTypes::USER . ";\n";
+                $modulated_string .='  $modulated_id = ' . $initiator_variable_id . ';' . "\n";
+                $modulated_string .="}\n";
+              }
+              else { //we are going to simply set this to the initiator variable
+                  //This would be an odd situation here, but this is the EXPORT noticing that og isnt installed but yet the
+                  //template they are exporting is trying to export an OG reference.  IMPOSSIBLE!  But yet, because OG could conceivably
+                  //be disabled/uninstalled by accident, exports of a template shouldn't suffer.
+                watchdog('maestro import', t('You do not have OG installed.  Task assignment changed to assigned by INITIATOR variable.'));
+                $modulated_string  ='$assign_by = ' . MaestroAssignmentBy::VARIABLE . ";\n";
+                $modulated_string .='$assign_type = ' . MaestroAssignmentTypes::USER . ";\n";
+                $modulated_string .='$modulated_id = ' . $initiator_variable_id . ';' . "\n";
+              }
+            }
             break;
 
           case MaestroAssignmentTypes::ROLE:
@@ -741,8 +771,8 @@ function maestro_export($id) {
 
         $output_php .='$sql  = "INSERT INTO {maestro_template_assignment} (template_data_id, assign_type, assign_by, assign_id) VALUES (:a1, :b1, :c1, :d1)";' . "\n";
         $output_php .='db_query($sql, array( \'a1\' => $task_xref_array[' . $ares->template_data_id . '],';
-        $output_php .='\'b1\' => ' . $ares->assign_type . ',';
-        $output_php .='\'c1\' => ' . $ares->assign_by . ',';
+        $output_php .='\'b1\' => $assign_type,';
+        $output_php .='\'c1\' => $assign_by,';
         $output_php .='\'d1\' => $modulated_id,';
         $output_php .='));' . "\n";
 
