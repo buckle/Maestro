@@ -34,8 +34,7 @@ is listed as Maestro Config.  Out of the box, you will find that Maestro has a f
 
 THIS IS IMPORTANT!! PLEASE READ!
 One of the settings is "Run the Orchestrator when the Task Console Renders".  This setting allows the Maestro engine to run
-when you click on the Task Console link in the Nav menu.  If you uncheck this option, the engine will not run.  This is an ALPHA
-release of Maestro.  So be advised that the Orchestrator will have its own asynchronous way to fire as we draw closer to a BETA release.
+when you click on the Task Console link in the Nav menu.  If you uncheck this option, the engine will not run on task console refresh.  
 
 The other options are:
 
