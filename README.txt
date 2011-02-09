@@ -63,8 +63,8 @@ only there for testing. We have enabled the option to run the Orchestrator throu
 default for ease of use, but that can be disabled on the Maestro configuration page.
 
 To set up the cron, see http://drupal.org/cron. Note however in this documentation, instead of (or in addition to)
-using http://www.example.com/cron.php as the url, use http://www.example.com/maestro/orchestrator. This orchestrator
-cron should be set to run every few minutes.
+using http://www.example.com/cron.php as the url, use http://www.example.com/maestro/orchestrator or 
+http://www.example.com/index.php?q=maestro/orchestrator. The orchestrator cron should be set to run every few minutes.
 
 Current release of Maestro does not have a "secured" orchestrator link.  Therefore anyone can hit the maestro/orchestrator link and run 
 the orchestrator.  While this is not necessarily harmful, it is not optimal as the engine will run and potentially be run more than once
