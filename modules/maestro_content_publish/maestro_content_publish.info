@@ -1,4 +1,3 @@
-; $Id$
 name = Content Publish
 description = Custom Maestro functions for the Content Publish Workflow
 package = Maestro

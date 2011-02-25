@@ -1,4 +1,3 @@
-; $Id$
 name = Inline Form API Task
 description = Inline Form API task for the Maestro module.
 package = Maestro

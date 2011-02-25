@@ -1,4 +1,3 @@
-; $Id$
 name = Maestro
 description = Maestro workflow management system which lets you define processes and route tasks to different site users.
 package = Maestro
