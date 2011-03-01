@@ -7,7 +7,7 @@
     private static $MAESTRO;
     private $_engine = null;
 
-    function createMaestroObject ($version, $options = FALSE){
+    static function createMaestroObject ($version, $options = FALSE){
         if (!isset(self::$MAESTRO)) {
             // instance does not exist, so create it
             self::$MAESTRO = new self($version, $options);
