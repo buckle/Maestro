@@ -498,17 +498,6 @@ function maestro_taskconsole() {
   return theme('maestro_taskconsole');
 }
 
-
-function maestro_cleanqueue() {
-  global $base_url;
-  $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
-  $maestro->engine()->cleanQueue();
-  $maestro->engine()->setProcessVariable('initiator',1);
-  drupal_set_message("Maestro Clean Queue Completed");
-  drupal_goto($base_url);
-}
-
-
 function maestro_launch_workflow($template=0) {
   global $base_url;
 
