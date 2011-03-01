@@ -418,12 +418,8 @@ function launch_workflow_action(&$object, $context = array()) {
   //we'll need something to let other modules hook into this.  The handler will be
   // modulename_maestro_post_action_handler
   //this will give devs the ability to read the db, handle a new process, do anything with data manipulation/UI etc.
-  foreach (module_implements('maestro_post_action_handler') as $module) {
-    $function = $module . '_maestro_post_action_handler';
-    if(function_exists($function)) {
-      $function($newprocess, $context);
-    }
-  }
+  module_invoke_all('maestro_post_action_handler', $newprocess, $context);
+
 }
 
 function launch_workflow_action_submit($form, $form_state) {
