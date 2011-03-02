@@ -393,7 +393,7 @@ function launch_workflow_action(&$object, $context = array()) {
     $query = db_insert('maestro_project_content');
     $query->fields(array('nid', 'tracking_id', 'task_id', 'instance', 'content_type', 'task_data', 'created_by_uid', 'is_locked_by_uid', 'status'));
     $query->values(array(
-      'nid' => $context['node']->nid,
+      'nid' => intval($context['node']->nid),
       'tracking_id' => $tracking_id,
       'task_id' => $task_id,
       'instance' => 1,
