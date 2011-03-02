@@ -389,21 +389,25 @@ function launch_workflow_action(&$object, $context = array()) {
   $task_id = $rec->id;
   switch ($context['group']) {
   case 'node':
-    //check to see if node id exists in project content table
-    $query = db_insert('maestro_project_content');
-    $query->fields(array('nid', 'tracking_id', 'task_id', 'instance', 'content_type', 'task_data', 'created_by_uid', 'is_locked_by_uid', 'status'));
-    $query->values(array(
-      'nid' => intval($context['node']->nid),
-      'tracking_id' => $tracking_id,
-      'task_id' => $task_id,
-      'instance' => 1,
-      'content_type' => $context['node']->type,
-      'task_data' => NULL,
-      'created_by_uid' => $user->uid,
-      'is_locked_by_uid' => 0,
-      'status' => MaestroContentStatusCodes::STATUS_SUBMITTED)
-    );
-    $query->execute();
+    $nid = intval($context['node']->nid);
+    //why bother even running this if the nid is zero?
+    //this is a fix for triggering on a node_presave where there isn't a nid
+    if($nid>0) {
+      $query = db_insert('maestro_project_content');
+      $query->fields(array('nid', 'tracking_id', 'task_id', 'instance', 'content_type', 'task_data', 'created_by_uid', 'is_locked_by_uid', 'status'));
+      $query->values(array(
+        'nid' => $nid,
+        'tracking_id' => $tracking_id,
+        'task_id' => $task_id,
+        'instance' => 1,
+        'content_type' => $context['node']->type,
+        'task_data' => NULL,
+        'created_by_uid' => $user->uid,
+        'is_locked_by_uid' => 0,
+        'status' => MaestroContentStatusCodes::STATUS_SUBMITTED)
+      );
+      $query->execute();
+    }
     break;
   }
 
