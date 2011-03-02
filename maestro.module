@@ -657,7 +657,7 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
   $variables['special_status_action'] = '';
 
   if (user_access('maestro admin')) {
-    $variables['delete_project_action'] = '<a href="#" onClick="maestro_ajaxDeleteProject(' . $task->tracking_id . ');return false;">' . t('Delete Project') . '</a>';
+    $variables['delete_project_action'] = '<a href="#" onClick="maestro_ajaxDeleteProject(' . $task->tracking_id . ', \'' . t('Confirm you would like to delete this project.') . '\');return false;">' . t('Delete Project') . '</a>';
   } else {
     $variables['delete_project_action'] = '';
   }
@@ -1161,7 +1161,13 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
 
     case 'deleteproject':
       $tracking_id = intval($_POST['tracking_id']);
-      $retdata = array ('status' => "1");
+      $retval = maestro_delete_project($tracking_id);
+      if($retval) {
+        $retdata = array ('status' => "1", 'message' => t('Successful Deletion of Project'));
+      }
+      else {
+        $retdata = array ('status' => "0", 'message' => t('You are not an admin.  Project not deleted.'));
+      }
       drupal_json_output($retdata);
       break;
 
@@ -1539,4 +1545,62 @@ function maestro_set_process_flow_name ($process_id, $new_flow_name) {
            ->condition('id', $proj_id, '=')
            ->execute();
   }
+}
+
+function maestro_delete_project($tracking_id) {
+  //first, we grab all of the processIDs that have a tracking ID that matches.
+  $tracking_id = intval($tracking_id);
+  if(!user_access('maestro admin')) return false;
+
+  $query = db_select('maestro_process', 'a');
+  $query->fields('a',array('id'));
+  $query->condition('a.tracking_id',$tracking_id,'=');
+  $res = $query->execute()->fetchAll();
+  foreach($res as $rec) {
+    //now delete all process variables
+    db_delete('maestro_process_variables')
+        ->condition('process_id', $rec->id)
+        ->execute();
+
+    //pick off all of the queue items now and use those to delete the queue_from entries
+    $query = db_select('maestro_queue', 'a');
+    $query->fields('a',array('id'));
+    $query->condition('a.process_id',$rec->id,'=');
+    $queueres = $query->execute()->fetchAll();
+    foreach($queueres as $queuerec) {
+      //delete the queue_from records now
+      db_delete('maestro_queue_from')
+        ->condition('queue_id', $queuerec->id)
+        ->execute();
+
+      //delete the production assignments now
+      db_delete('maestro_production_assignments')
+        ->condition('task_id', $queuerec->id)
+        ->execute();
+
+      //now delete the queue record
+      db_delete('maestro_queue')
+        ->condition('id', $queuerec->id)
+        ->execute();
+    }
+
+    //now for each process, delete the corresponding records.
+    db_delete('maestro_process')
+        ->condition('id', $rec->id)
+        ->execute();
+  }
+  //and now we delete the project information
+  db_delete('maestro_project_comments')
+      ->condition('tracking_id', $tracking_id)
+      ->execute();
+
+  db_delete('maestro_project_content')
+      ->condition('tracking_id', $tracking_id)
+      ->execute();
+
+  db_delete('maestro_projects')
+      ->condition('id', $tracking_id)
+      ->execute();
+
+  reuturn true;
 }

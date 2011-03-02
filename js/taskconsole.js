@@ -92,26 +92,28 @@ function maestro_ajaxUpdateTaskAssignment(id) {
 }
 
 /* In the project details area, the workflow admin can delete a project and its associated tasks and content */
-function maestro_ajaxDeleteProject(id) {
-  alert('Delete Project feature not yet implemented.');
-  /*
-  (function ($) {
-    $.ajax({
-      type: 'POST',
-      url : ajax_url + '/deleteproject',
-      cache: false,
-      data: {tracking_id: id},
-      dataType: 'json',
-      success:  function (data) {
-        if (data.status != 1) {
-          alert('An error occurred deleting project');
-        }
-      },
-      error: function() { alert('there was a SERVER Error processing AJAX request'); }
-
-    });
-  })(jQuery);
-  */
+function maestro_ajaxDeleteProject(id, message) {
+  var x = confirm(message);
+  if(x) {
+    (function ($) {
+      $.ajax({
+        type: 'POST',
+	    url : ajax_url + '/deleteproject',
+	    cache: false,
+	    data: {tracking_id: id},
+	    dataType: 'json',
+	    success:  function (data) {
+	    	alert(data.message);
+	    	if (data.status == 1) {
+	    		location.reload();
+	    	}
+	    },
+	    error: function() { 
+	    	alert('there was a SERVER Error processing AJAX request'); 
+	    }
+      });
+   	})(jQuery);
+  }
 }
 
 function ajaxMaestroComment(op, rowid, id, cid) {
