@@ -1,7 +1,7 @@
   <div class="taskconsoleActionRec">
-    <span id="expandProject<?php print $rowid; ?>" style="padding:0px 0px 15px 10px;"><a href="#" onClick='projectDetailToggleAll("expand",<?php print $rowid; ?>);return false;'><?php print t('Expand All'); ?></a></span>
-    <span id="collapseProject<?php print $rowid; ?>" style="padding:0px 0px 15px 10px;display:none;"><a href="#" onClick='projectDetailToggleAll("collapse",<?php print $rowid; ?>);return false;'><?php print t('Collapse All'); ?></a></span>
-    <span style="padding:0px 0px 15px 20px;display:<?php print $hiderequestlink ?>;">[&nbsp;<a href="<?php print $project_link ?>" onclick="alert('Not yet implemented');return false;"><?php print t('Request Link'); ?></a>&nbsp;]</span>
+    <div id="expandProject<?php print $rowid; ?>" style="padding:0px 0px 15px 10px;"><a href="#" onClick='projectDetailToggleAll("expand",<?php print $rowid; ?>);return false;'><?php print t('Expand All'); ?></a></div>
+    <div id="collapseProject<?php print $rowid; ?>" style="padding:0px 0px 15px 10px;display:none;"><a href="#" onClick='projectDetailToggleAll("collapse",<?php print $rowid; ?>);return false;'><?php print t('Collapse All'); ?></a></div>
+    <div style="padding:0px 0px 15px 20px;display:<?php print $hiderequestlink ?>;">[&nbsp;<a href="<?php print $project_link ?>" onclick="alert('Not yet implemented');return false;"><?php print t('Request Link'); ?></a>&nbsp;]</div>
         <div id="newcomment_container_<?php print $rowid; ?>" style="padding-top:10px;display:none;">
             <form name="fprjcmt_<?php print $rowid; ?>" id="fprjcmt_<?php print $rowid; ?>" ACTION="" METHOD="post" style="margin:0px;">
                 <fieldset><legend><b><?php print t('New Comment'); ?></b></legend>

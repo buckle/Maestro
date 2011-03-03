@@ -163,6 +163,8 @@ function maestro_get_project_details(obj) {
         newicon = img.substr(0, index) + '_open' + img.substr(index + 7);
         jQuery('#maestro_project_information_div_'+ projectID).html(data.html);
         jQuery('#maestro_project_information_row_' + projectID).attr('style','display:');
+        jQuery('#maestro_project_information_row_' + projectID).removeClass('maestro_hide_secondary_row'); 
+        jQuery('#maestro_project_information_row_' + projectID).removeClass('maestro_show_secondary_row');         
         jQuery('#maestro_viewdetail_' + projectID).attr('src',newicon);
 
         } else {
