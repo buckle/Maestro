@@ -1602,5 +1602,5 @@ function maestro_delete_project($tracking_id) {
       ->condition('id', $tracking_id)
       ->execute();
 
-  reuturn true;
+  return true;
 }
