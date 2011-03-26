@@ -8,6 +8,9 @@
 include_once './' . drupal_get_path('module', 'maestro') . '/maestro.class.php';
 include_once './' . drupal_get_path('module', 'maestro') . '/maestro_tasks.class.php';
 
+/**
+ * Implements hook_menu()
+ */
 function maestro_menu() {
   $items = array();
 
@@ -153,7 +156,9 @@ function maestro_menu() {
   return $items;
 }
 
-
+/**
+ * Implements hook_permission()
+ */
 function maestro_permission() {
   return array(
     'maestro taskconsole'  => array(
@@ -174,6 +179,9 @@ function maestro_permission() {
   );
 }
 
+/**
+ * Implements hook_help()
+ */
 function maestro_help($path, $arg) {
   $output = '';
 
@@ -198,6 +206,9 @@ function maestro_admin_paths() {
   return $paths;
 }
 
+/**
+ * Implements hook_theme()
+ */
 function maestro_theme() {
   global $base_url;
   return array(
@@ -360,6 +371,9 @@ function maestro_theme() {
 
 /* maestro custom action logic */
 
+/**
+ * Implements hook_action_info()
+ */
 function maestro_action_info() {
   return array(
     'launch_workflow_action' => array(
@@ -371,6 +385,16 @@ function maestro_action_info() {
   );
 }
 
+/**
+ * Provides implementation logic for carrying out launch_workflow_action
+ *
+ * @param $object
+ *   The object upon which the action will act
+ * @param $context
+ *   Associative array of extra information about the action call
+ *
+ * @see actions_do()
+ */
 function launch_workflow_action(&$object, $context = array()) {
   global $user;
   $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
@@ -423,13 +447,22 @@ function launch_workflow_action(&$object, $context = array()) {
   // modulename_maestro_post_action_handler
   //this will give devs the ability to read the db, handle a new process, do anything with data manipulation/UI etc.
   module_invoke_all('maestro_post_action_handler', $newprocess, $context);
-
 }
 
+/**
+ * Form submission handler for launch_workflow_action_form()
+ *
+ * @see launch_workflow_action_form()
+ */
 function launch_workflow_action_submit($form, $form_state) {
   return array('workflow' => $form_state['values']['workflow']);
 }
 
+/**
+ * Form builder for the launch_workflow_action details form
+ * 
+ * @ingroup forms
+ */
 function launch_workflow_action_form($context) {
   $form = array();
 
@@ -455,6 +488,9 @@ function launch_workflow_action_form($context) {
 
 /* maestro custom trigger logic */
 
+/**
+ * Implements hook_trigger_info()
+ */
 function maestro_trigger_info() {
   //dynamically get triggers based on the fire trigger tasks
   $query = db_select('maestro_template_data', 'a');
@@ -498,6 +534,15 @@ function maestro_taskconsole() {
   return theme('maestro_taskconsole');
 }
 
+/**
+ * Launches new workflow based on template
+ *
+ * @param $template
+ *   ID value of template to launch
+ *
+ * @return
+ *   ID of new process generated
+ */
 function maestro_launch_workflow($template=0) {
   global $base_url;
 
@@ -519,6 +564,15 @@ function maestro_launch_workflow($template=0) {
   return $newprocess;
 }
 
+/**
+ * Launches new workflow based on template and redirects the user to the task console
+ *
+ * @param $template
+ *   ID value of template to launch
+ *
+ * @return
+ *   ID of new process generated
+ */
 function maestro_new_process($template=0) {
   global $base_url;
 
@@ -541,11 +595,17 @@ function maestro_new_process($template=0) {
   return $newprocess;
 }
 
+/**
+ * Provides gateway to process the task queue
+ */
 function maestro_orchestrator() {
   $maestro = Maestro::createMaestroObject(1);
   $maestro->engine()->cleanQueue();
 }
 
+/**
+ * Preprocess function for taskconsole
+ */
 function template_preprocess_maestro_taskconsole(&$variables) {
   global $base_url;
 
@@ -619,8 +679,9 @@ function template_preprocess_maestro_taskconsole(&$variables) {
 
 }
 
-
-
+/**
+ * Preprocess function for details displayed on task console
+ */
 function template_preprocess_maestro_taskconsole_details(&$variables) {
   global $base_url,$user;
 
@@ -769,7 +830,9 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
 
 }
 
-
+/**
+ * Preprocess function for comments
+ */
 function template_preprocess_maestro_project_comments(&$variables) {
   global $base_url, $user;
 
@@ -805,6 +868,9 @@ function template_preprocess_maestro_project_comments(&$variables) {
 
 }
 
+/**
+ * Preprocess function for workflow editing
+ */
 function template_preprocess_maestro_workflow_edit(&$variables) {
   global $base_url;
   $mi = new MaestroInterface($variables['tid']);
@@ -813,6 +879,9 @@ function template_preprocess_maestro_workflow_edit(&$variables) {
   $variables['ajax_url'] = url('admin/structure/maestro/ajax/');
 }
 
+/**
+ * Preprocess function for workflow list
+ */
 function template_preprocess_maestro_workflow_list(&$variables) {
   $query = db_select('maestro_template', 'a');
   $query->addExpression('COUNT(a.id)','templateCount');
@@ -839,6 +908,9 @@ function template_preprocess_maestro_workflow_list(&$variables) {
   $variables['app_groups'] = maestro_createAppGroupDropDown('deleteAppGroup');
 }
 
+/**
+ * Preprocess function for items in workflow list
+ */
 function template_preprocess_maestro_workflow_list_item(&$variables) {
   global $base_url;
   $output="";
@@ -867,8 +939,9 @@ function template_preprocess_maestro_workflow_list_item(&$variables) {
 
 }
 
-
-
+/**
+ * Preprocess function for editing template variables
+ */
 function template_preprocess_maestro_workflow_edit_template_variables(&$variables) {
   global $base_url;
   $variables['module_path']=$base_url . "/" . drupal_get_path('module', 'maestro');
@@ -886,6 +959,9 @@ function template_preprocess_maestro_workflow_edit_template_variables(&$variable
   $variables['template_variables'] = $output;
 }
 
+/**
+ * Preprocesss function for editing list of template variables
+ */
 function template_preprocess_maestro_workflow_edit_template_variables_list(&$variables) {
   global $base_url;
   $variables['module_path' ] = $base_url . "/" . drupal_get_path('module', 'maestro');
@@ -897,10 +973,16 @@ function template_preprocess_maestro_workflow_edit_template_variables_list(&$var
     $variables['show_variable_actions'] = '';
     $variables['show_variable_edit_actions'] = 'none';
   }
-
 }
 
-
+/**
+ * Generates html of select list for Application Group drop down
+ *
+ * Queries database for existing groups and inserts them into HTML option tags
+ *
+ * @return
+ *  HTML of select list
+ */
 function maestro_createAppGroupDropDown($name, $selected = 0){
   $res = db_query("SELECT id, app_group FROM {maestro_app_groups}");
   $output = "<select class='form-select' id='{$name}' name='{$name}' size='4' >";
@@ -914,12 +996,18 @@ function maestro_createAppGroupDropDown($name, $selected = 0){
   return $output;
 }
 
-/* Any other maestro task type modules will also implement this function
+/**
+ * Defines available task types
+ * 
+ * Any other maestro task type modules will also implement this function
  * For the core task types that we implement as part of maestro
  * we need to describe them in this function
  *
  * This information is used by the maestro UI (interface) presently
  * to get contextMenu options and handler options.
+ *
+ * @return
+ *   Array of keyed arrays representing available task types
  */
 function maestro_maestro_get_taskobject_info() {
   $options = array(
@@ -954,13 +1042,18 @@ function maestro_maestro_get_taskobject_info() {
   return $options;
 }
 
-
+/**
+ * Defines available handler functions
+ *
+ * @return
+ *   Keyed array of keyed arrays defining handler function and the function description 
+ */
 function maestro_maestro_handler_options() {
 
   $handlers = array(
     'MaestroTaskTypeBatchFunction' => array(
-      'maestro_test_batch_function' => t('Sample test batch function - do nothing.')
-    )
+      'maestro_test_batch_function' => t('Sample test batch function - do nothing.'),
+    ),
   );
   return $handlers;
 }
@@ -979,15 +1072,15 @@ function maestro_maestro_set_process_variable_methods() {
   return array(
     'hardcoded_value' => array (
       'title' => t('Hardcoded Value'),
-      'engine_handler' => 'maestro_set_process_variable_logic_hardcoded'
+      'engine_handler' => 'maestro_set_process_variable_logic_hardcoded',
     ),
     'increment_value' => array (
       'title' => t('Add or Subtract a Value') . '<br>' . t('(negative number for subtraction)'),
-      'engine_handler' => 'maestro_set_process_variable_logic_increment'
+      'engine_handler' => 'maestro_set_process_variable_logic_increment',
     ),
     'maestro_content_type_task' => array (
       'title' => t('Content Field Result'),
-      'engine_handler' => 'content_type_task_maestro_set_process_variable_logic'
+      'engine_handler' => 'content_type_task_maestro_set_process_variable_logic',
     ),
   );
 }
@@ -1001,10 +1094,16 @@ function maestro_set_process_variable_logic_hardcoded(&$task_class, $current_val
   return $arg;
 }
 
+/**
+ *
+ */
 function maestro_set_process_variable_logic_increment(&$task_class, $current_value, $arg) {
   return intval($current_value) + intval($arg);
 }
 
+/**
+ *
+ */
 function content_type_task_maestro_set_process_variable_logic(&$task, $current_value, $arg) {
   $args = explode(':', $arg);  //$args[0] = content type, $arg[1] = field name
   if (empty($args[0]) OR empty($args[1])) {
@@ -1048,7 +1147,14 @@ function content_type_task_maestro_set_process_variable_logic(&$task, $current_v
 
 }
 
-
+/**
+ * Act on Ajax requests from task console
+ *
+ * @param $action
+ *   String value of action taken
+ * @param $queue_id
+ *   If $action=="complete_task, the queue_id of the task to be completed
+ */
 function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
   global $user;
 
@@ -1267,7 +1373,11 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
 
 }
 
-
+/**
+ * Implements hook_form_alter()
+ *
+ * For content types managed by Maestro, sets custom submit handler
+ */
 function maestro_form_alter(&$form, $form_state, $form_id) {
   /* Determine if the cached list of content types being used by configured maestro workflow templates is setup. */
   $maestro_content_types = cache_get('maestro_content_types');
@@ -1354,6 +1464,11 @@ function maestro_form_alter(&$form, $form_state, $form_id) {
   }
 }
 
+/**
+ * Implements hook_node_insert()
+ *
+ * When inserting Maestro node, process event through Maestro task handler
+ */
 function maestro_node_insert($node) {
   if (isset($node->maestro_taskid) AND $node->maestro_taskid > 0) {
     $task_classname = db_query("SELECT task_class_name FROM {maestro_queue} WHERE id = :tid",
@@ -1361,7 +1476,6 @@ function maestro_node_insert($node) {
 
     $task = new $task_classname();
     $task->processContent($node->maestro_taskid,'insert',$node);
-
   }
 }
 
@@ -1388,14 +1502,24 @@ function maestro_node_update($node) {
 
 }
 
-
+/**
+ * Custom submit handler for content types managed by Maestro
+ *
+ * Provides redirection to the Maestro task console
+ *
+ * @see maestro_form_alter()
+ */
 function maestro_content_form_submit($form, &$form_state) {
   $form_state['redirect'] = 'maestro/taskconsole';
 }
 
 
-/* Helper function that interactive tasks can use
+/**
+ * Helper function that interactive tasks can use
  * for example to review/edit content that needs a node id
+ *
+ * @return
+ *   Node ID or FALSE
  */
 function maestro_getNodeId($process_id,$content_type) {
   $tracking_id = db_select('maestro_process')
@@ -1417,7 +1541,11 @@ function maestro_getNodeId($process_id,$content_type) {
   }
 }
 
-/* Helper function that retrieves the tracking_id for a specific queue task
+/**
+ * Helper function that retrieves the tracking_id for a specific queue task
+ * 
+ * @return
+ *   Tracking ID or FALSE
  */
 function maestro_getTaskTrackingId($taskid) {
   $res = db_select('maestro_queue','a');
@@ -1433,7 +1561,12 @@ function maestro_getTaskTrackingId($taskid) {
   }
 }
 
-/* Retrieve the task history for a maestro project (all related workflow instances) */
+/**
+ * Retrieve the task history for a maestro project (all related workflow instances) 
+ *
+ * @return
+ *   Array of objects representing tasks in history of project
+ */
 function maestro_getProjectTasksHistory($tracking_id) {
 
   $query = db_select('maestro_process','process');
@@ -1468,16 +1601,15 @@ function maestro_getProjectTasksHistory($tracking_id) {
   return $retval;
 }
 
-/*
- * Implementation of hook_maestro_notification_observer found in the notifications class for Maestro
+/**
+ * Implementation of hook_maestro_notification_observer() found in the notifications class for Maestro
  */
-
 function maestro_maestro_notification_observer() {
   return array('MaestroEmailNotification','SAMPLEMaestroTwitterNotification', 'MaestroWatchDogNotification'); //MaestroEmailNotification is the name of the class used for email notifications
 }
 
-/*
- * Implementation of hook_mail
+/**
+ * Implementation of hook_mail()
  */
 function maestro_mail($key, &$message, $params) {
   include_once('maestro_notification.class.php');
@@ -1500,9 +1632,18 @@ function maestro_mail($key, &$message, $params) {
   }
 }
 
- /* Utility function used in the contructor to merge arrays and maintain keys
-  * Copy of example function found on php.net documentation page for array_merge
-  */
+/**
+ * Utility function used in the contructor to merge arrays and maintain keys
+ * Copy of example function found on php.net documentation page for array_merge
+ *
+ * @param $arr1
+ *   Array to be merged
+ * @param $arr1
+ *   Array to be merged
+ *
+ * @return
+ *   Array of items merged from $arr1 and $arr2
+ */
 function maestro_array_merge_keys($arr1, $arr2) {
   if (is_array($arr2)) {
     foreach($arr2 as $k=>$v) {
@@ -1520,6 +1661,17 @@ function maestro_array_merge_keys($arr1, $arr2) {
   return $arr1;
 }
 
+/**
+ * Utility function to add key=>value pairs from arr2 into $arr1
+ *
+ * @param $arr1
+ *   Base array into which items will be added
+ * @param $arr1
+ *   Array of itmes to add into arr1
+ *
+ * @return
+ *   Array of items representing union of arr1 and arr2
+ */
 function maestro_array_add($arr1, $arr2) {
   if (is_array($arr1) && is_array($arr2)) {
     foreach ($arr2 as $k=>$v) {
@@ -1530,6 +1682,14 @@ function maestro_array_add($arr1, $arr2) {
   return $arr1;
 }
 
+/**
+ * Update description of existing process with new text
+ *
+ * @param $process_id
+ *   ID of process to update
+ * @param $new_flow_name
+ *   String of text to which process description should be set
+ */
 function maestro_set_process_flow_name ($process_id, $new_flow_name) {
   if($process_id >0 && $new_flow_name != '') {
     db_update('maestro_process')
@@ -1548,6 +1708,15 @@ function maestro_set_process_flow_name ($process_id, $new_flow_name) {
   }
 }
 
+/**
+ * Delete a project and all related items
+ *
+ * @param $tracking_id
+ *   The tracking id of the project to delete
+ *
+ * @return
+ *   Returns FALSE if user does not have 'maestro admin' access, TRUE otherwise
+ */
 function maestro_delete_project($tracking_id) {
   //first, we grab all of the processIDs that have a tracking ID that matches.
   $tracking_id = intval($tracking_id);
