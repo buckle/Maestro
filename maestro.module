@@ -685,6 +685,7 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
   $query->condition('queue.status',0,'=');
   $query->condition('queue.show_in_detail',1,'=');
   $res = $query->execute();
+  $variables['outstanding_tasks'] = array(); //instantiate empty array just in case the query returns no results
   foreach ($res as $record) {
     $otask = new stdClass();
     $otask->assigned_date = strftime("%b %d/%Y %H:%M",$record->created_date);
