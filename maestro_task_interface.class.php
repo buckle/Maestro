@@ -27,8 +27,10 @@ abstract class MaestroTaskInterface {
       $res->condition('a.id', $task_id, '=');
       $rec = current($res->execute()->fetchAll());
 
-      $this->_taskname = $rec->taskname;
-      $this->_template_id = intval(@($rec->template_id));
+      if(is_object($rec)) {
+        $this->_taskname = $rec->taskname;
+        $this->_template_id = intval(@($rec->template_id));
+      }
     }
     else {
       $this->_template_id = $template_id;
@@ -886,7 +888,9 @@ class MaestroTaskInterfaceBatchFunction extends MaestroTaskInterface {
     $this->_task_data->task_data['handler_location'] = $batch_function;
 
     $handler_options = $this->getHandlerOptions();
-
+    if(!array_key_exists('handler',$this->_task_data->task_data)) {
+      $this->_task_data->task_data['handler'] = '';  //fixing an issue reported by Merco
+    }
     return theme('maestro_task_batch_function_edit', array('tdid' => $this->_task_id, 'td_rec' => $this->_task_data, 'handler_options' => $handler_options));
   }
 
