@@ -55,7 +55,7 @@ function template_preprocess_maestro_content_publish_review(&$variables) {
 
 function maestro_reviewContentType($op,&$task,$parms) {
   global $base_url;
-
+  $retval = new stdClass();
   $nid = maestro_getNodeId($task->_properties->process_id,$parms['content_type']);
 
   if ($nid === FALSE) {
@@ -69,7 +69,7 @@ function maestro_reviewContentType($op,&$task,$parms) {
     $retval->html = t('Invalid Node: Content possibly has been deleted.');
     return $retval;
   }
-  $retval = new stdClass();
+
   $retval->html = '';
   $retval->retcode = FALSE;
   $retval->engineop = '';  // Optionally set the engineop value if you want to complete the task
