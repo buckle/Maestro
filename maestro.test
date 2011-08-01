@@ -34,10 +34,10 @@ class MaestroTestInstance extends DrupalWebTestCase {
   function testCreatingMaestroInstance() {
     include_once './' . drupal_get_path('module', 'maestro') . '/maestro.class.php';
     $this->drupalLogin($this->admin_user);
-    $v1=Maestro::createMaestroObject(1);
-    $v2=Maestro::createMaestroObject(1);
-    $exp=var_export($v1,true);
-    $exp2=var_export($v2,true);
+    $v1 = Maestro::createMaestroObject(1);
+    $v2 = Maestro::createMaestroObject(1);
+    $exp = var_export($v1, TRUE);
+    $exp2 = var_export($v2, TRUE);
     $this->assertTrue($exp == $exp2, t('Maestro Instantiation is a singleton'));
     $this->drupalLogout();
   }
@@ -45,7 +45,7 @@ class MaestroTestInstance extends DrupalWebTestCase {
 
   function testMaestroStructurePage() {
     $this->drupalGet('admin/structure/maestro');
-    $this->assertResponse(403,t('Non admin user should not be able to access the Maestro Structure menu.'));
+    $this->assertResponse(403, t('Non admin user should not be able to access the Maestro Structure menu.'));
     $this->drupalLogin($this->admin_user);
     $this->drupalGet('admin/structure/maestro');
     $this->assertResponse(200, t('Admin User can access the Maestro Structure Page.'));
@@ -56,51 +56,51 @@ class MaestroTestInstance extends DrupalWebTestCase {
     include_once './' . drupal_get_path('module', 'maestro') . '/maestro.admin.inc';
     $recID=0;
     $recID=maestro_createNewTemplate('test new template');
-    $this->assertTrue($recID == 2,t('First new template must have an ID of 2.'),'Maestro');
+    $this->assertTrue($recID == 2, t('First new template must have an ID of 2.'), 'Maestro');
   }
 
 
   function testCreateMaestroTemplateVariable() {
     include_once './' . drupal_get_path('module', 'maestro') . '/maestro.admin.inc';
     $query = db_select('maestro_template_variables', 'a');
-    $query->addExpression('count(a.id)','cnt');
-    $query->condition('a.template_id',1,'=');
+    $query->addExpression('count(a.id)', 'cnt');
+    $query->condition('a.template_id', 1, '=');
     $cnt=current($query->execute()->fetchAll());
     $this->varcount = $cnt->cnt;
-    $this->varID=maestro_createTemplateVariable(1,'test variable','5');
-    $this->assertTrue($this->varID > 0,t('New Variable must have an ID greater than 0. New ID:' . $this->varID),'Maestro');
+    $this->varID=maestro_createTemplateVariable(1, 'test variable', '5');
+    $this->assertTrue($this->varID > 0, t('New Variable must have an ID greater than 0. New ID:' . $this->varID), 'Maestro');
 
   }
 
-  function testDeleteMaestroTemplateVariable(){
+  function testDeleteMaestroTemplateVariable() {
     include_once './' . drupal_get_path('module', 'maestro') . '/maestro.admin.inc';
     maestro_deleteTemplateVariable($this->varID);
     $query = db_select('maestro_template_variables', 'a');
-    $query->addExpression('count(a.id)','cnt');
-    $query->condition('a.template_id',1,'=');
+    $query->addExpression('count(a.id)', 'cnt');
+    $query->condition('a.template_id', 1, '=');
     $cnt=current($query->execute()->fetchAll());
-    $this->assertTrue($cnt->cnt == $this->varcount,t('Deleting variable successful'),'Maestro');
+    $this->assertTrue($cnt->cnt == $this->varcount, t('Deleting variable successful'), 'Maestro');
   }
 
 
   function testCreateMaestroAppGroup() {
     include_once './' . drupal_get_path('module', 'maestro') . '/maestro.admin.inc';
     $query = db_select('maestro_app_groups', 'a');
-    $query->addExpression('count(a.id)','cnt');
+    $query->addExpression('count(a.id)', 'cnt');
     $cnt=current($query->execute()->fetchAll());
     $this->appGroupCount = $cnt->cnt;
     $this->appGroupID=maestro_createAppGroup('Test App Group');
-    $this->assertTrue($this->appGroupID > 0,t('New App Group must have an ID greater than 0. New ID:' . $this->appGroupID),'Maestro');
+    $this->assertTrue($this->appGroupID > 0, t('New App Group must have an ID greater than 0. New ID:' . $this->appGroupID), 'Maestro');
 
   }
 
-  function testDeleteMaestroAppGroup(){
+  function testDeleteMaestroAppGroup() {
     include_once './' . drupal_get_path('module', 'maestro') . '/maestro.admin.inc';
     maestro_deleteAppGroup($this->appGroupID);
     $query = db_select('maestro_app_groups', 'a');
-    $query->addExpression('count(a.id)','cnt');
+    $query->addExpression('count(a.id)', 'cnt');
     $cnt=current($query->execute()->fetchAll());
-    $this->assertTrue($cnt->cnt == $this->appGroupCount,t('Deleting App Group successful'),'Maestro');
+    $this->assertTrue($cnt->cnt == $this->appGroupCount, t('Deleting App Group successful'), 'Maestro');
   }
 
 }

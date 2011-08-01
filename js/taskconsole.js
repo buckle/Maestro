@@ -66,10 +66,10 @@ jQuery(function($) {
             );
 
           } else {
-            alert('An error occurred updating assignment');
+            alert(Drupal.t('An error occurred updating assignment'));
           }
         },
-        error: function() { alert('there was a SERVER Error processing AJAX request'); }
+        error: function() { alert(Drupal.t('there was a SERVER Error processing AJAX request')); }
 
       });
 
@@ -97,12 +97,14 @@ function maestro_ajaxUpdateTaskAssignment(id) {
       dataType: 'json',
       success:  function (data) {
         if (data.status != 1) {
-          alert('An error occurred updating assignment');
+          alert(Drupal.t('An error occurred updating assignment'));
         } else {
           $("#assigned_user_row" + id).html(data.username);
         }
       },
-      error: function() { alert('there was a SERVER Error processing AJAX request'); }
+      error: function() {
+        alert(Drupal.t('there was a SERVER Error processing AJAX request'));
+      }
 
     });
   })(jQuery);
@@ -154,11 +156,11 @@ function ajaxMaestroComment(op, rowid, id, cid) {
             $('#projectCommentsOpen_rec' + rowid).html(data.html);
             $('html,body').animate({scrollTop: $('#projectCommentsOpen_rec' + rowid).offset().top-1},500);
           } else {
-            alert('An error occurred adding comment');
+            alert(Drupal.t('An error occurred adding comment'));
           }
         },
         error : function() {
-          alert('there was a SERVER Error processing AJAX request');
+          alert(Drupal.t('there was a SERVER Error processing AJAX request'));
         }
 
       });
@@ -182,11 +184,11 @@ function ajaxMaestroComment(op, rowid, id, cid) {
             $('#projectCommentsOpen_rec' + rowid).html(data.html);
             $('html,body').animate({scrollTop: $('#projectCommentsOpen_rec' + rowid).offset().top-1},500);
           } else {
-            alert('An error occurred deleting comment');
+            alert(Drupal.t('An error occurred deleting comment'));
           }
         },
         error : function() {
-          alert('there was a SERVER Error processing AJAX request');
+          alert(Drupal.t('there was a SERVER Error processing AJAX request'));
         }
 
       });
@@ -227,10 +229,10 @@ jQuery(function($) {
             $("#maestro_taskconsole_detail_rec" + taskid).hide();
           }
         } else {
-          alert('An error occurred processing this interactive task');
+          alert(Drupal.t('An error occurred processing this interactive task'));
         }
       },
-      error : function() { alert('there was a SERVER Error processing AJAX request'); },
+      error : function() { alert(Drupal.t('there was a SERVER Error processing AJAX request')); },
       data : dataString
     });
     return false;
@@ -257,7 +259,9 @@ jQuery(function($) {
           $("#newProcessStatusRowFailure").show();
         }
       },
-      error : function() { $("#newProcessStatusRowFailure").show(); },
+      error : function() {
+        $("#newProcessStatusRowFailure").show();
+      },
       data : dataString
     });
     return false;

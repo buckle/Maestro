@@ -1,9 +1,9 @@
 <?php
 
 /**
-* @file
-* maestro.moderator.inc
-*/
+ * @file
+ * maestro.moderator.inc
+ */
 
 function maestro_outstanding_tasks($op='', $qid=0, $other=NULL) {
   global $base_url;
@@ -22,12 +22,12 @@ function maestro_outstanding_tasks($op='', $qid=0, $other=NULL) {
   switch ($op) {
     case 'reassign':
       $m->reassignTask($qid, $_POST['reassign_id'], $_POST['current_uid']);
-      drupal_set_message("Task re-assignment completed and notification sent.");
+      drupal_set_message(t("Task re-assignment completed and notification sent."));
       break;
 
     case 'email':
       $m->sendTaskReminderNotifications($qid, $other);
-      drupal_set_message("Task assignment reminder notification sent.");
+      drupal_set_message(t("Task assignment reminder notification sent."));
       break;
 
     case 'trace':
@@ -222,7 +222,7 @@ function maestro_my_flows() {
   drupal_add_js($base_url . $maestro_path . '/js/taskconsole.js');
   $ajax_url = url('maestro/taskconsole/ajax')  ;
   $filter = array(
-  'myflows' => true,
+  'myflows' => TRUE,
   );
   $rows = maestro_get_all_flows_data($filter);  //user as a filter
   return theme('maestro_all_flows', array('ajax_url' => $ajax_url , 'filter_url' => $ajax_url . '/myflows', 'database_result_set' => $rows));
@@ -248,11 +248,11 @@ function maestro_get_all_flows_data($filters = NULL) {
   $query->orderBy('d.id','DESC');
   //$query->limit(1);
 
-  if(is_array($filters)) {
-    foreach($filters as $key => $filter) {
-      if(isset($filter) && $filter !=''){
+  if (is_array($filters)) {
+    foreach ($filters as $key => $filter) {
+      if (isset($filter) && $filter !='') {
 
-        switch($key) {
+        switch ($key) {
           case 'userid':
             $query->condition(db_or()->condition('a.originator_uid', intval($filter))->condition('e.uid', intval($filter)));
             break;

@@ -1,7 +1,5 @@
 <?php
 
-// $Id:
-
 /**
  * @file
  * maestro.views.inc
@@ -10,7 +8,7 @@
 
 /**
  * Implementation of hook_views_api().
-*/
+ */
 function maestro_views_api() {
   return array(
     'api' => 2.0,
@@ -113,7 +111,7 @@ function maestro_views_data() {
     'real field' => 'id',
     'title' => t('Assigned Users'),
     'help' => t('All of the assigned users'),
-    'field' => array (
+    'field' => array(
       'handler' => 'views_handler_field_maestro_assigned_users',
       'click sortable' => TRUE,
     ),
@@ -122,17 +120,17 @@ function maestro_views_data() {
   $data['maestro_queue']['template_data_id'] = array(
     'title' => t('Template Data ID'),
     'help' => t('A Reference to the template data table.'),
-    'field' => array (
+    'field' => array(
       'handler' => 'views_handler_field_numeric',
       'click sortable' => TRUE,
     ),
   );
 
   //INT fields here:
-  $data['maestro_queue']['process_id'] = array (
+  $data['maestro_queue']['process_id'] = array(
     'title' => t('Process ID'),
     'help'  => t('Unique Process Identifier.'),
-    'field' => array (
+    'field' => array(
       'handler' => 'views_handler_field_numeric',
       'click sortable' => TRUE,
     ),
@@ -144,10 +142,10 @@ function maestro_views_data() {
     ),
   );
 
-  $data['maestro_queue']['engine_version'] = array (
+  $data['maestro_queue']['engine_version'] = array(
     'title' => t('Engine Version'),
     'help'  => t('Version of the engine used to run this task.'),
-    'field' => array (
+    'field' => array(
       'handler' => 'views_handler_field_numeric',
       'click sortable' => TRUE,
     ),
@@ -159,10 +157,10 @@ function maestro_views_data() {
     ),
   );
 
-  $data['maestro_queue']['is_interactive'] = array (
+  $data['maestro_queue']['is_interactive'] = array(
     'title' => t('Interactive Flag'),
     'help'  => t('Set to 1 for interactive. 0 for non-interactive.'),
-    'field' => array (
+    'field' => array(
       'handler' => 'views_handler_field_numeric',
       'click sortable' => TRUE,
     ),
@@ -174,10 +172,10 @@ function maestro_views_data() {
     ),
   );
 
-    $data['maestro_queue']['status'] = array (
+    $data['maestro_queue']['status'] = array(
     'title' => t('Status flag'),
     'help'  => t('Textual Status flag.'),
-    'field' => array (
+    'field' => array(
       'handler' => 'views_handler_field_maestro_status',  //using a custom field handler
       'click sortable' => TRUE,
     ),
@@ -189,10 +187,10 @@ function maestro_views_data() {
     ),
   );
 
-  $data['maestro_queue']['uid'] = array (
+  $data['maestro_queue']['uid'] = array(
     'title' => t('Completed By'),
     'help'  => t('The user who completed the task.'),
-    'field' => array (
+    'field' => array(
       'handler' => 'views_handler_field_maestro_uid',  //using a custom field handler
       'click sortable' => TRUE,
     ),
@@ -219,7 +217,7 @@ class views_handler_field_maestro_status extends views_handler_field_numeric {
 
   function render($values) {
     global $base_path;
-    @include_once($base_path . drupal_get_path('module','maestro') . '/maestro_contatnts.class.php');
+    @include_once($base_path . drupal_get_path('module', 'maestro') . '/maestro_contatnts.class.php');
     $value = $values->{$this->field_alias};
     return MaestroTaskStatusCodes::getStatusLabel($value);
   }
@@ -254,17 +252,17 @@ class views_handler_field_maestro_assigned_users extends views_handler_field_num
     //@TODO:  need to fix this method once the OG/role ability is rolled out
     $q = db_select('maestro_production_assignments', 'a');
     $q->join('users', 'b', 'a.assign_id = b.uid');
-    $q->addField('b','uid');
-    $q->addField('b','mail');
-    $q->addField('b','name');
-    $q->condition('a.task_id',intval($value));
+    $q->addField('b', 'uid');
+    $q->addField('b', 'mail');
+    $q->addField('b', 'name');
+    $q->condition('a.task_id', intval($value));
     $res = $q->execute();
     $output = "";
-    foreach($res as $record) {
-      if($output != '') $output .= "<br>";
+    foreach ($res as $record) {
+      if ($output != '') $output .= "<br>";
       $output .="{$record->name}";
     }
-    if($output == '') {
+    if ($output == '') {
       $output = t('Maestro');
     }
     return $output;

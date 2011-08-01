@@ -184,10 +184,10 @@ function maestro_get_project_details(obj) {
           );
 
         } else {
-          alert('An error occurred updating assignment');
+          alert(Drupal.t('An error occurred updating assignment'));
         }
       },
-      error: function() { alert('there was a SERVER Error processing AJAX request'); }
+      error: function() { alert(Drupal.t('there was a SERVER Error processing AJAX request')); }
 
     });
   }

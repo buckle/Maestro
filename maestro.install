@@ -932,7 +932,7 @@ function maestro_schema() {
         'type' => 'int',
         'not null' => FALSE,
       ),
-      'instance'=> array(
+      'instance' => array(
         'description' => 'Instance of this content type for this project',
         'type' => 'int',
         'not null' => TRUE,
@@ -985,7 +985,7 @@ function maestro_schema() {
 function maestro_update_7001() {
 
   db_add_field('maestro_production_assignments', 'assign_type', array('type' => 'int', 'size' => 'tiny', 'not null' => TRUE, 'default' => '0', 'description' => 'assign by user, role or group'));
-  db_drop_unique_key('maestro_production_assignments','assign_back_uid');
+  db_drop_unique_key('maestro_production_assignments', 'assign_back_uid');
   db_change_field('maestro_production_assignments', 'assign_back_uid', 'assign_back_id',
       array('type' => 'int', 'not null' => TRUE, 'default' => '0'),
       array('unique key' => array('assign_back_id')));

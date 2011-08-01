@@ -195,7 +195,7 @@ function maestro_help($path, $arg) {
 
   switch ($path) {
     case "admin/help#maestro":
-      $output = '<p>' . t("Define and administer workflows.") .'</p>';
+      $output = '<p>' . t("Define and administer workflows.") . '</p>';
       break;
   }
   return $output;
@@ -238,11 +238,11 @@ function maestro_theme() {
     ),
     'maestro_taskconsole_details' => array(
       'template' => 'theme/project_detail_container',
-      'variables' => array('task' => NULL,'source' => NULL),
+      'variables' => array('task' => NULL, 'source' => NULL),
       ),
     'maestro_project_comments' => array(
       'template' => 'theme/project_detail_comments',
-      'variables' => array('rowid' => NULL,'tracking_id' => NULL),
+      'variables' => array('rowid' => NULL, 'tracking_id' => NULL),
       ),
     'maestro_trace' => array(
       'template' => 'theme/maestro-trace',
@@ -388,7 +388,7 @@ function maestro_action_info() {
       'type' => 'maestro',
       'label' => t('Launch a Maestro Workflow'),
       'configurable' => TRUE,
-      'triggers' => array ('any'),
+      'triggers' => array('any'),
     )
   );
 }
@@ -424,7 +424,7 @@ function launch_workflow_action(&$object, $context = array()) {
     $nid = intval($context['node']->nid);
     //why bother even running this if the nid is zero?
     //this is a fix for triggering on a node_presave where there isn't a nid
-    if($nid>0) {
+    if ($nid>0) {
       $query = db_insert('maestro_project_content');
       $query->fields(array('nid', 'tracking_id', 'task_id', 'instance', 'content_type', 'task_data', 'created_by_uid', 'is_locked_by_uid', 'status'));
       $query->values(array(
@@ -535,7 +535,7 @@ function maestro_taskconsole() {
   //Only run the orchestrator if we've been told to do so on the config page.
   //if this is our initial installation, set the default value to 1
   //to allow the orchestrator to clean the queue properly
-  if(variable_get('maestro_run_orchestrator_in_task_console', 1)){
+  if (variable_get('maestro_run_orchestrator_in_task_console', 1)) {
     $maestro->engine()->cleanQueue();
   }
 
@@ -554,19 +554,20 @@ function maestro_taskconsole() {
 function maestro_launch_workflow($template=0) {
   global $base_url;
 
-  $template = intval ($template);
+  $template = intval($template);
   if ($template > 0) {
     $maestro = Maestro::createMaestroObject(1);
     $newprocess = $maestro->engine()->newProcess($template);
 
     if ($newprocess > 0) {
-      drupal_set_message("New Process Code Success! - Process ID: $newprocess");
-    } else {
-      drupal_set_message("New Process Code FAIL! - Template: $template not defined");
+      drupal_set_message(t("New Process Code Success! - Process ID: @process", array('@process' => check_plain($newprocess))));
+    }
+    else {
+      drupal_set_message(t("New Process Code FAIL! - Template: @template not defined", array('@template' => check_plain($template))));
     }
   }
   else {
-    drupal_set_message("New Process Code FAIL! - No Template ID Given");
+    drupal_set_message(t("New Process Code FAIL! - No Template ID Given"));
   }
 
   return $newprocess;
@@ -584,19 +585,20 @@ function maestro_launch_workflow($template=0) {
 function maestro_new_process($template=0) {
   global $base_url;
 
-  $template = intval ($template);
+  $template = intval($template);
   if ($template > 0) {
     $maestro = Maestro::createMaestroObject(1);
     $newprocess = $maestro->engine()->newProcess($template);
 
     if ($newprocess > 0) {
-      drupal_set_message("New Process Code Success! - Process ID: $newprocess");
-    } else {
-      drupal_set_message("New Process Code FAIL! - Template: $template not defined");
+      drupal_set_message(t("New Process Code Success! - Process ID: @process", array('@process' => check_plain($newprocess))));
+    }
+    else {
+      drupal_set_message(t("New Process Code FAIL! - Template: @template not defined", array('@template' => check_plain($template))));
     }
   }
   else {
-    drupal_set_message("New Process Code FAIL! - No Template ID Given");
+    drupal_set_message(t("New Process Code FAIL! - No Template ID Given"));
   }
 
   drupal_goto('maestro/taskconsole');
@@ -652,14 +654,15 @@ function template_preprocess_maestro_taskconsole(&$variables) {
       $formatted_task->task_action_url = '#';  //we let the interactive tasks override this later if need be.
 
       if ($task->dates['started'] > 0) {
-        $formatted_task->task_started = ', Started: ' . format_date($task->dates['started'],'short');
+        $formatted_task->task_started = ', Started: ' . format_date($task->dates['started'], 'short');
         $formatted_task->task_icon = $maestro_path . '/images/taskconsole/task.gif';
-      } else {
+      }
+      else {
         $formatted_task->task_started = '';
         $formatted_task->task_icon = $maestro_path . '/images/taskconsole/new_task.gif';
       }
-      $formatted_task->assigned_shortdate = format_date($task->dates['created'],'custom','m/d/y');
-      $formatted_task->assigned_longdate = format_date($task->dates['created'],'medium');
+      $formatted_task->assigned_shortdate = format_date($task->dates['created'], 'custom', 'm/d/y');
+      $formatted_task->assigned_longdate = format_date($task->dates['created'], 'medium');
       $formatted_task->project_details = '';
 
       // Determine if this task is for a regenerated workflow and we need to update the main project/request record
@@ -670,13 +673,15 @@ function template_preprocess_maestro_taskconsole(&$variables) {
       if ($task->flags['is_interactive'] == 1) {
         $current_task = new $task->tasktype($task);  //fire up the engine task here to let us re-use its methods to create task console output.
         $formatted_task->task_action_url = $current_task->getTaskConsoleURL();  //here is where we override the action url.
-        $action_record = $maestro->engine()->showInteractiveTask($current_task,$task->queue_id);
+        $action_record = $maestro->engine()->showInteractiveTask($current_task, $task->queue_id);
         if ($action_record === FALSE OR empty($action_record)) {
           $formatted_task->action_record = '';
-        } else {
+        }
+        else {
           $formatted_task->action_record = $action_record;
         }
-      } else {
+      }
+      else {
         $formatted_task->action_record = '';
       }
 
@@ -698,7 +703,7 @@ function template_preprocess_maestro_taskconsole(&$variables) {
   foreach ($res as $rec) {
     $options[$rec->id] = t($rec->template_name);
   }
-   $variables['process_dropdown']=$options;
+  $variables['process_dropdown']=$options;
 
 }
 
@@ -706,7 +711,7 @@ function template_preprocess_maestro_taskconsole(&$variables) {
  * Preprocess function for details displayed on task console
  */
 function template_preprocess_maestro_taskconsole_details(&$variables) {
-  global $base_url,$user;
+  global $base_url, $user;
 
   $task = $variables['task'];
   $variables['base_url'] = $base_url;
@@ -721,13 +726,14 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
   if (user_access('maestro reassign tasks')) {
     $variables['workflow_admin'] = TRUE;
     $variables['show_otaskaction'] = '';
-  } else {
+  }
+  else {
     $variables['workflow_admin'] = FALSE;
     $variables['show_otaskaction'] = 'none';
   }
 
-  $projectRec = db_select('maestro_projects','a')
-  ->fields('a',array('project_num','originator_uid','description','status','prev_status','related_processes'))
+  $projectRec = db_select('maestro_projects', 'a')
+  ->fields('a', array('project_num', 'originator_uid', 'description', 'status', 'prev_status', 'related_processes'))
   ->condition('id', $task->tracking_id, '=')
   ->execute()->fetchObject();
 
@@ -742,7 +748,8 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
 
   if (user_access('maestro admin')) {
     $variables['delete_project_action'] = '<a class="ctools-modal-maestro-modal-style ctools-use-modal" href="'.$base_url .'/maestro/nojs/deleteproject/' . $task->tracking_id .'">Delete Project</a>';
-  } else {
+  }
+  else {
     $variables['delete_project_action'] = '';
   }
 
@@ -750,29 +757,29 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
 
   /* Format Outstanding Tasks Object to be used in the template */
   $arr_otasks = array();  // Array of outstanding task objects
-  $query = db_select('maestro_process','process');
+  $query = db_select('maestro_process', 'process');
   $query->join('maestro_queue', 'queue', 'queue.process_id = process.id');
   $query->join('maestro_template_data', 'template', 'queue.template_data_id = template.id');
   $query->join('maestro_production_assignments', 'assignment', 'assignment.task_id = queue.id');
   $query->leftJoin('users', 'user', 'user.uid = assignment.assign_id');
   $query->leftJoin('role', 'role', 'role.rid = assignment.assign_id');
-  $query->fields('queue', array('process_id','created_date','started_date','completed_date','status'));
-  $query->fields('template', array('taskname','is_dynamic_taskname','dynamic_taskname_variable_id'));
-  $query->fields('assignment', array('assign_id','assign_type','process_variable'));
-  $query->addField('assignment','id','assign_recid');
-  $query->addField('queue','id','queue_id');
-  $query->addField('user','name','username');
-  $query->addField('role','name','rolename');
-  $query->addField('process','pid','parent_process_id');
-  $query->addField('process','tracking_id','tracking_id');
+  $query->fields('queue', array('process_id', 'created_date', 'started_date', 'completed_date', 'status'));
+  $query->fields('template', array('taskname', 'is_dynamic_taskname', 'dynamic_taskname_variable_id'));
+  $query->fields('assignment', array('assign_id', 'assign_type', 'process_variable'));
+  $query->addField('assignment', 'id', 'assign_recid');
+  $query->addField('queue', 'id', 'queue_id');
+  $query->addField('user', 'name', 'username');
+  $query->addField('role', 'name', 'rolename');
+  $query->addField('process', 'pid', 'parent_process_id');
+  $query->addField('process', 'tracking_id', 'tracking_id');
   $query->condition('process.tracking_id', $task->tracking_id, '=');
-  $query->condition('queue.status',0,'=');
-  $query->condition('queue.show_in_detail',1,'=');
+  $query->condition('queue.status', 0, '=');
+  $query->condition('queue.show_in_detail', 1, '=');
   $res = $query->execute();
   $variables['outstanding_tasks'] = array(); //instantiate empty array just in case the query returns no results
   foreach ($res as $record) {
     $otask = new stdClass();
-    $otask->assigned_date = strftime("%b %d/%Y %H:%M",$record->created_date);
+    $otask->assigned_date = strftime("%b %d/%Y %H:%M", $record->created_date);
     $otask->task_id = $record->queue_id;
     if ($record->parent_process_id > 0) $record->taskname = '<span style="color:red;padding-right:3px;">[R]</span>' . $record->taskname;
     $otask->taskname = $record->taskname;
@@ -785,12 +792,13 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
         break;
       case MaestroAssignmentTypes::ROLE:
         // Test if group name has been set to use a variable for this task
-        if($record->assign_id == 0 AND $record->process_variable > 0) {
+        if ($record->assign_id == 0 AND $record->process_variable > 0) {
           $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
           // The process variable is expected to contain the role name
           $process_variable = $maestro->engine()->getProcessVariable($record->process_variable, $record->process_id);
           $otask->owner = "R:{$process_variable}";
-        } else {
+        }
+        else {
           $otask->owner = "R:{$record->rolename}";
         }
         $otask->assignment_type = 'role';
@@ -798,16 +806,18 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
       case MaestroAssignmentTypes::GROUP:
         if (module_exists('og')) {
           // Test if group name has been set to use a variable for this task
-          if($record->assign_id == 0 AND $record->process_variable > 0) {
+          if ($record->assign_id == 0 AND $record->process_variable > 0) {
             $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
             // The process variable is expected to contain the group name
             $process_variable = $maestro->engine()->getProcessVariable($record->process_variable, $record->process_id);
             $otask->owner = "G:{$process_variable}";
-          } else {
+          }
+          else {
             $og_groupinfo = og_label_multiple(array($record->assign_id));
             $otask->owner = "G:{$og_groupinfo[$record->assign_id]}";
           }
-        } else {
+        }
+        else {
           $otask->owner = "G:OG Disabled";
         }
         $otask->assignment_type = 'group';
@@ -816,14 +826,15 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
     $otask->variable_id = $record->process_variable;
     if ($otask->variable_id > 0) {
       $otask->taskassign_mode = 'variable';
-    } else {
+    }
+    else {
       $otask->taskassign_mode = 'id';  // User ID or Role ID or Group ID
     }
     $variables['outstanding_tasks'][] = $otask;
   }
 
-  $res = db_select('users','users')
-  ->fields('users', array('uid','name'))
+  $res = db_select('users', 'users')
+  ->fields('users', array('uid', 'name'))
   ->condition('uid', 0, '>')
   ->execute();
   foreach ($res as $rec) {
@@ -832,25 +843,24 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
 
   /* For each task - check and see if they have any formatted content to display */
   $variables['content_records'] = array();
-  $query = db_select('maestro_process','process');
+  $query = db_select('maestro_process', 'process');
   $query->join('maestro_queue', 'queue', 'queue.process_id = process.id');
-  $query->fields('queue', array('id','process_id','template_data_id','task_class_name'));
-  $query->addField('queue','id','queue_id');
+  $query->fields('queue', array('id', 'process_id', 'template_data_id', 'task_class_name'));
+  $query->addField('queue', 'id', 'queue_id');
   $query->condition('process.tracking_id', $task->tracking_id, '=');
   $res = $query->execute();
   $uniqueTasks = array();
   foreach ($res as $taskrec) {
     // Only need to call this task method once for each template task step - added in case of regen instances
-    if(!in_array($taskrec->template_data_id,$uniqueTasks)) {
+    if (!in_array($taskrec->template_data_id, $uniqueTasks)) {
       $uniqueTasks[] = $taskrec->template_data_id;
       $current_task = new $taskrec->task_class_name();
-      $taskContent = $current_task->showContentDetail($task->tracking_id,$taskrec->id);
+      $taskContent = $current_task->showContentDetail($task->tracking_id, $taskrec->id);
       if (!empty($taskContent)) {
         $variables['content_records'][] = $taskContent;
       }
     }
   }
-
 }
 
 /**
@@ -864,26 +874,28 @@ function template_preprocess_maestro_project_comments(&$variables) {
 
   /* Format any project comments records */
   $variables['comment_records'] = array();
-  $query = db_select('maestro_project_comments','a');
-  $query->fields('a',array('id','uid','timestamp','comment'));
-  $query->join('users','b','b.uid = a.uid');
-  $query->addField('b','name','username');
-  $query->condition('a.tracking_id',$variables['tracking_id'],'=');
+  $query = db_select('maestro_project_comments', 'a');
+  $query->fields('a', array('id', 'uid', 'timestamp', 'comment'));
+  $query->join('users', 'b', 'b.uid = a.uid');
+  $query->addField('b', 'name', 'username');
+  $query->condition('a.tracking_id', $variables['tracking_id'], '=');
   $res = $query->execute();
   foreach ($res as $record) {
     if (isset($record->task_id) AND $record->task_id > 0) {
-    $query = db_select('maestro_queue','a');
-    $query->join('maestro_template_data','b','b.id = a.template_data_id');
-    $query->addField('b','taskname','taskname');
-    $query->condition('a.id',$record->task_id,'=');
+    $query = db_select('maestro_queue', 'a');
+    $query->join('maestro_template_data', 'b', 'b.id = a.template_data_id');
+    $query->addField('b', 'taskname', 'taskname');
+    $query->condition('a.id', $record->task_id, '=');
     $record->taskname = $query->execute()->fetchField();
-    } else {
+    }
+    else {
       $record->taskname = t('N/A');
     }
-    $record->date = strftime("%b %d/%Y %H:%M",$record->timestamp);
+    $record->date = strftime("%b %d/%Y %H:%M", $record->timestamp);
     if ($record->uid == $user->uid OR user_access('maestro admin')) {
       $record->show_delete = 'visible';
-    } else {
+    }
+    else {
       $record->show_delete = 'hidden';
     }
     $variables['comment_records'][] = $record;
@@ -927,7 +939,7 @@ function template_preprocess_maestro_workflow_edit(&$variables) {
  */
 function template_preprocess_maestro_workflow_list(&$variables) {
   $query = db_select('maestro_template', 'a');
-  $query->addExpression('COUNT(a.id)','templateCount');
+  $query->addExpression('COUNT(a.id)', 'templateCount');
   $queryNumRows = $query->countQuery()->execute()->fetchField();
   $variables['num_records'] = intval($queryNumRows);
   $output="";
@@ -965,8 +977,8 @@ function template_preprocess_maestro_workflow_list_item(&$variables) {
     $variables['show_item'] = '';
     $output=theme('maestro_workflow_edit_template_variables',  array('tid' => $variables['tid'], 'edit_var' => $variables['edit_var'] , 'cntr' => $variables['cntr']));
     $query = db_select('maestro_template', 'a');
-    $query->fields('a',array('template_name','app_group'));
-    $query->condition('a.id',$variables['tid'],'=');
+    $query->fields('a', array('template_name', 'app_group'));
+    $query->condition('a.id', $variables['tid'], '=');
     $res=current($query->execute()->fetchAll());
     $variables['template_app_groups'] = maestro_createAppGroupDropDown('appGroup', $res->app_group);
   }
@@ -1008,7 +1020,7 @@ function template_preprocess_maestro_workflow_edit_template_variables(&$variable
 function template_preprocess_maestro_workflow_edit_template_variables_list(&$variables) {
   global $base_url;
   $variables['module_path' ] = $base_url . "/" . drupal_get_path('module', 'maestro');
-  if($variables['var_id'] == $variables['edit_var']) {
+  if ($variables['var_id'] == $variables['edit_var']) {
     $variables['show_variable_actions'] = 'none';
     $variables['show_variable_edit_actions'] = '';
   }
@@ -1038,7 +1050,7 @@ function maestro_createAppGroupDropDown($name, $selected = 0){
   $output .= "<option value='0'>" . t('N/A') . "</option>";
   foreach ($res as $rec) {
     $sel = "";
-    if($selected == $rec->id) $sel = " selected ";
+    if ($selected == $rec->id) $sel = " selected ";
     $output .= "<option value='{$rec->id}' {$sel}>{$rec->app_group}</option>";
   }
   $output .= "</select>";
@@ -1119,15 +1131,15 @@ function maestro_maestro_handler_options() {
 */
 function maestro_maestro_set_process_variable_methods() {
   return array(
-    'hardcoded_value' => array (
+    'hardcoded_value' => array(
       'title' => t('Hardcoded Value'),
       'engine_handler' => 'maestro_set_process_variable_logic_hardcoded',
     ),
-    'increment_value' => array (
+    'increment_value' => array(
       'title' => t('Add or Subtract a Value') . '<br>' . t('(negative number for subtraction)'),
       'engine_handler' => 'maestro_set_process_variable_logic_increment',
     ),
-    'maestro_content_type_task' => array (
+    'maestro_content_type_task' => array(
       'title' => t('Content Field Result'),
       'engine_handler' => 'content_type_task_maestro_set_process_variable_logic',
     ),
@@ -1165,11 +1177,11 @@ function content_type_task_maestro_set_process_variable_logic(&$task, $current_v
   // Retrieve the tracking_id for the workflow instance
   // Use the tracking_id to get the Node id for the content record of type $content_type
   $tracking_id = maestro_getTaskTrackingId($task->_properties->id);
-  $query = db_select('maestro_project_content','content');
-  $query->addField('content','nid');
-  $query->condition('content.tracking_id',$tracking_id,'=');
-  $query->condition('content.instance',1,'=');
-  $query->condition('content.content_type',$content_type,'=');
+  $query = db_select('maestro_project_content', 'content');
+  $query->addField('content', 'nid');
+  $query->condition('content.tracking_id', $tracking_id, '=');
+  $query->condition('content.instance', 1, '=');
+  $query->condition('content.content_type', $content_type, '=');
   $nid = $query->execute()->fetchField();
   if (empty($nid)) {
     return FALSE;
@@ -1188,8 +1200,8 @@ function content_type_task_maestro_set_process_variable_logic(&$task, $current_v
    * Tried field_view_value but that returns a formatted array that may not even contain the value - could be a link for display
    */
   $field_data_column = key($field_info['columns']);
-  $node_entity = entity_load('node',array($nid));
-  $data = field_view_field('node',$node_entity[$nid],$field_name);
+  $node_entity = entity_load('node', array($nid));
+  $data = field_view_field('node', $node_entity[$nid], $field_name);
   $retval = $data['#items'][0][$field_data_column];
 
   return $retval;
@@ -1222,12 +1234,12 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
     case 'newprocess':
       $tid = intval($_POST['templateid']);
       $pid = maestro_launch_workflow($tid);
-      $retdata = array ('status' => "1", 'processid' => $pid);
+      $retdata = array('status' => "1", 'processid' => $pid);
       drupal_json_output($retdata);
       break;
 
     case 'setassignment':
-      $retdata = array ('status' => FALSE);
+      $retdata = array('status' => FALSE);
       if (user_access('maestro reassign tasks')) {
         $maestro = Maestro::createMaestroObject(1);
         $taskid = intval($_POST['taskid']);
@@ -1247,28 +1259,28 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
           switch ($_POST['assignment_type']) {
           case 'user':
             if ($assigned_value != $_POST['task_reassign_uid']) {
-              $maestro->engine()->reassignTask($taskid,$_POST['task_reassign_uid'],$_POST['taskuser'],$_POST['variable_id'],1);
+              $maestro->engine()->reassignTask($taskid, $_POST['task_reassign_uid'], $_POST['taskuser'], $_POST['variable_id'], 1);
               $username = db_query("SELECT name FROM {users} WHERE uid = :uid", array(':uid' => $_POST['task_reassign_uid']))->fetchField();
-            } else {
+            }
+            else {
               $username = db_query("SELECT name FROM {users} WHERE uid = :uid", array(':uid' => $assigned_uid))->fetchField();
             }
-            $retdata = array ('status' => TRUE, 'username' => $username);
+            $retdata = array('status' => TRUE, 'username' => $username);
             break;
           case 'role':
             // Note in this case, the taskuser posted var is the group id unless it's been assigned by variable
-            $maestro->engine()->reassignTask($taskid,$_POST['task_reassign_uid'],$_POST['taskuser'],$_POST['variable_id'],2);
+            $maestro->engine()->reassignTask($taskid, $_POST['task_reassign_uid'], $_POST['taskuser'], $_POST['variable_id'], 2);
             $username = db_query("SELECT name FROM {users} WHERE uid = :uid", array(':uid' => $_POST['task_reassign_uid']))->fetchField();
-            $retdata = array ('status' => TRUE, 'username' => $username);
+            $retdata = array('status' => TRUE, 'username' => $username);
             break;
           case 'group':
             // Note in this case, the taskuser posted var is the group id unless it's been assigned by variable
-            $maestro->engine()->reassignTask($taskid,$_POST['task_reassign_uid'],$_POST['taskuser'],$_POST['variable_id'],3);
+            $maestro->engine()->reassignTask($taskid, $_POST['task_reassign_uid'], $_POST['taskuser'], $_POST['variable_id'], 3);
             $username = db_query("SELECT name FROM {users} WHERE uid = :uid", array(':uid' => $_POST['task_reassign_uid']))->fetchField();
-            $retdata = array ('status' => TRUE, 'username' => $username);
+            $retdata = array('status' => TRUE, 'username' => $username);
             break;
           }
         }
-
       }
       drupal_json_output($retdata);
       break;
@@ -1278,7 +1290,7 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
       $taskop = CHECK_PLAIN($_POST['op']);
       if ($queue_id > 0) {
         $rec = db_select('maestro_queue')
-        ->fields('maestro_queue', array('task_class_name','process_id'))
+        ->fields('maestro_queue', array('task_class_name', 'process_id'))
         ->condition('id', $queue_id, '=')
         ->execute()->fetchObject();
         $tasktype = $rec->task_class_name;
@@ -1287,20 +1299,23 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
         $data->process_id = $rec->process_id;
         $data->queue_id = $queue_id;
         $task = new $tasktype($data);
-        $ret = $task->processInteractiveTask($queue_id,$taskop);
+        $ret = $task->processInteractiveTask($queue_id, $taskop);
         if ($ret->retcode === TRUE) {
           if ($ret->engineop == 'completetask') {
             if (!isset($ret->status)) $ret->status = 1;    // Just in case interactive function has not set this - set to default 'success'
             $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
-            $maestro->engine()->completeTask($queue_id,$ret->status);
+            $maestro->engine()->completeTask($queue_id, $ret->status);
             $retdata = array('status' => TRUE, 'hidetask' => TRUE);
-          } else {
+          }
+          else {
             $retdata = array('status' => TRUE, 'hidetask' => FALSE);
           }
-        } else{
+        }
+        else{
           $retdata = array('status' => FALSE, 'hidetask' => FALSE);
         }
-      } else {
+      }
+      else {
         $retdata = array('status' => FALSE, 'hidetask' => FALSE);
       }
       drupal_json_output($retdata);
@@ -1311,18 +1326,18 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
       $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
       $queue_id = intval($queue_id);
       $maestro->engine()->completeTask($queue_id);
-      $retdata = array ('status' => "1");
+      $retdata = array('status' => "1");
       drupal_json_output($retdata);
       break;
 
     case 'deleteproject':
       $tracking_id = intval($_POST['tracking_id']);
       $retval = maestro_delete_project($tracking_id);
-      if($retval) {
-        $retdata = array ('status' => "1", 'message' => t('Successful Deletion of Project'));
+      if ($retval) {
+        $retdata = array('status' => "1", 'message' => t('Successful Deletion of Project'));
       }
       else {
-        $retdata = array ('status' => "0", 'message' => t('You are not an admin.  Project not deleted.'));
+        $retdata = array('status' => "0", 'message' => t('You are not an admin.  Project not deleted.'));
       }
       drupal_json_output($retdata);
       break;
@@ -1330,7 +1345,7 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
     case 'add_comment':
       if (!empty($_POST['comment'])) {
         db_insert('maestro_project_comments')
-        ->fields(array('tracking_id','uid','task_id','timestamp','comment'))
+        ->fields(array('tracking_id', 'uid', 'task_id', 'timestamp', 'comment'))
         ->values(array(
                 'tracking_id' => $_POST['tracking_id'],
                 'uid' => $user->uid,
@@ -1340,32 +1355,35 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
         ))
         ->execute();
         $rowid = intval($_POST['rowid']);
-        $html = theme('maestro_project_comments',array('rowid' => $rowid, 'tracking_id' => $_POST['tracking_id']));
-        $retdata = array ('html' => $html,'status' => "1");
-      } else {
-        $retdata = array ('status' => "1");
+        $html = theme('maestro_project_comments', array('rowid' => $rowid, 'tracking_id' => $_POST['tracking_id']));
+        $retdata = array('html' => $html, 'status' => "1");
+      }
+      else {
+        $retdata = array('status' => "1");
       }
       drupal_json_output($retdata);
       break;
 
     case 'del_comment':
       if ($_POST['cid'] > 0) {
-        $query = db_select('maestro_project_comments','a');
-        $query->addField('a','uid');
-        $query->condition('a.id',$_POST['cid'],'=');
+        $query = db_select('maestro_project_comments', 'a');
+        $query->addField('a', 'uid');
+        $query->condition('a.id', $_POST['cid'], '=');
         $comment_owner = $query->execute()->fetchField();
         if ($comment_owner == $user->uid OR user_access('maestro admin')) {
           db_delete('maestro_project_comments')
-            ->condition('id',$_POST['cid'],'=')
+            ->condition('id', $_POST['cid'], '=')
             ->execute();
           $rowid = intval($_POST['rowid']);
-          $html = theme('maestro_project_comments',array('rowid' => $rowid, 'tracking_id' => $_POST['tracking_id']));
-          $retdata = array ('html' => $html,'status' => "1");
-        } else {
-          $retdata = array ('status' => "0");
+          $html = theme('maestro_project_comments', array('rowid' => $rowid, 'tracking_id' => $_POST['tracking_id']));
+          $retdata = array('html' => $html, 'status' => "1");
         }
-      } else {
-        $retdata = array ('status' => "0");
+        else {
+          $retdata = array('status' => "0");
+        }
+      }
+      else {
+        $retdata = array('status' => "0");
       }
       drupal_json_output($retdata);
       break;
@@ -1377,33 +1395,33 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
         array(':id' => $task->tracking_id))->fetchField();
       $task->flow_name = $flowname;
       $rowid = intval($_POST['rowid']);
-      $html = theme('maestro_taskconsole_details',array('task' => $task, 'source' => 'mytasks', 'rowid' => $rowid ));
+      $html = theme('maestro_taskconsole_details', array('task' => $task, 'source' => 'mytasks', 'rowid' => $rowid ));
 
-      $retdata = array ('html' => $html,'status' => "1");
+      $retdata = array('html' => $html, 'status' => "1");
       drupal_json_output($retdata);
       break;
 
     case 'myflows':
-      $myflowfilter =  array('myflows' => true);
+      $myflowfilter =  array('myflows' => TRUE);
     case 'filterprojects':
       include('maestro.moderator.inc');
       $filter = array(
         'username' => check_plain($_POST['userNameFilter']),
         'projectname' => check_plain($_POST['flowNameFilter'])
         );
-      if(is_array($myflowfilter)) {  //this has to be an array.  otherwise, this is not a valid executable area for a non-regular user
+      if (is_array($myflowfilter)) {  //this has to be an array.  otherwise, this is not a valid executable area for a non-regular user
         $filter = array_merge($filter, $myflowfilter);
       }
       else {  //better check if the user should be here
-        if(!user_access('maestro admin')) {
-          $retdata = array ('html' => t('Illegal attempt on viewing flow data detected.'),'status' => "0");
+        if (!user_access('maestro admin')) {
+          $retdata = array('html' => t('Illegal attempt on viewing flow data detected.'), 'status' => "0");
           drupal_json_output($retdata);
           exit(0);
         }
       }
       $rows = maestro_get_all_flows_data($filter);
       $ajax_url = url('maestro/taskconsole/ajax');
-      $retdata = array ('html' => theme('maestro_all_flows_display', array('ajax_url' => $ajax_url, 'database_result_set' => $rows)),'status' => "1");
+      $retdata = array('html' => theme('maestro_all_flows_display', array('ajax_url' => $ajax_url, 'database_result_set' => $rows)), 'status' => "1");
       drupal_json_output($retdata);
       break;
 
@@ -1414,8 +1432,8 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
         array(':id' => $task->tracking_id))->fetchField();
       $task->flow_name = $flowname;
       $rowid = intval($_POST['projectID']);
-      $html = theme('maestro_taskconsole_details',array('task' => $task, 'source' => 'mytasks', 'rowid' => $rowid ));
-      $retdata = array ('html' => $html,'status' => "1");
+      $html = theme('maestro_taskconsole_details', array('task' => $task, 'source' => 'mytasks', 'rowid' => $rowid ));
+      $retdata = array('html' => $html, 'status' => "1");
       drupal_json_output($retdata);
       break;
   }
@@ -1430,15 +1448,15 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
 function maestro_form_alter(&$form, $form_state, $form_id) {
   /* Determine if the cached list of content types being used by configured maestro workflow templates is setup. */
   $maestro_content_types = cache_get('maestro_content_types');
-  if($maestro_content_types === FALSE) {  // if not set - scan templates for unique content types
+  if ($maestro_content_types === FALSE) {  // if not set - scan templates for unique content types
     $types = array();
-    $query = db_select('maestro_template_data','template_data');
-    $query->addField('template_data','task_data','task_data');
+    $query = db_select('maestro_template_data', 'template_data');
+    $query->addField('template_data', 'task_data', 'task_data');
     $query->condition('task_class_name', 'MaestroTaskTypeContentType', '=');
     $res = $query->execute();
     foreach ($res as $rec) {
       $data = unserialize($rec->task_data);
-      if (!empty($data['content_type']) AND !in_array($data['content_type'],$types)) {
+      if (!empty($data['content_type']) AND !in_array($data['content_type'], $types)) {
         $types[] = $data['content_type'] . '_node_form';
       }
     }
@@ -1449,19 +1467,19 @@ function maestro_form_alter(&$form, $form_state, $form_id) {
     $maestro_content_types = ($maestro_content_types->data);
   }
 
-  if (in_array($form_id,$maestro_content_types)) {
+  if (in_array($form_id, $maestro_content_types)) {
     $request = urldecode(request_uri());
-    $requestParms = explode('/',$request);
+    $requestParms = explode('/', $request);
 
     $maestroIndex=-1;
-    foreach($requestParms as $index => $val) {
-      if($val == 'maestro') {
+    foreach ($requestParms as $index => $val) {
+      if ($val == 'maestro') {
         $maestroIndex = $index;
         //removed the break, because we are looking for the last occurrance
         //of 'maestro' in the requestParms.
       }
     }
-    if($maestroIndex >= 2 ) { //really only applies if your site is named maestro, ie localhost/maestro, but a valid index should be around 5
+    if ($maestroIndex >= 2) { //really only applies if your site is named maestro, ie localhost/maestro, but a valid index should be around 5
       if (isset($requestParms[$maestroIndex]) AND $requestParms[$maestroIndex] == 'maestro' AND isset($requestParms[$maestroIndex + 1])) {
         if ($requestParms[$maestroIndex + 1] == 'edit' AND intval($requestParms[$maestroIndex + 2] > 0)) {
           $form['maestro_taskid'] = array(
@@ -1493,7 +1511,7 @@ function maestro_form_alter(&$form, $form_state, $form_id) {
         $form['actions']['submit']['#submit'][] = 'maestro_content_form_submit';
       }
     }
-    else if (array_key_exists('complete form', $form_state) && array_key_exists('maestro_taskid', $form_state['complete form'])) {
+    elseif (array_key_exists('complete form', $form_state) && array_key_exists('maestro_taskid', $form_state['complete form'])) {
       /** If there is a get/post action called, such as when an attachment field's upload button is clicked,
        * we need to re-add the fields to the form. so we check the form_state to see if the previous values
        * there so that we know it is a maestro content type task form we are dealing with.
@@ -1524,7 +1542,7 @@ function maestro_node_insert($node) {
     array(':tid' => $node->maestro_taskid))->fetchField();
 
     $task = new $task_classname();
-    $task->processContent($node->maestro_taskid,'insert',$node);
+    $task->processContent($node->maestro_taskid, 'insert', $node);
   }
 }
 
@@ -1570,7 +1588,7 @@ function maestro_content_form_submit($form, &$form_state) {
  * @return
  *   Node ID or FALSE
  */
-function maestro_getNodeId($process_id,$content_type) {
+function maestro_getNodeId($process_id, $content_type) {
   $tracking_id = db_select('maestro_process')
     ->fields('maestro_process', array('tracking_id'))
     ->condition('id', $process_id, '=')
@@ -1597,9 +1615,9 @@ function maestro_getNodeId($process_id,$content_type) {
  *   Tracking ID or FALSE
  */
 function maestro_getTaskTrackingId($taskid) {
-  $res = db_select('maestro_queue','a');
+  $res = db_select('maestro_queue', 'a');
   $res->join('maestro_process', 'b', 'a.process_id = b.id');
-  $res->fields('b',array('tracking_id'));
+  $res->fields('b', array('tracking_id'));
   $res->condition('a.id', $taskid, '=');
   $tracking_id = $res->execute()->fetchField();
   if ($tracking_id > 0 ) {
@@ -1618,27 +1636,27 @@ function maestro_getTaskTrackingId($taskid) {
  */
 function maestro_getProjectTasksHistory($tracking_id) {
 
-  $query = db_select('maestro_process','process');
+  $query = db_select('maestro_process', 'process');
   $query->join('maestro_queue', 'queue', 'queue.process_id = process.id');
   $query->join('maestro_template_data', 'template', 'queue.template_data_id = template.id');
   $query->join('users', 'users', 'users.uid = queue.uid');
-  $query->fields('queue', array('process_id','created_date','started_date','completed_date','status'));
-  $query->fields('template', array('taskname','is_dynamic_taskname','dynamic_taskname_variable_id'));
-  $query->addField('users','name','username');
-  $query->addField('users','uid');
-  $query->addField('queue','id','queue_id');
-  $query->addField('process','pid','parent_process_id');
+  $query->fields('queue', array('process_id', 'created_date', 'started_date', 'completed_date', 'status'));
+  $query->fields('template', array('taskname', 'is_dynamic_taskname', 'dynamic_taskname_variable_id'));
+  $query->addField('users', 'name', 'username');
+  $query->addField('users', 'uid');
+  $query->addField('queue', 'id', 'queue_id');
+  $query->addField('process', 'pid', 'parent_process_id');
   $query->condition('process.tracking_id', $tracking_id, '=');
-  $query->condition('queue.show_in_detail',1,'=');
-  $query->condition(db_or()->condition('queue.completed_date',0,'>')->condition('queue.status',MaestroTaskStatusCodes::STATUS_ON_HOLD,'='));
+  $query->condition('queue.show_in_detail', 1, '=');
+  $query->condition(db_or()->condition('queue.completed_date', 0, '>')->condition('queue.status', MaestroTaskStatusCodes::STATUS_ON_HOLD, '='));
   $res = $query->execute();
 
   $retval = array();
   foreach ($res as $record) {
     $ctask = new stdClass();
-    $ctask->assigned_date = strftime("%b %d/%Y %H:%M",$record->created_date);
-    $ctask->started_date = strftime("%b %d/%Y %H:%M",$record->started_date);
-    $ctask->completed_date = strftime("%b %d/%Y %H:%M",$record->completed_date);
+    $ctask->assigned_date = strftime("%b %d/%Y %H:%M", $record->created_date);
+    $ctask->started_date = strftime("%b %d/%Y %H:%M", $record->started_date);
+    $ctask->completed_date = strftime("%b %d/%Y %H:%M", $record->completed_date);
     $ctask->status = t('Completed');
     if ($record->uid == 0) $record->username = t('Maestro');
     if ($record->parent_process_id > 0) $record->taskname = '<span style="color:red;padding-right:3px;">[R]</span>' . $record->taskname;
@@ -1654,7 +1672,7 @@ function maestro_getProjectTasksHistory($tracking_id) {
  * Implementation of hook_maestro_notification_observer() found in the notifications class for Maestro
  */
 function maestro_maestro_notification_observer() {
-  return array('MaestroEmailNotification','SAMPLEMaestroTwitterNotification', 'MaestroWatchDogNotification'); //MaestroEmailNotification is the name of the class used for email notifications
+  return array('MaestroEmailNotification', 'SAMPLEMaestroTwitterNotification', 'MaestroWatchDogNotification'); //MaestroEmailNotification is the name of the class used for email notifications
 }
 
 /**
@@ -1695,7 +1713,7 @@ function maestro_mail($key, &$message, $params) {
  */
 function maestro_array_merge_keys($arr1, $arr2) {
   if (is_array($arr2)) {
-    foreach($arr2 as $k=>$v) {
+    foreach ($arr2 as $k => $v) {
       if (!array_key_exists($k, $arr1)) { //K DOESN'T EXISTS //
         $arr1[$k] = $v;
       }
@@ -1706,7 +1724,6 @@ function maestro_array_merge_keys($arr1, $arr2) {
       }
     }
   }
-
   return $arr1;
 }
 
@@ -1723,11 +1740,10 @@ function maestro_array_merge_keys($arr1, $arr2) {
  */
 function maestro_array_add($arr1, $arr2) {
   if (is_array($arr1) && is_array($arr2)) {
-    foreach ($arr2 as $k=>$v) {
+    foreach ($arr2 as $k => $v) {
       $arr1[] = $v;
     }
   }
-
   return $arr1;
 }
 
@@ -1739,8 +1755,8 @@ function maestro_array_add($arr1, $arr2) {
  * @param $new_flow_name
  *   String of text to which process description should be set
  */
-function maestro_set_process_flow_name ($process_id, $new_flow_name) {
-  if($process_id >0 && $new_flow_name != '') {
+function maestro_set_process_flow_name($process_id, $new_flow_name) {
+  if ($process_id >0 && $new_flow_name != '') {
     db_update('maestro_process')
             ->fields(array('flow_name' => $new_flow_name))
             ->condition('id', $process_id, '=')
@@ -1837,13 +1853,13 @@ function maestro_deleteproject_confirm_form(&$form_state) {
 function maestro_delete_project($tracking_id) {
   //first, we grab all of the processIDs that have a tracking ID that matches.
   $tracking_id = intval($tracking_id);
-  if(!user_access('maestro admin')) return false;
+  if (!user_access('maestro admin')) return FALSE;
 
   $query = db_select('maestro_process', 'a');
-  $query->fields('a',array('id'));
-  $query->condition('a.tracking_id',$tracking_id,'=');
+  $query->fields('a', array('id'));
+  $query->condition('a.tracking_id', $tracking_id, '=');
   $res = $query->execute()->fetchAll();
-  foreach($res as $rec) {
+  foreach ($res as $rec) {
     //now delete all process variables
     db_delete('maestro_process_variables')
         ->condition('process_id', $rec->id)
@@ -1851,10 +1867,10 @@ function maestro_delete_project($tracking_id) {
 
     //pick off all of the queue items now and use those to delete the queue_from entries
     $query = db_select('maestro_queue', 'a');
-    $query->fields('a',array('id'));
-    $query->condition('a.process_id',$rec->id,'=');
+    $query->fields('a', array('id'));
+    $query->condition('a.process_id', $rec->id, '=');
     $queueres = $query->execute()->fetchAll();
-    foreach($queueres as $queuerec) {
+    foreach ($queueres as $queuerec) {
       //delete the queue_from records now
       db_delete('maestro_queue_from')
         ->condition('queue_id', $queuerec->id)
@@ -1889,5 +1905,5 @@ function maestro_delete_project($tracking_id) {
       ->condition('id', $tracking_id)
       ->execute();
 
-  return true;
+  return TRUE;
 }
