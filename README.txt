@@ -1,6 +1,8 @@
 
 August 24/2010
 
+Edit 2
+
 INSTALLATION INSTRUCTIONS
 -------------------------
 The installation of Maestro should be done in the sites/all/modules folder structure.
