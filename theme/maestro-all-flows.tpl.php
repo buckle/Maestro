@@ -18,3 +18,4 @@ var filter_url='<?php print $filter_url; ?>';
 <div id="maestro_all_flows_display">
 <?php print theme('maestro_all_flows_display', array('ajax_url' => $ajax_url, 'database_result_set' => $database_result_set)); ?>
 </div>
+<?php print theme('pager'); ?>

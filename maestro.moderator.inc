@@ -245,7 +245,7 @@ function maestro_get_all_flows_data($filters = NULL) {
   $query->groupBy('c.name');
   //RK -- commented out the next 2 lines as they were destroying the SQL Server output for all flows
   //$query->groupBy('d.id');
-  //$query->orderBy('d.id','DESC');
+  $query->orderBy('d.id','DESC');
   //$query->limit(1);
 
   if(is_array($filters)) {
