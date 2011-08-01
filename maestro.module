@@ -1018,14 +1018,20 @@ function template_preprocess_maestro_workflow_edit_template_variables_list(&$var
   }
 }
 
+
 /**
- * Generates html of select list for Application Group drop down
- *
- * Queries database for existing groups and inserts them into HTML option tags
- *
- * @return
- *  HTML of select list
- */
+* Implementation of hook_maestro_get_taskobject_info().
+*
+* Defines available task types
+*
+* Any other maestro task type modules will also implement this function
+*
+* Generates html of select list for Application Group drop down
+* Queries database for existing groups and inserts them into HTML option tags
+*
+* @return
+*  HTML of select list
+*/
 function maestro_createAppGroupDropDown($name, $selected = 0){
   $res = db_query("SELECT id, app_group FROM {maestro_app_groups}");
   $output = "<select class='form-select' id='{$name}' name='{$name}' size='4' >";
