@@ -283,6 +283,18 @@ include_once('maestro_constants.class.php');
       }
     }
 
+    function getTaskStatus($queue_id=0) {
+      $status = NULL;
+      if ($queue_id == 0) {
+        $queue_id = $this->_queueId;
+      }
+      if (!empty($queue_id)) {
+        $status = db_query("SELECT status FROM {maestro_queue} WHERE id = :tid",
+          array(':tid' => $queue_id))->fetchField();
+      }
+      return $status;
+    }
+
     function deleteTask($qid) {
       if ($qid > 0) {
         db_delete('maestro_production_assignments')

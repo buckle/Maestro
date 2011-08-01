@@ -1,13 +1,13 @@
 // $Id:
 
 /**
- * @file
- * taskconsole.js
- */
+* @file
+* taskconsole.js
+*/
 
 /* When the task name in the task console is clicked, open the interactive task (inline function)
- * Trigger the AJAX update to update the task start_date
- */
+* Trigger the AJAX update to update the task start_date
+*/
 jQuery(function($) {
   $('.maestro_taskconsole_interactivetaskName a').click(function() {
     var taskid = jQuery(this).attr('taskid');
@@ -21,8 +21,8 @@ jQuery(function($) {
 
 
 /* When the task name in the task console is clicked, open the interactive task (inline function)
- * Trigger the AJAX update to update the task start_date
- */
+* Trigger the AJAX update to update the task start_date
+*/
 jQuery(function($) {
   $('.maestro_taskconsole_viewdetail').click(function() {
     var taskid = jQuery(this).attr('taskid');
@@ -34,8 +34,8 @@ jQuery(function($) {
         url : ajax_url + '/getdetails',
         cache: false,
         data : {
-        taskid : taskid,
-        rowid : rowid
+          taskid : taskid,
+          rowid : rowid
         },
         dataType: 'json',
         success:  function (data) {
@@ -48,6 +48,23 @@ jQuery(function($) {
             $('#projectdetail_rec' + rowid).html(data.html);
             $('#maestro_taskconsole_detail_rec' + taskid).show();
             $('#maestro_ajax_indicator' + taskid).hide();
+            $('a.ctools-use-modal:not(.ctools-use-modal-processed)')
+            .addClass('ctools-use-modal-processed')
+            .click(Drupal.CTools.Modal.clickAjaxLink)
+            .each(function () {
+              // Create a drupal ajax object
+              var element_settings = {};
+              if ($(this).attr('href')) {
+                element_settings.url = $(this).attr('href');
+                element_settings.event = 'click';
+                element_settings.progress = { type: 'throbber' };
+              }
+              var base = $(this).attr('href');
+              Drupal.ajax[base] = new Drupal.ajax(base, this, element_settings);
+              // Attach the display behavior to the ajax object
+            }
+            );
+
           } else {
             alert('An error occurred updating assignment');
           }
@@ -57,12 +74,12 @@ jQuery(function($) {
       });
 
     } else {
-        // Swap the image of the open folder for a closed folder icon
-        var s = $('#maestro_viewdetail_foldericon' + taskid).attr('src');
-        var index = s.indexOf('_open');
-        var newicon = s.substr(0, index) + '_closed' + s.substr(index + 5);
-        $('#maestro_viewdetail_foldericon' + taskid).attr('src',newicon);
-        $('#maestro_taskconsole_detail_rec' + taskid).hide();
+      // Swap the image of the open folder for a closed folder icon
+      var s = $('#maestro_viewdetail_foldericon' + taskid).attr('src');
+      var index = s.indexOf('_open');
+      var newicon = s.substr(0, index) + '_closed' + s.substr(index + 5);
+      $('#maestro_viewdetail_foldericon' + taskid).attr('src',newicon);
+      $('#maestro_taskconsole_detail_rec' + taskid).hide();
     }
 
   })
@@ -98,21 +115,21 @@ function maestro_ajaxDeleteProject(id, message) {
     (function ($) {
       $.ajax({
         type: 'POST',
-	    url : ajax_url + '/deleteproject',
-	    cache: false,
-	    data: {tracking_id: id},
-	    dataType: 'json',
-	    success:  function (data) {
-	    	alert(data.message);
-	    	if (data.status == 1) {
-	    		location.reload();
-	    	}
-	    },
-	    error: function() { 
-	    	alert('there was a SERVER Error processing AJAX request'); 
-	    }
+        url : ajax_url + '/deleteproject',
+        cache: false,
+        data: {tracking_id: id},
+        dataType: 'json',
+        success:  function (data) {
+          alert(data.message);
+          if (data.status == 1) {
+            location.reload();
+          }
+        },
+        error: function() {
+          alert('there was a SERVER Error processing AJAX request');
+        }
       });
-   	})(jQuery);
+    })(jQuery);
   }
 }
 
@@ -151,28 +168,28 @@ function ajaxMaestroComment(op, rowid, id, cid) {
   } else if (op == 'del') {
     (function ($) {
       $.ajax({
-      type : 'POST',
-      url : ajax_url + '/del_comment',
-      cache : false,
-      data : {
-        rowid : rowid,
-        tracking_id : id,
-        cid : cid
-      },
-      dataType : 'json',
-      success : function(data) {
-        if (data.status == 1) {
-          $('#projectCommentsOpen_rec' + rowid).html(data.html);
-          $('html,body').animate({scrollTop: $('#projectCommentsOpen_rec' + rowid).offset().top-1},500);
-        } else {
-          alert('An error occurred deleting comment');
+        type : 'POST',
+        url : ajax_url + '/del_comment',
+        cache : false,
+        data : {
+          rowid : rowid,
+          tracking_id : id,
+          cid : cid
+        },
+        dataType : 'json',
+        success : function(data) {
+          if (data.status == 1) {
+            $('#projectCommentsOpen_rec' + rowid).html(data.html);
+            $('html,body').animate({scrollTop: $('#projectCommentsOpen_rec' + rowid).offset().top-1},500);
+          } else {
+            alert('An error occurred deleting comment');
+          }
+        },
+        error : function() {
+          alert('there was a SERVER Error processing AJAX request');
         }
-      },
-      error : function() {
-        alert('there was a SERVER Error processing AJAX request');
-      }
 
-    });
+      });
     })(jQuery);
 
   }
@@ -180,14 +197,14 @@ function ajaxMaestroComment(op, rowid, id, cid) {
 }
 
 /*
- * Function handles the form submit buttons for the inline interactive tasks All
- * the form buttons should be of input type 'button' even the 'task complete'
- * Function will fire automatically when a form button is pressed and execute
- * the ajax operation for the interactive_post action and automatically post the
- * form contents plus the taskid and task operation that was picked up from the
- * button's custom 'maestro' attribute. <input type="button" maestro="save"
- * value="Save Data">
- */
+* Function handles the form submit buttons for the inline interactive tasks All
+* the form buttons should be of input type 'button' even the 'task complete'
+* Function will fire automatically when a form button is pressed and execute
+* the ajax operation for the interactive_post action and automatically post the
+* form contents plus the taskid and task operation that was picked up from the
+* button's custom 'maestro' attribute. <input type="button" maestro="save"
+* value="Save Data">
+*/
 jQuery(function($) {
   $('.maestro_taskconsole_interactivetaskcontent input[type=button]').click(function() {
     var id = jQuery(this).parents('tr').filter(".maestro_taskconsole_interactivetaskcontent").attr('id');
@@ -249,18 +266,18 @@ jQuery(function($) {
 
 
 function toggleProjectSection(section,state,rowid) {
-    var obj1 = document.getElementById(section + state + '_rec' + rowid);
-    if (obj1) {
-      if (state == 'Open') {
-        obj1.style.display = 'none';
-        var obj2 = document.getElementById(section + 'Closed_rec' + rowid);
-        obj2.style.display = '';
-      } else if (state = 'Closed') {
-        obj1.style.display = 'none';
-        var obj2 = document.getElementById(section + 'Open_rec' + rowid);
-        obj2.style.display = '';
-      }
+  var obj1 = document.getElementById(section + state + '_rec' + rowid);
+  if (obj1) {
+    if (state == 'Open') {
+      obj1.style.display = 'none';
+      var obj2 = document.getElementById(section + 'Closed_rec' + rowid);
+      obj2.style.display = '';
+    } else if (state = 'Closed') {
+      obj1.style.display = 'none';
+      var obj2 = document.getElementById(section + 'Open_rec' + rowid);
+      obj2.style.display = '';
     }
+  }
 }
 
 function projectDetailToggleAll(state,rowid) {

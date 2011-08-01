@@ -96,9 +96,9 @@ function moderator_ajax_error() {
 
 jQuery(function($) {
   $('#filterAllFlows').click(function() {
-	jQuery('#maestro_filter_working').addClass('maestro_working');
-	maestro_allFlowsHideErrorBar();
-	dataString = jQuery('#maestroFilterAllFlowsFrm').serialize();
+    jQuery('#maestro_filter_working').addClass('maestro_working');
+    maestro_allFlowsHideErrorBar();
+    dataString = jQuery('#maestroFilterAllFlowsFrm').serialize();
     jQuery.ajax( {
       type : 'POST',
       cache : false,
@@ -107,25 +107,25 @@ jQuery(function($) {
       data : dataString,
       success : function(data) {
         try{
-        	if (data.status == 1) {
-        		//success
-        		jQuery('#maestro_filter_working').removeClass('maestro_working');
-        		jQuery('#maestro_all_flows_display').html(data.html);
-        	}
-        	else {
-        		maestro_allFlowsShowErrorBar(Drupal.t('There has been an error with your filter.  Please adjust the filter and try again'));
-        		jQuery('#maestro_filter_working').removeClass('maestro_working');
-        	}
+          if (data.status == 1) {
+            //success
+            jQuery('#maestro_filter_working').removeClass('maestro_working');
+            jQuery('#maestro_all_flows_display').html(data.html);
+          }
+          else {
+            maestro_allFlowsShowErrorBar(Drupal.t('There has been an error with your filter.  Please adjust the filter and try again'));
+            jQuery('#maestro_filter_working').removeClass('maestro_working');
+          }
         }
         catch(ex) {
-        	maestro_allFlowsShowErrorBar(Drupal.t('There has been an error. Please try again'));
-        	jQuery('#maestro_filter_working').removeClass('maestro_working');
+          maestro_allFlowsShowErrorBar(Drupal.t('There has been an error. Please try again'));
+          jQuery('#maestro_filter_working').removeClass('maestro_working');
         }
       },
       error : function() {
-    	  maestro_allFlowsShowErrorBar(Drupal.t('There has been an error. Please try again'));
-    	  jQuery('#maestro_filter_working').removeClass('maestro_working');
-    	  }
+        maestro_allFlowsShowErrorBar(Drupal.t('There has been an error. Please try again'));
+        jQuery('#maestro_filter_working').removeClass('maestro_working');
+      }
     });
     return false;
   })
@@ -134,38 +134,54 @@ jQuery(function($) {
 
 
 function maestro_allFlowsShowErrorBar(error) {
-	jQuery('#maestro_error_message').html(error);
-	jQuery('#maestro_error_message').removeClass('maestro_hide_item');
-	jQuery('#maestro_error_message').addClass('maestro_show_item');
+  jQuery('#maestro_error_message').html(error);
+  jQuery('#maestro_error_message').removeClass('maestro_hide_item');
+  jQuery('#maestro_error_message').addClass('maestro_show_item');
 }
 function maestro_allFlowsHideErrorBar() {
-	var error = '';
-	jQuery('#maestro_error_message').html(error);
+  var error = '';
+  jQuery('#maestro_error_message').html(error);
 }
 
 function maestro_get_project_details(obj) {
   var projectID = jQuery(obj).attr('pid');
-    var img, index, newicon;
-    img = jQuery('#maestro_viewdetail_' + projectID).attr('src');
-    index = img.indexOf('_closed');
-    if(index>0) {
-      jQuery.ajax({
-        type: 'POST',
+  var img, index, newicon;
+  img = jQuery('#maestro_viewdetail_' + projectID).attr('src');
+  index = img.indexOf('_closed');
+  if(index>0) {
+    jQuery.ajax({
+      type: 'POST',
       url : ajax_url + '/getprojectdetails',
       cache: false,
       data : {
-      projectID : projectID
+        projectID : projectID
       },
       dataType: 'json',
       success:  function (data) {
         if (data.status == 1) {
-        index = img.indexOf('_closed');
-        newicon = img.substr(0, index) + '_open' + img.substr(index + 7);
-        jQuery('#maestro_project_information_div_'+ projectID).html(data.html);
-        jQuery('#maestro_project_information_row_' + projectID).attr('style','display:');
-        jQuery('#maestro_project_information_row_' + projectID).removeClass('maestro_hide_secondary_row'); 
-        jQuery('#maestro_project_information_row_' + projectID).removeClass('maestro_show_secondary_row');         
-        jQuery('#maestro_viewdetail_' + projectID).attr('src',newicon);
+          index = img.indexOf('_closed');
+          newicon = img.substr(0, index) + '_open' + img.substr(index + 7);
+          jQuery('#maestro_project_information_div_'+ projectID).html(data.html);
+          jQuery('#maestro_project_information_row_' + projectID).attr('style','display:');
+          jQuery('#maestro_project_information_row_' + projectID).removeClass('maestro_hide_secondary_row');
+          jQuery('#maestro_project_information_row_' + projectID).removeClass('maestro_show_secondary_row');
+          jQuery('#maestro_viewdetail_' + projectID).attr('src',newicon);
+          jQuery('a.ctools-use-modal:not(.ctools-use-modal-processed)')
+          .addClass('ctools-use-modal-processed')
+          .click(Drupal.CTools.Modal.clickAjaxLink)
+          .each(function () {
+            // Create a drupal ajax object
+            var element_settings = {};
+            if (jQuery(this).attr('href')) {
+              element_settings.url = jQuery(this).attr('href');
+              element_settings.event = 'click';
+              element_settings.progress = { type: 'throbber' };
+            }
+            var base = jQuery(this).attr('href');
+            Drupal.ajax[base] = new Drupal.ajax(base, this, element_settings);
+            // Attach the display behavior to the ajax object
+          }
+          );
 
         } else {
           alert('An error occurred updating assignment');
@@ -173,14 +189,14 @@ function maestro_get_project_details(obj) {
       },
       error: function() { alert('there was a SERVER Error processing AJAX request'); }
 
-      });
-    }
-    else {
-      jQuery('#maestro_project_information_row_' + projectID).attr('style','display:none');
-      img = jQuery('#maestro_viewdetail_' + projectID).attr('src');
-        index = img.indexOf('_open');
-        newicon = img.substr(0, index) + '_closed' + img.substr(index + 5);
+    });
+  }
+  else {
+    jQuery('#maestro_project_information_row_' + projectID).attr('style','display:none');
+    img = jQuery('#maestro_viewdetail_' + projectID).attr('src');
+    index = img.indexOf('_open');
+    newicon = img.substr(0, index) + '_closed' + img.substr(index + 5);
     jQuery('#maestro_viewdetail_' + projectID).attr('src',newicon);
-    }
+  }
 
 }

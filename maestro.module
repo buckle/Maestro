@@ -152,6 +152,14 @@ function maestro_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  $items['maestro/%ctools_js/deleteproject'] = array(
+      'title' => 'Animal',
+      'page callback' => 'maestro_ctools_delete_project',
+      'page arguments' => array(1),
+      'access callback' => TRUE,
+      'type' => MENU_CALLBACK,
+  );
+
 
   return $items;
 }
@@ -460,7 +468,7 @@ function launch_workflow_action_submit($form, $form_state) {
 
 /**
  * Form builder for the launch_workflow_action details form
- * 
+ *
  * @ingroup forms
  */
 function launch_workflow_action_form($context) {
@@ -619,6 +627,21 @@ function template_preprocess_maestro_taskconsole(&$variables) {
 
   drupal_add_js($maestro_path . '/js/taskconsole.js');
 
+  // Add CTools' javascript to the page.
+  ctools_include('modal');
+  ctools_modal_add_js();
+  drupal_add_js(array(
+    'maestro-modal-style' => array(
+      'modalSize' => array(
+        'type' => 'fixed',
+        'width' => 350,
+        'height' => 100,
+      ),
+      'closeImage' => '',
+      'closeText' => t('Close'),
+    ),
+  ), 'setting');
+
   if (is_array($objtasks) AND count($objtasks) > 0) {
     $rowid = 1;
     foreach ($objtasks as $task) {
@@ -718,7 +741,7 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
   $variables['special_status_action'] = '';
 
   if (user_access('maestro admin')) {
-    $variables['delete_project_action'] = '<a href="#" onClick="maestro_ajaxDeleteProject(' . $task->tracking_id . ', \'' . t('Confirm you would like to delete this project.') . '\');return false;">' . t('Delete Project') . '</a>';
+    $variables['delete_project_action'] = '<a class="ctools-modal-maestro-modal-style ctools-use-modal" href="'.$base_url .'/maestro/nojs/deleteproject/' . $task->tracking_id .'">Delete Project</a>';
   } else {
     $variables['delete_project_action'] = '';
   }
@@ -869,6 +892,26 @@ function template_preprocess_maestro_project_comments(&$variables) {
 }
 
 /**
+ * Preprocess function for workflow allflows view - need to add the Ctools hooks
+ */
+function template_preprocess_maestro_all_flows(&$variables) {
+  // Add CTools' javascript to the page.
+  ctools_include('modal');
+  ctools_modal_add_js();
+  drupal_add_js(array(
+    'maestro-modal-style' => array(
+      'modalSize' => array(
+        'type' => 'fixed',
+        'width' => 350,
+        'height' => 100,
+      ),
+      'closeImage' => '',
+      'closeText' => t('Close'),
+    ),
+  ), 'setting');
+}
+
+/**
  * Preprocess function for workflow editing
  */
 function template_preprocess_maestro_workflow_edit(&$variables) {
@@ -998,7 +1041,7 @@ function maestro_createAppGroupDropDown($name, $selected = 0){
 
 /**
  * Defines available task types
- * 
+ *
  * Any other maestro task type modules will also implement this function
  * For the core task types that we implement as part of maestro
  * we need to describe them in this function
@@ -1046,7 +1089,7 @@ function maestro_maestro_get_taskobject_info() {
  * Defines available handler functions
  *
  * @return
- *   Keyed array of keyed arrays defining handler function and the function description 
+ *   Keyed array of keyed arrays defining handler function and the function description
  */
 function maestro_maestro_handler_options() {
 
@@ -1543,7 +1586,7 @@ function maestro_getNodeId($process_id,$content_type) {
 
 /**
  * Helper function that retrieves the tracking_id for a specific queue task
- * 
+ *
  * @return
  *   Tracking ID or FALSE
  */
@@ -1562,7 +1605,7 @@ function maestro_getTaskTrackingId($taskid) {
 }
 
 /**
- * Retrieve the task history for a maestro project (all related workflow instances) 
+ * Retrieve the task history for a maestro project (all related workflow instances)
  *
  * @return
  *   Array of objects representing tasks in history of project
@@ -1706,6 +1749,74 @@ function maestro_set_process_flow_name ($process_id, $new_flow_name) {
            ->condition('id', $proj_id, '=')
            ->execute();
   }
+}
+
+
+/* Implementation of the ctools modal dialog for the delete confirmation
+   Function called form the menu handler 'maestro/%ctools_js/deleteproject'
+*/
+function maestro_ctools_delete_project($js = NULL, $tracking_id = NULL) {
+  global $base_url;
+
+  /* See template_preprocess_maestro_taskconsole() where we include the needed ctools javascript  and
+     in template_preprocess_maestro_taskconsole_details() where we define the 'delete project' link
+
+     Note: Ctools uses jquery to attach the needed behaviour to the 'delete project' link if the class ctools-use-modal is used.
+     Since the project details is not rendered as part of the initial page load, the needed ctools modal dialog hook is not executed.
+     The project details is loaded via AJAX when the user expands the project folder icon, after the DOM is updated via the javascript
+     in taskconsole.js, we execute a copy of the ctools code found in ctools/js/modal.js to attach the needed event.
+  */
+
+  if ($js) {
+    ctools_include('modal');
+    ctools_include('ajax');
+    ctools_add_js('ajax-responder');
+  }
+  $form_state = array('title' => 'Delete Project', 'ajax' => TRUE);
+  $output = ctools_modal_form_wrapper('maestro_deleteproject_confirm_form', $form_state);
+  if (isset($form_state['clicked_button'])) {
+    if ($form_state['clicked_button']['#value'] == t('Yes')) {
+      if ($tracking_id > 0) {
+        $tracking_id = intval($tracking_id);
+        $retval = maestro_delete_project($tracking_id);
+        if($retval) {
+          $output = array();
+          $output[] = ctools_modal_command_display(NULL, t('Project has been deleted.'));
+          $output[] = ctools_ajax_command_reload();
+          print ajax_render($output);
+          exit;
+        }
+        else {
+          $output = array();
+          $output[] = ctools_modal_command_display(NULL, t('Error Project not deleted.'));
+          $output[] = ctools_ajax_command_reload();
+          print ajax_render($output);
+          exit;
+        }
+      }
+    } elseif ($form_state['clicked_button']['#value'] == t('No')) {
+      $commands = array();
+      $commands[] = ctools_modal_command_dismiss();
+      print ajax_render($commands);
+      exit;
+    }
+  }
+  print ajax_render($output);
+  exit;
+}
+
+/* Form definition to the ctools driven delete project confirm
+*/
+function maestro_deleteproject_confirm_form(&$form_state) {
+  $form['cancel'] = array(
+    '#type' => 'submit',
+    '#value' => t('No'),
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Yes'),
+  );
+  return $form;
 }
 
 /**

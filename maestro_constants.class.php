@@ -128,7 +128,7 @@ class MaestroAssignmentTypes {
     $labels[self::USER] = array('name' => 'USER', 'label' => t('User'));
     $labels[self::ROLE] = array('name' => 'ROLE', 'label' => t('Role'));
     if(module_exists('og')) {
-      $labels[self::GROUP] = array('name' => 'GROUP', 'label' => t('Organic Group'));
+      $labels[self::GROUP] = array('name' => 'GROUP', 'label' => t('Group'));
     } else {
       $labels[self::GROUP] = FALSE;
     }

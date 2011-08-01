@@ -1,9 +1,10 @@
 name = Maestro
 description = Maestro workflow management system which lets you define processes and route tasks to different site users.
 package = Maestro
-version = 7.x-1.1
+version = 7.x-1.2
 core = 7.x
 dependencies[] = trigger
+dependencies[] = ctools
 files[] = maestro.module
 files[] = maestro.install
 files[] = maestro.test

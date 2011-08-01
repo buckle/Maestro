@@ -831,6 +831,65 @@ class MaestroEngineVersion1 extends MaestroEngine {
   }
 
 
+
+  /* Return an associative array of assigned users, roles and groups for the workflow task (queue_id) */
+  function getAssigned($queue_id=0) {
+    if ($queue_id == 0) {
+      $queue_id = $this->_queueId;
+    }
+
+    $query = db_select('maestro_queue', 'a');
+    $query->addField('a','process_id');
+    $query->condition('a.id', $queue_id, '=');
+    $rec = $query->execute()->fetchObject();
+    $processid = $rec->process_id;
+
+    $assigned = array();
+
+    $query = db_select('maestro_production_assignments', 'a');
+    $query->fields('a',array('assign_type','assign_id','process_variable'));
+    $query->condition('a.task_id', $queue_id, '=');
+    $res = $query->execute();
+    foreach ($res as $rec) {
+      if ($rec->assign_type == MaestroAssignmentTypes::USER) {
+          $type = MaestroAssignmentTypes::getStatusLabel(MaestroAssignmentTypes::USER);
+          if ($rec->process_variable == 0 ) {
+            $user = user_load($rec->assign_id );
+
+            $assigned[$type['name']][] = $user->name;
+          } else {
+            $q2 = db_select('maestro_process_variables', 'a');
+            $q2->addField('a','variable_value');
+            $q2->condition('a.process_id', $processid, '=');
+            $q2->condition('a.template_variable_id', $rec->process_variable, '=');
+            $q2rec = $q2->execute()->fetchObject();
+            $user = user_load($q2rec->variable_value);
+            $assigned[$type['name']][] = $user->name;
+          }
+
+      } elseif ($rec->assign_type == MaestroAssignmentTypes::ROLE) {
+          $type = MaestroAssignmentTypes::getStatusLabel(MaestroAssignmentTypes::ROLE);
+          if($rec->assign_id > 0) {
+            $query = db_select('role','a');
+            $query->addField('a','name');
+            $query->condition('a.rid',$rec->assign_id);
+            $role = $query->execute()->fetchObject();
+            $assigned[$type['name']][] = $role->name;
+          }
+      } elseif ($rec->assign_type == MaestroAssignmentTypes::GROUP) {
+          $type = MaestroAssignmentTypes::getStatusLabel(MaestroAssignmentTypes::GROUP);
+          if($rec->assign_id > 0) {
+            $group = og_load($rec->assign_id);
+            $assigned[$type['name']][] = $group->label;
+          }
+      }
+    }
+
+    return $assigned;
+
+  }
+
+
   function completeTask($qid, $status = 1) {
     $pid = db_query("SELECT process_id FROM {maestro_queue} WHERE id = :qid",
     array(':qid' => $qid))->fetchField();
