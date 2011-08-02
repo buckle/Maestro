@@ -35,7 +35,7 @@ is listed as Maestro Config.  Out of the box, you will find that Maestro has a f
 
 THIS IS IMPORTANT!! PLEASE READ!
 One of the settings is "Run the Orchestrator when the Task Console Renders".  This setting allows the Maestro engine to run
-when you click on the Task Console link in the Nav menu.  If you uncheck this option, the engine will not run on task console refresh.  
+when you click on the Task Console link in the Nav menu.  If you uncheck this option, the engine will not run on task console refresh.
 
 The other options are:
 
@@ -64,10 +64,10 @@ only there for testing. We have enabled the option to run the Orchestrator throu
 default for ease of use, but that can be disabled on the Maestro configuration page.
 
 To set up the cron, see http://drupal.org/cron. Note however in this documentation, instead of (or in addition to)
-using http://www.example.com/cron.php as the url, use http://www.example.com/maestro/orchestrator or 
+using http://www.example.com/cron.php as the url, use http://www.example.com/maestro/orchestrator or
 http://www.example.com/index.php?q=maestro/orchestrator. The orchestrator cron should be set to run every few minutes.
 
-Current release of Maestro does not have a "secured" orchestrator link.  Therefore anyone can hit the maestro/orchestrator link and run 
+Current release of Maestro does not have a "secured" orchestrator link.  Therefore anyone can hit the maestro/orchestrator link and run
 the orchestrator.  While this is not necessarily harmful, it is not optimal as the engine will run and potentially be run more than once
 at the same time causing queue issues.  Eventually there will be an application token that would have to be passed to the orchestrator link
 in order to run the orchestrator from cron. However for now, be aware there are no safeguards around it.
@@ -100,7 +100,7 @@ sub runOrchestrator
 end sub
 
 
-*NOTES: 
+*NOTES:
 - change the FQDNofTHEserver setting to match your server.
 - The choice is yours, but here are some useful settings for the started task:
 
@@ -112,4 +112,12 @@ Add Arguments (optional):
 
 
 
+Views 3 Integration (Aug 1 2011)
+---------------------------------
+There are now two views that will be installed as examples or starting place for your projects.
+The new views have been created from a maestro workflow base table and include multiple exposed filters and fields.
+Additionally, there is a VBO (Views Bulk Operations) style that can be enabled - a few actions have been created 
+and can be extended by developers.
+
+The views3 work was funded by Numbers USA and flowconcept solutions http://flowconcept-solutions.com/
 

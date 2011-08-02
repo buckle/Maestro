@@ -201,6 +201,62 @@ function maestro_help($path, $arg) {
   return $output;
 }
 
+
+/**
+ * Implementation of hook_views_api().
+*/
+function maestro_views_api() {
+  return array(
+    'api' => 2.0,
+    'path' => drupal_get_path('module', 'maestro')
+  );
+}
+
+
+/**
+* Implementation of hook_views_bulk_operations_object_info().
+*/
+function maestro_views_bulk_operations_object_info() {
+  $object_info = array(
+  'maestro' => array(
+  'type' => 'maestro',
+  'base_table' => 'maestro_queue',
+  'load' => 'maestro_task_vbo_load',
+  'oid' => 'id',
+  'title' => 'name',
+  ),
+  );
+  return $object_info;
+}
+
+function maestro_task_vbo_load($type, $queueId) {
+  $query = db_select('maestro_queue', 'a');
+  $query->join('maestro_template_data','b','b.id = a.template_data_id');
+  $query->join('maestro_template','c','c.id = b.template_id');
+  $query->fields('a', array('id','template_data_id', 'process_id'));
+  $query->fields('b', array('taskname'));
+  $query->fields('c', array('template_name'));
+  $query->condition('a.id', $queueId, '=');
+  $rec = $query->execute()->fetchObject();
+  $retval = new stdClass();
+  $retval->name = "{$rec->template_name} => Task: {$rec->taskname}";
+
+  return $retval;
+}
+
+
+function maestro_task_delete_action(&$workflow, $context) {
+  $maestro = Maestro::createMaestroObject(1);
+  $maestro->engine()->deleteTask($context['row']->id);
+}
+
+function maestro_task_reminder_action(&$workflow, $context) {
+  $maestro = Maestro::createMaestroObject(1);
+  $maestro->engine()->sendTaskAssignmentNotifications($context['row']->id);
+}
+
+
+
 /**
  * Implements hook_admin_paths().
  */
@@ -389,9 +445,24 @@ function maestro_action_info() {
       'label' => t('Launch a Maestro Workflow'),
       'configurable' => TRUE,
       'triggers' => array('any'),
-    )
+  ),
+  'maestro_task_delete_action' => array(
+  'description' => t('Delete task'),
+  'type' => 'maestro',
+  'label' => t('Maestro - Delete Task'),
+  'configurable' => FALSE,
+  'hooks' => array(),
+  ),
+  'maestro_task_reminder_action' => array(
+  'description' => t('Task Reminder'),
+  'type' => 'maestro',
+  'label' => t('Maestro - Send Task Reminder'),
+  'configurable' => FALSE,
+  'hooks' => array(),
+  ),
   );
 }
+
 
 /**
  * Provides implementation logic for carrying out launch_workflow_action
@@ -424,7 +495,7 @@ function launch_workflow_action(&$object, $context = array()) {
     $nid = intval($context['node']->nid);
     //why bother even running this if the nid is zero?
     //this is a fix for triggering on a node_presave where there isn't a nid
-    if ($nid>0) {
+    if ($nid > 0) {
       $query = db_insert('maestro_project_content');
       $query->fields(array('nid', 'tracking_id', 'task_id', 'instance', 'content_type', 'task_data', 'created_by_uid', 'is_locked_by_uid', 'status'));
       $query->values(array(

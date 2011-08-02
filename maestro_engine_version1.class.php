@@ -838,6 +838,8 @@ class MaestroEngineVersion1 extends MaestroEngine {
       $queue_id = $this->_queueId;
     }
 
+    if (empty($queue_id)) return FALSE;
+
     $query = db_select('maestro_queue', 'a');
     $query->addField('a','process_id');
     $query->condition('a.id', $queue_id, '=');
