@@ -457,7 +457,6 @@ function maestro_admin_form() {
     '#title' => t('Task Assignment Notifcation settings'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
-    '#tree' => TRUE,
     '#group' => 'notifications'
     );
 
@@ -481,7 +480,6 @@ function maestro_admin_form() {
     '#title' => t('Task Completion Notifcation settings'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
-    '#tree' => TRUE,
     '#group' => 'notifications'
     );
 
@@ -505,7 +503,6 @@ function maestro_admin_form() {
     '#title' => t('Task Reminder Notifcation settings'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
-    '#tree' => TRUE,
     '#group' => 'notifications'
     );
 
@@ -529,7 +526,6 @@ function maestro_admin_form() {
     '#title' => t('Task Escalation Notification settings'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
-    '#tree' => TRUE,
     '#group' => 'notifications'
     );
 
