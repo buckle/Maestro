@@ -158,7 +158,7 @@ class MaestroEngineVersion1 extends MaestroEngine {
             /* The maestro_queue_from table is used by the IF Task to test previous task's status if that's the condition to test
              * Also used to simplify later reporting of active tasks
              */
-            $q3 = db_select('maesto_queue_from','a');
+            $q3 = db_select('maestro_queue_from','a');
             $q3->addField('a','from_queue_id');
             $q3->condition("a.queue_id = {$active_queue_record->id}");
             $queue_reporting_result = $q3->execute();
