@@ -400,7 +400,7 @@ function maestro_admin_form() {
     '#type' => 'textfield',
     '#title' => t('Orchestrator lock release timeout'),
     '#default_value' => variable_get('maestro_orchestrator_lock_delay', 512.0),
-    '#description' => t('Orchestrator can\'t be executed in paraell, Maestro uses a lock when executing it. However if the execution fails, the lock remains there. This value allows you to specify when maestro should consider the lock invalid. Usually the maximum sane value is the Maximum execution time of PHP configuration.'),
+    '#description' => t('Orchestrator can\'t be executed in parallel, Maestro uses a lock when executing it. However if the execution fails, the lock remains there. This value allows you to specify when maestro should consider the lock invalid. Usually the maximum sane value is the Maximum execution time of PHP configuration.'),
     '#required' => FALSE,
   );
   $form['maestro_enable_import_window'] = array(
