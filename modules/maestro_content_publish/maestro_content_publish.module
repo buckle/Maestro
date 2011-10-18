@@ -152,4 +152,3 @@ function maestro_publishArticle($queue_id, $process_id) {
   }
 }
 
-?>

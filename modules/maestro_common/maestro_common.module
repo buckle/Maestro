@@ -101,4 +101,3 @@ function maestro_accept_reject($op,&$task,$parms) {
   return $retval;
 }
 
-?>
