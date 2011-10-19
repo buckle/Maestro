@@ -567,7 +567,7 @@ class MaestroEngineVersion1 extends MaestroEngine {
           }
 
           if (strpos($assignId, ':') !== false) {
-            $userIds = explode(':', $assignId);
+            $assignIds = explode(':', $assignId);
           }
           else {
             $assignIds = array($assignId);
