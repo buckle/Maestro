@@ -565,7 +565,6 @@ class MaestroEngineVersion1 extends MaestroEngine {
           if ($assignBy != MaestroAssignmentBy::VARIABLE) {
             $processVariableId = 0;
           }
-
           if (strpos($assignId, ':') !== false) {
             $assignIds = explode(':', $assignId);
           }
