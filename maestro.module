@@ -607,7 +607,7 @@ function maestro_taskconsole() {
   //if this is our initial installation, set the default value to 1
   //to allow the orchestrator to clean the queue properly
   if (variable_get('maestro_run_orchestrator_in_task_console', 1)) {
-    $maestro->engine()->cleanQueue();
+    maestro_orchestrator();
   }
 
   return theme('maestro_taskconsole');
@@ -680,8 +680,14 @@ function maestro_new_process($template=0) {
  * Provides gateway to process the task queue
  */
 function maestro_orchestrator() {
-  $maestro = Maestro::createMaestroObject(1);
-  $maestro->engine()->cleanQueue();
+  if (!lock_acquire('maestro_orchestrator', variable_get('maestro_orchestrator_lock_delay', 512.0))) {
+    watchdog('maestro', 'Attempting to re-run orchestrator while it is already running.', array(), WATCHDOG_WARNING);
+  }
+  else {
+    $maestro = Maestro::createMaestroObject(1);
+    $maestro->engine()->cleanQueue();
+    lock_release('maestro_orchestrator');
+  }
 }
 
 /**
