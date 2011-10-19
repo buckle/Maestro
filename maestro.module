@@ -832,14 +832,14 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
   $query->join('maestro_queue', 'queue', 'queue.process_id = process.id');
   $query->join('maestro_template_data', 'template', 'queue.template_data_id = template.id');
   $query->join('maestro_production_assignments', 'assignment', 'assignment.task_id = queue.id');
-  $query->leftJoin('users', 'user', 'user.uid = assignment.assign_id');
+  $query->leftJoin('users', 'user1', 'user1.uid = assignment.assign_id');
   $query->leftJoin('role', 'role', 'role.rid = assignment.assign_id');
   $query->fields('queue', array('process_id', 'created_date', 'started_date', 'completed_date', 'status'));
   $query->fields('template', array('taskname', 'is_dynamic_taskname', 'dynamic_taskname_variable_id'));
   $query->fields('assignment', array('assign_id', 'assign_type', 'process_variable'));
   $query->addField('assignment', 'id', 'assign_recid');
   $query->addField('queue', 'id', 'queue_id');
-  $query->addField('user', 'name', 'username');
+  $query->addField('user1', 'name', 'username');
   $query->addField('role', 'name', 'rolename');
   $query->addField('process', 'pid', 'parent_process_id');
   $query->addField('process', 'tracking_id', 'tracking_id');
