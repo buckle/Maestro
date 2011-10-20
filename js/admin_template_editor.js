@@ -389,7 +389,7 @@ function draw_line_to(element) {
         if (draw_type == 2) {
           $.ajax({
             type: 'POST',
-            url: ajax_url + task_class + '/' + template_data_id + '/0/drawLineFalse/',
+            url: ajax_url + task_class + '/' + template_data_id + '/0/drawLineFalse/' + tkn,
             cache: false,
             data: { line_to: template_data_id2 },
             success: disable_ajax_indicator,
@@ -399,7 +399,7 @@ function draw_line_to(element) {
         else {
           $.ajax({
             type: 'POST',
-            url: ajax_url + task_class + '/' + template_data_id + '/0/drawLine/',
+            url: ajax_url + task_class + '/' + template_data_id + '/0/drawLine/' + tkn,
             cache: false,
             data: { line_to: template_data_id2 },
             success: disable_ajax_indicator,

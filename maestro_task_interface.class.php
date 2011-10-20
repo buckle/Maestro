@@ -342,6 +342,9 @@ abstract class MaestroTaskInterface {
 
   //handles the update when adding a line (insert the next step record)
   function drawLine() {
+    if($this->_security_token != drupal_get_token()) {
+      return array('message' => t('Illegal line connection attempt.'), 'success' => 0, 'task_id' => $this->_task_id);
+    }
     $res = db_select('maestro_template_data_next_step', 'a');
     $res->fields('a', array('id'));
 
@@ -370,6 +373,9 @@ abstract class MaestroTaskInterface {
 
   //in theory only the if task will use this method
   function drawLineFalse() {
+    if($this->_security_token != drupal_get_token()) {
+      return array('message' => t('Illegal line connection attempt.'), 'success' => 0, 'task_id' => $this->_task_id);
+    }
     $res = db_select('maestro_template_data_next_step', 'a');
     $res->fields('a', array('id'));
 
@@ -702,7 +708,7 @@ class MaestroTaskInterfaceStart extends MaestroTaskInterface {
     $options = array (
       'draw_line' => array(
         'label' => t('Draw Line'),
-        'js' => "draw_status = 1; draw_type = 1; line_start = document.getElementById('task{$this->_task_id}'); set_tool_tip('$draw_line_msg');\n"
+        'js' => "tkn = '{$token}'; draw_status = 1; draw_type = 1; line_start = document.getElementById('task{$this->_task_id}'); set_tool_tip('$draw_line_msg');\n"
       ),
       'clear_lines' => array(
         'label' => t('Clear Adjacent Lines'),
