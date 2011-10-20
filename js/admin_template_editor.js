@@ -18,6 +18,7 @@ var assignment_type = 0;
 var select_boxes = new Array();
 var posx = 0;
 var posy = 0;
+var tkn = '';
 
 (function($) {
   $(document).ready(function() {
@@ -324,7 +325,7 @@ function add_task_success(r) {
   })(jQuery);
 }
 
-function save_task(frm) {
+function save_task(frm, token) {
   var i;
   for (i in select_boxes) {
     select_all_options(document.getElementById(select_boxes[i]));
@@ -334,7 +335,7 @@ function save_task(frm) {
     enable_ajax_indicator();
     $.ajax({
       type: 'POST',
-      url: ajax_url + frm.task_class.value + '/' + frm.template_data_id.value + '/0/save/',
+      url: ajax_url + frm.task_class.value + '/' + frm.template_data_id.value + '/0/save/' + token,
       cache: false,
       data: $("#maestro_task_edit_form").serialize(),
       dataType: 'json',
@@ -413,7 +414,7 @@ function draw_line_to(element) {
   })(jQuery);
 }
 
-function clear_task_lines(el) {
+function clear_task_lines(el, token) {
   (function($) {
     var indexes = [];
     var i = 0;
@@ -442,7 +443,7 @@ function clear_task_lines(el) {
     enable_ajax_indicator();
     $.ajax({
       type: 'POST',
-      url: ajax_url + task_class + '/' + template_data_id + '/0/clearAdjacentLines/',
+      url: ajax_url + task_class + '/' + template_data_id + '/0/clearAdjacentLines/' + token,
       cache: false,
       success: disable_ajax_indicator,
       error: editor_ajax_error

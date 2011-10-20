@@ -6,7 +6,6 @@
  */
 
 ?>
-
 <div>
   <div style="margin: 0px 0px 0px 10px; float: left;">&nbsp;</div>
 
@@ -54,7 +53,7 @@
 
   <div class="maestro_task_edit_panel">
     <div class="t"><div class="b"><div class="r"><div class="l"><div class="bl-wht"><div class="br-wht"><div class="tl-wht"><div class="tr-wht">
-      <form id="maestro_task_edit_form" method="post" action="" onsubmit="return save_task(this);">
+      <form id="maestro_task_edit_form" method="post" action="" onsubmit="return save_task(this, '<?php print drupal_get_token(); ?>');">
         <input type="hidden" name="task_class" value="<?php print $task_class; ?>">
         <input type="hidden" name="template_data_id" value="<?php print $tdid; ?>">
 

@@ -36,13 +36,14 @@ function maestro_edit_workflow($tid = '') {
   return $mi->displayPage();
 }
 
-function maestro_handle_editor_ajax_request($task_type, $template_data_id, $template_id, $op) {
+function maestro_handle_editor_ajax_request($task_type, $template_data_id, $template_id, $op, $security_token) {
   if (class_exists($task_type)) {
     $ti = new $task_type($template_data_id, $template_id);
   }
   else {
     $ti = new MaestroTaskInterfaceUnknown($template_data_id, $template_id);
   }
+  $ti->setSecurityToken($security_token);
   drupal_json_output($ti->$op());
   exit();
 }

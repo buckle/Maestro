@@ -7,6 +7,7 @@
 
 class MaestroInterface {
   private $_template_id;
+  private $_security_token;
 
   function __construct($template_id) {
     $this->_template_id = $template_id;
@@ -107,6 +108,7 @@ class MaestroInterface {
   }
 
   function getContextMenuJS() {
+    $token = drupal_get_token();
     $options = $this->getContextMenu();
     $js  = "(function ($) {\n";
     $js .= "\$('#maestro_workflow_container').contextMenu('maestro_main_context_menu', {\n";
@@ -128,7 +130,7 @@ class MaestroInterface {
       $js .= "enable_ajax_indicator();\n";
       $js .= "\$.ajax({
         type: 'POST',
-        url: ajax_url + 'MaestroTaskInterface$task_type/0/{$this->_template_id}/create/',
+        url: ajax_url + 'MaestroTaskInterface$task_type/0/{$this->_template_id}/create/{$token}',
         cache: false,
         data: {task_type: '$task_type', offset_left: posx, offset_top: posy},
         dataType: 'json',
