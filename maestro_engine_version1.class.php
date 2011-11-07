@@ -166,7 +166,7 @@ class MaestroEngineVersion1 extends MaestroEngine {
               $record = new stdClass();
               $record->id = $queue_reporting_record->from_queue_id;
               $record->process_id = $new_processid;
-              drupal_write_record('maestro_queue',$record);
+              drupal_write_record('maestro_queue',$record, 'id');
             }
             db_update('maestro_queue')
             ->fields(array('process_id' => $new_processid))
