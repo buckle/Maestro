@@ -6,7 +6,7 @@
  */
 
 function maestro_test_flows_install() {
-  include(drupal_get_path('module', 'maestro') . '/maestro.admin.inc');
+  include_once(drupal_get_path('module', 'maestro') . '/maestro.admin.inc');
 
   $dt = date("m-d-Y", time());
   $app_group_id = maestro_createAppGroup("Sample Workflow AppGroup created " . $dt);
