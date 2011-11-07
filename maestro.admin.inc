@@ -677,6 +677,7 @@ function maestro_export($id) {
       $task_type = substr($rec->task_class_name, 15);
       $task_class = 'MaestroTaskInterface' . $task_type;
       $output_php .= '$ti = new ' . $task_class . '(0, $templateID);' . "\n";
+      $output_php .= '$ti->setSecurityToken(drupal_get_token());' . "\n";
       $output_php .= '$ti->create();' . "\n";
       $output_php .= '$task_xref_array[' . $rec->id . '] = $ti->get_task_id();' . "\n";
       $output_php .= '$res = db_select(\'maestro_template_data\', \'a\');' . "\n";
