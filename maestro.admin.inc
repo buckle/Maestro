@@ -576,8 +576,10 @@ function maestro_createNewTemplate($name, $skip_task_creation = FALSE, $skip_var
     $new_template_rec_id = $record->id;
     if (!$skip_task_creation) {
       $task = new MaestroTaskInterfaceStart(0, $new_template_rec_id);
+      $task->setSecurityToken(drupal_get_token());
       $task->create();
       $task = new MaestroTaskInterfaceEnd(0, $new_template_rec_id);
+      $task->setSecurityToken(drupal_get_token());
       $task->create();
     }
     if (!$skip_variable_creation) {
