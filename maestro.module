@@ -1984,3 +1984,87 @@ function maestro_delete_project($tracking_id) {
 
   return TRUE;
 }
+/**
+* Implementation of hook_rules_event_info()
+*/
+function maestro_rules_action_info() {
+  return array(
+    'maestro_launch_workflow' => array(
+      'label' => t('Launch a  Maestro Workflow'),
+      'group' => t('Maestro'),
+      'named parameter' => TRUE,
+      'parameter' => array(
+        'template' => array(
+          'type' => 'integer',
+          'label' => 'Maestro Template NameName',
+          'options list' => 'maestro_template_names',
+          'description' => t('Specifies the name of the template to launch.'),
+        ),
+      ),
+      'base' => 'rules_action_launch_workflow',
+      'provides' => array(
+        'result' => array(
+          'type' => 'integer',
+          'label' => t('Process ID'),
+        ),
+      ),
+    ),
+  );
+
+}
+
+/* Return an array of options for the template names to configure the rules action */
+function maestro_template_names() {
+  $options = '';
+  $res = db_query("SELECT id, template_name FROM {maestro_template}");
+  foreach ($res as $rec) {
+    $options[$rec->id] = $rec->template_name;
+  }
+  return $options;
+}
+
+/**
+ * Action: Launch workflow defined by the action 'template' setting
+ * Create any process variables that match any defined workflow created variables
+ * Returns the new process id
+ */
+function rules_action_launch_workflow($args, $element) {
+  $template = intval ($args['template']);
+  if ($template > 0) {
+    $maestro = Maestro::createMaestroObject(1);
+    $newprocess = $maestro->engine()->newProcess($template);
+  }
+
+  $variables = $args['state']->variables;
+  foreach ($variables as $name => $value) {
+    $maestro->engine()->setProcessVariable($name, $value,$newprocess);
+  }
+  return array('result' => $newprocess);
+}
+
+
+/**
+ * Implements hook_entity_info().
+ */
+function maestro_entity_xinfo() {
+  $return['dug_meeting_topic'] = array(
+    'label' => t('Maestro Process Entities'),
+
+    // the default controller is extended with create(), save() and delete() methods
+    'entity class' => 'EntityClass',
+    'controller class' => 'EntityAPIController',
+    'base table' => 'maestro',
+    'fieldable' => TRUE,
+    // these keys are identical to the the fields in the database schema
+    'entity keys' => array(
+      'id' => 'aid',
+      'label' => 'Entity Id',
+    ),
+    // Make use the class' label() and uri() implementation by default.
+    'label callback' => 'entity_class_label',
+    'uri callback' => 'entity_class_uri',
+  );
+  return $return;
+}
+
+
