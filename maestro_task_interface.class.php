@@ -285,16 +285,16 @@ abstract class MaestroTaskInterface {
         }
       }
 
-      $rec->pre_notify_subject = $_POST['pre_notify_subject'];
-      $rec->pre_notify_message = $_POST['pre_notify_message'];
-      $rec->post_notify_subject = $_POST['post_notify_subject'];
-      $rec->post_notify_message = $_POST['post_notify_message'];
-      $rec->reminder_subject = $_POST['reminder_subject'];
-      $rec->reminder_message = $_POST['reminder_message'];
-      $rec->escalation_subject = $_POST['escalation_subject'];
-      $rec->escalation_message = $_POST['escalation_message'];
-      $rec->reminder_interval = $_POST['reminder_interval'];
-      $rec->escalation_interval = $_POST['escalation_interval'];
+      $rec->pre_notify_subject = filter_xss($_POST['pre_notify_subject']);
+      $rec->pre_notify_message = filter_xss($_POST['pre_notify_message']);
+      $rec->post_notify_subject = filter_xss($_POST['post_notify_subject']);
+      $rec->post_notify_message = filter_xss($_POST['post_notify_message']);
+      $rec->reminder_subject = filter_xss($_POST['reminder_subject']);
+      $rec->reminder_message = filter_xss($_POST['reminder_message']);
+      $rec->escalation_subject = filter_xss($_POST['escalation_subject']);
+      $rec->escalation_message = filter_xss($_POST['escalation_message']);
+      $rec->reminder_interval = filter_xss($_POST['reminder_interval']);
+      $rec->escalation_interval = filter_xss($_POST['escalation_interval']);
     }
 
     if (array_key_exists('optional', $this->_task_edit_tabs) && $this->_task_edit_tabs['optional'] == 1) {
@@ -302,8 +302,9 @@ abstract class MaestroTaskInterface {
 
       if (array_key_exists('op_var_names', $_POST)) {
         foreach ($_POST['op_var_names'] as $key => $var_name) {
+          $var_name = check_plain($var_name);
           if ($var_name != '') {
-            $optional_parms[$var_name] = $_POST['op_var_values'][$key];
+            $optional_parms[$var_name] = check_plain($_POST['op_var_values'][$key]);
           }
         }
       }
@@ -313,15 +314,15 @@ abstract class MaestroTaskInterface {
       $rec->task_data = serialize($rec->task_data);
     }
 
-    $rec->taskname = $_POST['taskname'];
+    $rec->taskname = filter_xss($_POST['taskname']);
     if (array_key_exists('regen', $_POST)) {
-      $rec->regenerate = $_POST['regen'];
+      $rec->regenerate = intval($_POST['regen']);
     }
     if (array_key_exists('regenall', $_POST)) {
-      $rec->regen_all_live_tasks = $_POST['regenall'];
+      $rec->regen_all_live_tasks = intval($_POST['regenall']);
     }
     if (array_key_exists('showindetail', $_POST)) {
-      $rec->show_in_detail = $_POST['showindetail'];
+      $rec->show_in_detail = intval($_POST['showindetail']);
     }
 
     drupal_write_record('maestro_template_data', $rec, array('id'));
@@ -331,6 +332,9 @@ abstract class MaestroTaskInterface {
 
   //handles the update for the drag and drop
   function move() {
+    if($this->_security_token != drupal_get_token()) {
+      return array('message' => t('Illegal move attempt.'), 'success' => 0, 'task_id' => $this->_task_id);
+    }
     $offset_left = intval($_POST['offset_left']);
     $offset_top = intval($_POST['offset_top']);
 
@@ -348,11 +352,11 @@ abstract class MaestroTaskInterface {
     $res = db_select('maestro_template_data_next_step', 'a');
     $res->fields('a', array('id'));
 
-    $cond1 = db_or()->condition('a.template_data_to', $_POST['line_to'], '=')->condition('a.template_data_to_false', $_POST['line_to'], '=');
+    $cond1 = db_or()->condition('a.template_data_to', intval($_POST['line_to']), '=')->condition('a.template_data_to_false', intval($_POST['line_to']), '=');
     $cond1fin = db_and()->condition('a.template_data_from', $this->_task_id, '=')->condition($cond1);
 
     $cond2 = db_or()->condition('a.template_data_to', $this->_task_id, '=')->condition('a.template_data_to_false', $this->_task_id, '=');
-    $cond2fin = db_and()->condition('a.template_data_from', $_POST['line_to'], '=')->condition($cond2);
+    $cond2fin = db_and()->condition('a.template_data_from', intval($_POST['line_to']), '=')->condition($cond2);
 
     $cond = db_or()->condition($cond1fin)->condition($cond2fin);
 
@@ -362,7 +366,7 @@ abstract class MaestroTaskInterface {
     if ($rec == '') {
       $rec = new stdClass();
       $rec->template_data_from = $this->_task_id;
-      $rec->template_data_to = $_POST['line_to'];
+      $rec->template_data_to = intval($_POST['line_to']);
       $rec->template_data_to_false = 0;
       drupal_write_record('maestro_template_data_next_step', $rec);
     }
@@ -379,11 +383,11 @@ abstract class MaestroTaskInterface {
     $res = db_select('maestro_template_data_next_step', 'a');
     $res->fields('a', array('id'));
 
-    $cond1 = db_or()->condition('a.template_data_to', $_POST['line_to'], '=')->condition('a.template_data_to_false', $_POST['line_to'], '=');
+    $cond1 = db_or()->condition('a.template_data_to', intval($_POST['line_to']), '=')->condition('a.template_data_to_false', intval($_POST['line_to']), '=');
     $cond1fin = db_and()->condition('a.template_data_from', $this->_task_id, '=')->condition($cond1);
 
     $cond2 = db_or()->condition('a.template_data_to', $this->_task_id, '=')->condition('a.template_data_to_false', $this->_task_id, '=');
-    $cond2fin = db_and()->condition('a.template_data_from', $_POST['line_to'], '=')->condition($cond2);
+    $cond2fin = db_and()->condition('a.template_data_from', intval($_POST['line_to']), '=')->condition($cond2);
 
     $cond = db_or()->condition($cond1fin)->condition($cond2fin);
 
@@ -394,7 +398,7 @@ abstract class MaestroTaskInterface {
       $rec = new stdClass();
       $rec->template_data_from = $this->_task_id;
       $rec->template_data_to = 0;
-      $rec->template_data_to_false = $_POST['line_to'];
+      $rec->template_data_to_false = intval($_POST['line_to']);
       drupal_write_record('maestro_template_data_next_step', $rec);
     }
     else {
@@ -560,7 +564,7 @@ abstract class MaestroTaskInterface {
   function setCanvasHeight() {
     $rec = new stdClass();
     $rec->id = $this->_template_id;
-    $rec->canvas_height = $_POST['height'];
+    $rec->canvas_height = intval($_POST['height']);
     drupal_write_record('maestro_template', $rec, array('id'));
   }
 
@@ -802,24 +806,24 @@ class MaestroTaskInterfaceIf extends MaestroTaskInterface {
       return array('message' => t('Illegal save attempt.'), 'success' => 0, 'task_id' => $this->_task_id);
     }
     $rec = new stdClass();
-    $rec->id = $_POST['template_data_id'];
+    $rec->id = intval($_POST['template_data_id']);
 
     if(check_plain($_POST['ifTaskArguments']) == 'status'){
       $rec->task_data = serialize(array(
                                     'if_operator' => '',
                                     'if_value' => '',
-                                    'if_process_arguments' => $_POST['ifProcessArguments'],
+                                    'if_process_arguments' => check_plain($_POST['ifProcessArguments']),
                                     'if_argument_variable' => '',
-                                    'if_task_arguments' => $_POST['ifTaskArguments']
+                                    'if_task_arguments' => check_plain($_POST['ifTaskArguments'])
       ));
     }
     else {
       $rec->task_data = serialize(array(
-                                    'if_operator' => $_POST['ifOperator'],
+                                    'if_operator' => check_plain($_POST['ifOperator']),
                                     'if_value' => check_plain($_POST['ifValue']),
                                     'if_process_arguments' => '',
-                                    'if_argument_variable' => $_POST['argumentVariable'],
-                                    'if_task_arguments' => $_POST['ifTaskArguments']
+                                    'if_argument_variable' => check_plain($_POST['argumentVariable']),
+                                    'if_task_arguments' => check_plain($_POST['ifTaskArguments'])
       ));
     }
     drupal_write_record('maestro_template_data', $rec, array('id'));
@@ -837,7 +841,7 @@ class MaestroTaskInterfaceIf extends MaestroTaskInterface {
       ),
       'draw_line_false' => array(
         'label' => t('Draw Fail Line'),
-        'js' => "draw_status = 1; draw_type = 2; line_start = document.getElementById('task{$this->_task_id}'); set_tool_tip('$draw_line_msg');\n"
+        'js' => "tkn = '{$token}'; draw_status = 1; draw_type = 2; line_start = document.getElementById('task{$this->_task_id}'); set_tool_tip('$draw_line_msg');\n"
       ),
       'clear_lines' => array(
         'label' => t('Clear Adjacent Lines'),
@@ -896,8 +900,8 @@ class MaestroTaskInterfaceBatch extends MaestroTaskInterface {
       return array('message' => t('Illegal save attempt.'), 'success' => 0, 'task_id' => $this->_task_id);
     }
     $rec = new stdClass();
-    $rec->id = $_POST['template_data_id'];
-    $rec->task_data = serialize(array('handler' => $_POST['handler']));
+    $rec->id = intval($_POST['template_data_id']);
+    $rec->task_data = serialize(array('handler' => check_plain($_POST['handler'])));
     drupal_write_record('maestro_template_data', $rec, array('id'));
 
     return parent::save();
@@ -935,8 +939,8 @@ class MaestroTaskInterfaceBatchFunction extends MaestroTaskInterface {
       return array('message' => t('Illegal save attempt.'), 'success' => 0, 'task_id' => $this->_task_id);
     }
     $rec = new stdClass();
-    $rec->id = $_POST['template_data_id'];
-    $rec->task_data = serialize(array('handler' => ($_POST['handler'] == '') ? $_POST['handler_other'] : $_POST['handler']));
+    $rec->id = intval($_POST['template_data_id']);
+    $rec->task_data = serialize(array('handler' => ($_POST['handler'] == '') ? check_plain($_POST['handler_other']) : check_plain($_POST['handler'])));
     drupal_write_record('maestro_template_data', $rec, array('id'));
 
     return parent::save();
@@ -973,8 +977,8 @@ class MaestroTaskInterfaceInteractiveFunction extends MaestroTaskInterface {
       return array('message' => t('Illegal save attempt.'), 'success' => 0, 'task_id' => $this->_task_id);
     }
     $rec = new stdClass();
-    $rec->id = $_POST['template_data_id'];
-    $rec->task_data = serialize(array('handler' => ($_POST['handler'] == '') ? $_POST['handler_other'] : $_POST['handler']));
+    $rec->id = intval($_POST['template_data_id']);
+    $rec->task_data = serialize(array('handler' => ($_POST['handler'] == '') ? check_plain($_POST['handler_other']) : check_plain($_POST['handler'])));
 
     drupal_write_record('maestro_template_data', $rec, array('id'));
 
@@ -1035,14 +1039,14 @@ class MaestroTaskInterfaceSetProcessVariable extends MaestroTaskInterface {
       return array('message' => t('Illegal save attempt.'), 'success' => 0, 'task_id' => $this->_task_id);
     }
     $rec = new stdClass();
-    $rec->id = $_POST['template_data_id'];
+    $rec->id = intval($_POST['template_data_id']);
     $methods = $this->getSetMethods();
     $task_data = array();
     foreach ($methods as $key => $method) {
-      $task_data[$key . '_value'] = $_POST[$key . '_value'];
+      $task_data[$key . '_value'] = filter_xss($_POST[$key . '_value']);
     }
-    $task_data['var_to_set'] = $_POST['var_to_set'];
-    $task_data['set_type'] = $_POST['set_type'];
+    $task_data['var_to_set'] = check_plain($_POST['var_to_set']);
+    $task_data['set_type'] = check_plain($_POST['set_type']);
     $rec->task_data = serialize($task_data);
 
     drupal_write_record('maestro_template_data', $rec, array('id'));
@@ -1108,11 +1112,11 @@ class MaestroTaskInterfaceManualWeb extends MaestroTaskInterface {
       return array('message' => t('Illegal save attempt.'), 'success' => 0, 'task_id' => $this->_task_id);
     }
     $rec = new stdClass();
-    $rec->id = $_POST['template_data_id'];
+    $rec->id = intval($_POST['template_data_id']);
     $rec->task_data = serialize(array(
-                                    'handler' => $_POST['handler'],
-                                    'new_window' => $_POST['newWindow'],
-                                    'use_token' => $_POST['useToken'],
+                                    'handler' => check_plain($_POST['handler']),
+                                    'new_window' => check_plain($_POST['newWindow']),
+                                    'use_token' => check_plain($_POST['useToken']),
 
       ));
     drupal_write_record('maestro_template_data', $rec, array('id'));
@@ -1145,8 +1149,8 @@ class MaestroTaskInterfaceContentType extends MaestroTaskInterface {
       return array('message' => t('Illegal save attempt.'), 'success' => 0, 'task_id' => $this->_task_id);
     }
     $rec = new stdClass();
-    $rec->id = $_POST['template_data_id'];
-    $rec->task_data = serialize(array('content_type' => $_POST['content_type']));
+    $rec->id = intval($_POST['template_data_id']);
+    $rec->task_data = serialize(array('content_type' => check_plain($_POST['content_type'])));
     drupal_write_record('maestro_template_data', $rec, array('id'));
     $retval = parent::save();
 
@@ -1214,7 +1218,7 @@ class MaestroTaskInterfaceFireTrigger extends MaestroTaskInterface {
     foreach ($actions as $aid) {
       $rec = new stdClass();
       $rec->hook = $hook;
-      $rec->aid = $aid;
+      $rec->aid = check_plain($aid);
       $rec->weight = $weight++;
       drupal_write_record('trigger_assignments', $rec);
     }

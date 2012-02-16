@@ -222,7 +222,7 @@ function maestro_CreateTemplate() {
 	var name = jQuery('#newTemplateName').attr("value");
 	dataString = "";
 	dataString += "name=" + name;
-	dataString += "&op=createtemplate";
+	dataString += "&op=createtemplate&token=" + template_token;
 	jQuery.ajax( {
 		type : 'POST',
 		cache : false,
@@ -254,7 +254,7 @@ function maestro_CreateAppgroup() {
 	var name = jQuery('#appGroupName').attr("value");
 	dataString = "";
 	dataString += "name=" + name;
-	dataString += "&op=createappgroup";
+	dataString += "&op=createappgroup&token=" + template_token;
 	jQuery.ajax( {
 		type : 'POST',
 		cache : false,
@@ -287,7 +287,7 @@ function maestro_refreshAppGroup(which) {
 	dataString = "";
 	dataString += "id=" + name;
 	dataString += "&which=" + which;
-	dataString += "&op=refreshappgroup";
+	dataString += "&op=refreshappgroup&token=" + template_token;
 	jQuery.ajax( {
 		type : 'POST',
 		cache : false,
@@ -320,7 +320,7 @@ function maestro_DeleteAppgroup() {
 	var name = jQuery('#deleteAppGroup').attr("value");
 	dataString = "";
 	dataString += "id=" + name;
-	dataString += "&op=deleteappgroup";
+	dataString += "&op=deleteappgroup&token=" + template_token;
 	jQuery.ajax( {
 		type : 'POST',
 		cache : false,
@@ -333,7 +333,7 @@ function maestro_DeleteAppgroup() {
 				jQuery('#replaceDeleteAppGroup').html(data.data);
 			} else {
 				maestro_showErrorBar();
-				var error = Drupal.t('There has been an error deleting your app gropu.  Please try your delete again.');
+				var error = Drupal.t('There has been an error deleting your app group.  Please try your delete again.');
 				jQuery('#maestro_error_message').html(error);
 	
 			}
@@ -345,7 +345,7 @@ function maestro_DeleteAppgroup() {
 	});
 }
 
-function maestro_deleteTemplate(tid) {
+function maestro_deleteTemplate(tid, token) {
 	maestro_hideErrorBar();
 	var errormsg=Drupal.t('There has been an error deleting your Template.  Please try your delete again.');
 	var ajaxwaitobject='';
@@ -354,6 +354,7 @@ function maestro_deleteTemplate(tid) {
 		dataString = "";
 		dataString += "id=" + tid;
 		dataString += "&op=deletetemplate";
+		dataString += "&token=" + token;
 		jQuery.ajax( {
 			type : 'POST',
 			cache : false,
@@ -379,13 +380,14 @@ function maestro_deleteTemplate(tid) {
 	}
 }
 
-function maestro_copyTemplate(tid) {
+function maestro_copyTemplate(tid, token) {
 	maestro_hideErrorBar();
 	var errormsg=Drupal.t('There has been an error copying your Template.  Please try your copy again.');
 	var ajaxwaitobject='';
 	dataString = "";
 	dataString += "id=" + tid;
 	dataString += "&op=copytemplate";
+	dataString += "&token=" + token;
 	jQuery.ajax( {
 		type : 'POST',
 		cache : false,
@@ -435,7 +437,7 @@ jQuery(function($) {
   $('#importMaestroTemplate').click(function() {
 	maestro_hideErrorBar();
 	maestro_hideImportMessages();
-    dataString = "op=openimport";
+    dataString = "op=openimport&token=" + template_token;
     jQuery.ajax( {
       type : 'POST',
       cache : false,
@@ -473,7 +475,7 @@ jQuery(function($) {
 		maestro_hideImportMessages();
 		var frmID = "#maestroImportTemplateFrm";
 		dataString = jQuery(frmID).serialize();
-		dataString += "&op=doimport";
+		dataString += "&op=doimport&token=" + template_token;
 	    jQuery.ajax( {
 	      type : 'POST',
 	      cache : false,

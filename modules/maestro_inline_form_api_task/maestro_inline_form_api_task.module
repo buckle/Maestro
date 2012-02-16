@@ -230,7 +230,7 @@ class MaestroTaskInterfaceInlineFormAPI extends MaestroTaskInterface {
   function save() {
     $rec = new stdClass();
     $rec->id = $_POST['template_data_id'];
-    $rec->task_data = serialize(array('form_api_code' => $_POST['form_api_code'], 'content_type' => $_POST['content_type']));
+    $rec->task_data = serialize(array('form_api_code' => filter_xss($_POST['form_api_code']), 'content_type' => check_plain($_POST['content_type']) ));
 
     drupal_write_record('maestro_template_data', $rec, array('id'));
 

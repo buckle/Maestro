@@ -169,7 +169,7 @@ class MaestroInterface {
         }
       }
     }
-
+    $js .="var move_tkn = '" . drupal_get_token() . "';\n";
     return $js;
   }
 }

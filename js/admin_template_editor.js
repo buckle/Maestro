@@ -48,7 +48,7 @@ function initialize_drag_drop() {
       enable_ajax_indicator();
       $.ajax({
         type: 'POST',
-        url: ajax_url + task_class + '/' + task_id + '/0/move/',
+        url: ajax_url + task_class + '/' + task_id + '/0/move/' + move_tkn,
         cache: false,
         data: {offset_left: this.offsetLeft, offset_top: this.offsetTop},
         success: disable_ajax_indicator,

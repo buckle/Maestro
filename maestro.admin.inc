@@ -48,12 +48,23 @@ function maestro_handle_editor_ajax_request($task_type, $template_data_id, $temp
   exit();
 }
 
+
+//TODO: verify token on all methods
 function maestro_handle_structure_ajax_request() {
   global $base_url;
   if (!user_access('maestro admin')) return FALSE;
   $op=@check_plain($_POST['op']);
   $cntr=@check_plain($_POST['cntr']);
   $id=@check_plain($_POST['id']);
+  $token = @check_plain($_POST['token']);
+  
+  //check the token right here before OP-ing
+  
+  if($token != drupal_get_token()) {
+    $arr=array('data' => t('Illegal action'), 'status' => 0);
+    drupal_json_output($arr);
+    exit(0);
+  }
 
   switch ($op) {
     case 'openimport':

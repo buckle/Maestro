@@ -676,12 +676,12 @@ class MaestroEngineVersion1 extends MaestroEngine {
     if ($assignUid >= 1 AND $user_status > 0) {
       $query = db_select('maestro_production_assignments', 'a');
       $query->fields('a', array('id', 'assign_id', 'assign_type', 'assign_back_id'));
-      $query->condition('task_id', $queueId, '=');
+      $query->condition('task_id', intval($queueId), '=');
       if ($variableId > 0) {
         $query->condition('process_variable', $variableId, '=');
       }
-      else if ($currentUid > 0) {
-        $query->condition('assign_id', $currentUid, '=');
+      else if (intval($currentUid) > 0) {
+        $query->condition('assign_id', intval($currentUid), '=');
       }
 
       $res = $query->execute();

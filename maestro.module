@@ -1364,7 +1364,7 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
 
     case 'interactivetask_post':
       $queue_id = intval($_POST['queueid']);
-      $taskop = CHECK_PLAIN($_POST['op']);
+      $taskop = check_plain($_POST['op']);
       if ($queue_id > 0) {
         $rec = db_select('maestro_queue')
         ->fields('maestro_queue', array('task_class_name', 'process_id'))
@@ -1424,15 +1424,15 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
         db_insert('maestro_project_comments')
         ->fields(array('tracking_id', 'uid', 'task_id', 'timestamp', 'comment'))
         ->values(array(
-                'tracking_id' => $_POST['tracking_id'],
+                'tracking_id' => intval($_POST['tracking_id']),
                 'uid' => $user->uid,
                 'task_id' => 0,
                 'timestamp' => time(),
-                'comment'  => $_POST['comment']
+                'comment'  => filter_xss($_POST['comment'])
         ))
         ->execute();
         $rowid = intval($_POST['rowid']);
-        $html = theme('maestro_project_comments', array('rowid' => $rowid, 'tracking_id' => $_POST['tracking_id']));
+        $html = theme('maestro_project_comments', array('rowid' => $rowid, 'tracking_id' => intval($_POST['tracking_id'])));
         $retdata = array('html' => $html, 'status' => "1");
       }
       else {
@@ -1452,7 +1452,7 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
             ->condition('id', $_POST['cid'], '=')
             ->execute();
           $rowid = intval($_POST['rowid']);
-          $html = theme('maestro_project_comments', array('rowid' => $rowid, 'tracking_id' => $_POST['tracking_id']));
+          $html = theme('maestro_project_comments', array('rowid' => $rowid, 'tracking_id' => intval($_POST['tracking_id'])));
           $retdata = array('html' => $html, 'status' => "1");
         }
         else {
@@ -1467,7 +1467,7 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
 
     case 'getdetails':
       $task = new stdClass();
-      $task->tracking_id = maestro_getTaskTrackingId($_POST['taskid']);  // Retrieve the tracking_id from the taskid
+      $task->tracking_id = maestro_getTaskTrackingId(intval($_POST['taskid']));  // Retrieve the tracking_id from the taskid
       $flowname = db_query("SELECT description FROM {maestro_projects} WHERE id = :id",
         array(':id' => $task->tracking_id))->fetchField();
       $task->flow_name = $flowname;

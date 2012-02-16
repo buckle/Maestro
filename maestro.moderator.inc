@@ -169,7 +169,7 @@ function maestro_save_task_changes() {
 
     $prev_status = $rec->status;
     $status = ($_POST['batch_op'][$key] == 1) ? $_POST['batch_op_status'] : $_POST['status'][$key];
-
+    $status = intval($status);
     $rec->status = $status;
     $rec->archived = $_POST['archived'][$key];
     drupal_write_record('maestro_queue', $rec, array('id'));
@@ -191,7 +191,7 @@ function maestro_save_task_changes() {
 function maestro_save_process_variables() {
   foreach ($_POST['process_variable_id'] as $key => $vid) {
     $query = db_update('maestro_process_variables');
-    $query->fields(array('variable_value' => $_POST['process_variable_value'][$key]));
+    $query->fields(array('variable_value' => filter_xss($_POST['process_variable_value'][$key])));
     $query->condition('id', $vid, '=');
     $query->execute();
   }
