@@ -824,7 +824,8 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
   $variables['special_status_action'] = '';
 
   if (user_access('maestro admin')) {
-    $variables['delete_project_action'] = '<a class="ctools-modal-maestro-modal-style ctools-use-modal" href="'.$base_url .'/maestro/nojs/deleteproject/' . $task->tracking_id .'">Delete Project</a>';
+    $url = url('maestro/nojs/deleteproject/', array('query' => array('tracking_id' => $task->tracking_id)));
+    $variables['delete_project_action'] = '<a class="ctools-modal-maestro-modal-style ctools-use-modal" href="'. $url . '">' . t('Delete Project') .'</a>';
   }
   else {
     $variables['delete_project_action'] = '';
