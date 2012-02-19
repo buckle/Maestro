@@ -1906,7 +1906,7 @@ function maestro_ctools_delete_project($js = NULL, $tracking_id = NULL) {
 
 /* Form definition to the ctools driven delete project confirm
 */
-function maestro_deleteproject_confirm_form(&$form_state) {
+function maestro_deleteproject_confirm_form($form, &$form_state) {
   $form['cancel'] = array(
     '#type' => 'submit',
     '#value' => t('No'),
