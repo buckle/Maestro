@@ -2044,28 +2044,5 @@ function rules_action_launch_workflow($args, $element) {
 }
 
 
-/**
- * Implements hook_entity_info().
- */
-function maestro_entity_xinfo() {
-  $return['dug_meeting_topic'] = array(
-    'label' => t('Maestro Process Entities'),
-
-    // the default controller is extended with create(), save() and delete() methods
-    'entity class' => 'EntityClass',
-    'controller class' => 'EntityAPIController',
-    'base table' => 'maestro',
-    'fieldable' => TRUE,
-    // these keys are identical to the the fields in the database schema
-    'entity keys' => array(
-      'id' => 'aid',
-      'label' => 'Entity Id',
-    ),
-    // Make use the class' label() and uri() implementation by default.
-    'label callback' => 'entity_class_label',
-    'uri callback' => 'entity_class_uri',
-  );
-  return $return;
-}
 
 
