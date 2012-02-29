@@ -57,9 +57,9 @@ function maestro_handle_structure_ajax_request() {
   $cntr=@check_plain($_POST['cntr']);
   $id=@check_plain($_POST['id']);
   $token = @check_plain($_POST['token']);
-  
+
   //check the token right here before OP-ing
-  
+
   if($token != drupal_get_token()) {
     $arr=array('data' => t('Illegal action'), 'status' => 0);
     drupal_json_output($arr);
@@ -719,7 +719,10 @@ function maestro_export($id) {
       $nextstepres = db_query("SELECT * FROM {maestro_template_data_next_step} WHERE template_data_from = :id", array('id' => $rec->id));
       foreach ($nextstepres as $nextstep) {
         $output_php .= '$sql  = "INSERT INTO {maestro_template_data_next_step} (template_data_from, template_data_to, template_data_to_false) VALUES (:a1, :b1, :c1)";' . "\n";
-        $output_php .= 'db_query($sql, array(\'a1\' => $task_xref_array[' . $nextstep->template_data_from . '], \'b1\' => $task_xref_array[' . $nextstep->template_data_to . '], \'c1\' => $task_xref_array[' . $nextstep->template_data_to_false . ']));' . "\n";
+        $output_php .= 'db_query($sql, array(\'a1\' => $task_xref_array[' .
+          intval($nextstep->template_data_from) . '], \'b1\' => $task_xref_array[' .
+          intval($nextstep->template_data_to) . '], \'c1\' => $task_xref_array[' .
+          intval($nextstep->template_data_to_false) . ']));' . "\n";
       }
       $assignmentres = db_query("SELECT * FROM {maestro_template_assignment} WHERE template_data_id = :id", array('id' => $rec->id));
       foreach ($assignmentres as $ares) {
