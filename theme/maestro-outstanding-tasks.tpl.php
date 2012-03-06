@@ -25,6 +25,7 @@
     <tbody>
 
 <?php
+  $sec_token = drupal_get_token();
   if (is_array($queue)) {
     $i = 0;
     foreach ($queue as $task) {
@@ -34,10 +35,10 @@
         <td style="vertical-align:top;"><?php print $task->taskname; ?></td>
         <td style="vertical-align:top;"><?php print $task->username; ?></td>
         <td style="text-align:right;vertical-align:top;white-space:nowrap;">
-          <?php print l("<img class=\"valigncenter\" src=\"{$maestro_url}/images/taskconsole/reassign.png\">", "maestro/outstanding/reassign/{$task->queue_id}", array('html' => TRUE, 'attributes' => array('title' => t('Reassign this Task'), 'onclick' => "show_reassign(this, '{$task->uid}', '{$assign_types[$task->assign_type]}'); return false;") )); ?>
-          <?php print l("<img class=\"valigncenter\" src=\"{$maestro_url}/images/taskconsole/email.png\">", "maestro/outstanding/email/{$task->queue_id}/{$task->uid}", array('html' => TRUE, 'attributes' => array('title' => t('Send a Reminder to Task Owner')) )); ?>
-          <?php print l("<img class=\"valigncenter\" src=\"{$maestro_url}/images/taskconsole/trace.png\">", "maestro/trace/0/{$task->process_id}/{$task->queue_id}", array('html' => TRUE, 'attributes' => array('title' => t('Trace this Process')) )); ?>
-          <?php print l("<img class=\"valigncenter\" src=\"{$maestro_url}/images/taskconsole/delete.png\">", "maestro/outstanding/delete/{$task->queue_id}", array('html' => TRUE, 'attributes' => array('title' => t('Delete this Task'), 'onclick' => "return confirm('" . t('Are you sure you want to delete this task?') . "');") )); ?>
+          <?php print l("<img class=\"valigncenter\" src=\"{$maestro_url}/images/taskconsole/reassign.png\">", "maestro/outstanding/reassign/{$task->queue_id}/{$sec_token}", array('html' => TRUE, 'attributes' => array('title' => t('Reassign this Task'), 'onclick' => "show_reassign(this, '{$task->uid}', '{$assign_types[$task->assign_type]}'); return false;") )); ?>
+          <?php print l("<img class=\"valigncenter\" src=\"{$maestro_url}/images/taskconsole/email.png\">", "maestro/outstanding/email/{$task->queue_id}/{$sec_token}/{$task->uid}", array('html' => TRUE, 'attributes' => array('title' => t('Send a Reminder to Task Owner')) )); ?>
+          <?php print l("<img class=\"valigncenter\" src=\"{$maestro_url}/images/taskconsole/trace.png\">", "maestro/trace/0/{$task->process_id}/{$task->queue_id}/{$sec_token}", array('html' => TRUE, 'attributes' => array('title' => t('Trace this Process')) )); ?>
+          <?php print l("<img class=\"valigncenter\" src=\"{$maestro_url}/images/taskconsole/delete.png\">", "maestro/outstanding/delete/{$task->queue_id}/{$sec_token}", array('html' => TRUE, 'attributes' => array('title' => t('Delete this Task'), 'onclick' => "return confirm('" . t('Are you sure you want to delete this task?') . "');") )); ?>
         </td>
       </tr>
 <?php

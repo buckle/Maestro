@@ -297,3 +297,20 @@ a.info:hover span { /*the span will display just on :hover state*/
 .maestro_hide_secondary_row {
   display: none;
 }
+
+.maestro_taskconsole_interactivetaskcontent {
+  background-color: #FAFAD2;
+}
+
+.maestro_interactive_task_message {
+  text-align:center;
+  margin:5px;
+  padding:10px;
+  border:1px solid #CCC;
+  font-size:14pt;
+}
+
+.form-type-radios .form-item-reviewstatus {
+  display:inline;
+  margin-left:10px;
+}

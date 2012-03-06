@@ -1,11 +1,13 @@
 <script type="text/javascript">
 var ajax_url='<?php print $ajax_url; ?>';
 var filter_url='<?php print $filter_url; ?>';
+var sec_token = '<?php print drupal_get_token(); ?>';
 </script>
 
 <div id="maestro_error_message"></div>
 
 <form id="maestroFilterAllFlowsFrm">
+<input type="hidden" name="sec_token" value="<?php print drupal_get_token(); ?>">
 <div id="maestro_all_flows_filter">
 <?php print t('Flow Name: '); ?>
 <input type="text" name="flowNameFilter" id="flowNameFilter"></input>

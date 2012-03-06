@@ -5,9 +5,10 @@
  * maestro.moderator.inc
  */
 
-function maestro_outstanding_tasks($op='', $qid=0, $other=NULL) {
+function maestro_outstanding_tasks($op='', $qid=0, $sec_token=NULL, $other=NULL) {
   global $base_url;
 
+  $token = @check_plain($sec_token);
   $maestro_path = '/' . drupal_get_path('module', 'maestro');
   $maestro_url = $base_url . $maestro_path;
 
@@ -21,20 +22,34 @@ function maestro_outstanding_tasks($op='', $qid=0, $other=NULL) {
 
   switch ($op) {
     case 'reassign':
+      if($token != drupal_get_token()) {
+        drupal_access_denied();
+        drupal_exit();
+      }
       $m->reassignTask($qid, $_POST['reassign_id'], $_POST['current_uid']);
       drupal_set_message(t("Task re-assignment completed and notification sent."));
       break;
 
     case 'email':
+      if($token != drupal_get_token()) {
+        drupal_access_denied();
+        drupal_exit();
+      }
       $m->sendTaskReminderNotifications($qid, $other);
       drupal_set_message(t("Task assignment reminder notification sent."));
       break;
 
-    case 'trace':
-      break;
-
     case 'delete':
-      $m->deleteTask($qid);
+      if($token != drupal_get_token()) {
+        drupal_access_denied();
+        drupal_exit();
+      }
+      if (user_access('maestro edit outstanding tasks')) {
+        $m->deleteTask($qid);
+      } else {
+        drupal_access_denied();
+        drupal_exit();
+      }
       break;
 
     default:
@@ -77,8 +92,14 @@ function maestro_outstanding_tasks($op='', $qid=0, $other=NULL) {
   drupal_goto('maestro/outstanding');
 }
 
-function maestro_trace($tracking_id=0, $process_id=0, $queue_id=0) {
+function maestro_trace($tracking_id=0, $process_id=0, $queue_id=0, $sec_token=NULL) {
   global $base_url;
+
+  $token = @check_plain($sec_token);
+  if($token != drupal_get_token()) {
+    drupal_access_denied();
+    drupal_exit();
+  }
 
   $op = '';
   if (is_array($_POST) && array_key_exists('op', $_POST)) {
@@ -86,8 +107,8 @@ function maestro_trace($tracking_id=0, $process_id=0, $queue_id=0) {
   }
 
   switch ($op) {
-    case 'save_task_changes':
-      maestro_save_task_changes();
+    case 'save_process_changes':
+      maestro_save_process_changes();
       break;
 
     case 'save_process_variables':
@@ -157,7 +178,7 @@ function maestro_trace($tracking_id=0, $process_id=0, $queue_id=0) {
   }
 }
 
-function maestro_save_task_changes() {
+function maestro_save_process_changes() {
   $maestro = Maestro::createMaestroObject(1);    // Initiate the processing of all tasks of type 1.x
   $m = $maestro->engine();
 

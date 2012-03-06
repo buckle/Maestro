@@ -935,6 +935,18 @@ class MaestroEngineVersion1 extends MaestroEngine {
     ->condition('task_id',$qid,'=')
     ->execute();
 
+    // Check and see if task was registered to a node in the cache
+    $registered_maestro_nodes = cache_get('registered_maestro_nodes');
+    if ($registered_maestro_nodes !== FALSE AND is_object($registered_maestro_nodes)) {
+      foreach ($registered_maestro_nodes->data as $nid => $data) {
+        if ($data['taskid'] == $qid) {
+          unset($registered_maestro_nodes->data[$nid]);
+          cache_set('registered_maestro_nodes', $registered_maestro_nodes->data);
+          break;
+        }
+      }
+    }
+
   }
 
   function archiveTask($qid) {

@@ -19,7 +19,7 @@ var template_token = '<?php print drupal_get_token(); ?>';
     <input class="form-submit" type="button" value="<?php print t('Import Template'); ?>" id="importMaestroTemplate">&nbsp;
   </div>
 
-  <table cellpadding="2" cellspacing="1" border="1" width="100%" style="border:1px solid #CCC;">
+  <table cellpadding="2" cellspacing="1" border="1" width="100%" class="sticky-enabled tableheader-processed sticky-table">
     <tr id="importTemplate" style="display:none;">
       <td colspan="3">
         <div style="color: red; font-weight: bold;">
@@ -62,18 +62,18 @@ var template_token = '<?php print drupal_get_token(); ?>';
       <td colspan="3" class="pluginInfo"><?php print t('Click on desired action to edit template'); ?></td>
     </tr>
     <tr>
-      <td class="pluginTitle"><?php print t('ID'); ?></td>
-      <td class="pluginTitle"><?php print t('Template Name'); ?></td>
-      <td class="pluginTitle" ><?php print t('Actions'); ?></td>
+      <th><?php print t('ID'); ?></th>
+      <th><?php print t('Template Name'); ?></th>
+      <th><?php print t('Actions'); ?></th>
     </tr>
 
     <tr id="newtemplate" style="display:none;">
-      <td colspan="3" class="pluginRow1">
+      <td colspan="3" class="even">
           <table cellspacing="1" cellpadding="1" border="0" width="100%" style="border:none;">
-            <tr>
+            <tr class="even" style="border:0px">
               <td><?php print t('Name'); ?>:</td>
               <td><input class="form-text" type="text" id="newTemplateName" value="" size="50"></td>
-              <td style="text-align:right;padding-right:10px;">
+              <td style="text-align:right;padding-right:10px;border:0px;">
                 <span id="maestro_new_template_updating"></span>
                 <input class="form-submit" type="button" value="<?php print t('Create'); ?>" onClick='maestro_CreateTemplate();'>&nbsp;
                 <input class="form-submit" type="button" value="<?php print t('Close'); ?>" onClick="jQuery('#newtemplate').toggle();">&nbsp;
@@ -83,24 +83,24 @@ var template_token = '<?php print drupal_get_token(); ?>';
       </td>
     </tr>
     <tr id="newappgroup" style="display:none;">
-      <td colspan="3" class="pluginRow1">
+      <td colspan="3" class="even">
           <table cellspacing="1" cellpadding="1" border="0"  width="100%" style="border:none;">
-            <tr>
+            <tr class="even" style="border:0px;">
               <td width="180"><?php print t('New Application Group Name'); ?>:</td>
               <td>
                 <input class="form-text" type="text" id="appGroupName" value="" size="50">
                 <input class="form-submit" type="button" value="<?php print t('Create'); ?>" onClick='maestro_CreateAppgroup();'>&nbsp;
                 <span id="maestro_new_appgroup_updating"></span>
               </td>
-              <td style="text-align:right;padding-right:10px;">
+              <td style="text-align:right;padding-right:10px;border:0px;">
                 <input class="form-submit" type="button" value="<?php print t('Close'); ?>" onClick="jQuery('#newappgroup').toggle();">&nbsp;
               </td>
             </tr>
           </table>
           <table cellspacing="1" cellpadding="1" border="0" width="100%" style="border:none;">
-            <tr>
+            <tr style="border:0px;">
               <td class="aligntop" nowrap width="180"><?php print t('Delete Application Group'); ?>:</td>
-              <td>
+              <td style="border:0px;">
                 <div id="replaceDeleteAppGroup">
                 <?php print $app_groups; ?>
                 </div>

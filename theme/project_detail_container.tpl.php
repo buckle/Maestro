@@ -123,6 +123,7 @@
                                   <input type="hidden" name="taskassign_mode" value="<?php print $otask->taskassign_mode; ?>">
                                   <input type="hidden" name="taskid" value="<?php print $otask->task_id; ?>">
                                   <input type="hidden" name="assign_recid" value="<?php print $otask->assign_recid; ?>">
+                                  <input type="hidden" name="sec_token" value="<?php print drupal_get_token() ?>">
                                   <select name="task_reassign_uid">
                                       <option value="0"><?php print t('Assign to user'); ?></option>
                                         <?php

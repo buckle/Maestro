@@ -824,7 +824,7 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
   $variables['special_status_action'] = '';
 
   if (user_access('maestro admin')) {
-    $url = url('maestro/nojs/deleteproject/', array('query' => array('tracking_id' => $task->tracking_id)));
+    $url = url('maestro/nojs/deleteproject/' .  $task->tracking_id);
     $variables['delete_project_action'] = '<a class="ctools-modal-maestro-modal-style ctools-use-modal" href="'. $url . '">' . t('Delete Project') .'</a>';
   }
   else {
@@ -939,6 +939,23 @@ function template_preprocess_maestro_taskconsole_details(&$variables) {
       }
     }
   }
+
+  // Check and see if we have any content records with an empty task id
+  $query = db_select('maestro_project_content','content');
+  $query->addField('content','nid');
+  $query->addField('content','status');
+  $query->condition('content.tracking_id',$task->tracking_id,'=');
+  $query->condition('content.task_id',0,'=');
+  $res = $query->execute();
+  foreach ($res as $record) {
+    $node = node_load($record->nid);
+    $taskContent = '<div>' . l($node->title, "node/{$record->nid}/maestro");
+    $taskContent .= '<span style="padding-left:10px;">' . t('Status') . ': ';
+    $taskContent .= t(MaestroContentStatusCodes::getStatusLabel($record->status));
+    $taskContent .= '</span></div>';
+    $variables['content_records'][] = $taskContent;
+  }
+
 }
 
 /**
@@ -1296,6 +1313,13 @@ function content_type_task_maestro_set_process_variable_logic(&$task, $current_v
  */
 function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
   global $user;
+
+  $token = @check_plain($_POST['sec_token']);
+  if($token != drupal_get_token()) {
+    $arr=array('data' => t('Illegal action'), 'status' => 0);
+    drupal_json_output($arr);
+    exit(0);
+  }
 
   switch ($action) {
     case 'starttask':

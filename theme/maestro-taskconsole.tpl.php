@@ -9,12 +9,14 @@
 ?>
 <script type="text/javascript">
   var ajax_url = '<?php print $ajax_server_url; ?>';
+  var sec_token = '<?php print drupal_get_token(); ?>';
 </script>
 
 <table width="100%">
   <tr>
     <td style="text-align: right">
       <form method="get" action="<?php print url("maestro/launch"); ?>" id="frmLaunchNewProcess">
+      <input type="hidden" name="sec_token" value="<?php print drupal_get_token(); ?>">
       <?php print t('Start New Process:'); ?>
       <select name="templateid">
       <?php foreach($process_dropdown as $optid => $optval){ ?>

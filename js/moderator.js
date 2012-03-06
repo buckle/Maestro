@@ -48,14 +48,14 @@ function set_batch_op(el, index) {
   })(jQuery);
 }
 
-function save_task_changes(frm) {
+function save_process_changes(frm) {
   (function ($) {
     enable_activity_indicator();
     $.ajax({
       type: 'POST',
       url: ajax_url,
       cache: false,
-      data: $("#maestro_task_history_form").serialize(),
+      data: $("#maestro_process_trace_form").serialize(),
       dataType: 'json',
       success: save_success,
       error: moderator_ajax_error
@@ -154,7 +154,8 @@ function maestro_get_project_details(obj) {
       url : ajax_url + '/getprojectdetails',
       cache: false,
       data : {
-        projectID : projectID
+        projectID : projectID,
+        sec_token : sec_token
       },
       dataType: 'json',
       success:  function (data) {
@@ -184,7 +185,7 @@ function maestro_get_project_details(obj) {
           );
 
         } else {
-          alert(Drupal.t('An error occurred updating assignment'));
+          alert(Drupal.t('An error occurred retrieving workflow details'));
         }
       },
       error: function() { alert(Drupal.t('there was a SERVER Error processing AJAX request')); }
