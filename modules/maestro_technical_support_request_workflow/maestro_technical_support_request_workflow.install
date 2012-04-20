@@ -13,7 +13,7 @@ function maestro_technical_support_request_workflow_uninstall() {
 }
 
 function maestro_technical_support_request_workflow_install() {
-  include(drupal_get_path('module', 'maestro') . '/maestro.admin.inc');
+  include_once(drupal_get_path('module', 'maestro') . '/maestro.admin.inc');
 
   $_POST['offset_top'] = 0;
   $_POST['offset_left'] = 0;
@@ -25,6 +25,7 @@ function maestro_technical_support_request_workflow_install() {
   $variable_xref_array[1] = maestro_createTemplateVariable($template_id, "initiator", "");
   $variable_xref_array[2] = maestro_createTemplateVariable($template_id, "assignee", "0");
   $ti = new MaestroTaskInterfaceStart(0, $template_id);
+  $ti->setSecurityToken(drupal_get_token());
   $ti->create();
   $task_xref_array[1] = $ti->get_task_id();
   $res = db_select('maestro_template_data', 'a');
@@ -58,8 +59,9 @@ function maestro_technical_support_request_workflow_install() {
   $rec->offset_left = 19;
   $rec->offset_top = 31;
   $rec->surpress_first_notification = 0;
-  drupal_write_record('maestro_template_data', $rec, array('id'));
+  drupal_write_record('maestro_template_data', $rec, 'id');
   $ti = new MaestroTaskInterfaceEnd(0, $template_id);
+  $ti->setSecurityToken(drupal_get_token());
   $ti->create();
   $task_xref_array[2] = $ti->get_task_id();
   $res = db_select('maestro_template_data', 'a');
@@ -93,8 +95,9 @@ function maestro_technical_support_request_workflow_install() {
   $rec->offset_left = 56;
   $rec->offset_top = 529;
   $rec->surpress_first_notification = 0;
-  drupal_write_record('maestro_template_data', $rec, array('id'));
+  drupal_write_record('maestro_template_data', $rec, 'id');
   $ti = new MaestroTaskInterfaceContentType(0, $template_id);
+  $ti->setSecurityToken(drupal_get_token());
   $ti->create();
   $task_xref_array[3] = $ti->get_task_id();
   $res = db_select('maestro_template_data', 'a');
@@ -128,8 +131,9 @@ function maestro_technical_support_request_workflow_install() {
   $rec->offset_left = 564;
   $rec->offset_top = 147;
   $rec->surpress_first_notification = 0;
-  drupal_write_record('maestro_template_data', $rec, array('id'));
+  drupal_write_record('maestro_template_data', $rec, 'id');
   $ti = new MaestroTaskInterfaceSetProcessVariable(0, $template_id);
+  $ti->setSecurityToken(drupal_get_token());
   $ti->create();
   $task_xref_array[4] = $ti->get_task_id();
   $res = db_select('maestro_template_data', 'a');
@@ -163,8 +167,9 @@ function maestro_technical_support_request_workflow_install() {
   $rec->offset_left = 566;
   $rec->offset_top = 265;
   $rec->surpress_first_notification = 0;
-  drupal_write_record('maestro_template_data', $rec, array('id'));
+  drupal_write_record('maestro_template_data', $rec, 'id');
   $ti = new MaestroTaskInterfaceContentType(0, $template_id);
+  $ti->setSecurityToken(drupal_get_token());
   $ti->create();
   $task_xref_array[5] = $ti->get_task_id();
   $res = db_select('maestro_template_data', 'a');
@@ -198,8 +203,9 @@ function maestro_technical_support_request_workflow_install() {
   $rec->offset_left = 279;
   $rec->offset_top = 148;
   $rec->surpress_first_notification = 0;
-  drupal_write_record('maestro_template_data', $rec, array('id'));
+  drupal_write_record('maestro_template_data', $rec, 'id');
   $ti = new MaestroTaskInterfaceInteractiveFunction(0, $template_id);
+  $ti->setSecurityToken(drupal_get_token());
   $ti->create();
   $task_xref_array[6] = $ti->get_task_id();
   $res = db_select('maestro_template_data', 'a');
@@ -233,8 +239,9 @@ function maestro_technical_support_request_workflow_install() {
   $rec->offset_left = 285;
   $rec->offset_top = 301;
   $rec->surpress_first_notification = 0;
-  drupal_write_record('maestro_template_data', $rec, array('id'));
+  drupal_write_record('maestro_template_data', $rec, 'id');
   $ti = new MaestroTaskInterfaceIf(0, $template_id);
+  $ti->setSecurityToken(drupal_get_token());
   $ti->create();
   $task_xref_array[7] = $ti->get_task_id();
   $res = db_select('maestro_template_data', 'a');
@@ -268,8 +275,9 @@ function maestro_technical_support_request_workflow_install() {
   $rec->offset_left = 69;
   $rec->offset_top = 150;
   $rec->surpress_first_notification = 0;
-  drupal_write_record('maestro_template_data', $rec, array('id'));
+  drupal_write_record('maestro_template_data', $rec, 'id');
   $ti = new MaestroTaskInterfaceInlineFormAPI(0, $template_id);
+  $ti->setSecurityToken(drupal_get_token());
   $ti->create();
   $task_xref_array[8] = $ti->get_task_id();
   $res = db_select('maestro_template_data', 'a');
@@ -303,8 +311,9 @@ function maestro_technical_support_request_workflow_install() {
   $rec->offset_left = 42;
   $rec->offset_top = 305;
   $rec->surpress_first_notification = 0;
-  drupal_write_record('maestro_template_data', $rec, array('id'));
+  drupal_write_record('maestro_template_data', $rec, 'id');
   $ti = new MaestroTaskInterfaceBatchFunction(0, $template_id);
+  $ti->setSecurityToken(drupal_get_token());
   $ti->create();
   $task_xref_array[9] = $ti->get_task_id();
   $res = db_select('maestro_template_data', 'a');
@@ -338,8 +347,9 @@ function maestro_technical_support_request_workflow_install() {
   $rec->offset_left = 17;
   $rec->offset_top = 426;
   $rec->surpress_first_notification = 0;
-  drupal_write_record('maestro_template_data', $rec, array('id'));
+  drupal_write_record('maestro_template_data', $rec, 'id');
   $ti = new MaestroTaskInterfaceContentType(0, $template_id);
+  $ti->setSecurityToken(drupal_get_token());
   $ti->create();
   $task_xref_array[10] = $ti->get_task_id();
   $res = db_select('maestro_template_data', 'a');
@@ -373,8 +383,9 @@ function maestro_technical_support_request_workflow_install() {
   $rec->offset_left = 239;
   $rec->offset_top = 24;
   $rec->surpress_first_notification = 0;
-  drupal_write_record('maestro_template_data', $rec, array('id'));
+  drupal_write_record('maestro_template_data', $rec, 'id');
   $ti = new MaestroTaskInterfaceIf(0, $template_id);
+  $ti->setSecurityToken(drupal_get_token());
   $ti->create();
   $task_xref_array[11] = $ti->get_task_id();
   $res = db_select('maestro_template_data', 'a');
@@ -408,7 +419,7 @@ function maestro_technical_support_request_workflow_install() {
   $rec->offset_left = 585;
   $rec->offset_top = 35;
   $rec->surpress_first_notification = 0;
-  drupal_write_record('maestro_template_data', $rec, array('id'));
+  drupal_write_record('maestro_template_data', $rec, 'id');
   $sql  = "INSERT INTO {maestro_template_data_next_step} (template_data_from, template_data_to, template_data_to_false) VALUES (:a1, :b1, :c1)";
   db_query($sql, array('a1' => $task_xref_array[1], 'b1' => $task_xref_array[10], 'c1' => $task_xref_array[0]));
   $sql  = "INSERT INTO {maestro_template_data_next_step} (template_data_from, template_data_to, template_data_to_false) VALUES (:a1, :b1, :c1)";

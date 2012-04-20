@@ -158,7 +158,7 @@ class MaestroEngineVersion1 extends MaestroEngine {
             /* The maestro_queue_from table is used by the IF Task to test previous task's status if that's the condition to test
              * Also used to simplify later reporting of active tasks
              */
-            $q3 = db_select('maesto_queue_from','a');
+            $q3 = db_select('maestro_queue_from','a');
             $q3->addField('a','from_queue_id');
             $q3->condition("a.queue_id = {$active_queue_record->id}");
             $queue_reporting_result = $q3->execute();
@@ -166,7 +166,7 @@ class MaestroEngineVersion1 extends MaestroEngine {
               $record = new stdClass();
               $record->id = $queue_reporting_record->from_queue_id;
               $record->process_id = $new_processid;
-              drupal_write_record('maestro_queue',$record);
+              drupal_write_record('maestro_queue',$record, 'id');
             }
             db_update('maestro_queue')
             ->fields(array('process_id' => $new_processid))
@@ -565,9 +565,8 @@ class MaestroEngineVersion1 extends MaestroEngine {
           if ($assignBy != MaestroAssignmentBy::VARIABLE) {
             $processVariableId = 0;
           }
-
           if (strpos($assignId, ':') !== false) {
-            $userIds = explode(':', $assignId);
+            $assignIds = explode(':', $assignId);
           }
           else {
             $assignIds = array($assignId);
@@ -677,12 +676,12 @@ class MaestroEngineVersion1 extends MaestroEngine {
     if ($assignUid >= 1 AND $user_status > 0) {
       $query = db_select('maestro_production_assignments', 'a');
       $query->fields('a', array('id', 'assign_id', 'assign_type', 'assign_back_id'));
-      $query->condition('task_id', $queueId, '=');
+      $query->condition('task_id', intval($queueId), '=');
       if ($variableId > 0) {
         $query->condition('process_variable', $variableId, '=');
       }
-      else if ($currentUid > 0) {
-        $query->condition('assign_id', $currentUid, '=');
+      else if (intval($currentUid) > 0) {
+        $query->condition('assign_id', intval($currentUid), '=');
       }
 
       $res = $query->execute();
@@ -935,6 +934,18 @@ class MaestroEngineVersion1 extends MaestroEngine {
     db_delete('maestro_production_assignments')
     ->condition('task_id',$qid,'=')
     ->execute();
+
+    // Check and see if task was registered to a node in the cache
+    $registered_maestro_nodes = cache_get('registered_maestro_nodes');
+    if ($registered_maestro_nodes !== FALSE AND is_object($registered_maestro_nodes)) {
+      foreach ($registered_maestro_nodes->data as $nid => $data) {
+        if ($data['taskid'] == $qid) {
+          unset($registered_maestro_nodes->data[$nid]);
+          cache_set('registered_maestro_nodes', $registered_maestro_nodes->data);
+          break;
+        }
+      }
+    }
 
   }
 

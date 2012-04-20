@@ -19,19 +19,6 @@ function maestro_common_maestro_handler_options() {
 }
 
 
-function maestro_common_theme() {
-  return array(
-    'maestro_common_show_message' => array(
-      'template' => 'show_message',
-      'variables' => array('messsage' => NULL),
-    ),
-    'maestro_show_message_accept_reject' => array(
-      'template' => 'maestro_show_message_accept_reject',
-      'variables' => array('messsage' => NULL),
-    ),
-  );
-}
-
 function maestro_show_message($op,&$task,$parms) {
   global $base_url;
 
@@ -46,7 +33,7 @@ function maestro_show_message($op,&$task,$parms) {
         $maestro = Maestro::createMaestroObject(1);
         $parms['message'] = $maestro->engine()->getProcessVariable('message', $task->_properties->process_id);
       }
-      $retval->html = theme('maestro_common_show_message',array('message' => $parms['message']));
+      $retval->html = drupal_render(drupal_get_form('maestro_show_message_form',array('message' => $parms['message'])));
       $retval->retcode = TRUE;
       $retval->engineop = '';
       break;
@@ -59,6 +46,26 @@ function maestro_show_message($op,&$task,$parms) {
   return $retval;
 
 }
+
+function maestro_show_message_form($form, $form_state, $parms) {
+
+  $form = array();
+  $form['message'] = array(
+    '#prefix' => '<div class="maestro_interactive_task_message">',
+    '#suffix' => '</div>',
+    '#markup' =>  $parms['message'],
+  );
+
+  $form['actions']['complete_task'] = array(
+    '#type' => 'button',
+    '#default_value' => t('Complete Task'),
+    '#attributes' => array('maestro' => array('complete')),
+  );
+
+  return $form;
+
+}
+
 
 /* Batch function - dummy or test function returns TRUE */
 function maestro_batch_dummy($queue_id, $process_id) {
@@ -84,7 +91,7 @@ function maestro_accept_reject($op,&$task,$parms) {
         $maestro = Maestro::createMaestroObject(1);
         $parms['message'] = $maestro->engine()->getProcessVariable('message', $task->_properties->process_id);
       }
-      $retval->html = theme('maestro_show_message_accept_reject',array('message' => $parms['message']));
+      $retval->html = drupal_render(drupal_get_form('maestro_show_message_accept_reject_form',array('message' => $parms['message'])));
       $retval->retcode = TRUE;
       $retval->engineop = '';
       break;
@@ -101,4 +108,26 @@ function maestro_accept_reject($op,&$task,$parms) {
   return $retval;
 }
 
-?>
+function maestro_show_message_accept_reject_form($form, $form_state, $parms) {
+
+  $form = array();
+  $form['message'] = array(
+    '#prefix' => '<div class="maestro_interactive_task_message">',
+    '#suffix' => '</div>',
+    '#markup' =>  $parms['message'],
+  );
+
+  $form['actions']['complete_task'] = array(
+    '#type' => 'button',
+    '#default_value' => t('Accept'),
+    '#attributes' => array('maestro' => array('accept')),
+  );
+  $form['actions']['update_task'] = array(
+    '#type' => 'button',
+    '#default_value' => t('Reject'),
+    '#attributes' => array('maestro' => array('reject')),
+  );
+
+  return $form;
+
+}

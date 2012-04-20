@@ -36,23 +36,35 @@ function maestro_edit_workflow($tid = '') {
   return $mi->displayPage();
 }
 
-function maestro_handle_editor_ajax_request($task_type, $template_data_id, $template_id, $op) {
+function maestro_handle_editor_ajax_request($task_type, $template_data_id, $template_id, $op, $security_token) {
   if (class_exists($task_type)) {
     $ti = new $task_type($template_data_id, $template_id);
   }
   else {
     $ti = new MaestroTaskInterfaceUnknown($template_data_id, $template_id);
   }
+  $ti->setSecurityToken($security_token);
   drupal_json_output($ti->$op());
   exit();
 }
 
+
+//TODO: verify token on all methods
 function maestro_handle_structure_ajax_request() {
   global $base_url;
   if (!user_access('maestro admin')) return FALSE;
   $op=@check_plain($_POST['op']);
   $cntr=@check_plain($_POST['cntr']);
   $id=@check_plain($_POST['id']);
+  $token = @check_plain($_POST['token']);
+
+  //check the token right here before OP-ing
+
+  if($token != drupal_get_token()) {
+    $arr=array('data' => t('Illegal action'), 'status' => 0);
+    drupal_json_output($arr);
+    exit(0);
+  }
 
   switch ($op) {
     case 'openimport':
@@ -581,8 +593,10 @@ function maestro_createNewTemplate($name, $skip_task_creation = FALSE, $skip_var
     $new_template_rec_id = $record->id;
     if (!$skip_task_creation) {
       $task = new MaestroTaskInterfaceStart(0, $new_template_rec_id);
+      $task->setSecurityToken(drupal_get_token());
       $task->create();
       $task = new MaestroTaskInterfaceEnd(0, $new_template_rec_id);
+      $task->setSecurityToken(drupal_get_token());
       $task->create();
     }
     if (!$skip_variable_creation) {
@@ -682,6 +696,7 @@ function maestro_export($id) {
       $task_type = substr($rec->task_class_name, 15);
       $task_class = 'MaestroTaskInterface' . $task_type;
       $output_php .= '$ti = new ' . $task_class . '(0, $templateID);' . "\n";
+      $output_php .= '$ti->setSecurityToken(drupal_get_token());' . "\n";
       $output_php .= '$ti->create();' . "\n";
       $output_php .= '$task_xref_array[' . $rec->id . '] = $ti->get_task_id();' . "\n";
       $output_php .= '$res = db_select(\'maestro_template_data\', \'a\');' . "\n";
@@ -710,7 +725,10 @@ function maestro_export($id) {
       $nextstepres = db_query("SELECT * FROM {maestro_template_data_next_step} WHERE template_data_from = :id", array('id' => $rec->id));
       foreach ($nextstepres as $nextstep) {
         $output_php .= '$sql  = "INSERT INTO {maestro_template_data_next_step} (template_data_from, template_data_to, template_data_to_false) VALUES (:a1, :b1, :c1)";' . "\n";
-        $output_php .= 'db_query($sql, array(\'a1\' => $task_xref_array[' . $nextstep->template_data_from . '], \'b1\' => $task_xref_array[' . $nextstep->template_data_to . '], \'c1\' => $task_xref_array[' . $nextstep->template_data_to_false . ']));' . "\n";
+        $output_php .= 'db_query($sql, array(\'a1\' => $task_xref_array[' .
+          intval($nextstep->template_data_from) . '], \'b1\' => $task_xref_array[' .
+          intval($nextstep->template_data_to) . '], \'c1\' => $task_xref_array[' .
+          intval($nextstep->template_data_to_false) . ']));' . "\n";
       }
       $assignmentres = db_query("SELECT * FROM {maestro_template_assignment} WHERE template_data_id = :id", array('id' => $rec->id));
       foreach ($assignmentres as $ares) {

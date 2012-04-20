@@ -12,7 +12,8 @@ jQuery(function($) {
   $('.maestro_taskconsole_interactivetaskName a').click(function() {
     var taskid = jQuery(this).attr('taskid');
     $('#maestro_actionrec' + taskid).toggle();
-    $.post(ajax_url + '/starttask/',"taskid=" + taskid);
+
+    $.post(ajax_url + '/starttask/',"taskid=" + taskid + "&sec_token=" + sec_token);
     if (document.getElementById('maestro_actionrec' + taskid)) {
       $('html,body').animate({scrollTop: $('#maestro_actionrec' + taskid).offset().top - 125},500);
     }
@@ -35,7 +36,8 @@ jQuery(function($) {
         cache: false,
         data : {
           taskid : taskid,
-          rowid : rowid
+          rowid : rowid,
+          sec_token : sec_token
         },
         dataType: 'json',
         success:  function (data) {
@@ -66,7 +68,7 @@ jQuery(function($) {
             );
 
           } else {
-            alert(Drupal.t('An error occurred updating assignment'));
+            alert(Drupal.t('An error occurred retrieving workflow details'));
           }
         },
         error: function() { alert(Drupal.t('there was a SERVER Error processing AJAX request')); }
@@ -119,7 +121,7 @@ function maestro_ajaxDeleteProject(id, message) {
         type: 'POST',
         url : ajax_url + '/deleteproject',
         cache: false,
-        data: {tracking_id: id},
+        data: {tracking_id: id, sec_token : sec_token},
         dataType: 'json',
         success:  function (data) {
           alert(data.message);
@@ -148,6 +150,7 @@ function ajaxMaestroComment(op, rowid, id, cid) {
         data : {
           rowid : rowid,
           tracking_id : id,
+          sec_token : sec_token,
           comment: document.getElementById("newcomment_" + id).value
         },
         dataType : 'json',
@@ -176,7 +179,8 @@ function ajaxMaestroComment(op, rowid, id, cid) {
         data : {
           rowid : rowid,
           tracking_id : id,
-          cid : cid
+          cid : cid,
+          sec_token : sec_token,
         },
         dataType : 'json',
         success : function(data) {
@@ -200,7 +204,7 @@ function ajaxMaestroComment(op, rowid, id, cid) {
 
 /*
 * Function handles the form submit buttons for the inline interactive tasks All
-* the form buttons should be of input type 'button' even the 'task complete'
+* the form buttons should be of input type 'button' or 'submit' even the 'task complete'
 * Function will fire automatically when a form button is pressed and execute
 * the ajax operation for the interactive_post action and automatically post the
 * form contents plus the taskid and task operation that was picked up from the
@@ -208,7 +212,7 @@ function ajaxMaestroComment(op, rowid, id, cid) {
 * value="Save Data">
 */
 jQuery(function($) {
-  $('.maestro_taskconsole_interactivetaskcontent input[type=button]').click(function() {
+  $('.maestro_taskconsole_interactivetaskcontent input[type=submit], input[type=button]').click(function() {
     var id = jQuery(this).parents('tr').filter(".maestro_taskconsole_interactivetaskcontent").attr('id');
     var idparts = id.split('maestro_actionrec');
     var taskid = idparts[1];
@@ -216,6 +220,7 @@ jQuery(function($) {
     dataString = jQuery(this).closest('form').serialize();
     dataString += "&queueid=" + taskid;
     dataString += "&op=" + op;
+    dataString += "&sec_token=" + sec_token;
     jQuery.ajax( {
       type : 'POST',
       cache : false,

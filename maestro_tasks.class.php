@@ -613,7 +613,35 @@ class MaestroTaskTypeContentType extends MaestroTask {
 
   function getTaskConsoleURL(){
     global $base_url;
+
     $taskdata = unserialize($this->_properties->task_data);
+    if ($taskdata['content_type'] === 'maestro_variable_content_type') {
+      $maestro = Maestro::createMaestroObject(1);
+      $taskdata['content_type'] = $maestro->engine()->getProcessVariable('content_type', $this->_properties->process_id);
+      /* Now that we have the content type for this instance of the workflow
+       * Required for the code in the HOOK_form_aler to work correctly.
+       * We need to register the edit form id to use
+       * Save the content type in the task data
+       */
+      $data = serialize(array('content_type' => check_plain($taskdata['content_type'])));
+      db_update('maestro_queue')
+        ->fields(array('task_data' => $data))
+        ->condition('id', $this->_properties->queue_id, '=')
+        ->execute();
+    }
+
+    $maestro_content_types = cache_get('maestro_content_types');
+    if ($maestro_content_types === FALSE) {
+      $types = array();
+    } else {
+      $types = $maestro_content_types->data;
+    }
+    $content_type_form_id = "{$taskdata['content_type']}_node_form";
+    if (!in_array($content_type_form_id, $types)) {
+      $types[] = $content_type_form_id;
+      cache_set('maestro_content_types', $types);
+    }
+
     /* Drupal wants to see all underscores in content type names as hyphens for URL's
      * so we need to test for that and update that for any URL link
      */
