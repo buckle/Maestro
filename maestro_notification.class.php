@@ -138,6 +138,7 @@ class MaestroNotification {
       $query->condition('a.id', $this->_queueID, '=');
       $qRec = current($query->execute()->fetchAll());
 
+      // Get User Notifications
       $query = db_select('maestro_template_notification', 'a');
       $query->leftJoin('users', 'b', 'a.notify_id=b.uid');
       $query->fields('a', array('notify_id', 'notify_type', 'notify_when', 'notify_by'));
@@ -146,6 +147,34 @@ class MaestroNotification {
       $query->condition('a.notify_type', MaestroAssignmentTypes::USER, '=');   //@TODO: add support for ROLE and GROUP types
       $query->condition('a.template_data_id', $qRec->template_data_id);
       $res = $query->execute()->fetchAll();
+      
+      // Get Role Notifications
+      $query = db_select('maestro_template_notification', 'a');
+      $query->leftJoin('role', 'b', 'a.notify_id=b.rid');
+      $query->fields('a', array('notify_id', 'notify_type', 'notify_when', 'notify_by'));
+      $query->fields('b', array('rid'));
+      $query->condition('a.notify_when', $this->_notificationType, '=');
+      $query->condition('a.notify_type', MaestroAssignmentTypes::ROLE, '=');
+      $query->condition('a.template_data_id', $qRec->template_data_id);
+      $roles = $query->execute()->fetchAll();
+      
+      // Load users from roles
+      if (!empty($roles)) {
+        foreach ($roles as $role) {
+          $query = db_select('users', 'a');
+          $query->join('users_roles', 'b', 'a.uid=b.uid');
+          $query->fields('a', array('uid', 'mail'));
+          $query->condition('b.rid', $role->rid, '=');
+          $user_ids_from_role = $query->execute()->fetchAll();
+          
+          // Append users to original results with necessary Maestro fields added
+          foreach ($user_ids_from_role as $user_id_from_role) {
+            $user_id_from_role->notify_by = $role->notify_by;
+            $user_id_from_role->notify_id = $role->notify_id;
+            array_push($res, $user_id_from_role);
+          }
+        }
+      }
 
       $this->_userIDArray = array();
       $this->_userEmailArray = array();
