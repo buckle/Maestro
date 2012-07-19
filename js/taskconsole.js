@@ -180,7 +180,7 @@ function ajaxMaestroComment(op, rowid, id, cid) {
           rowid : rowid,
           tracking_id : id,
           cid : cid,
-          sec_token : sec_token,
+          sec_token : sec_token
         },
         dataType : 'json',
         success : function(data) {
