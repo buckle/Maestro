@@ -108,7 +108,7 @@ class MaestroInterface {
   }
 
   function getContextMenuJS() {
-    $token = drupal_get_token();
+    $token = drupal_get_token('maestro_admin');
     $options = $this->getContextMenu();
     $js  = "(function ($) {\n";
     $js .= "\$('#maestro_workflow_container').contextMenu('maestro_main_context_menu', {\n";
@@ -169,7 +169,7 @@ class MaestroInterface {
         }
       }
     }
-    $js .="var move_tkn = '" . drupal_get_token() . "';\n";
+    $js .="var move_tkn = '" . drupal_get_token('maestro_admin') . "';\n";
     return $js;
   }
 }

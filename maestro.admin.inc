@@ -49,19 +49,17 @@ function maestro_handle_editor_ajax_request($task_type, $template_data_id, $temp
 }
 
 
-//TODO: verify token on all methods
 function maestro_handle_structure_ajax_request() {
   global $base_url;
   if (!user_access('maestro admin')) return FALSE;
-  $op=@check_plain($_POST['op']);
-  $cntr=@check_plain($_POST['cntr']);
-  $id=@check_plain($_POST['id']);
+  $op = @check_plain($_POST['op']);
+  $cntr = @check_plain($_POST['cntr']);
+  $id = @check_plain($_POST['id']);
   $token = @check_plain($_POST['token']);
 
-  //check the token right here before OP-ing
-
-  if($token != drupal_get_token()) {
-    $arr=array('data' => t('Illegal action'), 'status' => 0);
+  // Check the token right here before OP-ing
+  if(!drupal_valid_token($token,'maestro_admin')) {   
+    $arr = array('data' => t('Illegal action'), 'status' => 0);
     drupal_json_output($arr);
     exit(0);
   }
@@ -100,47 +98,47 @@ function maestro_handle_structure_ajax_request() {
         }
 
       }
-      $data=theme('maestro_workflow_list', array('tid' => 0, 'operation' => '' , 'edit_var' => 0));
-      $arr=array('data' => $data, 'status' => $status);
+      $data = theme('maestro_workflow_list', array('tid' => 0, 'operation' => '' , 'edit_var' => 0));
+      $arr = array('data' => $data, 'status' => $status);
       drupal_json_output($arr);
       break;
 
     case 'savetemplate':
-      $name=check_plain($_POST['templateName']);
-      $app_group=intval(check_plain($_POST['appGroup']));
+      $name = check_plain($_POST['templateName']);
+      $app_group = intval(check_plain($_POST['appGroup']));
 
-      $update=db_update('maestro_template')
+      $update = db_update('maestro_template')
       ->fields(array( 'template_name' => $name,
                       'app_group' => $app_group
       ))
       ->condition('id', $id)
       ->execute();
-      $status="0";
-      if ($update>=0) {
-        $status="1";
+      $status = 0;
+      if ($update >= 0) {
+        $status = 1;
       }
       $arr=array('id' => $id, 'cntr' => $cntr, 'status' => $status);
       drupal_json_output($arr);
       break;
 
     case 'createvariable':
-      $name=check_plain($_POST['newVariableName']);
-      $value=check_plain($_POST['newVariableValue']);
+      $name = check_plain($_POST['newVariableName']);
+      $value = check_plain($_POST['newVariableValue']);
       $rec_id = maestro_createTemplateVariable($id, $name, $value);
       $status = 0;
       if ($rec_id > 0) {
         $status = 1;
       }
-      $data=theme('maestro_workflow_edit_template_variables',  array('tid' => $id ));
+      $data = theme('maestro_workflow_edit_template_variables',  array('tid' => $id ));
 
-      $arr=array('status' => $status, 'data' => $data, 'cntr' => $id );
+      $arr = array('status' => $status, 'data' => $data, 'cntr' => $id );
       drupal_json_output($arr);
       break;
 
     case 'updatevariable':
-      $name=check_plain($_POST['name']);
-      $value=check_plain($_POST['val']);
-      $update=db_update('maestro_template_variables')
+      $name = check_plain($_POST['name']);
+      $value = check_plain($_POST['val']);
+      $update = db_update('maestro_template_variables')
       ->fields(array( 'variable_name' => $name,
                       'variable_value' => $value
       ))
@@ -152,31 +150,31 @@ function maestro_handle_structure_ajax_request() {
       $query->condition('a.id', $id, '=');
       $res=current($query->execute()->fetchAll());
 
-      $status="0";
-      if ($update>=0) {
-        $status="1";
+      $status = 0;
+      if ($update >= 0) {
+        $status = 1;
       }
-      $data=theme('maestro_workflow_edit_template_variables',  array('tid' => $res->template_id ));
-      $arr=array('status' => $status, 'data' => $data, 'var_id' => $id);
+      $data = theme('maestro_workflow_edit_template_variables',  array('tid' => $res->template_id ));
+      $arr = array('status' => $status, 'data' => $data, 'var_id' => $id);
       drupal_json_output($arr);
       break;
 
     case 'deletevariable':
-      $tid=check_plain($_POST['tid']);
-      $ret=maestro_deleteTemplateVariable($id);
-      $data=theme('maestro_workflow_edit_template_variables',  array('tid' => $tid ));
-      $status="0";
+      $tid = check_plain($_POST['tid']);
+      $ret = maestro_deleteTemplateVariable($id);
+      $data = theme('maestro_workflow_edit_template_variables',  array('tid' => $tid ));
+      $status = 0;
       if ($ret) {
-        $status="1";
+        $status = 1;
       }
-      $arr=array('status' => $status, 'data' => $data, 'cntr' => $tid);
+      $arr = array('status' => $status, 'data' => $data, 'cntr' => $tid);
       drupal_json_output($arr);
       break;
 
     case 'editvariable':
-      $tid=check_plain($_POST['tid']);
-      $data=theme('maestro_workflow_edit_template_variables',  array('tid' => $tid, 'edit_var' => $id));
-      $arr=array('status' => "1", 'data' => $data, 'cntr' => $tid);
+      $tid = check_plain($_POST['tid']);
+      $data = theme('maestro_workflow_edit_template_variables',  array('tid' => $tid, 'edit_var' => $id));
+      $arr = array('status' => "1", 'data' => $data, 'cntr' => $tid);
       drupal_json_output($arr);
       break;
 
@@ -218,14 +216,14 @@ function maestro_handle_structure_ajax_request() {
       break;
 
     case 'refreshappgroup':
-      $which=check_plain($_POST['which']);
+      $which = check_plain($_POST['which']);
       $data=maestro_createAppGroupDropDown($which);
-      $arr=array('status' => "1", 'data' => $data);
+      $arr = array('status' => "1", 'data' => $data);
       drupal_json_output($arr);
       break;
 
     case 'deletetemplate':
-      $res=db_query("SELECT id FROM {maestro_template_data} WHERE template_id = :tid", array('tid' => $id));
+      $res = db_query("SELECT id FROM {maestro_template_data} WHERE template_id = :tid", array('tid' => $id));
       foreach ($res as $rec) {
         $query = db_delete('maestro_template_assignment');
         $query->condition('template_data_id', $rec->id, '=');
@@ -253,7 +251,7 @@ function maestro_handle_structure_ajax_request() {
       $query->execute();
 
       $data = theme('maestro_workflow_list', array('tid' => 0, 'operation' => '' , 'edit_var' => 0));
-      $arr=array('status' => "1", 'data' => $data);
+      $arr = array('status' => "1", 'data' => $data);
       drupal_json_output($arr);
       break;
 
@@ -267,7 +265,7 @@ function maestro_handle_structure_ajax_request() {
       $record ->app_group = $name->app_group;
       $record ->canvas_height = $name->canvas_height;
       drupal_write_record('maestro_template', $record);
-      $new_tid=$record->id;
+      $new_tid = $record->id;
 
       $variable_xref_array = Array();
       $variable_xref_array[0] = 0;
@@ -282,7 +280,7 @@ function maestro_handle_structure_ajax_request() {
       }
 
       $task_data_array=array();
-      $res=db_query("SELECT * FROM {maestro_template_data} WHERE template_id = :tid", array('tid' => $id));
+      $res = db_query("SELECT * FROM {maestro_template_data} WHERE template_id = :tid", array('tid' => $id));
       foreach ($res as $rec) {
         $newrecord = new stdClass();
         $newrecord->template_id = $new_tid;
@@ -339,7 +337,7 @@ function maestro_handle_structure_ajax_request() {
 
       //at this point, we have a list that points the old ID record to the new one.
       //now for each template data next step, we determine which record to go to/from
-      $res=db_query("SELECT * FROM {maestro_template_data} WHERE template_id = :tid", array('tid' => $id));
+      $res = db_query("SELECT * FROM {maestro_template_data} WHERE template_id = :tid", array('tid' => $id));
       foreach ($res as $rec) {
         $nextstepres = db_query("SELECT * FROM {maestro_template_data_next_step} WHERE template_data_from = :id", array('id' => $rec->id));
         foreach ($nextstepres as $nextstep) {
@@ -379,7 +377,7 @@ function maestro_handle_structure_ajax_request() {
 
       }
       $data = theme('maestro_workflow_list', array('tid' => 0, 'operation' => '' , 'edit_var' => 0));
-      $arr=array('status' => "1", 'data' => $data);
+      $arr = array('status' => "1", 'data' => $data);
       drupal_json_output($arr);
       break;
 
@@ -412,7 +410,7 @@ function maestro_admin_form() {
     '#type' => 'textfield',
     '#title' => t('Orchestrator lock release timeout'),
     '#default_value' => variable_get('maestro_orchestrator_lock_delay', 512.0),
-    '#description' => t('Orchestrator can\'t be executed in parallel, Maestro uses a lock when executing it. However if the execution fails, the lock remains there. This value allows you to specify when maestro should consider the lock invalid. Usually the maximum sane value is the Maximum execution time of PHP configuration.'),
+    '#description' => t('Orchestrator can\'t be executed in paraell, Maestro uses a lock when executing it. However if the execution fails, the lock remains there. This value allows you to specify when maestro should consider the lock invalid. Usually the maximum sane value is the Maximum execution time of PHP configuration.'),
     '#required' => FALSE,
   );
   $form['maestro_enable_import_window'] = array(
@@ -422,18 +420,12 @@ function maestro_admin_form() {
     '#description' => t('Enabling this option will turn on the Import Window in the template editor.  It is NOT recommended to have this on in production environments.'),
     '#required' => FALSE,
   );
+
   $form['maestro_enable_notifications'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable Maestro Notifications.'),
     '#default_value' => variable_get('maestro_enable_notifications', 1),
     '#description' => t('Checking this option will turn on the Maestro Notifications mechanism.'),
-    '#required' => FALSE,
-  );
-  $form['maestro_enable_new_process_messages'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Enable Maestro New Process Messages.'),
-    '#default_value' => variable_get('maestro_enable_new_process_messages', 1),
-    '#description' => t('Checking this option will turn on the Maestro new process messages.'),
     '#required' => FALSE,
   );
 
@@ -593,10 +585,10 @@ function maestro_createNewTemplate($name, $skip_task_creation = FALSE, $skip_var
     $new_template_rec_id = $record->id;
     if (!$skip_task_creation) {
       $task = new MaestroTaskInterfaceStart(0, $new_template_rec_id);
-      $task->setSecurityToken(drupal_get_token());
+      $task->setSecurityToken(drupal_get_token('maestro_admin'));
       $task->create();
       $task = new MaestroTaskInterfaceEnd(0, $new_template_rec_id);
-      $task->setSecurityToken(drupal_get_token());
+      $task->setSecurityToken(drupal_get_token('maestro_admin'));
       $task->create();
     }
     if (!$skip_variable_creation) {
@@ -663,7 +655,7 @@ function maestro_joinAppGroup($template_id, $appgroup_id) {
 
 function maestro_export($id) {
   $output_php = "";
-  $id=intval($id);
+  $id = intval($id);
   if ($id > 0) {
     //first step -- fetch the name of the original template
     $output_php .= '$_POST[\'offset_top\'] = 0;' . "\n";
@@ -696,7 +688,7 @@ function maestro_export($id) {
       $task_type = substr($rec->task_class_name, 15);
       $task_class = 'MaestroTaskInterface' . $task_type;
       $output_php .= '$ti = new ' . $task_class . '(0, $templateID);' . "\n";
-      $output_php .= '$ti->setSecurityToken(drupal_get_token());' . "\n";
+      $output_php .= '$ti->setSecurityToken(drupal_get_token("maestro_admin"));' . "\n";
       $output_php .= '$ti->create();' . "\n";
       $output_php .= '$task_xref_array[' . $rec->id . '] = $ti->get_task_id();' . "\n";
       $output_php .= '$res = db_select(\'maestro_template_data\', \'a\');' . "\n";
@@ -809,6 +801,6 @@ function maestro_export($id) {
 }
 
 function maestro_export_template($tid, $var=0) {
-  $content=maestro_export($tid);
+  $content = maestro_export($tid);
   return maestro_admin($tid, 'export_template', $var);
 }

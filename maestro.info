@@ -11,3 +11,10 @@ files[] = maestro.test
 files[] = maestro.admin.inc
 files[] = maestro.views.inc
 configure = admin/structure/maestro
+
+; Information added by drupal.org packaging script on 2012-06-05
+version = "7.x-1.2"
+core = "7.x"
+project = "maestro"
+datestamp = "1338920479"
+

@@ -621,28 +621,34 @@ function maestro_taskconsole() {
  *
  * @return
  *   ID of new process generated
+*   Function can be called from the AJAX handler and in this case will pass in the token
  */
-function maestro_launch_workflow($template=0) {
+function maestro_launch_workflow($template=0,$token='') {
   global $base_url;
-
+  
+  if (empty($token)) {
+    $token = $_GET['sec_token'];
+  }
+  if(!drupal_valid_token($token,'maestro_user')) {
+    drupal_set_message(t('Invalid Operation'));
+    drupal_goto('maestro/taskconsole');
+    exit;    
+  }
+  
   $template = intval($template);
   if ($template > 0) {
     $maestro = Maestro::createMaestroObject(1);
     $newprocess = $maestro->engine()->newProcess($template);
 
-    if (variable_get('maestro_enable_new_process_messages', 1)) {
-      if ($newprocess > 0) {
-        drupal_set_message(t("New Process Code Success! - Process ID: @process", array('@process' => check_plain($newprocess))));
-      }
-      else {
-        drupal_set_message(t("New Process Code FAIL! - Template: @template not defined", array('@template' => check_plain($template))));
-      }
+    if ($newprocess > 0) {
+      drupal_set_message(t("New Process Code Success! - Process ID: @process", array('@process' => check_plain($newprocess))));
+    }
+    else {
+      drupal_set_message(t("New Process Code FAIL! - Template: @template not defined", array('@template' => check_plain($template))));
     }
   }
   else {
-    if (variable_get('maestro_enable_new_process_messages', 1)) {
-      drupal_set_message(t("New Process Code FAIL! - No Template ID Given"));
-    }
+    drupal_set_message(t("New Process Code FAIL! - No Template ID Given"));
   }
 
   return $newprocess;
@@ -665,19 +671,15 @@ function maestro_new_process($template=0) {
     $maestro = Maestro::createMaestroObject(1);
     $newprocess = $maestro->engine()->newProcess($template);
 
-    if (variable_get('maestro_enable_new_process_messages', 1)) {
-      if ($newprocess > 0) {
-        drupal_set_message(t("New Process Code Success! - Process ID: @process", array('@process' => check_plain($newprocess))));
-      }
-      else {
-        drupal_set_message(t("New Process Code FAIL! - Template: @template not defined", array('@template' => check_plain($template))));
-      }
+    if ($newprocess > 0) {
+      drupal_set_message(t("New Process Code Success! - Process ID: @process", array('@process' => check_plain($newprocess))));
+    }
+    else {
+      drupal_set_message(t("New Process Code FAIL! - Template: @template not defined", array('@template' => check_plain($template))));
     }
   }
   else {
-    if (variable_get('maestro_enable_new_process_messages', 1)) {
-      drupal_set_message(t("New Process Code FAIL! - No Template ID Given"));
-    }
+    drupal_set_message(t("New Process Code FAIL! - No Template ID Given"));
   }
 
   drupal_goto('maestro/taskconsole');
@@ -1322,8 +1324,7 @@ function content_type_task_maestro_set_process_variable_logic(&$task, $current_v
 function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
   global $user;
 
-  $token = @check_plain($_POST['sec_token']);
-  if($token != drupal_get_token()) {
+  if(!drupal_valid_token($_POST['sec_token'],'maestro_user')) {
     $arr=array('data' => t('Illegal action'), 'status' => 0);
     drupal_json_output($arr);
     exit(0);
@@ -1343,7 +1344,7 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
 
     case 'newprocess':
       $tid = intval($_POST['templateid']);
-      $pid = maestro_launch_workflow($tid);
+      $pid = maestro_launch_workflow($tid,$_POST['sec_token']);
       $retdata = array('status' => "1", 'processid' => $pid);
       drupal_json_output($retdata);
       break;
@@ -1535,7 +1536,7 @@ function maestro_handle_taskconsole_ajax_request($action, $queue_id = 0) {
       drupal_json_output($retdata);
       break;
 
-    case 'getprojectdetails':
+    case 'getprojectdetails':  // Called from MyFlows and AllFlows view to retrieve project details
       $task = new stdClass();
       $task->tracking_id = intval($_POST['projectID']);
       $flowname = db_query("SELECT description FROM {maestro_projects} WHERE id = :id",

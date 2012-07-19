@@ -30,8 +30,8 @@
 ?>
   </div>
   <div style="width: 67%; float: left; clear:both;">
-    <form id="maestro_process_trace_form" method="post" action="" onsubmit="save_process_changes(this); return false;">
-      <input type="hidden" name="op" value="save_process_changes">
+    <form id="maestro_task_history_form" method="post" action="" onsubmit="save_task_changes(this); return false;">
+      <input type="hidden" name="op" value="save_task_changes">
       <fieldset class="form-wrapper">
         <legend>
           <span class="fieldset-legend">Task History</span>
@@ -111,7 +111,7 @@
                 <td></td>
               </tr>
               <tr>
-                <td colspan="5" style="text-align: center;"><input class="form-submit" type="submit" value="Save All Task Changes"></td>
+                <td colspan="5" style="text-align: center;"><input type="submit" value="Save All Task Changes"></td>
               </tr>
             </tbody>
           </table>
@@ -137,7 +137,7 @@
               if ($i++ > 0) {
 ?>
               <tr>
-                <td colspan="2" style="text-align: center;"><input  class="form-submit" type="submit" value="<?php print t('xSave Process Variables'); ?>"></td>
+                <td colspan="2" style="text-align: center;"><input type="submit" value="<?php print t('Save Process Variables'); ?>"></td>
               </tr>
             </tbody>
           </table>
@@ -168,7 +168,7 @@
           }
 ?>
               <tr>
-                <td colspan="2" style="text-align: center;"><input class="form-submit" type="submit" value="<?php print t('Save Process Variables'); ?>"></td>
+                <td colspan="2" style="text-align: center;"><input type="submit" value="<?php print t('Save Process Variables'); ?>"></td>
               </tr>
             </tbody>
           </table>
@@ -178,5 +178,5 @@
   </div>
 
   <script type="text/javascript">
-    var ajax_url = '<?php print "{$ajax_url}/trace/{$properties->tracking_id}/{$properties->initiating_pid}/{$properties->queue_id}/" . drupal_get_token(); ?>';
+    var ajax_url = '<?php print "{$ajax_url}/trace/{$properties->tracking_id}/{$properties->initiating_pid}/{$properties->queue_id}"; ?>';
   </script>

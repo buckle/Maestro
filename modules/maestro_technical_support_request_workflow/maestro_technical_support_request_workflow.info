@@ -19,3 +19,10 @@ files[] = maestro_technical_support_request_workflow.module
 files[] = maestro_technical_support_request_workflow.install
 files[] = maestro_technical_support_request_workflow.features.field
 files[] = maestro_technical_support_request_workflow.features.inc
+
+; Information added by drupal.org packaging script on 2012-06-05
+version = "7.x-1.2"
+core = "7.x"
+project = "maestro"
+datestamp = "1338920479"
+

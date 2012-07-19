@@ -25,7 +25,7 @@
     <tbody>
 
 <?php
-  $sec_token = drupal_get_token();
+  $sec_token = drupal_get_token('maestro_user');
   if (is_array($queue)) {
     $i = 0;
     foreach ($queue as $task) {

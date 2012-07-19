@@ -64,7 +64,7 @@ abstract class MaestroTaskInterface {
 
   //create task will insert the shell record of the task, and then the child class will handle the edit.
   function create() {
-    if($this->_security_token != drupal_get_token()) {
+    if(!drupal_valid_token($this->_security_token,'maestro_admin')) {    
       return array('message' => t('Illegal task creation attempt.'), 'success' => 0, 'task_id' =>0);
     }
     $rec = new stdClass();
@@ -88,7 +88,7 @@ abstract class MaestroTaskInterface {
 
   //deletes the task
   function destroy() {
-    if($this->_security_token != drupal_get_token()) {
+    if(!drupal_valid_token($this->_security_token,'maestro_admin')) {
       return array('message' => t('Illegal deletion attempt.'), 'success' => 0, 'task_id' => $this->_task_id);
     }
     $res = db_select('maestro_queue', 'a');
@@ -144,7 +144,7 @@ abstract class MaestroTaskInterface {
 
   function edit() {
     global $base_url;
-    if($this->_security_token != drupal_get_token()) {
+    if(!drupal_valid_token($this->_security_token,'maestro_admin')) {
       return array('message' => t('Illegal edit attempt.'), 'success' => 0, 'task_id' => $this->_task_id);
     }
 
@@ -246,7 +246,7 @@ abstract class MaestroTaskInterface {
   }
 
   function save() {
-    if($this->_security_token != drupal_get_token()) {
+    if(!drupal_valid_token($this->_security_token,'maestro_admin')) {    
       return array('message' => t('Illegal save attempt.'), 'success' => 0, 'task_id' => $this->_task_id);
     }
     $res = db_select('maestro_template_data', 'a');
@@ -332,7 +332,7 @@ abstract class MaestroTaskInterface {
 
   //handles the update for the drag and drop
   function move() {
-    if($this->_security_token != drupal_get_token()) {
+    if(!drupal_valid_token($this->_security_token,'maestro_admin')) {    
       return array('message' => t('Illegal move attempt.'), 'success' => 0, 'task_id' => $this->_task_id);
     }
     $offset_left = intval($_POST['offset_left']);
@@ -346,7 +346,7 @@ abstract class MaestroTaskInterface {
 
   //handles the update when adding a line (insert the next step record)
   function drawLine() {
-    if($this->_security_token != drupal_get_token()) {
+    if(!drupal_valid_token($this->_security_token,'maestro_admin')) {
       return array('message' => t('Illegal line connection attempt.'), 'success' => 0, 'task_id' => $this->_task_id);
     }
     $res = db_select('maestro_template_data_next_step', 'a');
@@ -377,7 +377,7 @@ abstract class MaestroTaskInterface {
 
   //in theory only the if task will use this method
   function drawLineFalse() {
-    if($this->_security_token != drupal_get_token()) {
+    if(!drupal_valid_token($this->_security_token,'maestro_admin')) {
       return array('message' => t('Illegal line connection attempt.'), 'success' => 0, 'task_id' => $this->_task_id);
     }
     $res = db_select('maestro_template_data_next_step', 'a');
@@ -408,7 +408,7 @@ abstract class MaestroTaskInterface {
 
   //remove any next step records pertaining to this task
   function clearAdjacentLines() {
-    if($this->_security_token == drupal_get_token()) {
+    if(drupal_valid_token($this->_security_token,'maestro_admin')) {
       //RK -- had to change the logic on this delete as PDO for SQL Server was failing for some reason even though the
       //resulting query was 100% correct.
       $taskid=intval($this->_task_id);
@@ -418,7 +418,7 @@ abstract class MaestroTaskInterface {
 
   //returns an array of options for when the user right-clicks the task
   function getContextMenu() {
-    $token = drupal_get_token();
+    $token = drupal_get_token('maestro_admin');
     $draw_line_msg = t('Select a task to draw the line to.');
     $options = array (
       'draw_line' => array(
@@ -649,7 +649,7 @@ class MaestroTaskInterfaceUnknown extends MaestroTaskInterface {
   }
 
   function getContextMenu() {
-    $token = drupal_get_token();
+    $token = drupal_get_token('maestro_admin');
     $draw_line_msg = t('Select a task to draw the line to.');
     $options = array (
       'draw_line' => array(
@@ -707,7 +707,7 @@ class MaestroTaskInterfaceStart extends MaestroTaskInterface {
   }
 
   function getContextMenu() {
-    $token = drupal_get_token();
+    $token = drupal_get_token('maestro_admin');
     $draw_line_msg = t('Select a task to draw the line to.');
     $options = array (
       'draw_line' => array(
@@ -752,7 +752,7 @@ class MaestroTaskInterfaceEnd extends MaestroTaskInterface {
   }
 
   function getContextMenu() {
-    $token = drupal_get_token();
+    $token = drupal_get_token('maestro_admin');
     $options = array (
       'clear_lines' => array(
         'label' => t('Clear Adjacent Lines'),
@@ -802,7 +802,7 @@ class MaestroTaskInterfaceIf extends MaestroTaskInterface {
   }
 
   function save() {
-    if($this->_security_token != drupal_get_token()) {
+    if(!drupal_valid_token($this->_security_token,'maestro_admin')) {
       return array('message' => t('Illegal save attempt.'), 'success' => 0, 'task_id' => $this->_task_id);
     }
     $rec = new stdClass();
@@ -832,7 +832,7 @@ class MaestroTaskInterfaceIf extends MaestroTaskInterface {
   }
 
   function getContextMenu() {
-    $token = drupal_get_token();
+    $token = drupal_get_token('maestro_admin');
     $draw_line_msg = t('Select a task to draw the line to.');
     $options = array (
       'draw_line' => array(
@@ -896,7 +896,7 @@ class MaestroTaskInterfaceBatch extends MaestroTaskInterface {
   }
 
   function save() {
-    if($this->_security_token != drupal_get_token()) {
+    if(!drupal_valid_token($this->_security_token,'maestro_admin')) {
       return array('message' => t('Illegal save attempt.'), 'success' => 0, 'task_id' => $this->_task_id);
     }
     $rec = new stdClass();
@@ -935,7 +935,7 @@ class MaestroTaskInterfaceBatchFunction extends MaestroTaskInterface {
   }
 
   function save() {
-    if($this->_security_token != drupal_get_token()) {
+    if(!drupal_valid_token($this->_security_token,'maestro_admin')) {
       return array('message' => t('Illegal save attempt.'), 'success' => 0, 'task_id' => $this->_task_id);
     }
     $rec = new stdClass();
@@ -973,7 +973,7 @@ class MaestroTaskInterfaceInteractiveFunction extends MaestroTaskInterface {
   }
 
   function save() {
-    if($this->_security_token != drupal_get_token()) {
+    if(!drupal_valid_token($this->_security_token,'maestro_admin')) {
       return array('message' => t('Illegal save attempt.'), 'success' => 0, 'task_id' => $this->_task_id);
     }
     $rec = new stdClass();
@@ -1035,7 +1035,7 @@ class MaestroTaskInterfaceSetProcessVariable extends MaestroTaskInterface {
   }
 
   function save() {
-    if($this->_security_token != drupal_get_token()) {
+    if(!drupal_valid_token($this->_security_token,'maestro_admin')) {
       return array('message' => t('Illegal save attempt.'), 'success' => 0, 'task_id' => $this->_task_id);
     }
     $rec = new stdClass();
@@ -1108,7 +1108,7 @@ class MaestroTaskInterfaceManualWeb extends MaestroTaskInterface {
   }
 
   function save() {
-    if($this->_security_token != drupal_get_token()) {
+    if(!drupal_valid_token($this->_security_token,'maestro_admin')) {
       return array('message' => t('Illegal save attempt.'), 'success' => 0, 'task_id' => $this->_task_id);
     }
     $rec = new stdClass();
@@ -1145,7 +1145,7 @@ class MaestroTaskInterfaceContentType extends MaestroTaskInterface {
   }
 
   function save() {
-    if($this->_security_token != drupal_get_token()) {
+    if(!drupal_valid_token($this->_security_token,'maestro_admin')) {
       return array('message' => t('Illegal save attempt.'), 'success' => 0, 'task_id' => $this->_task_id);
     }
     $rec = new stdClass();
@@ -1204,7 +1204,7 @@ class MaestroTaskInterfaceFireTrigger extends MaestroTaskInterface {
   }
 
   function save() {
-    if($this->_security_token != drupal_get_token()) {
+    if(!drupal_valid_token($this->_security_token,'maestro_admin')) {
       return array('message' => t('Illegal save attempt.'), 'success' => 0, 'task_id' => $this->_task_id);
     }
     $actions = $_POST['actions'];

@@ -180,7 +180,7 @@ function ajaxMaestroComment(op, rowid, id, cid) {
           rowid : rowid,
           tracking_id : id,
           cid : cid,
-          sec_token : sec_token
+          sec_token : sec_token,
         },
         dataType : 'json',
         success : function(data) {
@@ -213,35 +213,37 @@ function ajaxMaestroComment(op, rowid, id, cid) {
 */
 jQuery(function($) {
   $('.maestro_taskconsole_interactivetaskcontent input[type=submit], input[type=button]').click(function() {
+    if (this.id == 'taskConsoleLaunchNewProcess') return;
     var id = jQuery(this).parents('tr').filter(".maestro_taskconsole_interactivetaskcontent").attr('id');
-    var idparts = id.split('maestro_actionrec');
-    var taskid = idparts[1];
-    var op = jQuery(this).attr('maestro');
-    dataString = jQuery(this).closest('form').serialize();
-    dataString += "&queueid=" + taskid;
-    dataString += "&op=" + op;
-    dataString += "&sec_token=" + sec_token;
-    jQuery.ajax( {
-      type : 'POST',
-      cache : false,
-      url : ajax_url + '/interactivetask_post',
-      dataType : "json",
-      success : function(data) {
-        $("#maestro_actionrec" + taskid).hide();
-        if (data.status == 1) {
-          if (data.hidetask == 1) {
-            $("#maestro_taskcontainer" + taskid).hide();
-            $("#maestro_taskconsole_detail_rec" + taskid).hide();
+    if (id != undefined) {
+      var idparts = id.split('maestro_actionrec');
+      var taskid = idparts[1];
+      var op = jQuery(this).attr('maestro');
+      dataString = jQuery(this).closest('form').serialize();
+      dataString += "&queueid=" + taskid;
+      dataString += "&op=" + op;
+      dataString += "&sec_token=" + sec_token;
+      jQuery.ajax( {
+        type : 'POST',
+        cache : false,
+        url : ajax_url + '/interactivetask_post',
+        dataType : "json",
+        success : function(data) {
+          $("#maestro_actionrec" + taskid).hide();
+          if (data.status == 1) {
+            if (data.hidetask == 1) {
+              $("#maestro_taskcontainer" + taskid).hide();
+              $("#maestro_taskconsole_detail_rec" + taskid).hide();
+            }
+          } else {
+            alert(Drupal.t('An error occurred processing this interactive task'));
           }
-        } else {
-          alert(Drupal.t('An error occurred processing this interactive task'));
-        }
-      },
-      error : function() { alert(Drupal.t('there was a SERVER Error processing AJAX request')); },
-      data : dataString
-    });
-    return false;
-
+        },
+        error : function() { alert(Drupal.t('there was a SERVER Error processing AJAX request')); },
+        data : dataString
+      });
+      return false;
+    }
   })
 });
 

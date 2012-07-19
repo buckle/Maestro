@@ -22,7 +22,7 @@ function maestro_outstanding_tasks($op='', $qid=0, $sec_token=NULL, $other=NULL)
 
   switch ($op) {
     case 'reassign':
-      if($token != drupal_get_token()) {
+      if(!drupal_valid_token($token,'maestro_user')) {       
         drupal_access_denied();
         drupal_exit();
       }
@@ -31,7 +31,7 @@ function maestro_outstanding_tasks($op='', $qid=0, $sec_token=NULL, $other=NULL)
       break;
 
     case 'email':
-      if($token != drupal_get_token()) {
+      if(!drupal_valid_token($token,'maestro_user')) {        
         drupal_access_denied();
         drupal_exit();
       }
@@ -40,7 +40,7 @@ function maestro_outstanding_tasks($op='', $qid=0, $sec_token=NULL, $other=NULL)
       break;
 
     case 'delete':
-      if($token != drupal_get_token()) {
+      if(!drupal_valid_token($token,'maestro_user')) {       
         drupal_access_denied();
         drupal_exit();
       }
@@ -96,7 +96,7 @@ function maestro_trace($tracking_id=0, $process_id=0, $queue_id=0, $sec_token=NU
   global $base_url;
 
   $token = @check_plain($sec_token);
-  if($token != drupal_get_token()) {
+  if(!drupal_valid_token($token,'maestro_user')) { 
     drupal_access_denied();
     drupal_exit();
   }

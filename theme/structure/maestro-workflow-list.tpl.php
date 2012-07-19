@@ -11,7 +11,7 @@
 <script type="text/javascript">
 var num_records = <?php print $num_records; ?>;
 var ajax_url = '<?php print filter_xss($ajax_url); ?>';
-var template_token = '<?php print drupal_get_token(); ?>';
+var template_token = '<?php print drupal_get_token('maestro_admin'); ?>';
 </script>
   <div id="addtemplate" style="padding:10px 0px 10px 10px;">
     <input class="form-submit" type="button" value="<?php print t('New Template'); ?>" onClick="jQuery('#newtemplate').toggle();">&nbsp;
