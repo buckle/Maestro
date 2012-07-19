@@ -420,12 +420,18 @@ function maestro_admin_form() {
     '#description' => t('Enabling this option will turn on the Import Window in the template editor.  It is NOT recommended to have this on in production environments.'),
     '#required' => FALSE,
   );
-
   $form['maestro_enable_notifications'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable Maestro Notifications.'),
     '#default_value' => variable_get('maestro_enable_notifications', 1),
     '#description' => t('Checking this option will turn on the Maestro Notifications mechanism.'),
+    '#required' => FALSE,
+  );
+  $form['maestro_enable_new_process_messages'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable Maestro New Process Messages.'),
+    '#default_value' => variable_get('maestro_enable_new_process_messages', 1),
+    '#description' => t('Checking this option will turn on the Maestro new process messages.'),
     '#required' => FALSE,
   );
 

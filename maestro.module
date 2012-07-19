@@ -640,15 +640,19 @@ function maestro_launch_workflow($template=0,$token='') {
     $maestro = Maestro::createMaestroObject(1);
     $newprocess = $maestro->engine()->newProcess($template);
 
-    if ($newprocess > 0) {
-      drupal_set_message(t("New Process Code Success! - Process ID: @process", array('@process' => check_plain($newprocess))));
-    }
-    else {
-      drupal_set_message(t("New Process Code FAIL! - Template: @template not defined", array('@template' => check_plain($template))));
+    if (variable_get('maestro_enable_new_process_messages', 1)) {
+      if ($newprocess > 0) {
+        drupal_set_message(t("New Process Code Success! - Process ID: @process", array('@process' => check_plain($newprocess))));
+      }
+      else {
+        drupal_set_message(t("New Process Code FAIL! - Template: @template not defined", array('@template' => check_plain($template))));
+      }
     }
   }
   else {
-    drupal_set_message(t("New Process Code FAIL! - No Template ID Given"));
+    if (variable_get('maestro_enable_new_process_messages', 1)) {
+      drupal_set_message(t("New Process Code FAIL! - No Template ID Given"));
+    }
   }
 
   return $newprocess;
@@ -671,15 +675,19 @@ function maestro_new_process($template=0) {
     $maestro = Maestro::createMaestroObject(1);
     $newprocess = $maestro->engine()->newProcess($template);
 
-    if ($newprocess > 0) {
-      drupal_set_message(t("New Process Code Success! - Process ID: @process", array('@process' => check_plain($newprocess))));
-    }
-    else {
-      drupal_set_message(t("New Process Code FAIL! - Template: @template not defined", array('@template' => check_plain($template))));
+    if (variable_get('maestro_enable_new_process_messages', 1)) {
+      if ($newprocess > 0) {
+        drupal_set_message(t("New Process Code Success! - Process ID: @process", array('@process' => check_plain($newprocess))));
+      }
+      else {
+        drupal_set_message(t("New Process Code FAIL! - Template: @template not defined", array('@template' => check_plain($template))));
+      }
     }
   }
   else {
-    drupal_set_message(t("New Process Code FAIL! - No Template ID Given"));
+    if (variable_get('maestro_enable_new_process_messages', 1)) {
+      drupal_set_message(t("New Process Code FAIL! - No Template ID Given"));
+    }
   }
 
   drupal_goto('maestro/taskconsole');
