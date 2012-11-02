@@ -358,7 +358,7 @@ class MaestroEngineVersion1 extends MaestroEngine {
          * a defined MENU CALLBACK to our defined menu handlers - review code for example interactiveTasks.
          */
         $task = $this->executeTask(new $queueRecord->task_class_name($queueRecord));
-        if ($task->executionStatus === FALSE) {
+        if ($task->executionStatus === FALSE && $task->logFailure) {
           watchdog('maestro',"Failed Task: {$this->_queueId}, Process: {$this->_processId} , Step Type: $this->_taskType");
           watchdog('maestro',"Task Information: ". $task->getMessage());
           // TODO:  what do we do for a failed task?

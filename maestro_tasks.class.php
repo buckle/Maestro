@@ -8,6 +8,7 @@ abstract class MaestroTask {
   protected $_lastTestStatus = 0;
   public $executionStatus = NULL;   // Did task's execute method execute of was there an error
   public $completionStatus = NULL;  // Did the task's execution method complete and if so set to one of the defined status code CONST values
+  public $logFailure = TRUE;        // For controlling if watchdog logging occurs when cleanQueue is run
 
   function __construct($properties = NULL) {
     $this->_properties = $properties;
@@ -250,6 +251,7 @@ class MaestroTaskTypeBatchFunction extends MaestroTask {
 
 
 class MaestroTaskTypeAnd extends MaestroTask {
+  public $logFailure = FALSE;
 
   function execute() {
     $this->setTaskStartedDate($this->_properties->id);
