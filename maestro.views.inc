@@ -967,9 +967,6 @@ class views_handler_field_maestro_process_variable extends views_handler_field {
  */
 function maestro_views_pre_execute(&$view) {
   $query = $view->build_info['query'];
-  if (!is_object($query)) {
-   return;
-  }
   $tables =& $query->getTables();
   $fields =& $query->getFields();
   $where =& $query->conditions();
